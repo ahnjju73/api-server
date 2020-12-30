@@ -13,12 +13,6 @@ public class ENV {
     public static String AMAZON_CREDENTIAL_ACCESS_KEY;
     public static String AMAZON_CREDENTIAL_SECRET_KEY;
 
-    public static String ALIGO_DOMAIN_KAKAO;
-    public static String ALIGO_DOMAIN_SMS;
-    public static String ALIGO_API_KEY;
-
-    public static String JANDI_URL;
-
     @Value("${amazon.s3.queue.domain}")
     public void setAwsS3QueueDomain(String awsS3QueueDomain) {
         AWS_S3_QUEUE_DOMAIN = awsS3QueueDomain;
@@ -47,26 +41,6 @@ public class ENV {
     @Value("${amazon.credential.secretKey}")
     public void setAmazonCredentialSecretKey(String amazonCredentialSecretKey) {
         AMAZON_CREDENTIAL_SECRET_KEY = amazonCredentialSecretKey;
-    }
-
-    @Value("${aligo.domain.kakao}")
-    public void setAligoDomainKakao(String aligoDomainKakao) {
-        ALIGO_DOMAIN_KAKAO = aligoDomainKakao;
-    }
-
-    @Value("${aligo.domain.sms}")
-    public void setAligoDomainSms(String aligoDomainSms) {
-        ALIGO_DOMAIN_SMS = aligoDomainSms;
-    }
-
-    @Value("${aligo.header.aws-api-gateway_key}")
-    public void setAligoApiKey(String aligoApiKey) {
-        ALIGO_API_KEY = aligoApiKey;
-    }
-
-    @Value("${jandi.url}")
-    public void setJandiUrl(String jandiUrl) {
-        JANDI_URL = jandiUrl;
     }
 
 }
