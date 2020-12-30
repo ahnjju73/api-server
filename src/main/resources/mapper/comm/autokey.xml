@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding= "UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="master.autokey">
+    <select id="getBaseKey" parameterType="hmap" resultType="hmap">
+        SELECT pre_fix,
+               date_tp,
+               serial_digit,
+               dash_yn,
+               date_yn
+          FROM admin.sys_autono_mst
+         WHERE autono_tp = #{autono_tp}
+           FOR UPDATE;
+    </select>
+
+    <select id="getKey" parameterType="hmap" resultType="hmap">
+        SELECT serial_no
+          FROM admin.sys_autono_dtl
+         WHERE autono_tp = #{autono_tp}
+           AND date_info = IF(#{date_info} IS NULL OR #{date_info} = '', 'NULL', #{date_info})
+           FOR UPDATE;
+    </select>
+
+    <insert id="insertKey" parameterType="hmap">
+        INSERT INTO admin.sys_autono_dtl (
+            autono_tp,
+            date_info,
+            serial_no,
+            ins_dt,
+            upt_dt
+        ) VALUES (
+            #{autono_tp},
+            IF(#{date_info} IS NULL OR #{date_info} = '' OR #{date_info} = '', 'NULL', #{date_info}),
+            #{NEXT_NO},
+            NOW(),
+            NOW()
+        );
+    </insert>
+
+    <update id="updateKey" parameterType="hmap">
+        UPDATE admin.sys_autono_dtl
+           SET serial_no = #{NEXT_NO}
+         WHERE autono_tp = #{autono_tp}
+           AND date_info = IF(#{date_info} = NULL OR #{date_info} = '', 'NULL', #{date_info})
+    </update>
+</mapper>

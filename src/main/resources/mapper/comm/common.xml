@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding= "UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="comm.common">
+
+    <select id="getCodeName" parameterType="hmap" resultType="string">
+        select comm_nm
+          from admin.com_comm_mst
+         where comm_cd = #{comm_cd}
+    </select>
+
+    <select id="getCommonCode" parameterType="hmap" resultType="string">
+        select comm_nm
+          from admin.com_comm_mst
+         where up_comm_cd = #{up_comm_cd}
+    </select>
+    <select id="getMessage" parameterType="hmap" resultType="string">
+        SELECT lang
+          FROM admin.sys_lang_mst
+         WHERE lang_cd = #{lang_code}
+           AND lang_tp = IF(#{lang} IS NULL, 'kr', #{lang})
+    </select>
+
+    <select id="getRoom" parameterType="hmap" resultType="hmap">
+        select *
+          from rooms
+         where id = #{room_id}
+    </select>
+
+    <select id="getRoomList" parameterType="hmap" resultType="hmap">
+        select *
+          from rooms
+         order by id desc limit 30
+    </select>
+
+    <select id="getReviewList" parameterType="hmap" resultType="hmap">
+        select *
+          from reviews
+         order by id desc limit 30
+    </select>
+
+    <insert id="postReviewInsert" parameterType="hmap">
+        insert into reviews
+            (
+              user_id,
+              room_id,
+              content,
+            )
+          values
+          (
+            #{user_id},
+            #{room_id},
+            #{content},
+          )
+    </insert>
+
+    <update id="patchReviewUpdate" parameterType="hmap">
+        update reviews
+           set content = if(#{content} is null, content, #{content})
+         where id = #{id}
+    </update>
+
+    <delete id="deleteReview" parameterType="hmap" >
+        delete from reviews
+         where id = #{id}
+    </delete>
+</mapper>

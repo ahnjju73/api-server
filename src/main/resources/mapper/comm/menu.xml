@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding= "UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="comm.menu">
+
+    <resultMap id="menu" type="hmap">
+        <result property="menu_nm" column="menu_nm"/>
+        <result property="path" column="path"/>
+    </resultMap>
+    <resultMap id="listOfMenu" type="hmap">
+        <result property="up_menu_nm" column="up_menu_nm"/>
+        <collection property="menu" column="menu_nm" javaType="java.util.ArrayList" resultMap="menu" />
+    </resultMap>
+    <select id="getMyMenu" parameterType="hmap" resultMap="listOfMenu">
+        SELECT aa.menu_nm,
+               aa.up_menu_nm,
+               bb.pgm_path AS path
+          FROM (SELECT a.up_menu_id,
+                       a.menu_nm,
+                       b.menu_nm AS up_menu_nm,
+                       a.menu_id,
+                       a.ord_no,
+                       b.up_ord_no,
+                       a.pgm_id
+                  FROM (SELECT *
+                          FROM admin.sys_menu_mst
+                         WHERE lev = 3
+                           and use_yn = 'Y') a
+                       JOIN (SELECT menu_id,
+                                    up_menu_id,
+                                    menu_nm,
+                                    pgm_id,
+                                    ord_no AS up_ord_no
+                               FROM admin.sys_menu_mst
+                              WHERE up_menu_id = #{up_menu_id}
+                                AND use_yn = 'Y') b ON a.up_menu_id = b.menu_id) aa
+                 JOIN (SELECT a.pgm_id,
+                              a.pgm_path
+                         FROM (SELECT *
+                                 FROM admin.sys_pgm_mst
+                                WHERE use_yn = 'Y') a
+                              JOIN (SELECT *
+                                      FROM admin.sys_pgm_user
+                                     WHERE user_no = #{sess_user_no}) b ON a.pgm_id = b.pgm_id) bb ON aa.pgm_id = bb.pgm_id
+         ORDER BY up_ord_no, ord_no
+    </select>
+
+    <select id="getOthersInMenu" parameterType="hmap" resultType="hmap">
+        select aa.user_no,
+               email as email,
+               username
+          from (select *
+                  from admin.srv_usr_mst
+                 where acc_stat = '100-002'
+                   and user_no not in (select b.user_no
+                                         from (select *
+                                                 from admin.sys_pgm_mst
+                                                where pgm_id = #{pgm_id}) a
+                                              join admin.sys_pgm_user b on a.pgm_id = b.pgm_id)) aa
+                join admin.srv_usr_info bb on aa.user_no = bb.user_no
+    </select>
+
+    <select id="getUsersInMenu" parameterType="hmap" resultType="hmap">
+         select c.user_no,
+                email,
+                username,
+                read_wrt as read_wrt_code,
+                comm_nm as read_wrt
+           from (select *
+                   from admin.sys_pgm_mst
+                  where pgm_id = #{pgm_id}) a
+			    join admin.sys_pgm_user b on a.pgm_id = b.pgm_id
+			    join admin.srv_usr_mst c on b.user_no = c.user_no
+			    join admin.srv_usr_info d on c.user_no = d.user_no
+			    join (select *
+			            from admin.com_comm_mst
+			           where up_comm_cd = '102') auth on b.read_wrt = auth.comm_cd
+          where c.acc_stat = '100-002'
+    </select>
+
+    <select id="findProgramIdByMenuId" parameterType="hmap" resultType="string">
+        select a.pgm_id
+          from (select *
+                  from admin.sys_menu_mst
+                 where menu_id = #{menu_id}
+                   and lev = 3
+                   and use_yn = 'Y') a
+               join admin.sys_pgm_mst b on a.pgm_id = b.pgm_id
+         where b.use_yn = 'Y'
+    </select>
+
+    <select id="getMenuList" parameterType="hmap" resultType="hmap">
+      SELECT AA.MENU_ID AS menu_id,
+	         BB.LANG AS menu_nm
+        FROM (SELECT A.MENU_ID,
+                     A.MENU_NM,
+                     B.ORD_NO AS F_ORD,
+                     A.ORD_NO AS S_ORD
+                FROM (SELECT *
+                        FROM admin.SYS_MENU_MST
+                       WHERE LEV = 3
+                         AND USE_YN = 'Y') A
+                      JOIN (SELECT *
+                              FROM admin.SYS_MENU_MST
+                             WHERE UP_MENU_ID = #{menu_position}
+                               AND LEV = 2
+                               AND USE_YN = 'Y') B ON A.UP_MENU_ID = B.MENU_ID) AA
+            JOIN (SELECT *
+                    FROM admin.SYS_LANG_MST
+                   WHERE LANG_TP = #{lang}) BB ON AA.MENU_NM = BB.LANG_CD
+       ORDER BY AA.F_ORD, AA.S_ORD
+    </select>
+
+    <resultMap id="allMenu" type="hmap">
+        <result property="menu_nm" column="menu_nm"/>
+        <result property="pgm_id" column="pgm_id"/>
+        <result property="path" column="path"/>
+    </resultMap>
+    <resultMap id="listOfAllMenu" type="hmap">
+        <result property="up_menu_nm" column="up_menu_nm"/>
+        <collection property="menu" column="menu_nm" javaType="java.util.ArrayList" resultMap="allMenu" />
+    </resultMap>
+    <select id="fetchAllMenus" parameterType="hmap" resultMap="listOfAllMenu">
+        SELECT a.menu_nm,
+               b.menu_nm AS up_menu_nm,
+               c.pgm_id,
+               c.pgm_path as path
+          FROM (SELECT *
+                  FROM admin.sys_menu_mst
+                 WHERE lev = 3
+                   and use_yn = 'Y') a
+               JOIN (SELECT menu_id,
+                            up_menu_id,
+                            menu_nm,
+                            pgm_id,
+                            ord_no AS up_ord_no
+                       FROM admin.sys_menu_mst
+                      WHERE up_menu_id = 'L_MENU'
+                        AND use_yn = 'Y') b ON a.up_menu_id = b.menu_id
+               left outer JOIN (SELECT pgm_id,
+                                       pgm_path
+                                  FROM admin.sys_pgm_mst
+                                         WHERE use_yn = 'Y') c ON a.pgm_id = c.pgm_id
+         ORDER BY up_ord_no, ord_no
+    </select>
+
+</mapper>

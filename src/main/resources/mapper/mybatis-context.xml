@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+
+    <settings>
+        <setting name="cacheEnabled"              value="true"/>
+        <setting name="lazyLoadingEnabled"        value="false"/>
+        <setting name="multipleResultSetsEnabled" value="true"/>
+        <setting name="useColumnLabel"            value="true"/>
+        <setting name="useGeneratedKeys"          value="false"/>
+        <setting name="defaultExecutorType"      value="SIMPLE"/>
+        <setting name="defaultStatementTimeout"  value="25000"/>
+    </settings>
+
+    <typeAliases>
+        <typeAlias alias="hmap" type="java.util.HashMap"  />
+        <typeAlias alias="string" type="java.lang.String"  />
+        <typeAlias alias="int" type="java.lang.Integer"  />
+        <typeAlias alias="bool" type="java.lang.Boolean"  />
+        <typeAlias alias="double" type="java.lang.Double"  />
+    </typeAliases>
+
+    <mappers>
+        <mapper resource="mapper/comm/autokey.xml"/>
+        <mapper resource="mapper/comm/common.xml"/>
+        <mapper resource="mapper/comm/menu.xml"/>
+
+    </mappers>
+</configuration>
