@@ -4,9 +4,9 @@ import helmet.bikelab.apiserver.domain.bikelab.BikeLabUser;
 
 import java.io.Serializable;
 
-public class UserSessionPK implements Serializable {
+public class BikeUserSessionPK implements Serializable {
 
-    private BikeLabUser user;
+    private Integer bikeUserNo;
 
     private UserSessionTypes sessionTypes;
 

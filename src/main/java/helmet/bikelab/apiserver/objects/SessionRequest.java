@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.objects;
 
+import helmet.bikelab.apiserver.domain.bikelab.BikeLabUser;
 import helmet.bikelab.apiserver.domain.types.UserSessionTypes;
 import helmet.bikelab.apiserver.utils.keys.SESSION;
 import lombok.Getter;
@@ -18,6 +19,8 @@ import java.util.Map;
 @Setter
 @Getter
 public class SessionRequest {
+
+    private BikeLabUser sessUser;
 
     private UserSessionTypes userSessionTypes;
 

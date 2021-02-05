@@ -4,8 +4,8 @@ import java.io.Serializable;
 
 public class ProgramUserPK implements Serializable {
 
-    private String programId;
+    private Integer bikeUserNo;
 
-    private String userNo;
+    private Integer programNo;
 
 }

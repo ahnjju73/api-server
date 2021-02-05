@@ -7,6 +7,6 @@ import java.util.Optional;
 
 public interface BikeLabUserInfoRepository extends JpaRepository<BikeLabUserInfo, String> {
 
-    Optional<BikeLabUserInfo> findByUserNo(String userNo);
+    Optional<BikeLabUserInfo> findByBikeUserNo(Integer userNo);
 
 }

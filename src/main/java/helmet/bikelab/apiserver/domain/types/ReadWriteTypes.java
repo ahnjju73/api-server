@@ -1,20 +1,20 @@
 package helmet.bikelab.apiserver.domain.types;
 
-public enum AuthTypes {
-    ONLY_VIEW("102-001"), WRTING("102-002"), APROVAL("102-003");
+public enum ReadWriteTypes {
+    ONLY_VIEW("002-001"), WRTING("002-002");
 
     private String auth;
 
-    AuthTypes(String auth) {
+    ReadWriteTypes(String auth) {
         this.auth = auth;
     }
 
-    public static AuthTypes getAuth(String authorization) {
+    public static ReadWriteTypes getAuth(String authorization) {
         if (authorization == null) {
             return null;
         }
 
-        for (AuthTypes auth : AuthTypes.values()) {
+        for (ReadWriteTypes auth : ReadWriteTypes.values()) {
             if (authorization.equals(auth.getAuth())) {
                 return auth;
             }

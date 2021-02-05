@@ -28,7 +28,7 @@ public abstract class SessService extends Workspace {
     @Autowired
     private BikeLabUserSessionRepository bikeLabUserSessionRepository;
 
-    public <T extends SessionRequest> T makeData(ServerRequest request, Map post, Class<T> classObject){
+    public SessionRequest makeData(ServerRequest request, Map post){
         post.putAll(request.queryParams().toSingleValueMap());
         String lang = (String)post.get("lang");
         String sessType = (String)post.get("session_type");
@@ -40,28 +40,18 @@ public abstract class SessService extends Workspace {
         if(userSessionTypes == null){
             userSessionTypes = UserSessionTypes.WEB;
         }
-        T requestObject = null;
-        try {
-            requestObject = (T)SessionRequest.makeSessionRequest(request, post, userSessionTypes);
-        } catch (Exception e) {
-            writeError(post, "");
-        }
-        apiLogger(requestObject);
-        return requestObject;
+        SessionRequest sessionRequest = SessionRequest.makeSessionRequest(request, post, userSessionTypes);
+        apiLogger(sessionRequest);
+        return sessionRequest;
     }
 
-    public <T extends SessionRequest> T makeData(ServerRequest req, Class<T> classObject){
-        return makeData(req, new HashMap(), classObject);
+    public SessionRequest makeData(ServerRequest request){
+        return makeData(request, new HashMap());
     }
 
-    public <T extends SessionRequest> T makeData(ServerRequest req){
-        return (T)makeData(req, new HashMap(), SessionRequest.class);
+    public SessionRequest checkSession(SessionRequest request){
+        return checkSession(request, true);
     }
-
-    public <T extends SessionRequest> T makeData(ServerRequest req, Map post){
-        return (T)makeData(req, post, SessionRequest.class);
-    }
-
     public SessionRequest checkSession(SessionRequest request, boolean throwError){
         Map param = request.getParam();
         try {

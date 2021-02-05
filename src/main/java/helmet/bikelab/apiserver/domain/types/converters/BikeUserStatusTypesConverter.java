@@ -1,8 +1,10 @@
-package helmet.bikelab.apiserver.domain.types;
+package helmet.bikelab.apiserver.domain.types.converters;
+
+import helmet.bikelab.apiserver.domain.types.YesNoTypes;
 
 import javax.persistence.AttributeConverter;
 
-public class YesNoTypeConverter implements AttributeConverter<YesNoTypes, String> {
+public class BikeUserStatusTypesConverter implements AttributeConverter<YesNoTypes, String> {
 
     @Override
     public String convertToDatabaseColumn(YesNoTypes yesNoType) {
