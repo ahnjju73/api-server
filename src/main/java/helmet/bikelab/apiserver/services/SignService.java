@@ -4,8 +4,9 @@ import helmet.bikelab.apiserver.domain.bikelab.*;
 import helmet.bikelab.apiserver.domain.types.*;
 import helmet.bikelab.apiserver.objects.SessionRequest;
 import helmet.bikelab.apiserver.objects.SessionResponseDto;
-import helmet.bikelab.apiserver.objects.SignUpDto;
+import helmet.bikelab.apiserver.objects.bikelabs.NewBikeUserDto;
 import helmet.bikelab.apiserver.repositories.*;
+import helmet.bikelab.apiserver.services.internal.BikeSessionService;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.utils.AutoKey;
 import helmet.bikelab.apiserver.utils.Crypt;
@@ -47,36 +48,34 @@ public class SignService extends SessService {
     private ProgramUserRepository programUserRepository;
 
     @Transactional
-    public SessionRequest signUp(SessionRequest request){
+    public SessionRequest addBikeUser(SessionRequest request){
         Map map = request.getParam();
-        SignUpDto signUpDto = map(map, SignUpDto.class);
+        NewBikeUserDto newBikeUserDto = map(map, NewBikeUserDto.class);
         userRepository
-                .findByEmail(signUpDto.getEmail())
-                .ifPresentOrElse(user -> writeError(map, "800-000"), () -> {
+                .findByEmail(newBikeUserDto.getEmail())
+                .ifPresentOrElse(user -> withException("800-000"), () -> {
 
-                    if(!bePresent(signUpDto.getName())) writeError(map, "800-001");
-                    if(!bePresent(signUpDto.getEmail())) writeError(map, "800-002");
-                    if(!bePresent(signUpDto.getPhone())) writeError(map, "800-003");
+                    if(!bePresent(newBikeUserDto.getName())) writeError(map, "800-001");
+                    if(!bePresent(newBikeUserDto.getEmail())) writeError(map, "800-002");
+//                    if(!bePresent(signUpDto.getPhone())) writeError(map, "800-003");
 
                     Map keyMap = new HashMap();
-                    keyMap.put("autono_tp", "admin_user");
+                    keyMap.put("autono_tp", "bike_user");
                     String userId = ak.makeGetKey(keyMap);
 
-                    BikeLabUser newUser = new BikeLabUser();
-                    newUser.setEmail(signUpDto.getEmail());
+                    BikeUser newUser = new BikeUser();
+                    newUser.setEmail(newBikeUserDto.getEmail());
                     newUser.setUserStatusTypes(BikeUserStatusTypes.COMPLETED);
                     newUser.setUserId(userId);
                     userRepository.save(newUser);
 
-                    BikeLabUserInfo userInfo = new BikeLabUserInfo();
+                    BikeUserInfo userInfo = new BikeUserInfo();
+                    userInfo.setBikeUser(newUser);
+                    userInfo.setBikeUserNo(newUser.getUserNo());
                     userInfoRepository.save(userInfo);
 
-                    BikeLabUserPassword password = new BikeLabUserPassword();
-                    password.setBikeUserNo(newUser.getUserNo());
-                    String cryptedPassword = Crypt.newCrypt().SHA256(signUpDto.getEmail());
-                    String salt = Crypt.newCrypt().getSalt(128);
-                    password.setPassword(Crypt.newCrypt().getPassword(cryptedPassword, salt));
-                    password.setSalt(salt);
+                    BikeUserPassword password = new BikeUserPassword();
+                    password.newPassword(newUser);
                     passwordRepository.save(password);
 
                     programRepository
@@ -94,7 +93,7 @@ public class SignService extends SessService {
     }
 
     @Transactional
-    public SessionResponseDto signIn(SessionRequest request){
+    public BikeSessionService signIn(BikeSessionService request){
         Map param = request.getParam();
         String email = (String)param.get("email");
         String password = (String)param.get("password");
@@ -105,7 +104,7 @@ public class SignService extends SessService {
         passwordRepository
                 .findByBikeUser_EmailAndBikeUser_UserStatusTypes(email, BikeUserStatusTypes.COMPLETED)
                 .ifPresentOrElse(userPassword -> {
-                    BikeLabUser user = userPassword.getBikeUser();
+                    BikeUser user = userPassword.getBikeUser();
                     String requestedPwd = Crypt.newCrypt().getPassword(password, userPassword.getSalt());
                     String crypedPwd = userPassword.getPassword();
 
@@ -113,19 +112,20 @@ public class SignService extends SessService {
                         writeError(param, "800-007", HttpStatus.BAD_REQUEST);
 
                     String sessionKey = setSessionAuthKey(request, user, user.getUserStatusTypes());
-                    sessionResponseDto.set(setResponseData(sessionKey, user, user.getUserInfo()));
+                    sessionResponseDto.set(setResponseData(sessionKey, user, user.getBikeUserInfo()));
                 }, () -> writeError(param, "800-006"));
 
-        return sessionResponseDto.get();
-    }
-
-    @Transactional
-    public SessionRequest signOut(SessionRequest request){
-        sessionRepository.deleteByBikeUserNoAndSessionTypes(request.getSessUser().getUserNo(), request.getUserSessionTypes());
+        request.setResponse(sessionResponseDto.get());
         return request;
     }
 
-    public String setSessionAuthKey(SessionRequest request, BikeLabUser user, BikeUserStatusTypes bikeUserStatusTypes) {
+    @Transactional
+    public BikeSessionService signOut(BikeSessionService request){
+        sessionRepository.deleteByBikeUserNoAndSessionTypes(request.getSessionUser().getUserNo(), request.getUserSessionTypes());
+        return request;
+    }
+
+    public String setSessionAuthKey(BikeSessionService request, BikeUser user, BikeUserStatusTypes bikeUserStatusTypes) {
         Map param = request.getParam();
         UserSessionTypes userSessionTypes = request.getUserSessionTypes();
         AtomicReference<String> sessionKey = new AtomicReference<>("");
@@ -150,7 +150,7 @@ public class SignService extends SessService {
 
                         sessionRepository.deleteByBikeUserNoAndSessionTypes(user.getUserNo(), userSessionTypes);
 
-                        BikeLabUserSession userSession = new BikeLabUserSession();
+                        BikeUserSession userSession = new BikeUserSession();
                         userSession.setBikeUserNo(user.getUserNo());
                         userSession.setUser(user);
                         userSession.setSalt(salt);
@@ -165,7 +165,7 @@ public class SignService extends SessService {
         return sessionKey.get();
     }
 
-    public SessionResponseDto setResponseData(String sessAuthKey, BikeLabUser user, BikeLabUserInfo userInfo) {
+    public SessionResponseDto setResponseData(String sessAuthKey, BikeUser user, BikeUserInfo userInfo) {
         SessionResponseDto sessionResponseDto = new SessionResponseDto();
         sessionResponseDto.setEmail(user.getEmail());
 //        sessionResponseDto.setName(userInfo.getUserName());
@@ -176,10 +176,12 @@ public class SignService extends SessService {
         return sessionResponseDto;
     }
 
-    public SessionResponseDto helloWorldAdmin(SessionRequest request){
-        BikeLabUser user = request.getSessUser();
-        BikeLabUserInfo userInfo = user.getUserInfo();
-        return setResponseData(request.getSessAuthKey(), user, userInfo);
+    public BikeSessionService helloWorldAdmin(BikeSessionService request){
+        BikeUser user = request.getSessionUser();
+        BikeUserInfo userInfo = user.getBikeUserInfo();
+        SessionResponseDto sessionResponseDto = setResponseData(request.getSessAuthKey(), user, userInfo);
+        request.setResponse(sessionResponseDto);
+        return request;
     }
 
 }

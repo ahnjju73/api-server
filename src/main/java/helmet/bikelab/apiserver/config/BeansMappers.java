@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.config;
 
+import org.modelmapper.Conditions;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.NameTokenizers;
 import org.springframework.context.annotation.Bean;
@@ -35,7 +36,8 @@ public class BeansMappers {
         ModelMapper modelMapper = new ModelMapper();
         modelMapper.getConfiguration()
                 .setSourceNameTokenizer(NameTokenizers.UNDERSCORE)
-                .setDestinationNameTokenizer(NameTokenizers.CAMEL_CASE);
+                .setDestinationNameTokenizer(NameTokenizers.CAMEL_CASE)
+                .setPropertyCondition(Conditions.isNotNull());
         return modelMapper;
     }
 

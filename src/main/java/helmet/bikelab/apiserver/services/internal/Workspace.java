@@ -16,15 +16,13 @@ import java.util.List;
 import java.util.Map;
 
 @Component
-public class Workspace {
-
-    private final static Gson gson = new Gson();
+public class Workspace extends OriginObject{
 
     @Autowired
-    SqlMaster sm;
+    private SqlMaster sm;
 
     @Autowired
-    ModelMapper modelMapper;
+    private ModelMapper modelMapper;
 
     // Database Settings >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
     public Object insertObject(String path, Object param){
@@ -89,29 +87,6 @@ public class Workspace {
     }
     // Database Settings end
 
-    /**
-     * 리턴할 데이터를 json 형태로 변형한다
-     * @param o
-     * @return
-     */
-    protected String getJson(Object o){
-        try{
-            return gson.toJson(o);
-        }catch (Exception e){
-            return "";
-        }
-    }
-
-    protected Gson getGsonInstance(){
-        return gson;
-    }
-
-    /**
-     * 반환 데이터
-     * @param
-     * @return
-     */
-
     protected Map write(){
         return write(new HashMap());
     }
@@ -165,23 +140,6 @@ public class Workspace {
     public String getMessage(Map map, String lang_code){
         map.put("lang_code", lang_code);
         return (String)getItem("comm.common.getMessage", map);
-    }
-
-    protected <T> boolean bePresent(T obj){
-        if(obj instanceof String) return obj != null && !"".equals(obj);
-        if(obj instanceof Long) return obj != null;
-        if(obj instanceof Integer) return obj != null;
-        if(obj instanceof Map) {
-            if(obj == null) return false;
-            if(((Map)obj).isEmpty()) return false;
-
-        }
-        if(obj instanceof List){
-            if(obj == null) return false;
-            if(((List)obj).isEmpty()) return false;
-            if(((List)obj).size() <= 0) return false;
-        }
-        return obj != null;
     }
 
     protected <T, K> T map(K o, Class<T> cls){

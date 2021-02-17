@@ -29,7 +29,7 @@ public class ProgramUser {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_no", insertable = false, updatable = false)
-    private BikeLabUser bikeUser;
+    private BikeUser bikeUser;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "program_no", insertable = false, updatable = false)

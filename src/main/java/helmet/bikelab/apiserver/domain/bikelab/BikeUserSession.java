@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @Setter
 @IdClass(BikeUserSessionPK.class)
 @NoArgsConstructor
-public class BikeLabUserSession {
+public class BikeUserSession {
 
     @Id
     @Column(name = "user_no")
@@ -30,7 +30,7 @@ public class BikeLabUserSession {
 
     @ManyToOne
     @JoinColumn(name = "user_no", insertable = false, updatable = false)
-    private BikeLabUser user;
+    private BikeUser user;
 
     @Column(name = "session_key", length = 256)
     private String sessionKey;

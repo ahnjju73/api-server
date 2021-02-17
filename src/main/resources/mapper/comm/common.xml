@@ -18,7 +18,7 @@
     </select>
     <select id="getMessage" parameterType="hmap" resultType="string">
         SELECT lang
-          FROM sys_lang_mst
+          FROM system_language_mst
          WHERE lang_cd = #{lang_code}
            AND lang_tp = IF(#{lang} IS NULL, 'kr', #{lang})
     </select>

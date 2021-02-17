@@ -12,7 +12,7 @@ import javax.persistence.*;
 @Getter
 @Setter
 @NoArgsConstructor
-public class BikeLabUserInfo {
+public class BikeUserInfo {
 
     @Id
     @Column(name = "user_no", length = 21)
@@ -20,6 +20,10 @@ public class BikeLabUserInfo {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_no", insertable = false, updatable = false)
-    private BikeLabUser bikeUser;
+    private BikeUser bikeUser;
 
+    public void setBikeUser(BikeUser bikeUser) {
+        this.bikeUser = bikeUser;
+        this.bikeUserNo = bikeUser.getUserNo();
+    }
 }
