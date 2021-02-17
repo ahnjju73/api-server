@@ -1,11 +1,9 @@
 package helmet.bikelab.apiserver.controllers;
 
-import helmet.bikelab.apiserver.objects.SessionRequest;
 import helmet.bikelab.apiserver.objects.SessionResponseDto;
 import helmet.bikelab.apiserver.services.SignService;
-import helmet.bikelab.apiserver.services.internal.BikeSessionService;
+import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -23,7 +21,7 @@ public class SignHandlers {
     public Mono<ServerResponse> addBikeUser(ServerRequest request){
         return ServerResponse.ok().body(
                 request.bodyToMono(Map.class)
-                        .map(row -> signService.makeSessionRequest(request, row, BikeSessionService.class))
+                        .map(row -> signService.makeSessionRequest(request, row, BikeSessionRequest.class))
                         .subscribeOn(Schedulers.elastic())
                         .map(signService::addBikeUser)
                         .map(signService::returnData), Map.class);
@@ -32,7 +30,7 @@ public class SignHandlers {
     public Mono<ServerResponse> signInUser(ServerRequest request){
         return ServerResponse.ok().body(
                 request.bodyToMono(Map.class)
-                        .map(row -> signService.makeSessionRequest(request, row, BikeSessionService.class))
+                        .map(row -> signService.makeSessionRequest(request, row, BikeSessionRequest.class))
                         .subscribeOn(Schedulers.elastic())
                         .map(signService::signIn)
                         .map(signService::returnData), SessionResponseDto.class);
@@ -40,7 +38,7 @@ public class SignHandlers {
 
     public Mono<ServerResponse> helloWorld(ServerRequest request){
         return ServerResponse.ok().body(
-                Mono.fromSupplier(() -> signService.makeSessionRequest(request, BikeSessionService.class))
+                Mono.fromSupplier(() -> signService.makeSessionRequest(request, BikeSessionRequest.class))
                         .subscribeOn(Schedulers.elastic())
                         .map(signService::checkBikeSession)
                         .map(signService::helloWorldAdmin)
@@ -49,7 +47,7 @@ public class SignHandlers {
 
     public Mono<ServerResponse> signOut(ServerRequest request){
         return ServerResponse.ok().body(
-                Mono.fromSupplier(() -> signService.makeSessionRequest(request, BikeSessionService.class))
+                Mono.fromSupplier(() -> signService.makeSessionRequest(request, BikeSessionRequest.class))
                         .subscribeOn(Schedulers.elastic())
                         .map(signService::checkBikeSession)
                         .map(signService::signOut)

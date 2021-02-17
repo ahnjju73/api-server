@@ -2,6 +2,7 @@ package helmet.bikelab.apiserver.objects;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import helmet.bikelab.apiserver.domain.types.BikeUserStatusTypes;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,7 +13,8 @@ public class SessionResponseDto {
     private String name;
     private String email;
     private String thumbnail;
-    private String status;
+    private BikeUserStatusTypes status;
+    private String statusCode;
     private String userId;
     private String sessionKey;
 }

@@ -3,11 +3,10 @@ package helmet.bikelab.apiserver.services.employees;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUserPassword;
 import helmet.bikelab.apiserver.domain.types.BikeUserStatusTypes;
-import helmet.bikelab.apiserver.objects.SessionRequest;
 import helmet.bikelab.apiserver.repositories.BikeLabUserInfoRepository;
 import helmet.bikelab.apiserver.repositories.BikeLabUserPasswordRepository;
 import helmet.bikelab.apiserver.repositories.BikeLabUserRepository;
-import helmet.bikelab.apiserver.services.internal.BikeSessionService;
+import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.utils.Crypt;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +28,7 @@ public class EmployeesService extends SessService {
     @Autowired
     private BikeLabUserPasswordRepository userPasswordRepository;
 
-    public BikeSessionService fetchListOfEmployee(BikeSessionService request){
+    public BikeSessionRequest fetchListOfEmployee(BikeSessionRequest request){
         Map param = request.getParam();
         Map response = new HashMap();
         response.put("employees", getList("mrmention.employee.fetchListOfEmployee", param));
@@ -37,7 +36,7 @@ public class EmployeesService extends SessService {
         return request;
     }
 
-    public BikeSessionService fetchMyInfo(BikeSessionService request){
+    public BikeSessionRequest fetchMyInfo(BikeSessionRequest request){
         Map response = new HashMap();
         BikeUser sessionUser = request.getSessionUser();
         adminUserInfoRepository
@@ -54,12 +53,12 @@ public class EmployeesService extends SessService {
     }
 
     @Transactional
-    public BikeSessionService updateMyInfo(BikeSessionService request){
+    public BikeSessionRequest updateMyInfo(BikeSessionRequest request){
         updateUserInformation(request, request.getSessionUser().getUserNo());
         return request;
     }
 
-    private void updateUserInformation(BikeSessionService request, Integer userNo){
+    private void updateUserInformation(BikeSessionRequest request, Integer userNo){
         Map param = request.getParam();
         Map response = new HashMap();
         String username = (String)param.get("username");
@@ -124,7 +123,7 @@ public class EmployeesService extends SessService {
     }
 
     @Transactional
-    public BikeSessionService modifyEmployeeInfoByManager(BikeSessionService request){
+    public BikeSessionRequest modifyEmployeeInfoByManager(BikeSessionRequest request){
         Map param = request.getParam();
         Integer userNo = Integer.parseInt((String)param.get("user_no"));
         updateUserInformation(request, userNo);
@@ -132,14 +131,14 @@ public class EmployeesService extends SessService {
     }
 
     @Transactional
-    public BikeSessionService fireEmployee(BikeSessionService request){
+    public BikeSessionRequest fireEmployee(BikeSessionRequest request){
         Map param = request.getParam();
         String userNo = (String)param.get("user_no");
         userRepository.updateAccountStatusOfEmployeeByManager(userNo, BikeUserStatusTypes.DELETED);
         return request;
     }
 
-    public BikeSessionService fetchEmployeeInfoByUserNo(BikeSessionService request){
+    public BikeSessionRequest fetchEmployeeInfoByUserNo(BikeSessionRequest request){
         Map param = request.getParam();
         request.setResponse(getItem("mrmention.employee.fetchListOfEmployeeByUserNo", param));
         return request;

@@ -1,7 +1,7 @@
 package helmet.bikelab.apiserver.controllers;
 
 import helmet.bikelab.apiserver.services.employees.EmployeesService;
-import helmet.bikelab.apiserver.services.internal.BikeSessionService;
+import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
@@ -19,7 +19,7 @@ public class EmployeesHandlers {
 
     public Mono<ServerResponse> fetchListOfEmployee(ServerRequest request){
         return ServerResponse.ok().body(
-                Mono.fromSupplier(() -> adminEmployeeService.makeSessionRequest(request, BikeSessionService.class))
+                Mono.fromSupplier(() -> adminEmployeeService.makeSessionRequest(request, BikeSessionRequest.class))
                         .subscribeOn(Schedulers.elastic())
                         .map(adminEmployeeService::checkBikeSession)
                         .map(adminEmployeeService::fetchListOfEmployee)
@@ -28,7 +28,7 @@ public class EmployeesHandlers {
 
     public Mono<ServerResponse> fetchMyInfo(ServerRequest request){
         return ServerResponse.ok().body(
-                Mono.fromSupplier(() -> adminEmployeeService.makeSessionRequest(request, BikeSessionService.class))
+                Mono.fromSupplier(() -> adminEmployeeService.makeSessionRequest(request, BikeSessionRequest.class))
                         .subscribeOn(Schedulers.elastic())
                         .map(adminEmployeeService::checkBikeSession)
                         .map(adminEmployeeService::fetchMyInfo)
@@ -39,7 +39,7 @@ public class EmployeesHandlers {
         return ServerResponse.ok().body(
                 request.bodyToMono(Map.class)
                         .subscribeOn(Schedulers.elastic())
-                        .map(row -> adminEmployeeService.makeSessionRequest(request, row, BikeSessionService.class))
+                        .map(row -> adminEmployeeService.makeSessionRequest(request, row, BikeSessionRequest.class))
                         .map(adminEmployeeService::checkBikeSession)
                         .map(adminEmployeeService::updateMyInfo)
                         .map(adminEmployeeService::returnData), Map.class);
@@ -49,7 +49,7 @@ public class EmployeesHandlers {
         return ServerResponse.ok().body(
                 request.bodyToMono(Map.class)
                         .subscribeOn(Schedulers.elastic())
-                        .map(row -> adminEmployeeService.makeSessionRequest(request, row, BikeSessionService.class))
+                        .map(row -> adminEmployeeService.makeSessionRequest(request, row, BikeSessionRequest.class))
                         .map(adminEmployeeService::checkBikeSession)
                         .map(adminEmployeeService::modifyEmployeeInfoByManager)
                         .map(adminEmployeeService::returnData), Map.class);
@@ -57,7 +57,7 @@ public class EmployeesHandlers {
 
     public Mono<ServerResponse> fireEmployee(ServerRequest request){
         return ServerResponse.ok().body(
-                Mono.fromSupplier(() -> adminEmployeeService.makeSessionRequest(request, BikeSessionService.class))
+                Mono.fromSupplier(() -> adminEmployeeService.makeSessionRequest(request, BikeSessionRequest.class))
                         .subscribeOn(Schedulers.elastic())
                         .map(adminEmployeeService::checkBikeSession)
                         .map(adminEmployeeService::fireEmployee)
@@ -66,7 +66,7 @@ public class EmployeesHandlers {
 
     public Mono<ServerResponse> fetchEmployeeInfoByUserNo(ServerRequest request){
         return ServerResponse.ok().body(
-                Mono.fromSupplier(() -> adminEmployeeService.makeSessionRequest(request, BikeSessionService.class))
+                Mono.fromSupplier(() -> adminEmployeeService.makeSessionRequest(request, BikeSessionRequest.class))
                         .subscribeOn(Schedulers.elastic())
                         .map(req -> adminEmployeeService.getPathVariable(req, "user_no"))
                         .map(adminEmployeeService::checkBikeSession)

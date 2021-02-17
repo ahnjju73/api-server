@@ -1,8 +1,14 @@
 package helmet.bikelab.apiserver.services.internal;
 
 import com.google.gson.Gson;
+import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.types.UserSessionTypes;
+import helmet.bikelab.apiserver.domain.types.YesNoTypes;
+import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.SessionRequest;
+import helmet.bikelab.apiserver.repositories.BikeLabUserSessionRepository;
+import helmet.bikelab.apiserver.repositories.ProgramRepository;
+import helmet.bikelab.apiserver.repositories.ProgramUserRepository;
 import helmet.bikelab.apiserver.utils.keys.SESSION;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Header;
@@ -10,6 +16,7 @@ import io.jsonwebtoken.Jwt;
 import io.jsonwebtoken.Jwts;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StopWatch;
@@ -23,6 +30,15 @@ import java.util.Map;
 public abstract class SessService extends Workspace {
 
     static final Logger logger = LoggerFactory.getLogger(SessService.class);
+
+    @Autowired
+    private BikeLabUserSessionRepository userSessionRepository;
+
+    @Autowired
+    private ProgramUserRepository programUserRepository;
+
+    @Autowired
+    private ProgramRepository programRepository;
 
     public <T extends SessionRequest> T makeSessionRequest(ServerRequest request, Map post, Class<T> classObject){
         post.putAll(request.queryParams().toSingleValueMap());
@@ -58,8 +74,8 @@ public abstract class SessService extends Workspace {
             String sessAuthKey = request.getSessAuthKey();
             Claims body = parseClaimsFromSessionKey(sessAuthKey);
             Integer userId = body.get("user_id", Integer.class);
-//            bikeLabUserSessionRepository
-//                    .findByUser_UserIdAndSessionType(userId, request.getUserSessionTypes())
+//            userSessionRepository
+//                    .findByUser_UserNoAndSessionTypes(userId, request.getUserSessionTypes())
 //                    .ifPresentOrElse(session -> {
 //                        Users user = session.getUser();
 //                        String _sessAuthKey = session.getSessionKey();
@@ -81,37 +97,48 @@ public abstract class SessService extends Workspace {
         return request;
     }
 
-    public BikeSessionService checkBikeSession(SessionRequest request){
-        return checkBikeSession(request, true);
+    public BikeSessionRequest checkBikeSession(SessionRequest sessionRequest){
+        return checkBikeSession(sessionRequest, true);
     }
-    public BikeSessionService checkBikeSession(SessionRequest sessionRequest, boolean throwError){
+    public BikeSessionRequest checkBikeSession(SessionRequest sessionRequest, boolean throwError){
         Map param = sessionRequest.getParam();
-        BikeSessionService bikeSessionService = map(sessionRequest, BikeSessionService.class);
+        BikeSessionRequest bikeSessionService = map(sessionRequest, BikeSessionRequest.class);
         try {
-            String sessAuthKey = sessionRequest.getSessAuthKey();
+            String sessAuthKey = bikeSessionService.getSessAuthKey();
             Claims body = parseClaimsFromSessionKey(sessAuthKey);
-            Integer userId = body.get("user_id", Integer.class);
-//            bikeLabUserSessionRepository
-//                    .findByUser_UserIdAndSessionType(userId, request.getUserSessionTypes())
-//                    .ifPresentOrElse(session -> {
-//                        Users user = session.getUser();
-//                        String _sessAuthKey = session.getSessionKey();
-//
-//                        if(!sessAuthKey.equals(_sessAuthKey) && throwError)
-//                            // todo: 세션키 오류
-//                            writeError(sessionRequest.getParam(), "001-002", HttpStatus.UNAUTHORIZED);
-//                        else if(sessAuthKey.equals(_sessAuthKey)){
-//                            param.put("sess_user_no", user.getUserId());
-//                            request.setSessUser(session.getUser());
-//                        }
-//                    }, () -> {
-//                        if(throwError) writeError(param, "001-002", HttpStatus.UNAUTHORIZED);
-//                    });
+            Integer userId = body.get("user_no", Integer.class);
+            userSessionRepository
+                    .findByUser_UserNoAndSessionTypes(userId, bikeSessionService.getUserSessionTypes())
+                    .ifPresentOrElse(session -> {
+                        BikeUser user = session.getUser();
+                        String _sessAuthKey = session.getSessionKey();
+
+                        if(!sessAuthKey.equals(_sessAuthKey) && throwError)
+                            // todo: 세션키 오류
+                            writeError(bikeSessionService.getParam(), "001-002", HttpStatus.UNAUTHORIZED);
+                        else if(sessAuthKey.equals(_sessAuthKey)){
+                            param.put("sess_user_no", user.getUserId());
+                            bikeSessionService.setSessionUser(session.getUser());
+                        }
+                    }, () -> {
+                        if(throwError) writeError(param, "001-002", HttpStatus.UNAUTHORIZED);
+                    });
 
         }catch (Exception e){
             if(throwError) writeError(param, "001-002", HttpStatus.UNAUTHORIZED);
         }
         return bikeSessionService;
+    }
+
+    public BikeSessionRequest checkAccessByBikeUser(BikeSessionRequest request, String programId){
+        BikeUser session = request.getSessionUser();
+        programUserRepository
+                .findByBikeUserNoAndProgram_ProgramIdAndProgram_Usable(session.getUserNo(), programId, YesNoTypes.YES)
+                .ifPresentOrElse(programUser -> {
+                    request.setProgramUser(programUser);
+                }, () -> withException("001-002"));
+
+        return request;
     }
 
     private Claims parseClaimsFromSessionKey(String sessAuthKey){
@@ -123,7 +150,7 @@ public abstract class SessService extends Workspace {
 
     public <T> T returnData(SessionRequest sessionRequest){
         apiLogger(sessionRequest);
-        return sessionRequest.getResponse() == null ? (T)new Object() : (T)sessionRequest.getResponse();
+        return sessionRequest.getResponse() == null ? (T)new HashMap<>() : (T)sessionRequest.getResponse();
     }
 
     public void apiLogger(SessionRequest sessionRequest){

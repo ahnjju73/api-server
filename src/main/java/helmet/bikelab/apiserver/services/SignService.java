@@ -6,14 +6,14 @@ import helmet.bikelab.apiserver.objects.SessionRequest;
 import helmet.bikelab.apiserver.objects.SessionResponseDto;
 import helmet.bikelab.apiserver.objects.bikelabs.NewBikeUserDto;
 import helmet.bikelab.apiserver.repositories.*;
-import helmet.bikelab.apiserver.services.internal.BikeSessionService;
+import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.utils.AutoKey;
 import helmet.bikelab.apiserver.utils.Crypt;
 import helmet.bikelab.apiserver.utils.keys.SESSION;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,28 +24,17 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 
 @Service
+@RequiredArgsConstructor
 public class SignService extends SessService {
 
-    @Autowired
-    private AutoKey ak;
+    private final AutoKey ak;
 
-    @Autowired
-    private BikeLabUserRepository userRepository;
-
-    @Autowired
-    private BikeLabUserInfoRepository userInfoRepository;
-
-    @Autowired
-    private BikeLabUserPasswordRepository passwordRepository;
-
-    @Autowired
-    private BikeLabUserSessionRepository sessionRepository;
-
-    @Autowired
-    private ProgramRepository programRepository;
-
-    @Autowired
-    private ProgramUserRepository programUserRepository;
+    private final BikeLabUserRepository userRepository;
+    private final BikeLabUserInfoRepository userInfoRepository;
+    private final BikeLabUserPasswordRepository passwordRepository;
+    private final BikeLabUserSessionRepository sessionRepository;
+    private final ProgramRepository programRepository;
+    private final ProgramUserRepository programUserRepository;
 
     @Transactional
     public SessionRequest addBikeUser(SessionRequest request){
@@ -93,7 +82,7 @@ public class SignService extends SessService {
     }
 
     @Transactional
-    public BikeSessionService signIn(BikeSessionService request){
+    public BikeSessionRequest signIn(BikeSessionRequest request){
         Map param = request.getParam();
         String email = (String)param.get("email");
         String password = (String)param.get("password");
@@ -120,12 +109,12 @@ public class SignService extends SessService {
     }
 
     @Transactional
-    public BikeSessionService signOut(BikeSessionService request){
+    public BikeSessionRequest signOut(BikeSessionRequest request){
         sessionRepository.deleteByBikeUserNoAndSessionTypes(request.getSessionUser().getUserNo(), request.getUserSessionTypes());
         return request;
     }
 
-    public String setSessionAuthKey(BikeSessionService request, BikeUser user, BikeUserStatusTypes bikeUserStatusTypes) {
+    public String setSessionAuthKey(BikeSessionRequest request, BikeUser user, BikeUserStatusTypes bikeUserStatusTypes) {
         Map param = request.getParam();
         UserSessionTypes userSessionTypes = request.getUserSessionTypes();
         AtomicReference<String> sessionKey = new AtomicReference<>("");
@@ -166,17 +155,17 @@ public class SignService extends SessService {
     }
 
     public SessionResponseDto setResponseData(String sessAuthKey, BikeUser user, BikeUserInfo userInfo) {
+        BikeUserStatusTypes userStatusTypes = user.getUserStatusTypes();
         SessionResponseDto sessionResponseDto = new SessionResponseDto();
         sessionResponseDto.setEmail(user.getEmail());
-//        sessionResponseDto.setName(userInfo.getUserName());
-//        sessionResponseDto.setThumbnail(thumbnail);
-//        sessionResponseDto.setStatus(user.getAccountStatusTypes().getAccountStatus());
-        sessionResponseDto.setStatus(sessAuthKey);
+        sessionResponseDto.setSessionKey(sessAuthKey);
+        sessionResponseDto.setStatus(userStatusTypes);
+        sessionResponseDto.setStatusCode(userStatusTypes.getStatus());
         sessionResponseDto.setUserId(user.getUserId());
         return sessionResponseDto;
     }
 
-    public BikeSessionService helloWorldAdmin(BikeSessionService request){
+    public BikeSessionRequest helloWorldAdmin(BikeSessionRequest request){
         BikeUser user = request.getSessionUser();
         BikeUserInfo userInfo = user.getBikeUserInfo();
         SessionResponseDto sessionResponseDto = setResponseData(request.getSessAuthKey(), user, userInfo);

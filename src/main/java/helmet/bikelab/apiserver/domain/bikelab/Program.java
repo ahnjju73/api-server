@@ -34,7 +34,7 @@ public class Program {
 
     @Column(name = "use_yn", columnDefinition = "ENUM")
     @Convert(converter = YesNoTypeConverter.class)
-    private YesNoTypes useable;
+    private YesNoTypes usable;
 
     @Column(name = "created_at", columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt = LocalDateTime.now();
