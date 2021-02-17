@@ -117,7 +117,7 @@ public abstract class SessService extends Workspace {
                             // todo: 세션키 오류
                             writeError(bikeSessionService.getParam(), "001-002", HttpStatus.UNAUTHORIZED);
                         else if(sessAuthKey.equals(_sessAuthKey)){
-                            param.put("sess_user_no", user.getUserId());
+                            param.put("sess_user_no", user.getUserNo());
                             bikeSessionService.setSessionUser(session.getUser());
                         }
                     }, () -> {

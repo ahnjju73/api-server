@@ -16,35 +16,35 @@
     <select id="getMyMenu" parameterType="hmap" resultMap="listOfMenu">
         SELECT aa.menu_nm,
                aa.up_menu_nm,
-               bb.pgm_path AS path
+               bb.program_path AS path
           FROM (SELECT a.up_menu_id,
                        a.menu_nm,
                        b.menu_nm AS up_menu_nm,
                        a.menu_id,
-                       a.ord_no,
+                       a.order_no,
                        b.up_ord_no,
-                       a.pgm_id
+                       a.program_no
                   FROM (SELECT *
-                          FROM admin.sys_menu_mst
+                          FROM system_menu_mst
                          WHERE lev = 3
                            and use_yn = 'Y') a
                        JOIN (SELECT menu_id,
                                     up_menu_id,
                                     menu_nm,
-                                    pgm_id,
-                                    ord_no AS up_ord_no
-                               FROM admin.sys_menu_mst
+                                    program_no,
+                                    order_no AS up_ord_no
+                               FROM system_menu_mst
                               WHERE up_menu_id = #{up_menu_id}
                                 AND use_yn = 'Y') b ON a.up_menu_id = b.menu_id) aa
-                 JOIN (SELECT a.pgm_id,
-                              a.pgm_path
+                 JOIN (SELECT a.program_no,
+                              a.program_path
                          FROM (SELECT *
-                                 FROM admin.sys_pgm_mst
+                                 FROM system_program_mst
                                 WHERE use_yn = 'Y') a
                               JOIN (SELECT *
-                                      FROM admin.sys_pgm_user
-                                     WHERE user_no = #{sess_user_no}) b ON a.pgm_id = b.pgm_id) bb ON aa.pgm_id = bb.pgm_id
-         ORDER BY up_ord_no, ord_no
+                                      FROM system_program_user
+                                     WHERE user_no = #{sess_user_no}) b ON a.program_no = b.program_no) bb ON aa.program_no = bb.program_no
+         ORDER BY up_ord_no, order_no
     </select>
 
     <select id="getOthersInMenu" parameterType="hmap" resultType="hmap">
