@@ -9,5 +9,6 @@ import java.util.List;
 public interface ProgramRepository extends JpaRepository<Program, Integer> {
 
     List<Program> findByDefaultType(YesNoTypes defaultType);
+    Program findByProgramIdAndAndUsable(String programId, YesNoTypes yesNoTypes);
 
 }

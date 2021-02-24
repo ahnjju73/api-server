@@ -9,15 +9,13 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import static org.springframework.web.reactive.function.server.RequestPredicates.*;
 
 @Component
-public class SystemRouters {
+public class UserRouters {
 
     @Bean
-    public RouterFunction<ServerResponse> menuRouters(SystemHandlers handler){
+    public RouterFunction<ServerResponse> myProfileRouters(MyProfileHandlers handler){
         return RouterFunctions
-                .route(GET("/bike-labs/systems/menu"), handler::fetchMyLeftMenu)
-                .andRoute(GET("/bike-labs/systems/menus"), handler::fetchAllMenus)
-                .andRoute(GET("/bike-labs/systems/menu/users"), handler::fetchUsersMenu)
-                .andRoute(PATCH("/bike-labs/systems/menu/users/authorizations"), handler::handlePermissionToUser)
+                .route(GET("/bike-labs/profiles"), handler::fetchMyProfile)
+                .andRoute(PATCH("/bike-labs/profiles"), handler::modifyProfile)
                 ;
     }
 }

@@ -50,67 +50,64 @@
     <select id="getOthersInMenu" parameterType="hmap" resultType="hmap">
         select aa.user_no,
                email as email,
-               username
+               if(name is null, '', name) as name
           from (select *
-                  from admin.srv_usr_mst
-                 where acc_stat = '100-002'
+                  from bike_user_mst
+                 where status = '101-001'
                    and user_no not in (select b.user_no
                                          from (select *
-                                                 from admin.sys_pgm_mst
-                                                where pgm_id = #{pgm_id}) a
-                                              join admin.sys_pgm_user b on a.pgm_id = b.pgm_id)) aa
-                join admin.srv_usr_info bb on aa.user_no = bb.user_no
+                                                 from system_program_mst
+                                                where program_id = #{pgm_id}) a
+                                              join system_program_user b on a.program_no = b.program_no)) aa
+                join bike_user_info bb on aa.user_no = bb.user_no
     </select>
 
     <select id="getUsersInMenu" parameterType="hmap" resultType="hmap">
          select c.user_no,
                 email,
-                username,
+                if(name is null, '', name) as name,
                 read_wrt as read_wrt_code,
                 comm_nm as read_wrt
            from (select *
-                   from admin.sys_pgm_mst
-                  where pgm_id = #{pgm_id}) a
-			    join admin.sys_pgm_user b on a.pgm_id = b.pgm_id
-			    join admin.srv_usr_mst c on b.user_no = c.user_no
-			    join admin.srv_usr_info d on c.user_no = d.user_no
+                   from system_program_mst
+                  where program_id = #{pgm_id}) a
+			    join system_program_user b on a.program_no = b.program_no
+			    join bike_user_mst c on b.user_no = c.user_no
+			    join bike_user_info d on c.user_no = d.user_no
 			    join (select *
-			            from admin.com_comm_mst
-			           where up_comm_cd = '102') auth on b.read_wrt = auth.comm_cd
-          where c.acc_stat = '100-002'
+			            from com_comm_mst
+			           where up_comm_cd = '002') auth on b.read_wrt = auth.comm_cd
+          where c.status = '101-001';
     </select>
 
     <select id="findProgramIdByMenuId" parameterType="hmap" resultType="string">
-        select a.pgm_id
+        select b.program_id
           from (select *
-                  from admin.sys_menu_mst
+                  from system_menu_mst
                  where menu_id = #{menu_id}
                    and lev = 3
                    and use_yn = 'Y') a
-               join admin.sys_pgm_mst b on a.pgm_id = b.pgm_id
+               join system_program_mst b on a.program_no = b.program_no
          where b.use_yn = 'Y'
     </select>
 
     <select id="getMenuList" parameterType="hmap" resultType="hmap">
-      SELECT AA.MENU_ID AS menu_id,
-	         BB.LANG AS menu_nm
-        FROM (SELECT A.MENU_ID,
-                     A.MENU_NM,
-                     B.ORD_NO AS F_ORD,
-                     A.ORD_NO AS S_ORD
+      SELECT menu_id,
+             menu_nm
+        FROM (SELECT A.menu_id,
+                     A.menu_nm,
+                     B.order_no AS f_order_no,
+                     A.order_no AS s_order_no
                 FROM (SELECT *
-                        FROM admin.SYS_MENU_MST
-                       WHERE LEV = 3
-                         AND USE_YN = 'Y') A
+                        FROM system_menu_mst
+                       WHERE lev = 3
+                         AND use_yn= 'Y') A
                       JOIN (SELECT *
-                              FROM admin.SYS_MENU_MST
-                             WHERE UP_MENU_ID = #{menu_position}
-                               AND LEV = 2
-                               AND USE_YN = 'Y') B ON A.UP_MENU_ID = B.MENU_ID) AA
-            JOIN (SELECT *
-                    FROM admin.SYS_LANG_MST
-                   WHERE LANG_TP = #{lang}) BB ON AA.MENU_NM = BB.LANG_CD
-       ORDER BY AA.F_ORD, AA.S_ORD
+                              FROM system_menu_mst
+                             WHERE up_menu_id= #{menu_position}
+                               AND lev = 2
+                               AND use_yn = 'Y') B ON A.up_menu_id = B.menu_id) AA
+       ORDER BY AA.f_order_no, AA.s_order_no
     </select>
 
     <resultMap id="allMenu" type="hmap">
@@ -125,25 +122,26 @@
     <select id="fetchAllMenus" parameterType="hmap" resultMap="listOfAllMenu">
         SELECT a.menu_nm,
                b.menu_nm AS up_menu_nm,
-               c.pgm_id,
-               c.pgm_path as path
+               c.program_id as pgm_id,
+               c.program_path as path
           FROM (SELECT *
-                  FROM admin.sys_menu_mst
+                  FROM system_menu_mst
                  WHERE lev = 3
                    and use_yn = 'Y') a
                JOIN (SELECT menu_id,
                             up_menu_id,
                             menu_nm,
-                            pgm_id,
-                            ord_no AS up_ord_no
-                       FROM admin.sys_menu_mst
+                            program_no,
+                            order_no AS up_order_no
+                       FROM system_menu_mst
                       WHERE up_menu_id = 'L_MENU'
                         AND use_yn = 'Y') b ON a.up_menu_id = b.menu_id
-               left outer JOIN (SELECT pgm_id,
-                                       pgm_path
-                                  FROM admin.sys_pgm_mst
-                                         WHERE use_yn = 'Y') c ON a.pgm_id = c.pgm_id
-         ORDER BY up_ord_no, ord_no
+               left outer JOIN (SELECT program_no,
+									   program_id,
+                                       program_path
+                                  FROM system_program_mst
+                                         WHERE use_yn = 'Y') c ON a.program_no = c.program_no
+         ORDER BY up_order_no, order_no
     </select>
 
 </mapper>

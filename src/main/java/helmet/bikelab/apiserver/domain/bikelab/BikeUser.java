@@ -36,5 +36,8 @@ public class BikeUser {
     @OneToOne(mappedBy = "bikeUser", optional = false)
     private BikeUserInfo bikeUserInfo;
 
+    @OneToOne(mappedBy = "bikeUser", optional = false)
+    private BikeUserPassword bikeUserPassword;
+
 }
 

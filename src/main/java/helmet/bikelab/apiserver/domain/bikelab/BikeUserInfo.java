@@ -22,6 +22,15 @@ public class BikeUserInfo {
     @JoinColumn(name = "user_no", insertable = false, updatable = false)
     private BikeUser bikeUser;
 
+    @Column(name = "name", length = 45)
+    private String name;
+
+    @Column(name = "phone", length = 45)
+    private String phone;
+
+    @Column(name = "description", columnDefinition = "MEDIUMTEXT")
+    private String description;
+
     public void setBikeUser(BikeUser bikeUser) {
         this.bikeUser = bikeUser;
         this.bikeUserNo = bikeUser.getUserNo();

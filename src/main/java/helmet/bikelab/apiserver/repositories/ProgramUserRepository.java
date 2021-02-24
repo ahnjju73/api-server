@@ -9,8 +9,6 @@ import java.util.Optional;
 
 public interface ProgramUserRepository extends JpaRepository<ProgramUser, ProgramUserPK> {
 
-    Optional<ProgramUser> findByBikeUserNoAndProgram_ProgramIdAndProgram_Usable(Integer userNo, String programId, YesNoTypes useable);
-
-
+    Optional<ProgramUser> findByBikeUserNoAndProgram_ProgramIdAndProgram_Usable(Integer userNo, String programId, YesNoTypes usable);
 
 }

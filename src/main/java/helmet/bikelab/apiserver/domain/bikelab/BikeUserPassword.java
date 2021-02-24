@@ -42,6 +42,13 @@ public class BikeUserPassword {
     @Column(name = "created_at", columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    public void modifyPassword(String password){
+        String salt = Crypt.newCrypt().getSalt(128);
+        String cryptedPassword = Crypt.newCrypt().getPassword(password, salt);
+        this.setPassword(cryptedPassword);
+        this.setSalt(salt);
+    }
+
     public void makePassword(){
         BikeUser bikeUser = this.getBikeUser();
         String cryptedPassword = Crypt.newCrypt().SHA256(bikeUser.getEmail());
