@@ -2,6 +2,7 @@ package helmet.bikelab.apiserver.services.employees;
 
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUserPassword;
+import helmet.bikelab.apiserver.domain.embeds.ModelPassword;
 import helmet.bikelab.apiserver.domain.types.BikeUserStatusTypes;
 import helmet.bikelab.apiserver.repositories.BikeLabUserInfoRepository;
 import helmet.bikelab.apiserver.repositories.BikeLabUserPasswordRepository;
@@ -104,18 +105,18 @@ public class EmployeesService extends SessService {
         if(bePresent(password) && bePresent(confirmPassword) &&
                 !blankPassword.equals(password) && !blankPassword.equals(confirmPassword) &&
                 (bePresent(password) == bePresent(confirmPassword))){
-            String salt = Crypt.newCrypt().getSalt(128);
-            String cryptedPassword = Crypt.newCrypt().getPassword(password, salt);
             userPasswordRepository
                     .findByBikeUserNo(userNo)
                     .ifPresentOrElse(userPassword -> {
-                        userPassword.setPassword(cryptedPassword);
-                        userPassword.setSalt(salt);
+                        ModelPassword modelPassword = userPassword.getModelPassword();
+                        modelPassword.modifyPassword(password);
+                        userPassword.setModelPassword(modelPassword);
                         userPasswordRepository.save(userPassword);
                     }, () -> {
                         BikeUserPassword userPassword = new BikeUserPassword();
-                        userPassword.setPassword(cryptedPassword);
-                        userPassword.setSalt(salt);
+                        ModelPassword modelPassword = userPassword.getModelPassword();
+                        modelPassword.modifyPassword(password);
+                        userPassword.setModelPassword(modelPassword);
                         userPassword.setBikeUserNo(userNo);
                         userPasswordRepository.save(userPassword);
                     });

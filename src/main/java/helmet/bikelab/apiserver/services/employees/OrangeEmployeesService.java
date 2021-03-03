@@ -3,6 +3,7 @@ package helmet.bikelab.apiserver.services.employees;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUserInfo;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUserPassword;
+import helmet.bikelab.apiserver.domain.embeds.ModelPassword;
 import helmet.bikelab.apiserver.domain.types.BikeUserStatusTypes;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.bikelabs.employees.AddEmployeeRequest;
@@ -55,9 +56,9 @@ public class OrangeEmployeesService extends SessService {
         bikeUserInfo.setBikeUser(newUser);
         userInfoRepository.save(bikeUserInfo);
 
-        BikeUserPassword password1 = new BikeUserPassword();
-        password1.newPassword(newUser);
-        userPasswordRepository.save(password1);
+        BikeUserPassword password = new BikeUserPassword();
+        password.newPassword(newUser.getEmail());
+        userPasswordRepository.save(password);
         return  request;
     }
 

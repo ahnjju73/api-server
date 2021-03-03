@@ -1,6 +1,7 @@
 package helmet.bikelab.apiserver.services;
 
 import helmet.bikelab.apiserver.domain.bikelab.*;
+import helmet.bikelab.apiserver.domain.embeds.ModelPassword;
 import helmet.bikelab.apiserver.domain.types.*;
 import helmet.bikelab.apiserver.objects.SessionRequest;
 import helmet.bikelab.apiserver.objects.SessionResponseDto;
@@ -94,8 +95,9 @@ public class SignService extends SessService {
                 .findByBikeUser_EmailAndBikeUser_UserStatusTypes(email, BikeUserStatusTypes.COMPLETED)
                 .ifPresentOrElse(userPassword -> {
                     BikeUser user = userPassword.getBikeUser();
-                    String requestedPwd = Crypt.newCrypt().getPassword(password, userPassword.getSalt());
-                    String crypedPwd = userPassword.getPassword();
+                    ModelPassword mp = userPassword.getModelPassword();
+                    String requestedPwd = Crypt.newCrypt().getPassword(password, mp.getSalt());
+                    String crypedPwd = mp.getPassword();
 
                     if(!bePresent(requestedPwd) || !bePresent(crypedPwd) || !requestedPwd.equals(crypedPwd))
                         writeError(param, "800-007", HttpStatus.BAD_REQUEST);
