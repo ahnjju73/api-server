@@ -15,7 +15,15 @@ public class UserProfileRequest extends UserProfileResponse{
     public void validate(){
         String blankPassword = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855";
         if(!bePresent(password) || !bePresent(confirmPassword) || blankPassword.equals(password) || blankPassword.equals(confirmPassword))
-            withException("100-001");
-        if(!password.equals(confirmPassword)) withException("100-001");
+            notSavePassword();
+        else {
+            if(!password.equals(confirmPassword)) withException("100-001");
+        }
+
+    }
+
+    private void notSavePassword(){
+        this.password = null;
+        this.confirmPassword = null;
     }
 }

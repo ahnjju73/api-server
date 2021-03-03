@@ -44,15 +44,18 @@ public class ProfileService extends SessService {
 
         BikeUser session = request.getSessionUser();
         BikeUserInfo userInfo = session.getBikeUserInfo();
-        BikeUserPassword userPassword = session.getBikeUserPassword();
+        if(bePresent(userProfileRequest.getPassword())){
+            BikeUserPassword userPassword = session.getBikeUserPassword();
+            userPassword.modifyPassword(userProfileRequest.getPassword());
+            userPasswordRepository.save(userPassword);
+        }
         session.setEmail(userProfileRequest.getEmail());
         userInfo.setDescription(userProfileRequest.getDescription());
         userInfo.setName(userProfileRequest.getName());
         userInfo.setPhone(userProfileRequest.getPhone());
-        userPassword.modifyPassword(userProfileRequest.getPassword());
         userRepository.save(session);
         userInfoRepository.save(userInfo);
-        userPasswordRepository.save(userPassword);
+
         return request;
     }
 }
