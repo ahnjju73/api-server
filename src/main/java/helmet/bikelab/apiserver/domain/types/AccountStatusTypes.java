@@ -1,7 +1,7 @@
 package helmet.bikelab.apiserver.domain.types;
 
 public enum AccountStatusTypes {
-    PENDING("100-001"), ACTIVATED("100-002"), DEACTIVATED("100-003");
+    PENDING("201-002"), COMPLETED("201-001"), IN_PROGRESS("201-003"), DELETE("201-004");
 
     private String accountStatus;
 

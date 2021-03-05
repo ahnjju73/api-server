@@ -1,5 +1,7 @@
 package helmet.bikelab.apiserver.domain.client;
 
+import helmet.bikelab.apiserver.domain.lease.LeaseInfo;
+import helmet.bikelab.apiserver.domain.lease.Leases;
 import helmet.bikelab.apiserver.domain.types.AccountStatusTypes;
 import helmet.bikelab.apiserver.domain.types.YesNoTypes;
 import helmet.bikelab.apiserver.domain.types.converters.AccountStatusConverter;
@@ -19,44 +21,45 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class Clients {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "client_no")
     private  Integer clientNo;
 
-    @Column(name = "client_id", length = 21)
+    @Column(name = "client_id", length = 21, unique = true, nullable = false)
     private String clientId;
 
-    @Column(name = "group_no")
+    @Column(name = "group_no", nullable = false)
     private Integer groupId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "group_no", insertable = false, updatable = false)
-    ClientGroups clientGroup;
+    private ClientGroups clientGroup;
 
-    @Column(name = "direct_yn", columnDefinition = "ENUM")
+    @Column(name = "direct_yn", columnDefinition = "ENUM", nullable = false)
     @Convert(converter = YesNoTypeConverter.class)
     private YesNoTypes directType;
 
-    @OneToOne(mappedBy = "client", optional = false)
-    private ClientInfo clientInfo;
-
-    @Column(name = "status", columnDefinition = "ENUM")
+    @Column(name = "status", columnDefinition = "ENUM", nullable = false)
     @Convert(converter = AccountStatusConverter.class)
-    private AccountStatusTypes status;
+    private AccountStatusTypes status = AccountStatusTypes.PENDING;
 
-    @Column(name = "email")
+    @Column(name = "email", unique = true, nullable = false)
     private String email;
 
-    @Column(name = "uuid", length = 50)
+    @Column(name = "uuid", length = 100)
     private String uuid;
 
-    @Column(name = "reg_no", length = 50)
+    @Column(name = "reg_no", length = 45)
     private String regNum;
 
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    @Column(name = "created_at", columnDefinition = "CURRENT_TIMESTAMP")
+    private LocalDateTime createdAt = LocalDateTime.now();
 
+    @OneToOne(mappedBy = "client", optional = false, fetch = FetchType.EAGER)
+    private ClientInfo clientInfo;
 
-
+    @OneToOne(mappedBy = "client", optional = false)
+    private Leases lease;
 
 }

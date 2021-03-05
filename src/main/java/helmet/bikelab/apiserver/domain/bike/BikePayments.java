@@ -1,13 +1,11 @@
 package helmet.bikelab.apiserver.domain.bike;
 
+import helmet.bikelab.apiserver.domain.client.Clients;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 
 @Entity
 @Getter
@@ -19,8 +17,12 @@ public class BikePayments {
     @Column(name = "bike_no")
     private Integer bikeNo;
 
+    @OneToOne(fetch = FetchType.EAGER, optional = false)
+    @JoinColumn(name = "bike_no", insertable = false, updatable = false)
+    private Bikes bikes;
+
     @Column(name = "reg_fee")
-    private Integer regstrationFee;
+    private Integer registrationFee;
 
     @Column(name = "bm_care")
     private Integer bmCare;

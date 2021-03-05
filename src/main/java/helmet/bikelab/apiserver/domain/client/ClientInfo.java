@@ -21,10 +21,11 @@ public class ClientInfo {
     @JoinColumn(name = "client_no", insertable = false, updatable = false)
     private Clients client;
 
-    @Column(name = "name", columnDefinition = "고객명", length =  50)
+    // 고객명
+    @Column(name = "name",  length =  100)
     private String name;
 
-    @Column(name = "phone", length = 21)
+    @Column(name = "phone", length = 45)
     private String phone;
 
     @Column(name = "description", columnDefinition = "MEDIUMTEXT")

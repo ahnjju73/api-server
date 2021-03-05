@@ -2,10 +2,15 @@ package helmet.bikelab.apiserver.domain.bike;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import helmet.bikelab.apiserver.domain.lease.Fines;
+import helmet.bikelab.apiserver.domain.lease.LeaseInfo;
+import helmet.bikelab.apiserver.domain.lease.Leases;
 import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -16,7 +21,7 @@ import java.time.LocalDateTime;
 public class Bikes {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "bike_no")
+    @Column(name = "bike_no", nullable = false)
     private Integer bikeNo;
 
     @Column(name = "bike_id", length = 45, unique = true)
@@ -39,4 +44,10 @@ public class Bikes {
 
     @Column(name = "register_dt")
     private LocalDateTime registerDate;
+
+    @OneToOne(mappedBy = "bike", optional = false)
+    private Leases lease;
+
+    @OneToMany(mappedBy = "bike")
+    private List<Fines> fines = new ArrayList<>();
 }

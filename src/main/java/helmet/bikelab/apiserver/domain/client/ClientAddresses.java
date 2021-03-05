@@ -18,7 +18,7 @@ import javax.persistence.*;
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class ClientAddresses {
     @Id
-    @Column(name = "client_no")
+    @Column(name = "client_no", nullable = false)
     private Integer clientNo;
 
     @OneToOne(fetch = FetchType.LAZY)

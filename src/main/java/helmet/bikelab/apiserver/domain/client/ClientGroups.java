@@ -15,10 +15,10 @@ import javax.persistence.*;
 public class ClientGroups {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "group_no")
+    @Column(name = "group_no", nullable = false)
     private Integer groupNo;
 
-    @Column(name = "group_id", unique = true)
+    @Column(name = "group_id", unique = true, nullable = false, length = 21)
     private String groupId;
 
     @Column(name = "group_name")
