@@ -3,6 +3,7 @@ package helmet.bikelab.apiserver.services.myinfo;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUserInfo;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUserPassword;
+import helmet.bikelab.apiserver.domain.embeds.ModelPassword;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.bikelabs.users.UserProfileRequest;
 import helmet.bikelab.apiserver.objects.bikelabs.users.UserProfileResponse;
@@ -46,7 +47,9 @@ public class ProfileService extends SessService {
         BikeUserInfo userInfo = session.getBikeUserInfo();
         if(bePresent(userProfileRequest.getPassword())){
             BikeUserPassword userPassword = session.getBikeUserPassword();
-            userPassword.modifyPassword(userProfileRequest.getPassword());
+            ModelPassword modelPassword = userPassword.getModelPassword();
+            modelPassword.modifyPassword(userProfileRequest.getPassword());
+            userPassword.setModelPassword(modelPassword);
             userPasswordRepository.save(userPassword);
         }
         session.setEmail(userProfileRequest.getEmail());

@@ -1,4 +1,4 @@
-package helmet.bikelab.apiserver.domain.bikelab;
+package helmet.bikelab.apiserver.domain.client;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -10,44 +10,44 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "bike_user_passwords", catalog = SESSION.SCHEME_SERVICE)
+@Table(name = "client_passwords", catalog = SESSION.SCHEME_SERVICE)
 @Getter
 @Setter
 @NoArgsConstructor
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
-public class BikeUserPassword {
+public class ClientPassword {
 
     @Id
-    @Column(name = "user_no", length = 21)
-    private Integer bikeUserNo;
+    @Column(name = "client_no")
+    private Integer clientNo;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_no", insertable = false, updatable = false)
-    private BikeUser bikeUser;
+    @JoinColumn(name = "client_no", insertable = false, updatable = false)
+    private Clients clients;
 
     @Embedded
     private ModelPassword modelPassword = new ModelPassword();
 
     public void makePassword(){
-        BikeUser bikeUser = this.getBikeUser();
-        String cryptedPassword = Crypt.newCrypt().SHA256(bikeUser.getEmail());
+        Clients client = this.getClients();
+        String cryptedPassword = Crypt.newCrypt().SHA256(client.getEmail());
         String salt = Crypt.newCrypt().getSalt(128);
         String password = Crypt.newCrypt().getPassword(cryptedPassword, salt);
         modelPassword.setPassword(password);
         modelPassword.setSalt(salt);
     }
 
-    public void newPassword(BikeUser user){
-        this.bikeUser = user;
-        this.bikeUserNo = user.getUserNo();
+    public void newPassword(Clients clients){
+        this.clients = clients;
+        this.clientNo = clients.getClientNo();
         makePassword();
     }
 
     public void newPassword(String email){
         modelPassword.newPassword(email);
     }
+
 
 }

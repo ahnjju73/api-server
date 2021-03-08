@@ -8,6 +8,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 @Component
@@ -20,6 +21,12 @@ public class AutoKey extends Workspace {
      * 날짜   : 2015-12-07
      * 생성자 : 최 인 준
      */
+    @Scope(value = "prototype")
+    public String makeGetKey(String autoKeyId){
+        Map map = new HashMap();
+        map.put("autono_tp", autoKeyId);
+        return makeGetKey(map);
+    }
     @Scope(value = "prototype")
     public String makeGetKey(Map map) {
         String key = "";
