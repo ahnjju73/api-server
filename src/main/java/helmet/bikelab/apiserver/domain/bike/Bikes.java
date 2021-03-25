@@ -45,7 +45,7 @@ public class Bikes {
     @Column(name = "register_dt")
     private LocalDateTime registerDate;
 
-    @OneToOne(mappedBy = "bike", optional = false)
+    @OneToOne(mappedBy = "bike", optional = false, fetch = FetchType.EAGER)
     private Leases lease;
 
     @OneToMany(mappedBy = "bike")

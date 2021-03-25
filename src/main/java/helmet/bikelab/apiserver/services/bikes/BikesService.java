@@ -52,17 +52,17 @@ public class BikesService extends SessService {
         fetchBikeDetailRequest.checkValidation();
         Bikes bike = bikesRepository.findByBikeId(fetchBikeDetailRequest.getBikeId());
         Leases leases = leaseRepository.findByBikeNo(bike.getBikeNo());
-        Clients clients = clientsRepository.findByClientNo(leases.getClientNo());//leases.getClient()
+        Clients clients = leases==null?null : clientsRepository.findByClientNo(leases.getClientNo());//leases.getClient()
         FetchBikeDetailResponse fetchBikeDetailResponse = new FetchBikeDetailResponse();
         fetchBikeDetailResponse.setCarModel(bike.getCarModel());
         fetchBikeDetailResponse.setColor(bike.getColor());
         fetchBikeDetailResponse.setVimNum(bike.getVimNum());
         fetchBikeDetailResponse.setCarNum(bike.getCarNum());
         fetchBikeDetailResponse.setReceiveDt(bike.getReceiveDate());
-        fetchBikeDetailResponse.setClientName(clients.getClientInfo().getName());
+        fetchBikeDetailResponse.setClientName(clients==null?"":clients.getClientInfo().getName());
 
         response.put("bike", fetchBikeDetailResponse);
-
+        request.setResponse(response);
         return request;
     }
 
@@ -73,7 +73,7 @@ public class BikesService extends SessService {
         String bikeId = autoKey.makeGetKey("bike");
         Bikes bike = new Bikes();
         bike.setBikeId(bikeId);
-        bike.setVimNum(addBikeRequest.getVimNum());
+        bike.setVimNum(addBikeRequest.getVimNumber());
         bike.setCarNum(addBikeRequest.getNumber());
         bike.setCarModel(addBikeRequest.getCarModel());
         bike.setColor(addBikeRequest.getColor());
@@ -87,11 +87,13 @@ public class BikesService extends SessService {
     public BikeSessionRequest updateBike(BikeSessionRequest request){
         Map param = request.getParam();
         UpdateBikeRequest updateBikeRequest = map(param, UpdateBikeRequest.class);
-        Bikes bike = bikesRepository.findByBikeId(updateBikeRequest.getClientId());
-        bike.setVimNum(updateBikeRequest.getVimNum());
+        Bikes bike = bikesRepository.findByBikeId(updateBikeRequest.getBikeId());
+        bike.setVimNum(updateBikeRequest.getVimNumber());
         bike.setCarNum(updateBikeRequest.getNumber());
         bike.setCarModel(updateBikeRequest.getCarModel());
         bike.setColor(updateBikeRequest.getColor());
+        bike.setReceiveDate(updateBikeRequest.getReceiveDt());
+        bike.setRegisterDate(updateBikeRequest.getRegisterDt());
         bikesRepository.save(bike);
 
         return request;
@@ -102,8 +104,6 @@ public class BikesService extends SessService {
         Map param = request.getParam();
         DeleteBikeRequest deleteBikeRequest  = map(param, DeleteBikeRequest.class);
         deleteBikeRequest.checkValidation();
-
-
 
         return request;
     }
