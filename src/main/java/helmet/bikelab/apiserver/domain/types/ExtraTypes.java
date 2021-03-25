@@ -4,7 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum ExtraTypes {
-    ALTERATION("503-001"), FINE("503-002"), ETC("503-100");
+    ALTERATION("503-001"),  ETC("503-100");
 
     private String extra;
 

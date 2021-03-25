@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.domain.client;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import helmet.bikelab.apiserver.domain.embeds.ModelAddress;
@@ -22,8 +23,9 @@ public class ClientAddresses {
     private Integer clientNo;
 
     @OneToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
     @JoinColumn(name = "client_no", insertable = false, updatable = false)
-    private Clients clients;
+    private Clients client;
 
     @Embedded
     private ModelAddress modelAddress;

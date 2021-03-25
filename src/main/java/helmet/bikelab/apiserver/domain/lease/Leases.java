@@ -36,8 +36,16 @@ public class Leases {
     @Column(name = "client_no")
     private Integer clientNo;
 
+    @ManyToOne
+    @JoinColumn(name = "client_no", insertable = false, updatable = false)
+    private Clients clients;
+
     @Column(name = "bike_no")
     private Integer bikeNo;
+
+    @OneToOne
+    @JoinColumn(name = "bike_no", insertable = false, updatable = false)
+    private Bikes bike;
 
     @Column(name = "release_no")
     private Integer releaseNo;
@@ -66,24 +74,15 @@ public class Leases {
     private LocalDateTime createdAt;
 
     // todo release, insurance mapping
-
     @OneToOne(mappedBy = "lease", optional = false)
     private LeaseInfo leaseInfo;
 
-    @OneToOne
-    @JoinColumn(name = "bike_no", insertable = false, updatable = false)
-    private Bikes bike;
-
-    @OneToOne
-    @JoinColumn(name = "client_no", insertable = false, updatable = false)
-    private Clients client;
-
-    @OneToOne(mappedBy = "lease", optional = false)
+    @OneToOne(mappedBy = "lease", optional = false, fetch = FetchType.EAGER)
     private LeasePrice leasePrice;
 
-    @OneToMany(mappedBy = "lease")
-    List<LeasePayments> payments = new ArrayList<>();
+    @OneToMany(mappedBy = "lease", fetch = FetchType.LAZY)
+    private List<LeasePayments> payments = new ArrayList<>();
 
-    @OneToMany(mappedBy = "lease")
-    List<LeaseExtras> extras = new ArrayList<>();
+    @OneToMany(mappedBy = "lease", fetch = FetchType.LAZY)
+    private List<LeaseExtras> extras = new ArrayList<>();
 }

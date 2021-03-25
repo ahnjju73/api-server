@@ -1,6 +1,8 @@
 package helmet.bikelab.apiserver.domain.embeds;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.*;
 
 import javax.persistence.Column;
@@ -9,6 +11,7 @@ import javax.persistence.Embeddable;
 
 @Getter
 @Setter
+@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 @Embeddable
 public class ModelAddress {
     @Column(name = "country", length = 10)

@@ -1,0 +1,23 @@
+package helmet.bikelab.apiserver.controllers.client;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.server.RouterFunction;
+import org.springframework.web.reactive.function.server.RouterFunctions;
+import org.springframework.web.reactive.function.server.ServerResponse;
+
+import static org.springframework.web.reactive.function.server.RequestPredicates.*;
+
+@Component
+public class ClientGroupRouters {
+
+    @Bean
+    public RouterFunction<ServerResponse> groupRouter(ClientGroupHandlers handler){
+        return RouterFunctions
+                .route(GET("/client/groups"), handler::fetchListOfGroup)
+                .andRoute(GET("/client/groups/clients"), handler::fetchClientsByGroup)
+                .andRoute(POST("/client/groups"), handler::addClientGroup)
+                .andRoute(PUT("/client/groups/update"), handler::updateClientGroup)
+                .andRoute(DELETE("/client/groups/delete"), handler::deleteClientGroup);
+    }
+}

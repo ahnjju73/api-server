@@ -175,7 +175,7 @@ public abstract class SessService extends Workspace {
         ServerRequest req = sessionRequest.getServerRequest();
         Map map = sessionRequest.getParam();
         try{
-            Arrays.stream(path).forEach(row -> map.put(path, req.pathVariable(row)));
+            Arrays.stream(path).forEach(row -> map.put(row, req.pathVariable(row)));
         }catch (Exception e){ }
         sessionRequest.setParam(map);
         return sessionRequest;

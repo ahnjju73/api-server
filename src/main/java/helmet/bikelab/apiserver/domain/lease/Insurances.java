@@ -20,10 +20,6 @@ public class Insurances {
     @Column(name = "insurance_no", nullable = false)
     private Integer insuranceNo;
 
-    @Column(name = "security", columnDefinition = "ENUM")
-    @Convert(converter = SecurityTypeConverter.class)
-    private SecurityTypes securityType;
-
     @Column(name = "insurance_age", columnDefinition = "TINYINT")
     private Integer age;
 
@@ -35,5 +31,18 @@ public class Insurances {
 
     @Column(name = "bm_care")
     private Integer bmCare;
+
+    @Column(name = "liability_man", columnDefinition = "TINYINT")
+    private Integer liabilityMan;
+
+    @Column(name = "liability_car", columnDefinition = "TINYINT")
+    private Integer liabilityCar;
+
+    @Column(name = "self_cover_man", columnDefinition = "TINYINT")
+    private Integer selfCoverMan;
+
+    @Column(name = "self_cover_car", columnDefinition = "TINYINT")
+    private Integer selfCoverCar;
+
 
 }

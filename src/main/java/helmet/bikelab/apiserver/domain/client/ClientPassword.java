@@ -25,13 +25,13 @@ public class ClientPassword {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client_no", insertable = false, updatable = false)
-    private Clients clients;
+    private Clients client;
 
     @Embedded
     private ModelPassword modelPassword = new ModelPassword();
 
     public void makePassword(){
-        Clients client = this.getClients();
+        Clients client = this.getClient();
         String cryptedPassword = Crypt.newCrypt().SHA256(client.getEmail());
         String salt = Crypt.newCrypt().getSalt(128);
         String password = Crypt.newCrypt().getPassword(cryptedPassword, salt);
@@ -39,15 +39,11 @@ public class ClientPassword {
         modelPassword.setSalt(salt);
     }
 
-    public void newPassword(Clients clients){
-        this.clients = clients;
-        this.clientNo = clients.getClientNo();
-        makePassword();
-    }
 
     public void newPassword(String email){
         modelPassword.newPassword(email);
     }
 
+    public void updatePassword(String pass){ modelPassword.modifyPassword(pass); }
 
 }

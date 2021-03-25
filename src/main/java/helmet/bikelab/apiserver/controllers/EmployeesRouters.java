@@ -17,7 +17,7 @@ public class EmployeesRouters {
                 .route(GET("/employees"), handler::fetchListOfEmployee)
 //                .andRoute(PATCH("/employees"), handler::modifyEmployeeInfoByManager)
 //                .andRoute(DELETE("/employees"), handler::fireEmployee)
-//                .andRoute(GET("/employees/{user_no}"), handler::fetchEmployeeInfoByUserNo)
+//                .andRoute(GET("/employees/{user_no}"), handler::x)
                 ;
     }
 

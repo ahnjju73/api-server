@@ -1,6 +1,10 @@
 package helmet.bikelab.apiserver.domain.lease;
 
 import helmet.bikelab.apiserver.domain.bike.Bikes;
+import helmet.bikelab.apiserver.domain.types.ContractTypes;
+import helmet.bikelab.apiserver.domain.types.FineStatusTypes;
+import helmet.bikelab.apiserver.domain.types.converters.ContractTypeConverter;
+import helmet.bikelab.apiserver.domain.types.converters.FineStatusTypesConverter;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -29,10 +33,18 @@ public class Fines {
     @Column(name = "fee")
     private Integer fee;
 
+    @Column(name = "paid_fee")
+    private Integer paidFee;
+
     @Column(name = "fine_num", length = 45)
     private String fineNum;
 
     @Column(name = "fine_date")
     private LocalDateTime fineDt;
+
+    @Column(name = "fine_status", columnDefinition = "ENUM")
+    @Convert(converter = FineStatusTypesConverter.class)
+    private FineStatusTypes fineStatus;
+
 
 }

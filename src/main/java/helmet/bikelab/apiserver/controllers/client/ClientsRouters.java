@@ -1,0 +1,23 @@
+package helmet.bikelab.apiserver.controllers.client;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.server.RouterFunction;
+import org.springframework.web.reactive.function.server.RouterFunctions;
+import org.springframework.web.reactive.function.server.ServerResponse;
+
+import static org.springframework.web.reactive.function.server.RequestPredicates.*;
+import static org.springframework.web.reactive.function.server.RequestPredicates.DELETE;
+
+@Component
+public class ClientsRouters {
+    @Bean
+    public RouterFunction<ServerResponse> clientRouter(ClientsHandlers handler){
+        return RouterFunctions
+                .route(GET("/clients"), handler::fetchListOfClients)
+                .andRoute(GET("/clients/{client_id}"), handler::fetchClientDetailByClientId)
+                .andRoute(POST("/clients"), handler::addClient)
+                .andRoute(PUT("/clients"), handler::updateClient)
+                .andRoute(DELETE("/clients"), handler::deleteClient);
+    }
+}

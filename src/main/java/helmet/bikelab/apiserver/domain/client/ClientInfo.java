@@ -1,5 +1,8 @@
 package helmet.bikelab.apiserver.domain.client;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import helmet.bikelab.apiserver.utils.keys.SESSION;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,11 +15,15 @@ import javax.persistence.*;
 @Setter
 @Table(name = "client_info", catalog = SESSION.SCHEME_SERVICE)
 @NoArgsConstructor
+@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class ClientInfo {
+
     @Id
+    @JsonIgnore
     @Column(name = "client_no")
     private Integer clientNo;
 
+    @JsonIgnore
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client_no", insertable = false, updatable = false)
     private Clients client;
