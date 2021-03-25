@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding= "UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="bikelabs.employees">
+
+    <select id="fetchListOfEmployeeByUserNo" parameterType="hmap" resultType="hmap">
+        select um.user_no,
+           um.email,
+           date_format(um.created_at, '%Y-%m-%d %H:%i') as inserted_date,
+           if(ui.name is null, '', ui.name) as username,
+           if(ui.phone is null, '', ui.phone) as phone,
+           cm.comm_nm as account_status
+      from (select *
+              from bike_user_mst
+             where user_no = #{user_no}) um
+           join bike_user_info ui on um.user_no = ui.user_no
+           join com_comm_mst cm on um.status = cm.comm_cd
+    </select>
+
+    <select id="fetchListOfEmployee" parameterType="hmap" resultType="hmap">
+        select um.user_no,
+               um.user_id,
+               um.email,
+               date_format(um.created_at, '%Y-%m-%d %H:%i') as inserted_date,
+               if(ui.name is null, '', ui.name) as username,
+               if(ui.phone is null, '', ui.phone) as phone,
+               cm.comm_nm as account_status
+          from bike_user_mst um
+               join bike_user_info ui on um.user_no = ui.user_no
+               join com_comm_mst cm on um.status = cm.comm_cd
+    </select>
+
+</mapper>

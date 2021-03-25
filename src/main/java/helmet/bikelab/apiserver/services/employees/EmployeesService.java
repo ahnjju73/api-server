@@ -32,7 +32,7 @@ public class EmployeesService extends SessService {
     public BikeSessionRequest fetchListOfEmployee(BikeSessionRequest request){
         Map param = request.getParam();
         Map response = new HashMap();
-        response.put("employees", getList("mrmention.employee.fetchListOfEmployee", param));
+        response.put("employees", getList("bikelabs.employees.fetchListOfEmployee", param));
         request.setResponse(response);
         return request;
     }
@@ -73,7 +73,7 @@ public class EmployeesService extends SessService {
                 .ifPresent(userInfo -> {
                     BikeUser adminUser = userInfo.getBikeUser();
                     if(bePresent(username)){
-//                        userInfo.setUserName(username);
+                        userInfo.setName(username);
                     }
                     if(bePresent(email)){
                         userRepository
@@ -85,7 +85,7 @@ public class EmployeesService extends SessService {
                     updatePasswordByUserNo(password, confirmPassword, userNo);
 
                     if(bePresent(phone)){
-//                        userInfo.setPhone(phone);
+                        userInfo.setPhone(phone);
                     }
                     if(bePresent(intro)){
 //                        userInfo.setIntroduction(intro);
@@ -93,11 +93,12 @@ public class EmployeesService extends SessService {
                     adminUserInfoRepository.save(userInfo);
                     userRepository.save(adminUser);
 
-//                    response.put("username", userInfo.getUserName());
+                    response.put("username", userInfo.getName());
                     response.put("email", adminUser.getEmail());
-//                    response.put("phone", userInfo.getPhone());
+                    response.put("phone", userInfo.getPhone());
 //                    response.put("intro", userInfo.getIntroduction());
                 });
+        request.setResponse(response);
     }
 
     private void updatePasswordByUserNo(String password, String confirmPassword, Integer userNo){
@@ -141,7 +142,7 @@ public class EmployeesService extends SessService {
 
     public BikeSessionRequest fetchEmployeeInfoByUserNo(BikeSessionRequest request){
         Map param = request.getParam();
-        request.setResponse(getItem("mrmention.employee.fetchListOfEmployeeByUserNo", param));
+        request.setResponse(getItem("bikelabs.employees.fetchListOfEmployeeByUserNo", param));
         return request;
     }
 

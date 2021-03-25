@@ -28,5 +28,8 @@
         <mapper resource="mapper/comm/common.xml"/>
         <mapper resource="mapper/comm/menu.xml"/>
 
+        <!-- bikelabs -->
+        <mapper resource="mapper/bikelabs/employees.xml"/>
+
     </mappers>
 </configuration>

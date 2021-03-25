@@ -49,6 +49,7 @@ public class EmployeesHandlers {
                 request.bodyToMono(Map.class)
                         .subscribeOn(Schedulers.elastic())
                         .map(row -> adminEmployeeService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(row -> adminEmployeeService.getPathVariable(row, "user_no"))
                         .map(adminEmployeeService::checkBikeSession)
                         .map(adminEmployeeService::modifyEmployeeInfoByManager)
                         .map(adminEmployeeService::returnData), Map.class);

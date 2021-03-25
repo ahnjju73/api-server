@@ -63,7 +63,6 @@ dependencies {
 
     // Mail
     compile group: 'javax.mail', name: 'mail', version: '1.4.7'
-
     // S3 FOR AWS
     compile 'com.amazonaws:aws-java-sdk-s3'
     compile group: 'com.amazonaws', name: 'aws-java-sdk', version: '1.11.894'
@@ -80,7 +79,7 @@ dependencies {
     testImplementation('io.projectreactor:reactor-test')
     testCompile group: 'org.slf4j', name: 'slf4j-log4j12', version: '1.7.25'
     // https://mvnrepository.com/artifact/com.h2database/h2
-    testImplementation('org.springframework.boot:spring-boot-starter-test') {
+    testImplementnndation('org.springframework.boot:spring-boot-starter-test') {
         exclude module: 'junit'
     }
     testImplementation('org.junit.jupiter:junit-jupiter-api:5.2.0')
