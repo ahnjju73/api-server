@@ -11,4 +11,6 @@ import lombok.Setter;
 public class FetchClientsByGroupResponse {
     private String clientName;
     private String clientId;
+    private String email;
+    private String phone;
 }
