@@ -4,7 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum ManagementTypes {
-    FINANTIAL("501-001"), PRACTICAL("501-002");
+    FINANCIAL("501-001"), PRACTICAL("501-002");
 
     private String status;
 

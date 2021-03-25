@@ -13,6 +13,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -24,15 +25,15 @@ public class Clients {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "client_no")
-    private  Integer clientNo;
+    private Integer clientNo;
 
     @Column(name = "client_id", length = 21, unique = true, nullable = false)
     private String clientId;
 
     @Column(name = "group_no", nullable = false)
-    private Integer groupId;
+    private Integer groupNo;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "group_no", insertable = false, updatable = false)
     private ClientGroups clientGroup;
 
@@ -59,7 +60,13 @@ public class Clients {
     @OneToOne(mappedBy = "client", optional = false, fetch = FetchType.EAGER)
     private ClientInfo clientInfo;
 
-    @OneToOne(mappedBy = "client", optional = false)
-    private Leases lease;
+    @OneToOne(mappedBy = "client", optional = false, fetch = FetchType.EAGER)
+    private ClientAddresses clientAddresses;
+
+    @OneToOne(mappedBy = "client", optional = false, fetch = FetchType.EAGER)
+    private ClientPassword clientPassword;
+
+    @OneToMany(mappedBy = "clients", fetch = FetchType.LAZY)
+    private List<Leases> lease;
 
 }
