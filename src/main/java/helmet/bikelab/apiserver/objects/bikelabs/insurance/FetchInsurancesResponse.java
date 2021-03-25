@@ -15,6 +15,7 @@ public class FetchInsurancesResponse extends OriginObject {
     private String companyName;
     private Integer insuranceFee;
     private Integer bmCare;
-
+    private Integer liabilityMan;
+    private Integer liabilityCar;
 
 }

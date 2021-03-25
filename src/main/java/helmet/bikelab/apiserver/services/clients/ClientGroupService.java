@@ -59,6 +59,8 @@ public class ClientGroupService extends SessService {
          FetchClientsByGroupResponse temp = new FetchClientsByGroupResponse();
          temp.setClientId(client.getClientId());
          temp.setClientName(client.getClientInfo().getName());
+         temp.setEmail(client.getEmail());
+         temp.setPhone(client.getClientInfo().getPhone());
          responseList.add(temp);
       }
       response.put("clients", responseList);
