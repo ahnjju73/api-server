@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Setter
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class AddBikeRequest extends OriginObject {
-    private String vimNum;
+    private String vimNumber;
     private String number;
     private String carModel;
     private String color;

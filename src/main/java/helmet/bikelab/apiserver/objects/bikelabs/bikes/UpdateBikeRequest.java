@@ -12,8 +12,8 @@ import java.time.LocalDateTime;
 @Setter
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class UpdateBikeRequest extends OriginObject {
-    private String clientId;
-    private String vimNum;
+    private String bikeId;
+    private String vimNumber;
     private String number;
     private String carModel;
     private String color;
