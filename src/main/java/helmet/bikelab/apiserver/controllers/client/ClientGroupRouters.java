@@ -17,7 +17,7 @@ public class ClientGroupRouters {
                 .route(GET("/client/groups"), handler::fetchListOfGroup)
                 .andRoute(GET("/client/groups/clients"), handler::fetchClientsByGroup)
                 .andRoute(POST("/client/groups"), handler::addClientGroup)
-                .andRoute(PUT("/client/groups/update"), handler::updateClientGroup)
-                .andRoute(DELETE("/client/groups/delete"), handler::deleteClientGroup);
+                .andRoute(PUT("/client/groups"), handler::updateClientGroup)
+                .andRoute(DELETE("/client/groups"), handler::deleteClientGroup);
     }
 }

@@ -27,12 +27,4 @@ public class AddClientRequest extends OriginObject {
         this.address = objectMapper.convertValue(address, ModelAddress.class);
     }
 
-    public void checkValidation(){
-//        if(!bePresent(email)) withException("400-002");
-//        if(!bePresent(groupId)) withException("400-003");
-//        if(!bePresent(directYn)) withException("400-004");
-//        if(!bePresent(regNo)) withException("400-005");
-//        if(!bePresent(clientInfo)) withException("400-006");
-//        if(!bePresent(address)) withException("400-007");
-    }
 }

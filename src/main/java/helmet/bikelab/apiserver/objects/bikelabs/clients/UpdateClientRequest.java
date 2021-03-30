@@ -16,9 +16,10 @@ import java.util.Map;
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class UpdateClientRequest extends OriginObject {
     private String clientId;
+    private String clientPassword;
+
     private String email;
     private String groupId;
-    private String clientPassword;
     private String directYn;
     private String regNo;
     private ClientInfo clientInfo;
@@ -30,6 +31,6 @@ public class UpdateClientRequest extends OriginObject {
     }
 
     public void checkValidation(){
-        if(!bePresent(clientId)) withException("");
+        if(!bePresent(clientId)) withException("400-003");
     }
 }
