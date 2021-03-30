@@ -13,7 +13,7 @@ public class AddGroupRequest extends OriginObject {
     private String groupName;
 
     public void checkValidation(){
-        if(!bePresent(this.groupName)) withException("300-001");
+        if(!bePresent(this.groupName)) withException("300-002");
     }
 
 }

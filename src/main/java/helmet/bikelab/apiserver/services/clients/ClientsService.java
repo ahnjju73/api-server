@@ -64,6 +64,7 @@ public class ClientsService extends SessService {
         fetchClientDetailResponse.setRegNo(client.getRegNum());
         fetchClientDetailResponse.setClientInfo(info);
         fetchClientDetailResponse.setAddress(addresses.getModelAddress());
+        fetchClientDetailResponse.setGroupId(client.getClientGroup().getGroupId());
 
         response.put("client", fetchClientDetailResponse);
         request.setResponse(response);
@@ -74,9 +75,11 @@ public class ClientsService extends SessService {
     public BikeSessionRequest addClient(BikeSessionRequest request){
         Map param = request.getParam();
         AddClientRequest addClientRequest = map(param, AddClientRequest.class);
-        addClientRequest.checkValidation();
         String clientId = autoKey.makeGetKey("client");
         ClientGroups group = groupRepository.findByGroupId(addClientRequest.getGroupId());
+        Clients byEmail = clientsRepository.findByEmail(addClientRequest.getEmail());
+        if(bePresent(byEmail)) withException("400-005");
+        if(!bePresent(group)) withException("400-002");
         Clients clients = new Clients();
         clients.setClientId(clientId);
         clients.setGroupNo(group.getGroupNo());
@@ -111,8 +114,12 @@ public class ClientsService extends SessService {
         Map param = request.getParam();
         UpdateClientRequest updateClientRequest = map(param, UpdateClientRequest.class);
         Clients client = clientsRepository.findByClientId(updateClientRequest.getClientId());
+        Clients byEmail = clientsRepository.findByEmail(updateClientRequest.getEmail());
+        if(bePresent(byEmail) && !byEmail.getClientNo().equals(client.getClientNo())) withException("400-004");
         client.setEmail(updateClientRequest.getEmail());
-        client.setGroupNo(groupRepository.findByGroupId(updateClientRequest.getGroupId()).getGroupNo());
+        ClientGroups clientGroups = groupRepository.findByGroupId(updateClientRequest.getGroupId());
+        if(!bePresent(clientGroups)) withException("400-003");
+        client.setGroupNo(clientGroups.getGroupNo());
         client.setDirectType(YesNoTypes.getYesNo(updateClientRequest.getDirectYn()));
         client.setRegNum(updateClientRequest.getRegNo());
         clientsRepository.save(client);
