@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.objects.bikelabs.clients;
 
+import com.fasterxml.jackson.databind.DeserializationConfig;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -17,8 +18,9 @@ import java.util.Map;
 public class AddClientRequest extends OriginObject {
     private String email;
     private String groupId;
-    private String directYn;
+    private String direct;
     private String regNo;
+    private String clientDescription;
     private ClientInfo clientInfo;
     private ModelAddress address;
 

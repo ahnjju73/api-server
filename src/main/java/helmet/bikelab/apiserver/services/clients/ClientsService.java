@@ -83,7 +83,7 @@ public class ClientsService extends SessService {
         Clients clients = new Clients();
         clients.setClientId(clientId);
         clients.setGroupNo(group.getGroupNo());
-        clients.setDirectType(YesNoTypes.getYesNo(addClientRequest.getDirectYn()));
+        clients.setDirectType(YesNoTypes.getYesNo(addClientRequest.getDirect()));
         clients.setStatus(AccountStatusTypes.PENDING);
         clients.setEmail(addClientRequest.getEmail());
         clients.setRegNum(addClientRequest.getRegNo());
