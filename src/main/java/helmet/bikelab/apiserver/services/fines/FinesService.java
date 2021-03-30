@@ -16,6 +16,7 @@ import helmet.bikelab.apiserver.repositories.FinesRepository;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -46,6 +47,7 @@ public class FinesService extends SessService {
         return request;
     }
 
+    @Transactional
     public BikeSessionRequest addFine(BikeSessionRequest request){
         Map param = request.getParam();
         AddFineRequest addFineRequest = map(param, AddFineRequest.class);
@@ -59,6 +61,7 @@ public class FinesService extends SessService {
         return request;
     }
 
+    @Transactional
     public BikeSessionRequest updateFine(BikeSessionRequest request){
         Map param = request.getParam();
         UpdateFineRequest updateFineRequest = map(param, UpdateFineRequest.class);
@@ -67,6 +70,8 @@ public class FinesService extends SessService {
         Bikes bike = bikesRepository.findByBikeId(updateFineRequest.getBikeId());
         fine.setBikeNo(bike.getBikeNo());
         fine.setFee(updateFineRequest.getFee());
+        finesRepository.save(fine);
+
         return request;
     }
 

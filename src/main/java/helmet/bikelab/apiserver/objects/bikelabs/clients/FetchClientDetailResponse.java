@@ -14,6 +14,7 @@ import lombok.Setter;
 public class FetchClientDetailResponse extends OriginObject {
     private String clientId;
     private String groupName;
+    private String groupId;
     private String direct;
     private String email;
     private String clientDescription;

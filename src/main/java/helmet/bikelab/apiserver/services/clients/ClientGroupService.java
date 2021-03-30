@@ -84,6 +84,8 @@ public class ClientGroupService extends SessService {
       Map param = request.getParam();
       DeleteGroupRequest deleteGroupRequest = map(param, DeleteGroupRequest.class);
       deleteGroupRequest.checkValidation();
+      Integer count = clientsRepository.countAllByClientGroup_GroupId(deleteGroupRequest.getGroupId());
+      if(count > 0) withException("300-006");
       ClientGroups group = groupRepository.findByGroupId(deleteGroupRequest.getGroupId());
       groupRepository.delete(group);
       return request;
