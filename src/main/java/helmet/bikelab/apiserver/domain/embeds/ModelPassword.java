@@ -31,9 +31,8 @@ public class ModelPassword {
     private LocalDateTime createdAt = LocalDateTime.now();
 
     public void modifyPassword(String password){
-        String sha256Password = Crypt.newCrypt().SHA256(password);
         String salt = Crypt.newCrypt().getSalt(128);
-        String cryptedPassword = Crypt.newCrypt().getPassword(sha256Password, salt);
+        String cryptedPassword = Crypt.newCrypt().getPassword(password, salt);
         this.bakPassword = this.password;
         this.bakSalt = this.salt;
         this.setPassword(cryptedPassword);
