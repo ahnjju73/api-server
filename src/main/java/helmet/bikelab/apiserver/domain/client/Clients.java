@@ -50,7 +50,7 @@ public class Clients {
 
     @Column(name = "uuid", length = 100)
     private String uuid;
-
+ 
     @Column(name = "reg_no", length = 45)
     private String regNum;
 
