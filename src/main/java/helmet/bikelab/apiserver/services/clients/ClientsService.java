@@ -121,7 +121,7 @@ public class ClientsService extends SessService {
         ClientGroups clientGroups = groupRepository.findByGroupId(updateClientRequest.getGroupId());
         if(!bePresent(clientGroups)) withException("400-003");
         client.setGroupNo(clientGroups.getGroupNo());
-        client.setDirectType(YesNoTypes.getYesNo(updateClientRequest.getDirectYn()));
+        client.setDirectType(YesNoTypes.getYesNo(updateClientRequest.getDirect()));
         client.setRegNum(updateClientRequest.getRegNo());
         clientsRepository.save(client);
         ClientInfo clientInfo = new ClientInfo();
