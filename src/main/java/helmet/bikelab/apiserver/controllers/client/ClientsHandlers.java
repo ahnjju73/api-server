@@ -64,4 +64,13 @@ public class ClientsHandlers {
                         .map(clientsService::deleteClient)
                         .map(clientsService::returnData), Map.class);
     }
+
+    public Mono<ServerResponse> resetPassword(ServerRequest request){
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> clientsService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(clientsService::checkBikeSession)
+                        .map(clientsService::resetPassword)
+                        .map(clientsService::returnData), Map.class);
+    }
 }
