@@ -18,7 +18,7 @@ public class UpdateClientRequest extends OriginObject {
     private String clientId;
     private String email;
     private String groupId;
-    private String directYn;
+    private String direct;
     private String regNo;
     private ClientInfo clientInfo;
     private ModelAddress address;
