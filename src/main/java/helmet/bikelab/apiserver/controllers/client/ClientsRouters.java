@@ -18,6 +18,7 @@ public class ClientsRouters {
                 .andRoute(GET("/clients/{client_id}"), handler::fetchClientDetailByClientId)
                 .andRoute(POST("/clients"), handler::addClient)
                 .andRoute(PUT("/clients"), handler::updateClient)
-                .andRoute(DELETE("/clients"), handler::deleteClient);
+                .andRoute(DELETE("/clients"), handler::deleteClient)
+                .andRoute(PUT("/clients/reset_password"), handler::resetPassword);
     }
 }

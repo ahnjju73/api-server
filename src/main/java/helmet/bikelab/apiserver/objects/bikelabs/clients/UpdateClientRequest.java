@@ -16,8 +16,6 @@ import java.util.Map;
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class UpdateClientRequest extends OriginObject {
     private String clientId;
-    private String clientPassword;
-
     private String email;
     private String groupId;
     private String directYn;
