@@ -2,6 +2,7 @@ package helmet.bikelab.apiserver.domain.bike;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import helmet.bikelab.apiserver.domain.CommonCode;
 import helmet.bikelab.apiserver.domain.lease.Fines;
 import helmet.bikelab.apiserver.domain.lease.LeaseInfo;
 import helmet.bikelab.apiserver.domain.lease.Leases;
@@ -33,8 +34,12 @@ public class Bikes {
     @Column(name = "number", length = 45, unique = true)
     private String carNum;
 
-    @Column(name = "car_model", length = 45)
-    private String carModel;
+    @Column(name = "car_model", length = 21)
+    private String carModelCode;
+
+    @ManyToOne(optional = false, fetch = FetchType.EAGER)
+    @JoinColumn(name = "car_model", insertable = false, updatable = false)
+    private CommonCode carModel;
 
     @Column(name = "color", length = 45)
     private String color;
