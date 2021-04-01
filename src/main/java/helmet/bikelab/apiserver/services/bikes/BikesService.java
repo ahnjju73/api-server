@@ -41,6 +41,7 @@ public class BikesService extends SessService {
             model.setCarModelName(carModel.getCodeName());
             fetchBikesResponse.setModel(model);
             fetchBikesResponse.setVimNum(bike.getVimNum());
+            fetchBikesResponse.setBikeId(bike.getBikeId());
             fetchBikesResponses.add(fetchBikesResponse);
         }
         response.put("bikes", fetchBikesResponses);
@@ -62,6 +63,7 @@ public class BikesService extends SessService {
         model.setCarModelCode(carModel.getCode());
         model.setCarModelName(carModel.getCodeName());
         fetchBikeDetailResponse.setModel(model);
+        fetchBikeDetailResponse.setBikeId(bike.getBikeId());
         fetchBikeDetailResponse.setColor(bike.getColor());
         fetchBikeDetailResponse.setVimNum(bike.getVimNum());
         fetchBikeDetailResponse.setCarNum(bike.getCarNum());

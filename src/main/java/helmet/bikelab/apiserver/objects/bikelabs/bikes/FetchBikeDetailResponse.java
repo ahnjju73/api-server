@@ -14,6 +14,7 @@ import java.time.LocalDateTime;
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class FetchBikeDetailResponse extends OriginObject {
     private String clientName;
+    private String bikeId;
     private String vimNum;
     private String carNum;
     private CarModel model;

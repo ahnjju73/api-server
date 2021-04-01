@@ -18,5 +18,6 @@ public class FetchBikesResponse extends OriginObject {
     private String number;
     private CarModel model;
     private String color;
+    private String bikeId;
 
 }
