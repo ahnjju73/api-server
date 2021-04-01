@@ -2,8 +2,6 @@ package helmet.bikelab.apiserver.domain.lease;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import helmet.bikelab.apiserver.domain.types.SecurityTypes;
-import helmet.bikelab.apiserver.domain.types.converters.SecurityTypeConverter;
 import helmet.bikelab.apiserver.services.internal.OriginObject;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

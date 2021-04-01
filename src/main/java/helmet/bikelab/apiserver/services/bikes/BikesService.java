@@ -1,15 +1,14 @@
 package helmet.bikelab.apiserver.services.bikes;
 
+import helmet.bikelab.apiserver.domain.CommonCode;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.client.ClientInfo;
 import helmet.bikelab.apiserver.domain.client.Clients;
 import helmet.bikelab.apiserver.domain.lease.Leases;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
+import helmet.bikelab.apiserver.objects.CarModel;
 import helmet.bikelab.apiserver.objects.bikelabs.bikes.*;
-import helmet.bikelab.apiserver.repositories.BikesRepository;
-import helmet.bikelab.apiserver.repositories.ClientInfoRepository;
-import helmet.bikelab.apiserver.repositories.ClientsRepository;
-import helmet.bikelab.apiserver.repositories.LeaseRepository;
+import helmet.bikelab.apiserver.repositories.*;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.utils.AutoKey;
 import lombok.RequiredArgsConstructor;
@@ -34,9 +33,13 @@ public class BikesService extends SessService {
         Map response = new HashMap();
         for(Bikes bike : bikes){
             FetchBikesResponse fetchBikesResponse = new FetchBikesResponse();
+            CommonCode carModel = bike.getCarModel();
             fetchBikesResponse.setColor(bike.getColor());
             fetchBikesResponse.setNumber(bike.getCarNum());
-            fetchBikesResponse.setCarModel(bike.getCarModel());
+            CarModel model = new CarModel();
+            model.setCarModelCode(carModel.getCode());
+            model.setCarModelName(carModel.getCodeName());
+            fetchBikesResponse.setModel(model);
             fetchBikesResponse.setVimNum(bike.getVimNum());
             fetchBikesResponses.add(fetchBikesResponse);
         }
@@ -54,7 +57,11 @@ public class BikesService extends SessService {
         Leases leases = leaseRepository.findByBikeNo(bike.getBikeNo());
         Clients clients = leases==null?null : clientsRepository.findByClientNo(leases.getClientNo());//leases.getClient()
         FetchBikeDetailResponse fetchBikeDetailResponse = new FetchBikeDetailResponse();
-        fetchBikeDetailResponse.setCarModel(bike.getCarModel());
+        CommonCode carModel = bike.getCarModel();
+        CarModel model = new CarModel();
+        model.setCarModelCode(carModel.getCode());
+        model.setCarModelName(carModel.getCodeName());
+        fetchBikeDetailResponse.setModel(model);
         fetchBikeDetailResponse.setColor(bike.getColor());
         fetchBikeDetailResponse.setVimNum(bike.getVimNum());
         fetchBikeDetailResponse.setCarNum(bike.getCarNum());
@@ -75,7 +82,7 @@ public class BikesService extends SessService {
         bike.setBikeId(bikeId);
         bike.setVimNum(addBikeRequest.getVimNumber());
         bike.setCarNum(addBikeRequest.getNumber());
-        bike.setCarModel(addBikeRequest.getCarModel());
+        bike.setCarModelCode(addBikeRequest.getCarModel());
         bike.setColor(addBikeRequest.getColor());
         bike.setReceiveDate(addBikeRequest.getReceiveDt());
         bikesRepository.save(bike);
@@ -90,7 +97,7 @@ public class BikesService extends SessService {
         Bikes bike = bikesRepository.findByBikeId(updateBikeRequest.getBikeId());
         bike.setVimNum(updateBikeRequest.getVimNumber());
         bike.setCarNum(updateBikeRequest.getNumber());
-        bike.setCarModel(updateBikeRequest.getCarModel());
+        bike.setCarModelCode(updateBikeRequest.getCarModel());
         bike.setColor(updateBikeRequest.getColor());
         bike.setReceiveDate(updateBikeRequest.getReceiveDt());
         bike.setRegisterDate(updateBikeRequest.getRegisterDt());
@@ -107,5 +114,6 @@ public class BikesService extends SessService {
 
         return request;
     }
+
 
 }
