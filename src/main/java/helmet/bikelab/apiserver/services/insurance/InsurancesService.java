@@ -1,8 +1,12 @@
 package helmet.bikelab.apiserver.services.insurance;
 
+import helmet.bikelab.apiserver.domain.CommonCodeInsurances;
 import helmet.bikelab.apiserver.domain.lease.Insurances;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.bikelabs.insurance.DeleteInsuranceRequest;
+import helmet.bikelab.apiserver.objects.bikelabs.insurance.FetchInsuranceRequest;
+import helmet.bikelab.apiserver.objects.bikelabs.insurance.FetchInsuranceResponse;
+import helmet.bikelab.apiserver.repositories.InsuranceOptionlRepository;
 import helmet.bikelab.apiserver.repositories.InsurancesRepository;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.utils.AutoKey;
@@ -10,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +25,8 @@ public class InsurancesService extends SessService {
 
     private final InsurancesRepository insurancesRepository;
     private final AutoKey autoKey;
+    private final InsuranceOptionlRepository insuranceOptionlRepository;
+
 
     public BikeSessionRequest fetchInsurances(BikeSessionRequest request){
         Map response = new HashMap();
@@ -67,6 +74,23 @@ public class InsurancesService extends SessService {
         // todo 만약 lease에서 해당 insurance를 들고있는 경우 withException("")
         insurancesRepository.delete(insurances);
 
+        return request;
+    }
+
+    public BikeSessionRequest fetchInsuranceOption(BikeSessionRequest request){
+        Map param = request.getParam();
+        Map response = new HashMap();
+        FetchInsuranceRequest fetchInsuranceRequest = map(param, FetchInsuranceRequest.class);
+        List<FetchInsuranceResponse> fetchInsuranceResponses = new ArrayList<>();
+        List<CommonCodeInsurances> commonCodeInsurancesList = insuranceOptionlRepository.findByUpperCode(fetchInsuranceRequest.getUpCode());
+        for(CommonCodeInsurances commonCodeInsurance : commonCodeInsurancesList){
+            FetchInsuranceResponse fetchInsuranceResponse = new FetchInsuranceResponse();
+            fetchInsuranceResponse.setCode(commonCodeInsurance.getCode());
+            fetchInsuranceResponse.setName(commonCodeInsurance.getName());
+            fetchInsuranceResponses.add(fetchInsuranceResponse);
+        }
+        response.put("insurance_option", fetchInsuranceResponses);
+        request.setResponse(response);
         return request;
     }
 
