@@ -17,9 +17,17 @@ public class AddBikeRequest extends OriginObject {
     private String carModel;
     private String color;
     private LocalDateTime receiveDt;
+    private LocalDateTime registerDt;
 
     public void setReceiveDt(String receiveDt) {
         this.receiveDt = LocalDateTime.parse(receiveDt);
     }
+    public void setRegisterDt(String registerDt) {
+        this.registerDt = LocalDateTime.parse(registerDt);
+    }
 
+    public void checkValidation(){
+        if(!bePresent(this.vimNumber)) withException("");
+        if(this.vimNumber.length() > 12) withException("");
+    }
 }

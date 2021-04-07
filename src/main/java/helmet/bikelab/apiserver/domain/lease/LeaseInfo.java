@@ -24,7 +24,7 @@ public class LeaseInfo {
     @Column(name = "period", columnDefinition = "TINYINT", length = 2)
     private Integer period;
 
-    @Column(name = "start")
+    @Column(name = "start_dt")
     private LocalDate start;
 
     @Column(name = "end_dt")

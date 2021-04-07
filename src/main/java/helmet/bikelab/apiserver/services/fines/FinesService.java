@@ -4,12 +4,8 @@ import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.client.Clients;
 import helmet.bikelab.apiserver.domain.lease.Fines;
 import helmet.bikelab.apiserver.domain.lease.Leases;
-import helmet.bikelab.apiserver.domain.types.FineStatusTypes;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
-import helmet.bikelab.apiserver.objects.bikelabs.fine.AddFineRequest;
-import helmet.bikelab.apiserver.objects.bikelabs.fine.FetchFineRequest;
-import helmet.bikelab.apiserver.objects.bikelabs.fine.FetchFineResponse;
-import helmet.bikelab.apiserver.objects.bikelabs.fine.UpdateFineRequest;
+import helmet.bikelab.apiserver.objects.bikelabs.fine.*;
 import helmet.bikelab.apiserver.repositories.BikesRepository;
 import helmet.bikelab.apiserver.repositories.ClientsRepository;
 import helmet.bikelab.apiserver.repositories.FinesRepository;
@@ -19,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RequiredArgsConstructor
@@ -27,6 +24,19 @@ public class FinesService extends SessService {
     private final FinesRepository finesRepository;
     private final ClientsRepository clientsRepository;
     private final BikesRepository bikesRepository;
+
+    public BikeSessionRequest fetchFineList(BikeSessionRequest request){
+        Map response = new HashMap();
+        List<Fines> fines = finesRepository.findAll();
+        for(Fines fine : fines){
+            FetchFines fetchFine = new FetchFines();
+            fetchFine.setFineDate(fine.getFineDt());
+            fetchFine.setFee(fine.getFee());
+            fetchFine.setPaidFee(fine.getPaidFee());
+            fetchFine.setFineNum(fine.getFineNum());
+        }
+        return request;
+    }
 
     public BikeSessionRequest fetchFine(BikeSessionRequest request){
         Map param = request.getParam();

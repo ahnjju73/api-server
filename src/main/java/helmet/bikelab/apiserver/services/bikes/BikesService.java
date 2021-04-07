@@ -1,13 +1,15 @@
 package helmet.bikelab.apiserver.services.bikes;
 
 import helmet.bikelab.apiserver.domain.CommonCode;
+import helmet.bikelab.apiserver.domain.CommonCodeBikes;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
-import helmet.bikelab.apiserver.domain.client.ClientInfo;
 import helmet.bikelab.apiserver.domain.client.Clients;
 import helmet.bikelab.apiserver.domain.lease.Leases;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.CarModel;
 import helmet.bikelab.apiserver.objects.bikelabs.bikes.*;
+import helmet.bikelab.apiserver.objects.bikelabs.clients.ClientDto;
+import helmet.bikelab.apiserver.objects.bikelabs.leases.LeasesDto;
 import helmet.bikelab.apiserver.repositories.*;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.utils.AutoKey;
@@ -24,8 +26,8 @@ public class BikesService extends SessService {
     private final BikesRepository bikesRepository;
     private final LeaseRepository leaseRepository;
     private final ClientsRepository clientsRepository;
-    private final ClientInfoRepository clientInfoRepository;
     private final AutoKey autoKey;
+    private final BikeModelsRepository bikeModelsRepository;
 
     public BikeSessionRequest fetchBikes(BikeSessionRequest request){
         List<Bikes> bikes = bikesRepository.findAll();
@@ -56,7 +58,7 @@ public class BikesService extends SessService {
         fetchBikeDetailRequest.checkValidation();
         Bikes bike = bikesRepository.findByBikeId(fetchBikeDetailRequest.getBikeId());
         Leases leases = leaseRepository.findByBikeNo(bike.getBikeNo());
-        Clients clients = leases==null?null : clientsRepository.findByClientNo(leases.getClientNo());//leases.getClient()
+        Clients clients = leases == null ? null : leases.getClients();
         FetchBikeDetailResponse fetchBikeDetailResponse = new FetchBikeDetailResponse();
         CommonCode carModel = bike.getCarModel();
         CarModel model = new CarModel();
@@ -65,11 +67,19 @@ public class BikesService extends SessService {
         fetchBikeDetailResponse.setModel(model);
         fetchBikeDetailResponse.setBikeId(bike.getBikeId());
         fetchBikeDetailResponse.setColor(bike.getColor());
-        fetchBikeDetailResponse.setVimNum(bike.getVimNum());
+        fetchBikeDetailResponse.setVimNum(bike.getVimNum() == null ? "" : bike.getVimNum());
         fetchBikeDetailResponse.setCarNum(bike.getCarNum());
         fetchBikeDetailResponse.setReceiveDt(bike.getReceiveDate());
-        fetchBikeDetailResponse.setClientName(clients==null?"":clients.getClientInfo().getName());
-
+        fetchBikeDetailResponse.setRegisterDt(bike.getRegisterDate());
+        if(leases != null) {
+            ClientDto client = new ClientDto();
+            client.setClientName(clients.getClientInfo().getName());
+            client.setClientId(clients.getClientId());
+            LeasesDto lease = new LeasesDto();
+            lease.setLeaseId(leases.getLeaseId());
+            fetchBikeDetailResponse.setClient(client);
+            fetchBikeDetailResponse.setLease(lease);
+        }
         response.put("bike", fetchBikeDetailResponse);
         request.setResponse(response);
         return request;
@@ -79,6 +89,7 @@ public class BikesService extends SessService {
     public BikeSessionRequest addBike(BikeSessionRequest request){
         Map param = request.getParam();
         AddBikeRequest addBikeRequest = map(param, AddBikeRequest.class);
+        addBikeRequest.checkValidation();
         String bikeId = autoKey.makeGetKey("bike");
         Bikes bike = new Bikes();
         bike.setBikeId(bikeId);
@@ -113,7 +124,22 @@ public class BikesService extends SessService {
         Map param = request.getParam();
         DeleteBikeRequest deleteBikeRequest  = map(param, DeleteBikeRequest.class);
         deleteBikeRequest.checkValidation();
+        writeMessage("");
+        return request;
+    }
 
+    public BikeSessionRequest fetchBikeModels(BikeSessionRequest request){
+        Map response = new HashMap();
+        List<CommonCodeBikes> commonCodeBikes = bikeModelsRepository.findAll();
+        List<FetchBikeModelsResponse> fetchBikeModelsResponses = new ArrayList<>();
+        for(CommonCodeBikes model: commonCodeBikes){
+              FetchBikeModelsResponse fetchBikeModelsResponse = new FetchBikeModelsResponse();
+              fetchBikeModelsResponse.setModel(model.getModel());
+              fetchBikeModelsResponse.setCode(model.getCode());
+              fetchBikeModelsResponses.add(fetchBikeModelsResponse);
+        }
+        response.put("model", fetchBikeModelsResponses);
+        request.setResponse(response);
         return request;
     }
 
