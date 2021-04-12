@@ -27,7 +27,12 @@ public class AddBikeRequest extends OriginObject {
     }
 
     public void checkValidation(){
-        if(!bePresent(this.vimNumber)) withException("");
-        if(this.vimNumber.length() > 12) withException("");
+        if(!bePresent(this.vimNumber)) withException("500-002");
+        if(!bePresent(this.number)) withException("500-003");
+        if(!bePresent(this.carModel)) withException("500-004");
+        if(!bePresent(this.color)) withException("500-005");
+
+        //todo: 길이 체크
+        //if(this.vimNumber.length() > 12) withException("");
     }
 }
