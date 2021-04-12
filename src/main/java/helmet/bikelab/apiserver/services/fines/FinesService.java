@@ -4,13 +4,11 @@ import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.client.Clients;
 import helmet.bikelab.apiserver.domain.lease.Fines;
 import helmet.bikelab.apiserver.domain.lease.LeaseFine;
+import helmet.bikelab.apiserver.domain.lease.LeasePayments;
 import helmet.bikelab.apiserver.domain.lease.Leases;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.bikelabs.fine.*;
-import helmet.bikelab.apiserver.repositories.BikesRepository;
-import helmet.bikelab.apiserver.repositories.ClientsRepository;
-import helmet.bikelab.apiserver.repositories.FinesRepository;
-import helmet.bikelab.apiserver.repositories.LeaseFineRepository;
+import helmet.bikelab.apiserver.repositories.*;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.utils.AutoKey;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +25,7 @@ import java.util.Map;
 public class FinesService extends SessService {
     private final FinesRepository finesRepository;
     private final LeaseFineRepository leaseFineRepository;
-    private final BikesRepository bikesRepository;
+    private final LeasePaymentsRepository leasePaymentsRepository;
 //    private final Bike
     private final AutoKey autoKey;
 
@@ -64,6 +62,7 @@ public class FinesService extends SessService {
             fetchFineResponse.setBikeNum(bikes.getCarNum());
             fetchFineResponse.setBikeId(bikes.getBikeId());
         }
+        fetchFineResponse.setFineNum(fines.getFineNum());
         fetchFineResponse.setFineId(fines.getFineId());
         fetchFineResponse.setFineDate(fines.getFineDt());
         fetchFineResponse.setFee(fines.getFee());
@@ -81,12 +80,21 @@ public class FinesService extends SessService {
         addFineRequest.checkValidation();
         Fines fine = new Fines();
         String fineId = autoKey.makeGetKey("fine");
-
         fine.setFineId(fineId);
         fine.setFineDt(addFineRequest.getFineDate());
         fine.setFineNum(addFineRequest.getFineNum());
         fine.setFee(addFineRequest.getFee());
         finesRepository.save(fine);
+        LeaseFine leaseFine = new LeaseFine();
+        LeasePayments leasePayments = leasePaymentsRepository.findByPaymentId(addFineRequest.getPaymentId());
+        if(bePresent(leasePayments)){
+            leaseFine.setFineNo(fine.getFineNo());
+            leaseFine.setPaymentNo(leasePayments.getPaymentNo());
+            leaseFine.setLeaseNo(leasePayments.getLeaseNo());
+            leaseFineRepository.save(leaseFine);
+        }
+
+
         return request;
     }
 
