@@ -10,10 +10,13 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
-public class FetchFines {
+public class FetchFinesResponse {
+    private String fineId;
     private LocalDateTime fineDate;
     private Integer fee;
     private Integer paidFee;
     private String bikeNum;
     private String fineNum;
+    private String bikeId;
+
 }

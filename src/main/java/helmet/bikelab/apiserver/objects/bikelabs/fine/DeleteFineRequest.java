@@ -9,11 +9,10 @@ import lombok.Setter;
 @Getter
 @Setter
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
-public class FetchFineRequest extends OriginObject {
-
+public class DeleteFineRequest extends OriginObject {
     private String fineId;
 
     public void checkValidation(){
-        if(!bePresent(fineId)) withException("700-001");
+        if(!bePresent(fineId)) withException("700-005");
     }
 }

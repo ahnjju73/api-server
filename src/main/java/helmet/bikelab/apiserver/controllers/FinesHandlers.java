@@ -20,7 +20,7 @@ public class FinesHandlers {
         return ServerResponse.ok().body(
                 Mono.fromSupplier(() -> finesService.makeSessionRequest(request, BikeSessionRequest.class))
                     .subscribeOn(Schedulers.elastic())
-                    .map(req -> finesService.getPathVariable(req, "fine_num"))
+                    .map(req -> finesService.getPathVariable(req, "fine_id"))
                     .map(finesService::checkBikeSession)
                     .map(finesService::fetchFine)
                     .map(finesService::returnData), Map.class);
@@ -44,5 +44,23 @@ public class FinesHandlers {
                         .map(finesService::checkBikeSession)
                         .map(finesService::updateFine)
                         .map(finesService::returnData), Map.class);
+    }
+
+    public Mono<ServerResponse> fetchFines(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> finesService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(finesService::checkBikeSession)
+                        .map(finesService::fetchFineList)
+                        .map(finesService::returnData), Map.class);
+    }
+
+    public Mono<ServerResponse> deleteFine(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> finesService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(finesService::checkBikeSession)
+                        .map(finesService::deleteFine)
+                        .map(finesService ::returnData), Map.class);
     }
 }

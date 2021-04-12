@@ -13,8 +13,10 @@ public class FinesRouters {
     @Bean
     public RouterFunction<ServerResponse> finesRouter(FinesHandlers handler){
         return RouterFunctions
-                .route(GET("/fines/{fine_num}"), handler::fetchFine)
+                .route(GET("/fines/{fine_id}"), handler::fetchFine)
+                .andRoute(GET("/fines"), handler::fetchFines)
                 .andRoute(POST("/fines"), handler::addFine)
+                .andRoute(DELETE("/fines"), handler::deleteFine)
                 .andRoute(PUT("/fines"), handler::updateFine);
     }
 }
