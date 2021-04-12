@@ -5,4 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface BikesRepository extends JpaRepository<Bikes, Integer> {
     Bikes findByBikeId(String bikeId);
+    Bikes findByCarNum(String bikeNum);
 }
