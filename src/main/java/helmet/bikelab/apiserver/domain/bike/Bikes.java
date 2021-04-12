@@ -37,7 +37,7 @@ public class Bikes {
     @Column(name = "car_model", length = 21)
     private String carModelCode;
 
-    @ManyToOne(optional = false, fetch = FetchType.EAGER)
+    @ManyToOne(optional = false)
     @JoinColumn(name = "car_model", insertable = false, updatable = false)
     private CommonCode carModel;
 
@@ -50,9 +50,6 @@ public class Bikes {
     @Column(name = "register_dt")
     private LocalDateTime registerDate;
 
-    @OneToOne(mappedBy = "bike", optional = false, fetch = FetchType.EAGER)
+    @OneToOne(mappedBy = "bike", fetch = FetchType.LAZY)
     private Leases lease;
-
-    @OneToMany(mappedBy = "bike")
-    private List<Fines> fines = new ArrayList<>();
 }

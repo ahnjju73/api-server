@@ -19,12 +19,8 @@ public class Fines {
     @Column(name = "fine_no", nullable = false)
     private Integer fineNo;
 
-    @Column(name = "bike_no")
-    private Integer bikeNo;
-
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "bike_no", insertable = false, updatable = false)
-    private Bikes bike;
+    @Column(name = "fine_id")
+    private String fineId;
 
     @Column(name = "fee")
     private Integer fee;
@@ -38,5 +34,7 @@ public class Fines {
     @Column(name = "fine_date")
     private LocalDateTime fineDt;
 
+    @Column(name = "fine_expire_date")
+    private LocalDateTime expireDt;
 
 }

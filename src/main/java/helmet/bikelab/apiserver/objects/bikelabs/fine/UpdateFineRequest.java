@@ -13,17 +13,20 @@ import java.time.LocalDateTime;
 @Setter
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class UpdateFineRequest extends OriginObject {
-    private String fineNum;
+    private String fineId;
     private String bikeId;
+    private String finNum;
     private LocalDateTime fineDate;
+    private LocalDateTime expireDate;
     private Integer fee;
+    private Integer paidFee;
 
     public void setFineDate(String fineDate){
         this.fineDate =  LocalDateTime.parse(fineDate);
     }
 
     public void checkValidation(){
-        if(!bePresent(fineNum)) withException("");
+        if(!bePresent(fineId)) withException("");
         if(!bePresent(bikeId)) withException("");
     }
 

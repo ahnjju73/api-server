@@ -14,9 +14,12 @@ import java.time.LocalDateTime;
 public class FetchFineResponse extends OriginObject {
     private LocalDateTime fineDate;
     private String clientName;
+    private String clientId;
     private Integer fee;
     private Integer paidFee;
+    private String bikeId;
     private String bikeNum;
+    private String fineId;
 
     public void setFineDate(String fineDate){
         this.fineDate = LocalDateTime.parse(fineDate);

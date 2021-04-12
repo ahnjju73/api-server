@@ -56,9 +56,8 @@ public class InsurancesHandler {
 
     public Mono<ServerResponse> fetchInsuranceOption(ServerRequest request){
         return ServerResponse.ok().body(
-                request.bodyToMono(Map.class)
+                Mono.fromSupplier(() -> insurancesService.makeSessionRequest(request, BikeSessionRequest.class))
                         .subscribeOn(Schedulers.elastic())
-                        .map(row -> insurancesService.makeSessionRequest(request, row, BikeSessionRequest.class))
                         .map(insurancesService::checkBikeSession)
                         .map(insurancesService::fetchInsuranceOption)
                         .map(insurancesService::returnData), Map.class);

@@ -17,6 +17,6 @@ public class InsurancesRouters {
                 .andRoute(POST("/insurances"), handler::addInsurance)
                 .andRoute(PUT("/insurances"), handler::updateInsurance)
                 .andRoute(DELETE("/insurances"), handler::deleteInsurance)
-                .andRoute(GET("/insurances/options"), handler::fetchInsuranceOption);
+                .andRoute(GET("/insurances/cover-options"), handler::fetchInsuranceOption);
     }
 }
