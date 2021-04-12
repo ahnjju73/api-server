@@ -20,6 +20,7 @@ public class FetchFineResponse extends OriginObject {
     private String bikeId;
     private String bikeNum;
     private String fineId;
+    private String fineNum;
 
     public void setFineDate(String fineDate){
         this.fineDate = LocalDateTime.parse(fineDate);
