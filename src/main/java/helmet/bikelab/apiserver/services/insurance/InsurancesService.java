@@ -3,6 +3,7 @@ package helmet.bikelab.apiserver.services.insurance;
 import helmet.bikelab.apiserver.domain.CommonCodeInsurances;
 import helmet.bikelab.apiserver.domain.lease.Insurances;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
+import helmet.bikelab.apiserver.objects.InsuranceOptionDto;
 import helmet.bikelab.apiserver.objects.bikelabs.insurance.DeleteInsuranceRequest;
 import helmet.bikelab.apiserver.objects.bikelabs.insurance.FetchInsuranceRequest;
 import helmet.bikelab.apiserver.objects.bikelabs.insurance.FetchInsuranceResponse;
@@ -80,16 +81,27 @@ public class InsurancesService extends SessService {
     public BikeSessionRequest fetchInsuranceOption(BikeSessionRequest request){
         Map param = request.getParam();
         Map response = new HashMap();
-        FetchInsuranceRequest fetchInsuranceRequest = map(param, FetchInsuranceRequest.class);
+        List<CommonCodeInsurances> insuranceOptions = insuranceOptionlRepository.findAll();
         List<FetchInsuranceResponse> fetchInsuranceResponses = new ArrayList<>();
-        List<CommonCodeInsurances> commonCodeInsurancesList = insuranceOptionlRepository.findByUpperCode(fetchInsuranceRequest.getUpCode());
-        for(CommonCodeInsurances commonCodeInsurance : commonCodeInsurancesList){
-            FetchInsuranceResponse fetchInsuranceResponse = new FetchInsuranceResponse();
-            fetchInsuranceResponse.setCode(commonCodeInsurance.getCode());
-            fetchInsuranceResponse.setName(commonCodeInsurance.getName());
-            fetchInsuranceResponses.add(fetchInsuranceResponse);
+        for(CommonCodeInsurances insurance : insuranceOptions){
+            if(insurance.getUpperCode()==null){
+                FetchInsuranceResponse fetchInsuranceResponse = new FetchInsuranceResponse();
+                fetchInsuranceResponse.setUpCode(insurance.getCode());
+                fetchInsuranceResponse.setUpCodeName(insurance.getName());
+                fetchInsuranceResponse.setList(new ArrayList<>());
+                fetchInsuranceResponses.add(fetchInsuranceResponse);
+            }else{
+                for(int i=0; i<fetchInsuranceResponses.size();i++){
+                    if(fetchInsuranceResponses.get(i).getUpCode().equals(insurance.getUpperCode())){
+                        InsuranceOptionDto optionDto = new InsuranceOptionDto();
+                        optionDto.setValue(insurance.getName());
+                        optionDto.setComCode(insurance.getCode());
+                        fetchInsuranceResponses.get(i).getList().add(optionDto);
+                    }
+                }
+            }
         }
-        response.put("insurance_option", fetchInsuranceResponses);
+        response.put("insurances", fetchInsuranceResponses);
         request.setResponse(response);
         return request;
     }
