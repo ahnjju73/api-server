@@ -21,6 +21,9 @@ public class AddFineRequest extends OriginObject {
     public void setFineDate(String fineDate){
         this.fineDate = LocalDateTime.parse(fineDate);
     }
+    public void setExpireDate(String expireDate){
+        this.expireDate = LocalDateTime.parse(expireDate);
+    }
 
     public void checkValidation(){
         if(!bePresent(fineNum)) withException("700-002");

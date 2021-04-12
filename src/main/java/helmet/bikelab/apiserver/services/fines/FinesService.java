@@ -78,22 +78,20 @@ public class FinesService extends SessService {
         AddFineRequest addFineRequest = map(param, AddFineRequest.class);
         addFineRequest.checkValidation();
         Fines fine = new Fines();
+        LeaseFine leaseFine = new LeaseFine();
+        LeasePayments leasePayments = leasePaymentsRepository.findByPaymentId(addFineRequest.getPaymentId());
         String fineId = autoKey.makeGetKey("fine");
         fine.setFineId(fineId);
         fine.setFineDt(addFineRequest.getFineDate());
         fine.setFineNum(addFineRequest.getFineNum());
         fine.setFee(addFineRequest.getFee());
         finesRepository.save(fine);
-        LeaseFine leaseFine = new LeaseFine();
-        LeasePayments leasePayments = leasePaymentsRepository.findByPaymentId(addFineRequest.getPaymentId());
         if(bePresent(leasePayments)){
             leaseFine.setFineNo(fine.getFineNo());
             leaseFine.setPaymentNo(leasePayments.getPaymentNo());
             leaseFine.setLeaseNo(leasePayments.getLeaseNo());
             leaseFineRepository.save(leaseFine);
         }
-
-
         return request;
     }
 
@@ -105,11 +103,19 @@ public class FinesService extends SessService {
         fine.setFineDt(updateFineRequest.getFineDate());
         fine.setExpireDt(updateFineRequest.getExpireDate());
         fine.setFee(updateFineRequest.getFee());
-        fine.setFineNum(updateFineRequest.getFinNum());
+        fine.setFineNum(updateFineRequest.getFineNum());
         fine.setPaidFee(updateFineRequest.getPaidFee());
-
         finesRepository.save(fine);
-
+        //리스파인 수
+//        LeasePayments leasePayments = leasePaymentsRepository.findByPaymentId(updateFineRequest.getPaymentId());
+//        if(!bePresent(leasePayments)) withException("700-008");
+//        LeaseFine leaseFine = leaseFineRepository.findByFine(fine);
+//        if(bePresent(leaseFine)){
+//            leaseFineRepository.delete(leaseFine);
+//            leaseFine.setPaymentNo(leasePayments.getPaymentNo());
+//            leaseFine.setLeaseNo(leasePayments.getLeaseNo());
+//            leaseFineRepository.save(leaseFine);
+//        }
         return request;
     }
 
@@ -120,6 +126,10 @@ public class FinesService extends SessService {
         deleteFineRequest.checkValidation();
         Fines fine = finesRepository.findByFineId(deleteFineRequest.getFineId());
         finesRepository.delete(fine);
+        LeaseFine leaseFine = leaseFineRepository.findByFine(fine);
+        if(bePresent(leaseFine)){
+            leaseFineRepository.delete(leaseFine);
+        }
         return request;
     }
 
