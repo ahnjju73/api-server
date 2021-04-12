@@ -67,7 +67,6 @@ public class FinesService extends SessService {
         fetchFineResponse.setFineDate(fines.getFineDt());
         fetchFineResponse.setFee(fines.getFee());
         fetchFineResponse.setPaidFee(fines.getPaidFee());
-        fetchFineResponse.setFineId(fines.getFineNum());
         response.put("fine", fetchFineResponse);
         request.setResponse(response);
         return request;
