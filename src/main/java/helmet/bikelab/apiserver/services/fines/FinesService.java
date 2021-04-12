@@ -27,6 +27,8 @@ import java.util.Map;
 public class FinesService extends SessService {
     private final FinesRepository finesRepository;
     private final LeaseFineRepository leaseFineRepository;
+    private final BikesRepository bikesRepository;
+//    private final Bike
     private final AutoKey autoKey;
 
     public BikeSessionRequest fetchFineList(BikeSessionRequest request){
@@ -53,13 +55,15 @@ public class FinesService extends SessService {
         FetchFineRequest fetchFineRequest = map(param, FetchFineRequest.class);
         Fines fines = finesRepository.findByFineId(fetchFineRequest.getFineId());
         LeaseFine leaseFine = leaseFineRepository.findByFine(fines);
-        Clients clients = leaseFine.getLease().getClients();
-        Bikes bikes = leaseFine.getLease().getBike();
         FetchFineResponse fetchFineResponse = new FetchFineResponse();
-        fetchFineResponse.setClientName(clients.getClientInfo().getName());
-        fetchFineResponse.setClientId(clients.getClientId());
-        fetchFineResponse.setBikeNum(bikes.getCarNum());
-        fetchFineResponse.setBikeId(bikes.getBikeId());
+        if(leaseFine!=null) {
+            Clients clients = leaseFine.getLease().getClients();
+            Bikes bikes = leaseFine.getLease().getBike();
+            fetchFineResponse.setClientName(clients.getClientInfo().getName());
+            fetchFineResponse.setClientId(clients.getClientId());
+            fetchFineResponse.setBikeNum(bikes.getCarNum());
+            fetchFineResponse.setBikeId(bikes.getBikeId());
+        }
         fetchFineResponse.setFineId(fines.getFineId());
         fetchFineResponse.setFineDate(fines.getFineDt());
         fetchFineResponse.setFee(fines.getFee());
@@ -77,6 +81,7 @@ public class FinesService extends SessService {
         addFineRequest.checkValidation();
         Fines fine = new Fines();
         String fineId = autoKey.makeGetKey("fine");
+
         fine.setFineId(fineId);
         fine.setFineDt(addFineRequest.getFineDate());
         fine.setFineNum(addFineRequest.getFineNum());
@@ -89,7 +94,6 @@ public class FinesService extends SessService {
     public BikeSessionRequest updateFine(BikeSessionRequest request){
         Map param = request.getParam();
         UpdateFineRequest updateFineRequest = map(param, UpdateFineRequest.class);
-
         Fines fine = finesRepository.findByFineId(updateFineRequest.getFineId());
         fine.setFineDt(updateFineRequest.getFineDate());
         fine.setExpireDt(updateFineRequest.getExpireDate());

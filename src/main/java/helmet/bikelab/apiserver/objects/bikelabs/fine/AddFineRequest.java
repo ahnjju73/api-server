@@ -16,6 +16,7 @@ public class AddFineRequest extends OriginObject {
     private LocalDateTime fineDate;
     private Integer fee;
     private LocalDateTime expireDate;
+    private String bikeNum;
 
     public void setFineDate(String fineDate){
         this.fineDate = LocalDateTime.parse(fineDate);
