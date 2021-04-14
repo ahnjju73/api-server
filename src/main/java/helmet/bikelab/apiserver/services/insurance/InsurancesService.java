@@ -53,9 +53,8 @@ public class InsurancesService extends SessService {
         Map param = request.getParam();
         Insurances newInsurance = map(param, Insurances.class);
         Insurances insurance = insurancesRepository.findByInsuranceId(newInsurance.getInsuranceId());
-
+        insurance.setInsuranceTypeCode(newInsurance.getInsuranceTypeCode());
         insurance.setCompanyName(newInsurance.getCompanyName());
-        insurance.setInsuranceFee(newInsurance.getInsuranceFee());
         insurance.setAge(newInsurance.getAge());
         insurance.setBmCare(newInsurance.getBmCare());
         insurance.setLiabilityCar(newInsurance.getLiabilityCar());

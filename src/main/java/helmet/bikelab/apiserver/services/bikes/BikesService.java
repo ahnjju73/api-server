@@ -124,6 +124,10 @@ public class BikesService extends SessService {
         Map param = request.getParam();
         DeleteBikeRequest deleteBikeRequest  = map(param, DeleteBikeRequest.class);
         deleteBikeRequest.checkValidation();
+        Bikes bikes = bikesRepository.findByBikeId(deleteBikeRequest.getBikeId());
+        if(bikes.getLease()!=null){
+            bikesRepository.delete(bikes);
+        }
         return request;
     }
 

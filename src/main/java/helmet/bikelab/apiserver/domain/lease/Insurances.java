@@ -2,6 +2,11 @@ package helmet.bikelab.apiserver.domain.lease;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import helmet.bikelab.apiserver.domain.CommonCodeInsurances;
+import helmet.bikelab.apiserver.domain.types.InsuranceTypes;
+import helmet.bikelab.apiserver.domain.types.converters.InsuranceTypeConverter;
 import helmet.bikelab.apiserver.services.internal.OriginObject;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,6 +18,7 @@ import javax.persistence.*;
 @Getter
 @Setter
 @NoArgsConstructor
+@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 @Table(name = "insurances")
 public class Insurances extends OriginObject {
     @Id
@@ -21,9 +27,15 @@ public class Insurances extends OriginObject {
     @Column(name = "insurance_no", nullable = false)
     private Integer insuranceNo;
 
-    @JsonIgnore
     @Column(name = "insurance_id", nullable = false)
     private String insuranceId;
+
+    @Column(name = "insurance_type", nullable = false)
+    private String insuranceTypeCode;
+
+    @ManyToOne
+    @JoinColumn(name = "insurance_type", insertable = false, updatable = false)
+    private CommonCodeInsurances insuranceType;
 
     @Column(name = "insurance_age", columnDefinition = "TINYINT")
     private Integer age;
@@ -31,22 +43,19 @@ public class Insurances extends OriginObject {
     @Column(name = "company_name", length = 45)
     private String companyName;
 
-    @Column(name = "insurance_fee")
-    private Integer insuranceFee;
-
     @Column(name = "bm_care", columnDefinition = "TINYINT")
     private Integer bmCare;
 
-    @Column(name = "liability_man", columnDefinition = "TINYINT")
+    @Column(name = "liability_man", nullable = false)
     private Integer liabilityMan;
 
-    @Column(name = "liability_car", columnDefinition = "TINYINT")
+    @Column(name = "liability_car", nullable = false)
     private Integer liabilityCar;
 
-    @Column(name = "self_cover_man", columnDefinition = "TINYINT")
+    @Column(name = "self_cover_man")
     private Integer selfCoverMan;
 
-    @Column(name = "self_cover_car", columnDefinition = "TINYINT")
+    @Column(name = "self_cover_car")
     private Integer selfCoverCar;
 
 
