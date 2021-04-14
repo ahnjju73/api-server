@@ -50,6 +50,6 @@ public class Bikes {
     @Column(name = "register_dt")
     private LocalDateTime registerDate;
 
-    @OneToOne(mappedBy = "bike", fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "bike", fetch = FetchType.EAGER)
     private Leases lease;
 }
