@@ -18,5 +18,6 @@ public class FetchFinesResponse {
     private String bikeNum;
     private String fineNum;
     private String bikeId;
+    private LocalDateTime fineExpireDate;
 
 }

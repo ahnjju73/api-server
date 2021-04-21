@@ -21,6 +21,9 @@ public class Releases {
     @Column(name = "release_no", nullable = false)
     private Integer releaseNo;
 
+    @Column(name = "release_id")
+    private String releaseId;
+
     @Column(name = "release_name", length = 45)
     private String releaseName;
 

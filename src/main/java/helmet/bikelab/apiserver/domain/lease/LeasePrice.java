@@ -1,6 +1,7 @@
 package helmet.bikelab.apiserver.domain.lease;
 
 import helmet.bikelab.apiserver.domain.types.PaymentTypes;
+import helmet.bikelab.apiserver.domain.types.converters.PaymentTypeConverter;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -23,14 +24,12 @@ public class LeasePrice {
     private Leases lease;
 
     @Column(name = "payment_type", columnDefinition = "ENUM")
+    @Convert(converter = PaymentTypeConverter.class)
     private PaymentTypes type;
 
-    // todo ask why varchar
     @Column(name = "payment_day", length = 45)
     private String paymentDay;
 
-//    @Column(name = "payment_day", columnDefinition = "TinyInt")
-//    private Integer paymentDay;
     @Column(name = "deposit")
     private Integer deposit;
 

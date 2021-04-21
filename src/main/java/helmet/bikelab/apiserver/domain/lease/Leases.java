@@ -50,8 +50,16 @@ public class Leases {
     @Column(name = "release_no")
     private Integer releaseNo;
 
+    @OneToOne
+    @JoinColumn(name = "release_no", insertable = false, updatable = false)
+    private Releases releases;
+
     @Column(name = "insurance_no")
     private Integer insuranceNo;
+
+    @OneToOne
+    @JoinColumn(name = "insurance_no", insertable = false, updatable = false)
+    private Insurances insurances;
 
     @Column(name = "contract_type", columnDefinition = "ENUM")
     @Convert(converter = ContractTypeConverter.class)
@@ -73,7 +81,6 @@ public class Leases {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
-    // todo release, insurance mapping
     @OneToOne(mappedBy = "lease", optional = false)
     private LeaseInfo leaseInfo;
 

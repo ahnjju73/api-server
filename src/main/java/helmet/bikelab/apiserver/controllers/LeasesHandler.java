@@ -1,9 +1,38 @@
 package helmet.bikelab.apiserver.controllers;
 
+import helmet.bikelab.apiserver.objects.BikeSessionRequest;
+import helmet.bikelab.apiserver.services.leases.LeasesService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.server.ServerRequest;
+import org.springframework.web.reactive.function.server.ServerResponse;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
+
+import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
 public class LeasesHandler {
+    private final LeasesService leasesService;
+
+    public Mono<ServerResponse> fetchLeases(ServerRequest request){
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> leasesService.makeSessionRequest(request, BikeSessionRequest.class))
+                .subscribeOn(Schedulers.elastic())
+                .map(leasesService::checkBikeSession)
+                .map(leasesService::fetchLeases)
+                .map(leasesService::returnData), Map.class
+        );
+    }
+
+    public Mono<ServerResponse> addLease(ServerRequest request){
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> leasesService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(leasesService::checkBikeSession)
+                        .map(leasesService::addLease)
+                        .map(leasesService::returnData), Map.class);
+    }
 }
