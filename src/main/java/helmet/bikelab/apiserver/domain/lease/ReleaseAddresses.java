@@ -12,7 +12,7 @@ import javax.persistence.*;
 @Setter
 @NoArgsConstructor
 @Table(name = "release_addresses")
-public class ReleaseAddresses {
+public class  ReleaseAddresses {
     @Id
     @Column(name = "release_no", nullable = false)
     private Integer releaseNo;

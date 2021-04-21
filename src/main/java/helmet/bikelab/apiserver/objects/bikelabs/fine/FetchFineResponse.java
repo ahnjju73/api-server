@@ -13,6 +13,7 @@ import java.time.LocalDateTime;
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class FetchFineResponse extends OriginObject {
     private LocalDateTime fineDate;
+    private LocalDateTime fineExpireDate;
     private String clientName;
     private String clientId;
     private Integer fee;
@@ -22,10 +23,5 @@ public class FetchFineResponse extends OriginObject {
     private String fineId;
     private String fineNum;
 
-    public void setFineDate(String fineDate){
-        this.fineDate = LocalDateTime.parse(fineDate);
-    }
-    public void setFineDate(LocalDateTime fineDate){
-        this.fineDate = fineDate;
-    }
+
 }

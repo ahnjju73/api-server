@@ -40,6 +40,7 @@ public class FinesService extends SessService {
             fetchFinesResponse.setPaidFee(fine.getPaidFee());
             fetchFinesResponse.setFineNum(fine.getFineNum());
             fetchFinesResponse.setFineId(fine.getFineId());
+            fetchFinesResponse.setFineExpireDate(fine.getExpireDt());
             fetchFineResponseList.add(fetchFinesResponse);
         }
         response.put("fines", fetchFineResponseList);
@@ -62,6 +63,7 @@ public class FinesService extends SessService {
             fetchFineResponse.setBikeNum(bikes.getCarNum());
             fetchFineResponse.setBikeId(bikes.getBikeId());
         }
+        fetchFineResponse.setFineExpireDate(fines.getExpireDt());
         fetchFineResponse.setFineNum(fines.getFineNum());
         fetchFineResponse.setFineId(fines.getFineId());
         fetchFineResponse.setFineDate(fines.getFineDt());
@@ -77,10 +79,12 @@ public class FinesService extends SessService {
         Map param = request.getParam();
         AddFineRequest addFineRequest = map(param, AddFineRequest.class);
         addFineRequest.checkValidation();
+        if(finesRepository.countFinesByFineNum(addFineRequest.getFineNum())>0) withException("700-009");
         Fines fine = new Fines();
         LeaseFine leaseFine = new LeaseFine();
         LeasePayments leasePayments = leasePaymentsRepository.findByPaymentId(addFineRequest.getPaymentId());
         String fineId = autoKey.makeGetKey("fine");
+        fine.setPaidFee(addFineRequest.getPaidFee());
         fine.setFineId(fineId);
         fine.setFineDt(addFineRequest.getFineDate());
         fine.setFineNum(addFineRequest.getFineNum());
@@ -100,6 +104,9 @@ public class FinesService extends SessService {
         Map param = request.getParam();
         UpdateFineRequest updateFineRequest = map(param, UpdateFineRequest.class);
         Fines fine = finesRepository.findByFineId(updateFineRequest.getFineId());
+        if(!fine.getFineNum().equals(updateFineRequest.getFineNum())){
+            if(finesRepository.countFinesByFineNum(updateFineRequest.getFineNum())>0) withException("700-010");
+        }
         fine.setFineDt(updateFineRequest.getFineDate());
         fine.setExpireDt(updateFineRequest.getExpireDate());
         fine.setFee(updateFineRequest.getFee());

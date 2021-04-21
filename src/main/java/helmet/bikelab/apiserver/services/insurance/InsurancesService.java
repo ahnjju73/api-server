@@ -42,6 +42,7 @@ public class InsurancesService extends SessService {
     public BikeSessionRequest addInsurance(BikeSessionRequest request){
         Map param = request.getParam();
         Insurances insurance = map(param, Insurances.class);
+        insurance.checkValidation();
         String insuranceId = autoKey.makeGetKey("insurance");
         insurance.setInsuranceId(insuranceId);
         insurancesRepository.save(insurance);
@@ -52,6 +53,7 @@ public class InsurancesService extends SessService {
     public BikeSessionRequest updateInsurance(BikeSessionRequest request){
         Map param = request.getParam();
         Insurances newInsurance = map(param, Insurances.class);
+        newInsurance.checkValidation();
         Insurances insurance = insurancesRepository.findByInsuranceId(newInsurance.getInsuranceId());
         insurance.setInsuranceTypeCode(newInsurance.getInsuranceTypeCode());
         insurance.setCompanyName(newInsurance.getCompanyName());

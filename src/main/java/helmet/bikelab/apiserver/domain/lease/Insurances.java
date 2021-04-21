@@ -5,8 +5,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import helmet.bikelab.apiserver.domain.CommonCodeInsurances;
-import helmet.bikelab.apiserver.domain.types.InsuranceTypes;
-import helmet.bikelab.apiserver.domain.types.converters.InsuranceTypeConverter;
 import helmet.bikelab.apiserver.services.internal.OriginObject;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -52,11 +50,25 @@ public class Insurances extends OriginObject {
     @Column(name = "liability_car", nullable = false)
     private Integer liabilityCar;
 
-    @Column(name = "self_cover_man")
+    @Column(name = "liability_man2", nullable = false)
+    private Integer liabilityMan2;
+
+    @Column(name = "self_cover_man", nullable = false)
     private Integer selfCoverMan;
 
-    @Column(name = "self_cover_car")
+    @Column(name = "self_cover_car", nullable = false)
     private Integer selfCoverCar;
 
+    @Column(name = "no_insurance_cover", nullable = false)
+    private Integer noInsuranceCover;
 
+
+    public void checkValidation(){
+        if(!bePresent(liabilityCar)) withException("800-002");
+        if(!bePresent(liabilityMan)) withException("800-001");
+        if(!bePresent(liabilityMan2)) withException("800-006");
+        if(!bePresent(selfCoverCar)) withException("800-003");
+        if(!bePresent(selfCoverMan)) withException("800-004");
+        if(!bePresent(noInsuranceCover)) withException("800-005");
+    }
 }

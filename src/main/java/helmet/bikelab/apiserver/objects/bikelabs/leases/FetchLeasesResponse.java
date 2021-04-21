@@ -1,0 +1,27 @@
+package helmet.bikelab.apiserver.objects.bikelabs.leases;
+
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import helmet.bikelab.apiserver.domain.bike.BikeDto;
+import helmet.bikelab.apiserver.objects.bikelabs.release.ReleaseDto;
+import helmet.bikelab.apiserver.objects.bikelabs.clients.ClientDto;
+import helmet.bikelab.apiserver.objects.bikelabs.insurance.InsuranceDto;
+import lombok.Getter;
+import lombok.Setter;
+
+@Setter
+@Getter
+@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
+public class FetchLeasesResponse {
+    private String leaseId;
+    private String bikeId;
+    private String clientId;
+    private String insuranceId;
+    private String releaseId;
+    private BikeDto bike;
+    private ClientDto client;
+    private InsuranceDto insurance;
+    private ReleaseDto release;
+    private LeaseInfoDto leaseInfo;
+    private LeasePriceDto leasePrice;
+}

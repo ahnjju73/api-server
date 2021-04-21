@@ -6,10 +6,16 @@ import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
+import static org.springframework.web.reactive.function.server.RequestPredicates.*;
+
 @Component
 public class LeasesRouters {
     @Bean
     public RouterFunction<ServerResponse> leasesRouter(LeasesHandler handler){
-        return null;
+        return RouterFunctions
+                .route(GET("/leases"), handler::fetchLeases)
+                .andRoute(POST("/leases"), handler::addLease);
+//                .andRoute(PUT("/leases"), handler::updateInsurance)
+//                .andRoute(DELETE("/leases"), handler::deleteInsurance);
     }
 }
