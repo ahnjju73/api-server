@@ -15,7 +15,7 @@ import java.util.Map;
 @Getter
 @Setter
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
-public class AddLeaseRequest extends OriginObject {
+public class AddUpdateLeaseRequest extends OriginObject {
     private String leaseId;
     private String bikeId;
     private String clientId;
