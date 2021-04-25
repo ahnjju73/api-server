@@ -68,7 +68,7 @@ public class EmployeesHandlers {
         return ServerResponse.ok().body(
                 Mono.fromSupplier(() -> adminEmployeeService.makeSessionRequest(request, BikeSessionRequest.class))
                         .subscribeOn(Schedulers.elastic())
-                        .map(req -> adminEmployeeService.getPathVariable(req, "user_no", "user_id", ""))
+                        .map(req -> adminEmployeeService.getPathVariable(req, "user_no"))
                         .map(adminEmployeeService::checkBikeSession)
                         .map(adminEmployeeService::fetchEmployeeInfoByUserNo)
                         .map(adminEmployeeService::returnData), Map.class);
