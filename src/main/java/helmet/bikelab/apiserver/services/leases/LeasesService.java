@@ -49,6 +49,7 @@ public class LeasesService extends SessService {
             if(lease.getBike() != null) {
                 fetchLeasesResponse.setBikeId(lease.getBike().getBikeId());
                 BikeDto bikeDto = new BikeDto();
+                bikeDto.setBikeNum(lease.getBike().getCarNum());
                 bikeDto.setBikeId(lease.getBike().getBikeId());
                 bikeDto.setBikeModel(lease.getBike().getCarModel().getCodeName());
                 fetchLeasesResponse.setBike(bikeDto);
@@ -84,6 +85,7 @@ public class LeasesService extends SessService {
                 releaseDto.setCreatedAt(lease.getReleases().getCreatedAt());
                 releaseDto.setReleaseAddress(lease.getReleases().getAddress().getAddress());
             }
+            fetchLeasesResponse.setStatus(lease.getStatus().getStatus());
             fetchLeasesResponses.add(fetchLeasesResponse);
         }
         response.put("leases",fetchLeasesResponses);
@@ -102,6 +104,7 @@ public class LeasesService extends SessService {
             BikeDto bikeDto = new BikeDto();
             bikeDto.setBikeId(lease.getBike().getBikeId());
             bikeDto.setBikeModel(lease.getBike().getCarModel().getCodeName());
+            bikeDto.setBikeNum(lease.getBike().getCarNum());
             fetchLeasesResponse.setBike(bikeDto);
         }
         if(lease.getClients()!=null) {
@@ -177,7 +180,7 @@ public class LeasesService extends SessService {
         LeaseInfo leaseInfo = new LeaseInfo();
         leaseInfo.setLeaseNo(lease.getLeaseNo());
         leaseInfo.setPeriod(leaseInfoDto.getPeriod());
-        leaseInfo.setStart(LocalDate.parse(leaseInfoDto.getStartDt()));
+        leaseInfo.setStart(LocalDate.parse(leaseInfoDto.getStartDt()));//payment시작
         leaseInfo.setEndDate(LocalDate.parse(leaseInfoDto.getEndDt()));
         leaseInfo.setNote(leaseInfoDto.getNote());
         leaseInfoRepository.save(leaseInfo);
@@ -195,6 +198,9 @@ public class LeasesService extends SessService {
         leasePrice.setTakeFee(leasePriceDto.getTakeFee());
         leasePrice.setRegisterFee(leasePriceDto.getRegisterFee());
         leasePriceRepository.save(leasePrice);
+
+        //lease payments
+
         return request;
     }
 
@@ -229,6 +235,7 @@ public class LeasesService extends SessService {
         lease.setCreatedAt(addUpdateLeaseRequest.getCreatedAt());
         lease.setUpLesase(addUpdateLeaseRequest.getUpLeaseNo());
         leaseRepository.save(lease);
+
         //lease info
         LeaseInfoDto leaseInfoDto = addUpdateLeaseRequest.getLeaseInfo();
         LeaseInfo leaseInfo = new LeaseInfo();
@@ -238,6 +245,7 @@ public class LeasesService extends SessService {
         leaseInfo.setEndDate(LocalDate.parse(leaseInfoDto.getEndDt()));
         leaseInfo.setNote(leaseInfoDto.getNote());
         leaseInfoRepository.save(leaseInfo);
+
         //lease price
         LeasePriceDto leasePriceDto = addUpdateLeaseRequest.getLeasePrice();
         LeasePrice leasePrice = new LeasePrice();
@@ -251,6 +259,28 @@ public class LeasesService extends SessService {
         leasePrice.setTakeFee(leasePriceDto.getTakeFee());
         leasePrice.setRegisterFee(leasePriceDto.getRegisterFee());
         leasePriceRepository.save(leasePrice);
+
+        return request;
+    }
+
+    public BikeSessionRequest changeStatus (BikeSessionRequest request){
+
+        return request;
+    }
+
+    @Transactional
+    public BikeSessionRequest confirmLease (BikeSessionRequest request){
+
+        return request;
+    }
+
+    @Transactional
+    public BikeSessionRequest pendingLease (BikeSessionRequest request){
+        Map param = request.getParam();
+        LeasesDto leasesDto = map(param, LeasesDto.class);
+        Leases lease = leaseRepository.findByLeaseId(leasesDto.getLeaseId());
+        if(!bePresent(lease)) withException("");
+
 
         return request;
     }

@@ -3,13 +3,16 @@ package helmet.bikelab.apiserver.domain.lease;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.client.Clients;
 import helmet.bikelab.apiserver.domain.types.ContractTypes;
+import helmet.bikelab.apiserver.domain.types.LeaseStatusTypes;
 import helmet.bikelab.apiserver.domain.types.ManagementTypes;
 import helmet.bikelab.apiserver.domain.types.converters.ContractTypeConverter;
+import helmet.bikelab.apiserver.domain.types.converters.LeaseStatusTypesConverter;
 import helmet.bikelab.apiserver.domain.types.converters.ManagementTypeConverter;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.apachecommons.CommonsLog;
+import org.hibernate.validator.constraints.br.CPF;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -80,6 +83,10 @@ public class Leases {
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    @Column(name = "status", columnDefinition = "ENUM")
+    @Convert(converter = LeaseStatusTypesConverter.class)
+    private LeaseStatusTypes status = LeaseStatusTypes.IN_PROGRESS;
 
     @OneToOne(mappedBy = "lease", optional = false)
     private LeaseInfo leaseInfo;

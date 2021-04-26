@@ -24,4 +24,5 @@ public class FetchLeasesResponse {
     private ReleaseDto release;
     private LeaseInfoDto leaseInfo;
     private LeasePriceDto leasePrice;
+    private String status;
 }
