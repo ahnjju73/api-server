@@ -24,6 +24,15 @@ public class LeasesHandler {
                         .map(leasesService::fetchLeases)
                         .map(leasesService::returnData), Map.class);
     }
+    public Mono<ServerResponse> fetchLease(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> leasesService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(req -> leasesService.getPathVariable(req, "lease_id"))
+                        .map(leasesService::checkBikeSession)
+                        .map(leasesService::fetchDetailLease)
+                        .map(leasesService::returnData), Map.class);
+    }
 
     public Mono<ServerResponse> addLease(ServerRequest request){
         return ServerResponse.ok().body(

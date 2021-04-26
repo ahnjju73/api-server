@@ -14,6 +14,7 @@ public class LeasesRouters {
     public RouterFunction<ServerResponse> leasesRouter(LeasesHandler handler){
         return RouterFunctions
                 .route(GET("/leases"), handler::fetchLeases)
+                .andRoute(GET("/leases/{lease_id}"), handler::fetchLease)
                 .andRoute(POST("/leases"), handler::addLease)
                 .andRoute(PUT("/leases/{lease_id}"), handler::updateLease);
 //                .andRoute(DELETE("/leases"), handler::deleteInsurance);
