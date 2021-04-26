@@ -95,9 +95,10 @@ public class LeasesService extends SessService {
 
     public BikeSessionRequest fetchDetailLease(BikeSessionRequest request){
         Map param = request.getParam();
+        Map response = new HashMap();
         LeasesDto leasesDto = map(param, LeasesDto.class);
         Leases lease = leaseRepository.findByLeaseId(leasesDto.getLeaseId());
-        if(!bePresent(lease)) withException("850-002");
+        if(lease==null) withException("850-002");
         FetchLeasesResponse fetchLeasesResponse = new FetchLeasesResponse();
         if(lease.getBike()!=null) {
             fetchLeasesResponse.setBikeId(lease.getBike().getBikeId());
@@ -138,6 +139,8 @@ public class LeasesService extends SessService {
             releaseDto.setCreatedAt(lease.getReleases().getCreatedAt());
             releaseDto.setReleaseAddress(lease.getReleases().getAddress().getAddress());
         }
+        response.put("lease", fetchLeasesResponse);
+        request.setResponse(response);
         return request;
     }
 
@@ -198,8 +201,6 @@ public class LeasesService extends SessService {
         leasePrice.setTakeFee(leasePriceDto.getTakeFee());
         leasePrice.setRegisterFee(leasePriceDto.getRegisterFee());
         leasePriceRepository.save(leasePrice);
-
-        //lease payments
 
         return request;
     }
