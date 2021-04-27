@@ -18,11 +18,13 @@ public class FetchLeasesResponse {
     private String clientId;
     private String insuranceId;
     private String releaseId;
+    private String status;
+    private String contractType;
+    private String managementType;
     private BikeDto bike;
     private ClientDto client;
     private InsuranceDto insurance;
     private ReleaseDto release;
     private LeaseInfoDto leaseInfo;
     private LeasePriceDto leasePrice;
-    private String status;
 }
