@@ -2,6 +2,7 @@ package helmet.bikelab.apiserver.services.leases;
 
 import helmet.bikelab.apiserver.domain.bike.BikeDto;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
+import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.client.Clients;
 import helmet.bikelab.apiserver.domain.lease.*;
 import helmet.bikelab.apiserver.domain.types.ContractTypes;
@@ -21,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -88,6 +90,8 @@ public class LeasesService extends SessService {
                 releaseDto.setReleaseAddress(lease.getReleases().getAddress().getAddress());
             }
             fetchLeasesResponse.setStatus(lease.getStatus().getStatus());
+            fetchLeasesResponse.setManagementType(lease.getType().getStatus());
+            fetchLeasesResponse.setContractType(lease.getContractTypes().getStatus());
             fetchLeasesResponses.add(fetchLeasesResponse);
         }
         response.put("leases",fetchLeasesResponses);
@@ -106,6 +110,10 @@ public class LeasesService extends SessService {
         fetchLeasesResponse.setStatus(lease.getStatus().getStatus());
         fetchLeasesResponse.setManagementType(lease.getType().getStatus());
         fetchLeasesResponse.setContractType(lease.getContractTypes().getStatus());
+        fetchLeasesResponse.setTakeLoc(lease.getTakeLocation());
+        fetchLeasesResponse.setTakeAt(lease.getTakeAt());
+        fetchLeasesResponse.setCreatedAt(lease.getCreatedAt());
+        fetchLeasesResponse.setReleaseAt(lease.getReleaseAt());
         if(lease.getBike()!=null) {
             fetchLeasesResponse.setBikeId(lease.getBike().getBikeId());
             BikeDto bikeDto = new BikeDto();
@@ -177,6 +185,7 @@ public class LeasesService extends SessService {
             lease.setInsuranceNo(insurance.getInsuranceNo());
         if(addUpdateLeaseRequest.getManagementType() != null)
             lease.setType(ManagementTypes.getManagementStatus(addUpdateLeaseRequest.getManagementType()));
+        lease.setCreatedAt(LocalDateTime.now());
         leaseRepository.save(lease);
 
         //lease info
@@ -194,6 +203,20 @@ public class LeasesService extends SessService {
         LeasePrice leasePrice = new LeasePrice();
         leasePrice.setLeaseNo(lease.getLeaseNo());
         leasePriceRepository.save(leasePrice);
+
+        List<LeasePayments> leasePaymentsList = new ArrayList<>();
+        BikeUser session = request.getSessionUser();
+        for(int i = 0; i< leaseInfo.getPeriod(); i++){
+            LeasePayments leasePayment = new LeasePayments();
+            String paymentId = autoKey.makeGetKey("payment");
+            leasePayment.setPaymentId(paymentId);
+            leasePayment.setLeaseNo(lease.getLeaseNo());
+            leasePayment.setIndex(i+1);
+            leasePayment.setPaymentDate(leaseInfo.getStart().plusMonths(i));
+            leasePayment.setInsertedUserNo(session.getUserNo());
+            leasePaymentsList.add(leasePayment);
+        }
+        leasePaymentsRepository.saveAll(leasePaymentsList);
 
         Map response = new HashMap();
         response.put("lease_id", leaseId);
@@ -224,8 +247,8 @@ public class LeasesService extends SessService {
             lease.setReleaseNo(release.getReleaseNo());
         if(insurance!=null)
             lease.setInsuranceNo(insurance.getInsuranceNo());
-        lease.setContractTypes(ContractTypes.getContractType(addUpdateLeaseRequest.getContractType()));
-        lease.setType(ManagementTypes.getManagementStatus(addUpdateLeaseRequest.getManagementType()));
+        if(addUpdateLeaseRequest.getManagementType() != null)
+            lease.setType(ManagementTypes.getManagementStatus(addUpdateLeaseRequest.getManagementType()));
         lease.setTakeLocation(addUpdateLeaseRequest.getTakeLoc());
         lease.setTakeAt(addUpdateLeaseRequest.getTakeAt());
         lease.setReleaseAt(addUpdateLeaseRequest.getReleaseAt());
@@ -238,14 +261,16 @@ public class LeasesService extends SessService {
         LeaseInfo leaseInfo = new LeaseInfo();
         leaseInfo.setLeaseNo(lease.getLeaseNo());
         leaseInfo.setPeriod(leaseInfoDto.getPeriod());
-        leaseInfo.setStart(LocalDate.parse(leaseInfoDto.getStartDt()));
-        leaseInfo.setEndDate(LocalDate.parse(leaseInfoDto.getEndDt()));
+        if(leaseInfoDto.getStartDt()!=null) {
+            leaseInfo.setStart(LocalDate.parse(leaseInfoDto.getStartDt()));
+            leaseInfo.setEndDate(leaseInfo.getStart().plusMonths(leaseInfo.getPeriod()));
+        }
         leaseInfo.setNote(leaseInfoDto.getNote());
         leaseInfoRepository.save(leaseInfo);
 
         //lease price
         LeasePriceDto leasePriceDto = addUpdateLeaseRequest.getLeasePrice();
-        LeasePrice leasePrice = new LeasePrice();
+        LeasePrice leasePrice = lease.getLeasePrice();
         leasePrice.setLeaseNo(lease.getLeaseNo());
         leasePrice.setType(PaymentTypes.getPaymentType(leasePriceDto.getPaymentType()));
         leasePrice.setPaymentDay(leasePriceDto.getPaymentDay());

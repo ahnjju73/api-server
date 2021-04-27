@@ -9,6 +9,8 @@ import helmet.bikelab.apiserver.objects.bikelabs.insurance.InsuranceDto;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Setter
 @Getter
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
@@ -21,6 +23,10 @@ public class FetchLeasesResponse {
     private String status;
     private String contractType;
     private String managementType;
+    private String takeLoc;
+    private LocalDateTime takeAt;
+    private LocalDateTime releaseAt;
+    private LocalDateTime createdAt;
     private BikeDto bike;
     private ClientDto client;
     private InsuranceDto insurance;
