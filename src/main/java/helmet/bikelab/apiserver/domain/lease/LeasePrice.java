@@ -25,7 +25,7 @@ public class LeasePrice {
 
     @Column(name = "payment_type", columnDefinition = "ENUM")
     @Convert(converter = PaymentTypeConverter.class)
-    private PaymentTypes type;
+    private PaymentTypes type = PaymentTypes.MONTHLY;
 
     @Column(name = "payment_day", length = 45)
     private String paymentDay;

@@ -66,11 +66,11 @@ public class Leases {
 
     @Column(name = "contract_type", columnDefinition = "ENUM")
     @Convert(converter = ContractTypeConverter.class)
-    private ContractTypes contractTypes;
+    private ContractTypes contractTypes = ContractTypes.OPERATING;
 
     @Column(name = "management_type", columnDefinition = "ENUM")
     @Convert(converter = ManagementTypeConverter.class)
-    private ManagementTypes type;
+    private ManagementTypes type = ManagementTypes.FINANCIAL;
 
     @Column(name = "take_loc")
     private String takeLocation;
