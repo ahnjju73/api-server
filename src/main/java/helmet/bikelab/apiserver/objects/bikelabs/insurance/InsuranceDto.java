@@ -10,6 +10,7 @@ import lombok.Setter;
 @Getter
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class InsuranceDto {
+    private String insuranceId;
     private String companyName;
     private Integer insuranceAge;
     private Integer bmCare;
@@ -21,6 +22,7 @@ public class InsuranceDto {
     private Integer noInsuranceCover;
 
     public void setInsurance(Insurances insurance){
+        insuranceId = insurance.getInsuranceId();
         companyName = insurance.getCompanyName();
         insuranceAge = insurance.getAge();
         bmCare = insurance.getBmCare();
