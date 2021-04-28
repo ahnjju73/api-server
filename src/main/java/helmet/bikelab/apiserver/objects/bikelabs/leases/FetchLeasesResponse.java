@@ -10,6 +10,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Setter
 @Getter
@@ -33,4 +35,5 @@ public class FetchLeasesResponse {
     private ReleaseDto release;
     private LeaseInfoDto leaseInfo;
     private LeasePriceDto leasePrice;
+    private List<LeasePaymentDto> leasePayments = new ArrayList<>();
 }
