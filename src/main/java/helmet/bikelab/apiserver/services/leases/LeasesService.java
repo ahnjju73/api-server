@@ -153,6 +153,18 @@ public class LeasesService extends SessService {
             releaseDto.setCreatedAt(lease.getReleases().getCreatedAt());
             releaseDto.setReleaseAddress(lease.getReleases().getAddress().getAddress());
         }
+        List<LeasePayments> payments = leasePaymentsRepository.findAllByLease_LeaseId(lease.getLeaseId());
+        List<LeasePaymentDto> leasePayments = new ArrayList<>();
+        for(LeasePayments lp : payments){
+            LeasePaymentDto leasePaymentDto = new LeasePaymentDto();
+            leasePaymentDto.setLeaseFee(lp.getLeaseFee());
+            leasePaymentDto.setPaymentId(lp.getPaymentId());
+            leasePaymentDto.setPaymentDate(lp.getPaymentDate());
+            leasePaymentDto.setPaidFee(lp.getPaidFee());
+            leasePaymentDto.setIdx(lp.getIndex());
+            leasePayments.add(leasePaymentDto);
+        }
+        fetchLeasesResponse.setLeasePayments(leasePayments);
         response.put("lease", fetchLeasesResponse);
         request.setResponse(response);
         return request;
