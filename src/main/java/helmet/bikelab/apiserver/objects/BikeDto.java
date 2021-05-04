@@ -1,4 +1,4 @@
-package helmet.bikelab.apiserver.domain.bike;
+package helmet.bikelab.apiserver.objects;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;

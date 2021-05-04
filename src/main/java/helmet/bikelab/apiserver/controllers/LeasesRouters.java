@@ -16,7 +16,9 @@ public class LeasesRouters {
                 .route(GET("/leases"), handler::fetchLeases)
                 .andRoute(GET("/leases/{lease_id}"), handler::fetchLease)
                 .andRoute(POST("/leases"), handler::addLease)
-                .andRoute(PUT("/leases/{lease_id}"), handler::updateLease);
+                .andRoute(PUT("/leases/{lease_id}"), handler::updateLease)
+                .andRoute(PUT("/leases/change_status/submit"), handler::submitApplication)
+                .andRoute(PUT("/leases/change_status/confirm"), handler::confirmApplication);
 //                .andRoute(DELETE("/leases"), handler::deleteInsurance);
     }
 }

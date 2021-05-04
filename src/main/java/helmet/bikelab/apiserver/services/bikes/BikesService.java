@@ -42,6 +42,7 @@ public class BikesService extends SessService {
             model.setCarModelCode(carModel.getCode());
             model.setCarModelName(carModel.getCodeName());
             fetchBikesResponse.setModel(model);
+            fetchBikesResponse.setYears(bike.getYears());
             fetchBikesResponse.setVimNum(bike.getVimNum());
             fetchBikesResponse.setBikeId(bike.getBikeId());
             fetchBikesResponses.add(fetchBikesResponse);
@@ -64,6 +65,7 @@ public class BikesService extends SessService {
         CarModel model = new CarModel();
         model.setCarModelCode(carModel.getCode());
         model.setCarModelName(carModel.getCodeName());
+        fetchBikeDetailResponse.setYears(bike.getYears());
         fetchBikeDetailResponse.setModel(model);
         fetchBikeDetailResponse.setBikeId(bike.getBikeId());
         fetchBikeDetailResponse.setColor(bike.getColor());
@@ -85,6 +87,18 @@ public class BikesService extends SessService {
         return request;
     }
 
+    public BikeSessionRequest fetchBikesWithoutLease(BikeSessionRequest request){
+        request = fetchBikes(request);
+        Map response = (HashMap)request.getResponse();
+        List<FetchBikesResponse> bikes = (List)response.get("bikes");
+        for(int i = bikes.size()-1; i >= 0; i--){
+            Bikes bike = bikesRepository.findByBikeId(bikes.get(i).getBikeId());
+            if(bike.getLease()!= null)
+                bikes.remove(i);
+        }
+        return request;
+    }
+
     @Transactional
     public BikeSessionRequest addBike(BikeSessionRequest request){
         Map param = request.getParam();
@@ -93,6 +107,7 @@ public class BikesService extends SessService {
         String bikeId = autoKey.makeGetKey("bike");
         Bikes bike = new Bikes();
         bike.setBikeId(bikeId);
+        bike.setYears(addBikeRequest.getYears());
         bike.setVimNum(addBikeRequest.getVimNumber());
         bike.setCarNum(addBikeRequest.getNumber());
         bike.setCarModelCode(addBikeRequest.getCarModel());
@@ -108,6 +123,7 @@ public class BikesService extends SessService {
         Map param = request.getParam();
         UpdateBikeRequest updateBikeRequest = map(param, UpdateBikeRequest.class);
         Bikes bike = bikesRepository.findByBikeId(updateBikeRequest.getBikeId());
+        bike.setYears(updateBikeRequest.getYears());
         bike.setVimNum(updateBikeRequest.getVimNumber());
         bike.setCarNum(updateBikeRequest.getNumber());
         bike.setCarModelCode(updateBikeRequest.getCarModel());
@@ -125,7 +141,9 @@ public class BikesService extends SessService {
         DeleteBikeRequest deleteBikeRequest  = map(param, DeleteBikeRequest.class);
         deleteBikeRequest.checkValidation();
         Bikes bikes = bikesRepository.findByBikeId(deleteBikeRequest.getBikeId());
-        if(bikes.getLease()!=null){
+        if(bikes == null) withException("");
+        if(bikes.getLease() != null) writeMessage("리스번호 " + bikes.getLease().getLeaseId() + "가 이미 연결되어 있습니다.");
+        else{
             bikesRepository.delete(bikes);
         }
         return request;

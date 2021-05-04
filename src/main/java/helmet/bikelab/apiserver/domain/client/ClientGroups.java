@@ -24,4 +24,14 @@ public class ClientGroups {
     @Column(name = "group_name")
     private String groupName;
 
+    //대표
+    @Column(name = "ceo_name")
+    private String ceoName;
+
+    @Column(name = "ceo_phone")
+    private String ceoPhone;
+
+    @Column(name = "ceo_email")
+    private String ceoEmail;
+
 }

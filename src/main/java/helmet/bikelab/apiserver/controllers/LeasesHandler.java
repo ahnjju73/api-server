@@ -54,4 +54,22 @@ public class LeasesHandler {
                         .map(leasesService::updateLease)
                         .map(leasesService::returnData), Map.class);
     }
+
+    public Mono<ServerResponse> confirmApplication(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> leasesService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(leasesService::checkBikeSession)
+                        .map(leasesService::confirmLease)
+                        .map(leasesService::returnData), Map.class);
+    }
+
+    public Mono<ServerResponse> submitApplication(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> leasesService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(leasesService::checkBikeSession)
+                        .map(leasesService::pendingLease)
+                        .map(leasesService::returnData), Map.class);
+    }
 }

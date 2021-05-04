@@ -1,5 +1,7 @@
 package helmet.bikelab.apiserver.domain.lease;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,6 +15,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @Table(name = "fines")
+@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class Fines {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

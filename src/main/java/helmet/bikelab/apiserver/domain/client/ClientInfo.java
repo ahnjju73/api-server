@@ -35,6 +35,16 @@ public class ClientInfo {
     @Column(name = "phone", length = 45)
     private String phone;
 
+    //담당자
+    @Column(name = "manager_name")
+    private String managerName;
+
+    @Column(name = "manager_phone")
+    private String managerPhone;
+
+    @Column(name = "manager_email")
+    private String managerEmail;
+
     @Column(name = "description", columnDefinition = "MEDIUMTEXT")
     private String description;
 

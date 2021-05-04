@@ -16,6 +16,7 @@ public class AddBikeRequest extends OriginObject {
     private String number;
     private String carModel;
     private String color;
+    private Integer years;
     private LocalDateTime receiveDt;
     private LocalDateTime registerDt;
 

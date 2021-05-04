@@ -17,6 +17,7 @@ public class LeaseInfoDto {
     private Integer period;
     private String startDt;
     private String endDt;
+    private String contractDt;
     private String note;
 
 

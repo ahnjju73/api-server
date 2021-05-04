@@ -30,6 +30,9 @@ public class LeaseInfo {
     @Column(name = "end_dt")
     private LocalDate endDate;
 
+    @Column(name = "contract_dt")
+    private LocalDate contractDate;
+
     @Column(name = "note", columnDefinition = "MEDIUMTEXT")
     private String note;
 }

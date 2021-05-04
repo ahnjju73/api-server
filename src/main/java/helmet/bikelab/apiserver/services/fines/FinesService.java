@@ -26,6 +26,8 @@ public class FinesService extends SessService {
     private final FinesRepository finesRepository;
     private final LeaseFineRepository leaseFineRepository;
     private final LeasePaymentsRepository leasePaymentsRepository;
+    private final BikesRepository bikesRepository;
+
 //    private final Bike
     private final AutoKey autoKey;
 
@@ -139,5 +141,25 @@ public class FinesService extends SessService {
         }
         return request;
     }
+
+    public BikeSessionRequest fetchFinesByBike(BikeSessionRequest request){
+        Map param = request.getParam();
+        Map response = new HashMap();
+        FetchFineRequest fine = map(param, FetchFineRequest.class);
+        Fines fines = finesRepository.findByFineId(fine.getFineId());
+        if(fines==null) withException("");
+        LeaseFine leaseFine = leaseFineRepository.findByFine(fines);
+        Leases lease = leaseFine.getLease();
+        List<LeaseFine> leaseFineList = leaseFineRepository.findAllByLease_LeaseId(lease.getLeaseId());
+        List<Fines> finesList = new ArrayList<>();
+        for(LeaseFine lf : leaseFineList)
+            finesList.add(lf.getFine());
+        response.put("fines", finesList);
+        request.setResponse(response);
+        return request;
+    }
+
+
+
 
 }
