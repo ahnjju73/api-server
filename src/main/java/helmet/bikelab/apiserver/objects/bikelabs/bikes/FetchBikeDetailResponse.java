@@ -22,6 +22,7 @@ public class FetchBikeDetailResponse extends OriginObject {
     private String carNum;
     private CarModel model;
     private String color;
+    private Integer years;
     private LocalDateTime receiveDt;
     private LocalDateTime registerDt;
 

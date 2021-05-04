@@ -72,4 +72,14 @@ public class BikesHandlers {
                         .map(bikesService::fetchBikeModels)
                         .map(bikesService::returnData), Map.class);
     }
+
+    public Mono<ServerResponse> fetchBikesWithoutLease(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> bikesService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(bikesService::checkBikeSession)
+                        .map(bikesService::fetchBikesWithoutLease)
+                        .map(bikesService::returnData), Map.class);
+    }
+
 }

@@ -10,6 +10,8 @@ import lombok.Setter;
 import org.joda.time.DateTime;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @Getter
@@ -30,6 +32,7 @@ public class AddUpdateLeaseRequest extends OriginObject {
     private LocalDateTime takeAt;
     private LocalDateTime releaseAt;
     private LocalDateTime createdAt;
+    private List<LeasePaymentDto> leasePayments = new ArrayList<>();
 
     public void setTakeAt(String takeAt) {
         this.takeAt = LocalDateTime.parse(takeAt);

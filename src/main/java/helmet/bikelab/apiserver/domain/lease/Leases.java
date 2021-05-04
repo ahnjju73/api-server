@@ -72,6 +72,10 @@ public class Leases {
     @Convert(converter = ManagementTypeConverter.class)
     private ManagementTypes type = ManagementTypes.FINANCIAL;
 
+    //505-001(인수), 002(반납)
+    @Column(name = "expire_type")
+    private String expireType;
+
     @Column(name = "take_loc")
     private String takeLocation;
 

@@ -41,6 +41,9 @@ public class Bikes {
     @JoinColumn(name = "car_model", insertable = false, updatable = false)
     private CommonCode carModel;
 
+    @Column(name = "years")
+    private Integer years;
+
     @Column(name = "color", length = 45)
     private String color;
 
