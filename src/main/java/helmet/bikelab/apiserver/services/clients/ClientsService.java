@@ -41,6 +41,9 @@ public class ClientsService extends SessService {
             fcr.setClientId(cl.getClientId());
             fcr.setClientName(clientInfo.getName());
             fcr.setClientPhone(clientInfo.getPhone());
+            fcr.setManagerName(clientInfo.getManagerName());
+            fcr.setManagerPhone(clientInfo.getManagerPhone());
+            fcr.setManagerEmail(clientInfo.getManagerEmail());
             responseList.add(fcr);
         }
         response.put("clients", responseList);
@@ -95,6 +98,9 @@ public class ClientsService extends SessService {
         clientInfo.setDescription(addClientRequest.getClientInfo().getDescription());
         clientInfo.setPhone(addClientRequest.getClientInfo().getPhone());
         clientInfo.setName(addClientRequest.getClientInfo().getName());
+        clientInfo.setManagerEmail(addClientRequest.getClientInfo().getManagerEmail());
+        clientInfo.setManagerName(addClientRequest.getClientInfo().getManagerName());
+        clientInfo.setManagerPhone(addClientRequest.getClientInfo().getManagerPhone());
 
         ClientAddresses clientAddresses = new ClientAddresses();
         clientAddresses.setModelAddress(addClientRequest.getAddress());
@@ -129,6 +135,9 @@ public class ClientsService extends SessService {
         clientInfo.setDescription(updateClientRequest.getClientInfo().getDescription());
         clientInfo.setPhone(updateClientRequest.getClientInfo().getPhone());
         clientInfo.setName(updateClientRequest.getClientInfo().getName());
+        clientInfo.setManagerEmail(updateClientRequest.getClientInfo().getManagerEmail());
+        clientInfo.setManagerName(updateClientRequest.getClientInfo().getManagerName());
+        clientInfo.setManagerPhone(updateClientRequest.getClientInfo().getManagerPhone());
 
         ClientAddresses clientAddresses = new ClientAddresses();
         clientAddresses.setModelAddress(updateClientRequest.getAddress());

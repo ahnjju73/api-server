@@ -27,5 +27,7 @@ public class LeaseInfoDto {
         startDt = leaseInfo.getStart().toString();
         endDt = leaseInfo.getEndDate().toString();
         note = leaseInfo.getNote();
+        if(leaseInfo.getContractDate()!=null)
+            contractDt = leaseInfo.getContractDate().toString();
     }
 }

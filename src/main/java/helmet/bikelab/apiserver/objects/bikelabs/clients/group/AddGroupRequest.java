@@ -11,6 +11,9 @@ import lombok.Setter;
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class AddGroupRequest extends OriginObject {
     private String groupName;
+    private String ceoName;
+    private String ceoEmail;
+    private String ceoPhone;
 
     public void checkValidation(){
         if(!bePresent(this.groupName)) withException("300-002");
