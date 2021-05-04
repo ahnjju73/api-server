@@ -13,4 +13,7 @@ public class FetchClientsResponse extends OriginObject {
     private String clientId;
     private String clientName;
     private String clientPhone;
+    private String managerName;
+    private String managerPhone;
+    private String managerEmail;
 }

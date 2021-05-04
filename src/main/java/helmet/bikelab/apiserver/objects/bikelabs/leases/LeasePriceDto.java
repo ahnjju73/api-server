@@ -15,7 +15,7 @@ public class LeasePriceDto {
     private String paymentDay;
     private Integer deposit;
     private Integer prePayment;
-    private Integer totalLeaseFee;
+    private Long totalLeaseFee;
     private Integer profitFee;
     private Integer takeFee;
     private Integer registerFee;

@@ -241,17 +241,17 @@ public class LeasesService extends SessService {
                 int monthly = Math.round((float)leasePrice.getTotalLeaseFee()/leaseInfo.getPeriod());
                 leasePayment.setLeaseFee(monthly);
                 if(i==leaseInfo.getPeriod()-1){
-                    leasePayment.setLeaseFee(leasePrice.getTotalLeaseFee() - count);
+                    leasePayment.setLeaseFee((int)(leasePrice.getTotalLeaseFee() - count));
                 }
                 count += monthly;
             }
             else{
                 long numDays = ChronoUnit.DAYS.between(leasePayment.getPaymentDate(), leasePayment.getPaymentDate().plusMonths(1));
-                leasePayment.setLeaseFee((int)(leasePrice.getTotalLeaseFee()*(numDays/totalDays)));
+                leasePayment.setLeaseFee((int)(leasePrice.getTotalLeaseFee()*((double)numDays/totalDays)));
                 if(i==leaseInfo.getPeriod()-1){
-                    leasePayment.setLeaseFee(leasePrice.getTotalLeaseFee() - count);
+                    leasePayment.setLeaseFee((int)(leasePrice.getTotalLeaseFee() - count));
                 }
-                count+= (int)(leasePrice.getTotalLeaseFee()*(numDays/totalDays));
+                count+= (int)(leasePrice.getTotalLeaseFee()*((double)numDays/totalDays));
             }
 
             leasePaymentsList.add(leasePayment);
