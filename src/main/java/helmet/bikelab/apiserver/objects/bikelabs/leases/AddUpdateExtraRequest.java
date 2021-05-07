@@ -2,23 +2,18 @@ package helmet.bikelab.apiserver.objects.bikelabs.leases;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import helmet.bikelab.apiserver.domain.lease.LeasePayments;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.time.LocalDate;
 
 @Getter
 @Setter
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
-public class LeasePaymentDto {
+public class AddUpdateExtraRequest {
+    private String extraId;
+    private String leaseId;
     private String paymentId;
-    private Integer idx;
-    private LocalDate paymentDate;
-    private Integer leaseFee;
+    private String extraType;
     private Integer paidFee;
-
-    public boolean equals(LeasePayments leasePayments){
-        return paymentId.equals(leasePayments.getPaymentId());
-    }
+    private String description;
+    private Integer extraFee;
 }

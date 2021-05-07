@@ -34,10 +34,7 @@ public class LeasePrice {
     private Integer deposit;
 
     @Column(name = "pre_payment")
-    private Integer prepayment;
-
-    @Column(name = "total_lease_fee")
-    private Long totalLeaseFee;
+    private Integer prepayment = 0;
 
     @Column(name = "profit_fee")
     private Integer profit;
