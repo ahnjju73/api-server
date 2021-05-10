@@ -23,7 +23,6 @@ public class LeaseInfoDto {
 
 
     public void setLeaseInfo(LeaseInfo leaseInfo){
-        period = leaseInfo.getPeriod();
         startDt = leaseInfo.getStart().toString();
         endDt = leaseInfo.getEndDate().toString();
         note = leaseInfo.getNote();

@@ -9,6 +9,7 @@ import org.hibernate.validator.constraints.br.CPF;
 import javax.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Entity
 @Getter
@@ -52,7 +53,5 @@ public class LeasePayments {
     @ManyToOne(optional = false)
     @JoinColumn(name = "inserted_user_no", insertable = false, updatable = false)
     private BikeUser user;
-
-
 
 }

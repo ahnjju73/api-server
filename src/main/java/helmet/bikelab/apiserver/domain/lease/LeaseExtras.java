@@ -22,6 +22,9 @@ public class LeaseExtras {
     @Column(name = "payment_no", nullable = false)
     private Integer paymentNo;
 
+    @Column(name = "extra_id")
+    private String extraId;
+
     @OneToOne(optional = false)
     @JoinColumn(name = "payment_no", nullable = false, insertable = false, updatable = false)
     private LeasePayments payment;
@@ -37,10 +40,11 @@ public class LeaseExtras {
     @Convert(converter = ExtraTypeConverter.class)
     private ExtraTypes extraTypes;
 
+    @Column(name = "extra_fee")
+    private Integer extraFee;
+
     @Column(name = "paid_fee", nullable = false)
     private Integer paidFee = 0;
-
-    // todo fine
 
     @Column(name = "description", columnDefinition = "MEDIUMTEXT")
     private String description;

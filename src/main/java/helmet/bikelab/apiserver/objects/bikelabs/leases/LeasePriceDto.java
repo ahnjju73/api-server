@@ -15,7 +15,7 @@ public class LeasePriceDto {
     private String paymentDay;
     private Integer deposit;
     private Integer prePayment;
-    private Long totalLeaseFee;
+    private Integer leaseFee;
     private Integer profitFee;
     private Integer takeFee;
     private Integer registerFee;
@@ -25,7 +25,6 @@ public class LeasePriceDto {
         paymentType = leasePrice.getType().getPaymentType();
         deposit = leasePrice.getDeposit();
         prePayment = leasePrice.getPrepayment();
-        totalLeaseFee = leasePrice.getTotalLeaseFee();
         profitFee = leasePrice.getRegisterFee();
         takeFee = leasePrice.getTakeFee();
         registerFee = leasePrice.getRegisterFee();
