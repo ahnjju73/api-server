@@ -15,7 +15,7 @@ public class LeaseExtrasRouters {
         return RouterFunctions
                 .route(GET("/lease-extra"), handler::fetchExtras)
                 .andRoute(POST("/lease-extra"), handler::addExtra)
-                .andRoute(GET("/lease-extra/{lease_id}"), handler::fetchExtra)
+                .andRoute(GET("/lease-extra/{payment_id}"), handler::fetchExtra)
                 .andRoute(PUT("/lease-extra/{extra_id}"), handler::updateExtra)
                 .andRoute(DELETE(".lease-extra"), handler::deleteExtra);
 
