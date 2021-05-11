@@ -247,7 +247,7 @@ public class LeasesService extends SessService {
             leasePayment.setPaymentId(paymentId);
             leasePayment.setLeaseNo(lease.getLeaseNo());
             leasePayment.setIndex(i+1);
-            leasePayment.setPaymentDate(leaseInfo.getStart().plusMonths(i+1));
+            leasePayment.setPaymentDate(leaseInfo.getStart().plusMonths(i));
             leasePayment.setInsertedUserNo(session.getUserNo());
             if(leasePrice.getType() == PaymentTypes.MONTHLY){
                 leasePayment.setLeaseFee(addUpdateLeaseRequest.getLeasePrice().getLeaseFee());
@@ -338,7 +338,7 @@ public class LeasesService extends SessService {
             }
             payment.setLeaseNo(lease.getLeaseNo());
             payment.setIndex(i+1);
-            payment.setPaymentDate(leaseInfo.getStart().plusMonths(i+1));
+            payment.setPaymentDate(leaseInfo.getStart().plusMonths(i));
             payment.setInsertedUserNo(session.getUserNo());
             leasePaymentsList.add(payment);
         }
@@ -385,7 +385,6 @@ public class LeasesService extends SessService {
         leaseRepository.save(lease);
         return request;
     }
-
 
 
 }
