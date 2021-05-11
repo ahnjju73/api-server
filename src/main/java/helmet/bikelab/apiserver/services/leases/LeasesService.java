@@ -155,6 +155,7 @@ public class LeasesService extends SessService {
         }
         List<LeasePayments> payments = leasePaymentsRepository.findAllByLease_LeaseId(lease.getLeaseId());
         List<LeasePaymentDto> leasePayments = new ArrayList<>();
+        int totalFee = 0;
         for(LeasePayments lp : payments){
             LeasePaymentDto leasePaymentDto = new LeasePaymentDto();
             leasePaymentDto.setLeaseFee(lp.getLeaseFee());
@@ -162,8 +163,10 @@ public class LeasesService extends SessService {
             leasePaymentDto.setPaymentDate(lp.getPaymentDate());
             leasePaymentDto.setPaidFee(lp.getPaidFee());
             leasePaymentDto.setIdx(lp.getIndex());
+            totalFee += lp.getLeaseFee();
             leasePayments.add(leasePaymentDto);
         }
+        fetchLeasesResponse.getLeasePrice().setLeaseFee(totalFee);
         fetchLeasesResponse.setLeasePayments(leasePayments);
         response.put("lease", fetchLeasesResponse);
         request.setResponse(response);
