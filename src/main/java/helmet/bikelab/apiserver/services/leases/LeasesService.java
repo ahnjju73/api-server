@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.services.leases;
 
+import helmet.bikelab.apiserver.domain.types.ContractTypes;
 import helmet.bikelab.apiserver.objects.BikeDto;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
@@ -181,7 +182,6 @@ public class LeasesService extends SessService {
         //exception
         if(addUpdateLeaseRequest.getBikeId() == null)withException("850-010");
         if(addUpdateLeaseRequest.getClientId() == null)withException("850-012");
-        if(addUpdateLeaseRequest.getContractType() == null)withException("850-011");
         if(addUpdateLeaseRequest.getInsuranceId() == null)withException("850-013");
         if(addUpdateLeaseRequest.getLeasePrice().getPaymentType() == null)withException("850-014");
         if(addUpdateLeaseRequest.getLeaseInfo().getContractDt() == null)withException("850-016");
@@ -210,6 +210,7 @@ public class LeasesService extends SessService {
             lease.setInsuranceNo(insurance.getInsuranceNo());
         if(addUpdateLeaseRequest.getManagementType() != null)
             lease.setType(ManagementTypes.getManagementStatus(addUpdateLeaseRequest.getManagementType()));
+        lease.setContractTypes(ContractTypes.OPERATING);
         lease.setCreatedAt(LocalDateTime.now());
         leaseRepository.save(lease);
 
