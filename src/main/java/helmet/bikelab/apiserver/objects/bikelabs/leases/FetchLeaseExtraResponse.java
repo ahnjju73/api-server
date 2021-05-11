@@ -12,7 +12,6 @@ public class FetchLeaseExtraResponse {
     //회차, 납부일자
     private LeasePaymentDto payment;
     private String extraType;
-    private Integer paidFee;
     private Integer extraFee;
     private String description;
 }

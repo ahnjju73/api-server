@@ -9,6 +9,7 @@ import lombok.Setter;
 @Setter
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class FetchLeaseExtraRequest {
+    private String paymentId;
     private String leaseId;
     private String extraId;
 }

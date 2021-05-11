@@ -64,7 +64,6 @@ public class LeaseExtraService extends SessService {
             fetchLeaseExtraResponse.setPayment(dto);
             fetchLeaseExtraResponse.setExtraFee(le.getExtraFee());
             fetchLeaseExtraResponse.setExtraType(le.getExtraTypes().getExtra());
-            fetchLeaseExtraResponse.setPaidFee(le.getPaidFee());
             fetchLeaseExtraResponse.setDescription(le.getDescription());
             fetchLeaseExtraResponses.add(fetchLeaseExtraResponse);
         }
@@ -77,7 +76,7 @@ public class LeaseExtraService extends SessService {
         Map param = request.getParam();
         Map response = new HashMap();
         FetchLeaseExtraRequest fetchLeaseExtraRequest = map(param, FetchLeaseExtraRequest.class);
-        List<LeaseExtras> extras = leaseExtraRepository.findByLease_LeaseId(fetchLeaseExtraRequest.getLeaseId());
+        List<LeaseExtras> extras = leaseExtraRepository.findAllByLease_LeaseId(fetchLeaseExtraRequest.getLeaseId());
         List<FetchLeaseExtraResponse> fetchLeaseExtraResponses = new ArrayList<>();
         for(LeaseExtras le : extras){
             LeasePayments payment = leasePaymentsRepository.findByPaymentId(le.getPayment().getPaymentId());
@@ -89,7 +88,6 @@ public class LeaseExtraService extends SessService {
             fetchLeaseExtraResponse.setPayment(dto);
             fetchLeaseExtraResponse.setExtraFee(le.getExtraFee());
             fetchLeaseExtraResponse.setExtraType(le.getExtraTypes().getExtra());
-            fetchLeaseExtraResponse.setPaidFee(le.getPaidFee());
             fetchLeaseExtraResponse.setDescription(le.getDescription());
             fetchLeaseExtraResponses.add(fetchLeaseExtraResponse);
         }
@@ -97,6 +95,33 @@ public class LeaseExtraService extends SessService {
         request.setResponse(response);
         return request;
     }
+
+    public BikeSessionRequest fetchLeaseExtrasByPaymentId(BikeSessionRequest request){
+        Map param = request.getParam();
+        Map response = new HashMap();
+        FetchLeaseExtraRequest fetchLeaseExtraRequest = map(param, FetchLeaseExtraRequest.class);
+        List<LeaseExtras> extras = leaseExtraRepository.findAllByPayment_PaymentId(fetchLeaseExtraRequest.getPaymentId());
+        List<FetchLeaseExtraResponse> fetchLeaseExtraResponses = new ArrayList<>();
+        for(LeaseExtras le : extras){
+            LeasePayments payment = leasePaymentsRepository.findByPaymentId(le.getPayment().getPaymentId());
+            FetchLeaseExtraResponse fetchLeaseExtraResponse = new FetchLeaseExtraResponse();
+            LeasePaymentDto dto = new LeasePaymentDto();
+            dto.setIdx(payment.getIndex());
+            dto.setPaymentId(payment.getPaymentId());
+            dto.setPaymentDate(payment.getPaymentDate());
+            dto.setPaidFee(payment.getPaidFee());
+            dto.setLeaseFee(payment.getLeaseFee());
+            fetchLeaseExtraResponse.setPayment(dto);
+            fetchLeaseExtraResponse.setExtraFee(le.getExtraFee());
+            fetchLeaseExtraResponse.setExtraType(le.getExtraTypes().getExtra());fetchLeaseExtraResponse.setDescription(le.getDescription());
+            fetchLeaseExtraResponses.add(fetchLeaseExtraResponse);
+        }
+        response.put("extras", fetchLeaseExtraResponses);
+        request.setResponse(response);
+        return request;
+    }
+
+
 
     @Transactional
     public BikeSessionRequest updateLeaseExtra(BikeSessionRequest request){

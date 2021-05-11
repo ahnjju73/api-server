@@ -20,9 +20,9 @@ public class LeaseExtrasHandlers {
         return ServerResponse.ok().body(
                 Mono.fromSupplier(() -> extraService.makeSessionRequest(request, BikeSessionRequest.class))
                         .subscribeOn(Schedulers.elastic())
-                        .map(req -> extraService.getPathVariable(req, "lease_id"))
+                        .map(req -> extraService.getPathVariable(req, "payment_id"))
                         .map(extraService::checkBikeSession)
-                        .map(extraService::fetchLeaseExtrasByLeaseId)
+                        .map(extraService::fetchLeaseExtrasByPaymentId)
                         .map(extraService::returnData), Map.class);
     }
 
