@@ -15,4 +15,6 @@ public class FetchLeaseExtraResponse {
     private String extraType;
     private Integer extraFee;
     private String description;
+    private Integer paidFee;
+
 }

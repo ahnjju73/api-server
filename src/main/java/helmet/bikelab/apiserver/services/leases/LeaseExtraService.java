@@ -111,6 +111,7 @@ public class LeaseExtraService extends SessService {
         fetchLeaseExtraResponse.setExtraId(extra.getExtraId());
         fetchLeaseExtraResponse.setPayment(dto);
         fetchLeaseExtraResponse.setExtraFee(extra.getExtraFee());
+        fetchLeaseExtraResponse.setPaidFee(extra.getPaidFee());
         fetchLeaseExtraResponse.setExtraType(extra.getExtraTypes().getExtra());
         fetchLeaseExtraResponse.setDescription(extra.getDescription());
         response.put("extras", fetchLeaseExtraResponse);
@@ -134,6 +135,7 @@ public class LeaseExtraService extends SessService {
             dto.setPaidFee(payment.getPaidFee());
             dto.setLeaseFee(payment.getLeaseFee());
             fetchLeaseExtraResponse.setPayment(dto);
+            fetchLeaseExtraResponse.setPaidFee(le.getPaidFee());
             fetchLeaseExtraResponse.setExtraId(le.getExtraId());
             fetchLeaseExtraResponse.setExtraFee(le.getExtraFee());
             fetchLeaseExtraResponse.setExtraType(le.getExtraTypes().getExtra());fetchLeaseExtraResponse.setDescription(le.getDescription());
