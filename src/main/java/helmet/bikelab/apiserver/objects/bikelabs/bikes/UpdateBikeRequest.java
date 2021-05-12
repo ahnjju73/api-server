@@ -28,4 +28,6 @@ public class UpdateBikeRequest extends OriginObject {
         this.registerDt = LocalDateTime.parse(registerDt);
     }
 
+
+
 }

@@ -62,6 +62,7 @@ public class LeaseExtraService extends SessService {
             dto.setPaymentId(payment.getPaymentId());
             dto.setPaymentDate(payment.getPaymentDate());
             fetchLeaseExtraResponse.setPayment(dto);
+            fetchLeaseExtraResponse.setExtraId(le.getExtraId());
             fetchLeaseExtraResponse.setExtraFee(le.getExtraFee());
             fetchLeaseExtraResponse.setExtraType(le.getExtraTypes().getExtra());
             fetchLeaseExtraResponse.setDescription(le.getDescription());
@@ -96,6 +97,27 @@ public class LeaseExtraService extends SessService {
         return request;
     }
 
+    public BikeSessionRequest fetchDetailExtra(BikeSessionRequest request){
+        Map param = request.getParam();
+        Map response = new HashMap();
+        FetchLeaseExtraRequest fetchLeaseExtraRequest = map(param, FetchLeaseExtraRequest.class);
+        LeaseExtras extra = leaseExtraRepository.findByExtraId(fetchLeaseExtraRequest.getExtraId());
+        LeasePayments payment = leasePaymentsRepository.findByPaymentId(extra.getPayment().getPaymentId());
+        FetchLeaseExtraResponse fetchLeaseExtraResponse = new FetchLeaseExtraResponse();
+        LeasePaymentDto dto = new LeasePaymentDto();
+        dto.setIdx(payment.getIndex());
+        dto.setPaymentId(payment.getPaymentId());
+        dto.setPaymentDate(payment.getPaymentDate());
+        fetchLeaseExtraResponse.setExtraId(extra.getExtraId());
+        fetchLeaseExtraResponse.setPayment(dto);
+        fetchLeaseExtraResponse.setExtraFee(extra.getExtraFee());
+        fetchLeaseExtraResponse.setExtraType(extra.getExtraTypes().getExtra());
+        fetchLeaseExtraResponse.setDescription(extra.getDescription());
+        response.put("extras", fetchLeaseExtraResponse);
+        request.setResponse(response);
+        return request;
+    }
+
     public BikeSessionRequest fetchLeaseExtrasByPaymentId(BikeSessionRequest request){
         Map param = request.getParam();
         Map response = new HashMap();
@@ -112,6 +134,7 @@ public class LeaseExtraService extends SessService {
             dto.setPaidFee(payment.getPaidFee());
             dto.setLeaseFee(payment.getLeaseFee());
             fetchLeaseExtraResponse.setPayment(dto);
+            fetchLeaseExtraResponse.setExtraId(le.getExtraId());
             fetchLeaseExtraResponse.setExtraFee(le.getExtraFee());
             fetchLeaseExtraResponse.setExtraType(le.getExtraTypes().getExtra());fetchLeaseExtraResponse.setDescription(le.getDescription());
             fetchLeaseExtraResponses.add(fetchLeaseExtraResponse);

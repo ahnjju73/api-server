@@ -104,6 +104,7 @@ public class BikesService extends SessService {
         Map param = request.getParam();
         AddBikeRequest addBikeRequest = map(param, AddBikeRequest.class);
         addBikeRequest.checkValidation();
+        if(bePresent(bikesRepository.findByVimNum(addBikeRequest.getVimNumber()))) withException("500-007");
         String bikeId = autoKey.makeGetKey("bike");
         Bikes bike = new Bikes();
         bike.setBikeId(bikeId);
@@ -123,6 +124,8 @@ public class BikesService extends SessService {
         Map param = request.getParam();
         UpdateBikeRequest updateBikeRequest = map(param, UpdateBikeRequest.class);
         Bikes bike = bikesRepository.findByBikeId(updateBikeRequest.getBikeId());
+        if(updateBikeRequest.getVimNumber().equals(bike.getVimNum())&&!bike.equals(bikesRepository.findByVimNum(updateBikeRequest.getVimNumber()))) withException("");
+        if(updateBikeRequest.getNumber().equals(bike.getCarNum())&&!bike.equals(bikesRepository.findByCarNum(updateBikeRequest.getNumber()))) withException("");
         bike.setYears(updateBikeRequest.getYears());
         bike.setVimNum(updateBikeRequest.getVimNumber());
         bike.setCarNum(updateBikeRequest.getNumber());

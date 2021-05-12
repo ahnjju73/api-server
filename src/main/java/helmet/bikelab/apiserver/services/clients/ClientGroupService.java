@@ -44,6 +44,10 @@ public class ClientGroupService extends SessService {
       ClientGroups group = new ClientGroups();
       group.setGroupId(groupId);
       group.setGroupName(addGroupRequest.getGroupName());
+      group.setCeoEmail(addGroupRequest.getCeoEmail());
+      group.setCeoName(addGroupRequest.getCeoName());
+      group.setCeoPhone(addGroupRequest.getCeoPhone());
+      group.setBusinessNum(addGroupRequest.getBusinessNum());
       groupRepository.save(group);
       return request;
    }
@@ -75,6 +79,10 @@ public class ClientGroupService extends SessService {
       updateGroupRequest.checkValidation();
       ClientGroups group = groupRepository.findByGroupId(updateGroupRequest.getGroupId());
       group.setGroupName(updateGroupRequest.getGroupName());
+      group.setCeoEmail(updateGroupRequest.getCeoEmail());
+      group.setCeoName(updateGroupRequest.getCeoName());
+      group.setCeoPhone(updateGroupRequest.getCeoPhone());
+      group.setBusinessNum(updateGroupRequest.getBusinessNum());
       groupRepository.save(group);
       return request;
 

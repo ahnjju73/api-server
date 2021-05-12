@@ -12,6 +12,10 @@ import lombok.Setter;
 public class UpdateGroupRequest extends OriginObject {
     private String groupId;
     private String groupName;
+    private String ceoName;
+    private String ceoEmail;
+    private String ceoPhone;
+    private String businessNum;
 
     public void checkValidation(){
         if(!bePresent(groupName)) withException("300-003");
