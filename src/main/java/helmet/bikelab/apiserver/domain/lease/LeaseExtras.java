@@ -1,5 +1,7 @@
 package helmet.bikelab.apiserver.domain.lease;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import helmet.bikelab.apiserver.domain.types.ExtraTypes;
 import helmet.bikelab.apiserver.domain.types.converters.ExtraTypeConverter;
 import lombok.Getter;
@@ -12,6 +14,7 @@ import javax.persistence.*;
 @Getter
 @Setter
 @NoArgsConstructor
+@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 @Table(name = "lease_extra")
 public class LeaseExtras {
     @Id
