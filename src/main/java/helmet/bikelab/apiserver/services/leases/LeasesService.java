@@ -74,6 +74,8 @@ public class LeasesService extends SessService {
             if(lease.getLeaseInfo() != null){
                 LeaseInfoDto leaseInfoDto = new LeaseInfoDto();
                 leaseInfoDto.setLeaseInfo(lease.getLeaseInfo());
+                List<LeasePayments> leasePaymentsList = leasePaymentsRepository.findAllByLease_LeaseId(lease.getLeaseId());
+                leaseInfoDto.setPeriod(leasePaymentsList.size());
                 fetchLeasesResponse.setLeaseInfo(leaseInfoDto);
             }
             if(lease.getInsurances() != null){
@@ -105,7 +107,7 @@ public class LeasesService extends SessService {
         Map response = new HashMap();
         LeasesDto leasesDto = map(param, LeasesDto.class);
         Leases lease = leaseRepository.findByLeaseId(leasesDto.getLeaseId());
-        if(lease==null) withException("850-002");
+        if(lease == null) withException("850-002");
         FetchLeasesResponse fetchLeasesResponse = new FetchLeasesResponse();
         fetchLeasesResponse.setLeaseId(lease.getLeaseId());
         fetchLeasesResponse.setStatus(lease.getStatus().getStatus());
@@ -130,7 +132,7 @@ public class LeasesService extends SessService {
             clientDto.setClientName(lease.getClients().getClientInfo().getName());
             fetchLeasesResponse.setClient(clientDto);
         }
-        if(lease.getLeasePrice()!=null){
+        if(lease.getLeasePrice() != null){
             LeasePriceDto leasePriceDto = new LeasePriceDto();
             leasePriceDto.setLeasePrice(lease.getLeasePrice());
             fetchLeasesResponse.setLeasePrice(leasePriceDto);
@@ -187,7 +189,6 @@ public class LeasesService extends SessService {
         if(addUpdateLeaseRequest.getLeaseInfo().getContractDt() == null)withException("850-016");
         if(addUpdateLeaseRequest. getLeasePrice().getPaymentDay() == null)withException("850-018");
         if(addUpdateLeaseRequest.getLeaseInfo().getStartDt() == null)withException("850-017");
-        if(addUpdateLeaseRequest.getLeaseInfo().getPeriod() == null)withException("850-019");
         Leases lease = new Leases();
         String leaseId = autoKey.makeGetKey("lease");
         lease.setLeaseId(leaseId);
@@ -338,20 +339,24 @@ public class LeasesService extends SessService {
             }
             payment.setLeaseNo(lease.getLeaseNo());
             payment.setIndex(i+1);
+            payment.setLeaseFee(dtosList.get(i).getLeaseFee());
             payment.setPaymentDate(leaseInfo.getStart().plusMonths(i));
             payment.setInsertedUserNo(session.getUserNo());
             leasePaymentsList.add(payment);
         }
 
-        for(LeasePayments lp : leasePaymentsList){
+        for(int i =0; i < leasePaymentsList.size(); i++){
+            LeasePayments leasePayment = leasePaymentsList.get(i);
             boolean contains = false;
             for(LeasePaymentDto dto: dtosList){
-                if(dto.equals(lp)){
+                if(dto.equals(leasePayment)){
                     contains = true;
                 }
             }
             if(!contains){
-                leasePaymentsRepository.delete(lp);
+                leasePaymentsRepository.delete(leasePayment);
+                leasePaymentsList.remove(i);
+                i--;
             }
         }
         leasePaymentsRepository.saveAll(leasePaymentsList);

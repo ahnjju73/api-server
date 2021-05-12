@@ -10,6 +10,7 @@ import lombok.Setter;
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class FetchLeaseExtraResponse {
     //회차, 납부일자
+    private String extraId;
     private LeasePaymentDto payment;
     private String extraType;
     private Integer extraFee;

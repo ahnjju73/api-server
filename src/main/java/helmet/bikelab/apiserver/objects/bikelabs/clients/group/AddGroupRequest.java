@@ -14,6 +14,7 @@ public class AddGroupRequest extends OriginObject {
     private String ceoName;
     private String ceoEmail;
     private String ceoPhone;
+    private String businessNum;
 
     public void checkValidation(){
         if(!bePresent(this.groupName)) withException("300-002");
