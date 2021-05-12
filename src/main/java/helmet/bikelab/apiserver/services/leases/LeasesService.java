@@ -107,6 +107,7 @@ public class LeasesService extends SessService {
         Map response = new HashMap();
         LeasesDto leasesDto = map(param, LeasesDto.class);
         Leases lease = leaseRepository.findByLeaseId(leasesDto.getLeaseId());
+        List<LeasePayments> payments = leasePaymentsRepository.findAllByLease_LeaseId(lease.getLeaseId());
         if(lease == null) withException("850-002");
         FetchLeasesResponse fetchLeasesResponse = new FetchLeasesResponse();
         fetchLeasesResponse.setLeaseId(lease.getLeaseId());
@@ -140,6 +141,7 @@ public class LeasesService extends SessService {
         if(lease.getLeaseInfo()!=null){
             LeaseInfoDto leaseInfoDto = new LeaseInfoDto();
             leaseInfoDto.setLeaseInfo(lease.getLeaseInfo());
+            leaseInfoDto.setPeriod(payments.size());
             fetchLeasesResponse.setLeaseInfo(leaseInfoDto);
         }
         if(lease.getInsurances()!=null){
@@ -156,7 +158,6 @@ public class LeasesService extends SessService {
             releaseDto.setCreatedAt(lease.getReleases().getCreatedAt());
             releaseDto.setReleaseAddress(lease.getReleases().getAddress().getAddress());
         }
-        List<LeasePayments> payments = leasePaymentsRepository.findAllByLease_LeaseId(lease.getLeaseId());
         List<LeasePaymentDto> leasePayments = new ArrayList<>();
         int totalFee = 0;
         for(LeasePayments lp : payments){
