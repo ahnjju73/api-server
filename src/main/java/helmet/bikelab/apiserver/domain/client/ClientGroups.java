@@ -34,6 +34,6 @@ public class ClientGroups {
     @Column(name = "ceo_email")
     private String ceoEmail;
 
-    @Column(name = "business_num")
-    private String businessNum;
+    @Column(name = "reg_no")
+    private String regNum;
 }

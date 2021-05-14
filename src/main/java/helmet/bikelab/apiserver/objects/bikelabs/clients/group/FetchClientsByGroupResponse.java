@@ -13,4 +13,5 @@ public class FetchClientsByGroupResponse {
     private String clientId;
     private String email;
     private String phone;
+    private String regNo;
 }

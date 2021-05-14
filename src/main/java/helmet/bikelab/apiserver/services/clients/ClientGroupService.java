@@ -47,7 +47,7 @@ public class ClientGroupService extends SessService {
       group.setCeoEmail(addGroupRequest.getCeoEmail());
       group.setCeoName(addGroupRequest.getCeoName());
       group.setCeoPhone(addGroupRequest.getCeoPhone());
-      group.setBusinessNum(addGroupRequest.getBusinessNum());
+      group.setRegNum(addGroupRequest.getRegNo());
       groupRepository.save(group);
       return request;
    }
@@ -82,7 +82,7 @@ public class ClientGroupService extends SessService {
       group.setCeoEmail(updateGroupRequest.getCeoEmail());
       group.setCeoName(updateGroupRequest.getCeoName());
       group.setCeoPhone(updateGroupRequest.getCeoPhone());
-      group.setBusinessNum(updateGroupRequest.getBusinessNum());
+      group.setRegNum(updateGroupRequest.getRegNo());
       groupRepository.save(group);
       return request;
 
