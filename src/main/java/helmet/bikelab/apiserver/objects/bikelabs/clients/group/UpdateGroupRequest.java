@@ -15,7 +15,7 @@ public class UpdateGroupRequest extends OriginObject {
     private String ceoName;
     private String ceoEmail;
     private String ceoPhone;
-    private String businessNum;
+    private String regNo;
 
     public void checkValidation(){
         if(!bePresent(groupName)) withException("300-003");
