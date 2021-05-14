@@ -110,7 +110,7 @@ public class LeasePaymentService  extends SessService {
                 if(unpaidExtra > 0){
                     if(unpaidExtra < paidFee){
                         le.setPaidFee(le.getExtraFee());
-                        paidFee -= unpaidFee;
+                        paidFee -= unpaidExtra;
                         leaseExtraRepository.save(le);
                     }
                     else{
