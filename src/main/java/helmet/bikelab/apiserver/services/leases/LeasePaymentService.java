@@ -7,6 +7,7 @@ import helmet.bikelab.apiserver.domain.lease.LeaseExtras;
 import helmet.bikelab.apiserver.domain.lease.LeasePayments;
 import helmet.bikelab.apiserver.domain.lease.Leases;
 import helmet.bikelab.apiserver.domain.types.ExtraTypes;
+import helmet.bikelab.apiserver.domain.types.LeaseStatusTypes;
 import helmet.bikelab.apiserver.objects.BikeDto;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.bikelabs.clients.ClientDto;
@@ -41,12 +42,15 @@ public class LeasePaymentService  extends SessService {
         Map response = new HashMap();
         List<FetchUnpaidLeasesResponse> fetchUnpaidLeasesResponses = new ArrayList<>();
         for(Leases lease : leases){
+            if(lease.getStatus() != LeaseStatusTypes.CONFIRM)
+                continue;
             List<LeasePayments> payments = leasePaymentsRepository.findAllByLease_LeaseId(lease.getLeaseId());
             int index = 0;
             int unpaidFee = 0;
             int unpaidExtraFee = 0;
             while(index<payments.size()) {
-                if(LocalDate.now().isAfter(payments.get(index).getPaymentDate())){
+                if(!LocalDate.now().isAfter(payments.get(index).getPaymentDate())){
+                    System.out.print("");
                     break;
                 }
                 index++;
@@ -87,6 +91,7 @@ public class LeasePaymentService  extends SessService {
     public BikeSessionRequest payLeaseFee(BikeSessionRequest request){
         Map param = request.getParam();
         PayLeaseRequest payLeaseRequest = map(param, PayLeaseRequest.class);
+        if(leaseRepository.findByLeaseId(payLeaseRequest.getLeaseId()).getStatus() != LeaseStatusTypes.CONFIRM) withException("900-001");
         int paidFee = payLeaseRequest.getPaidFee();
         List<LeasePayments> payments= leasePaymentsRepository.findAllByLease_LeaseId(payLeaseRequest.getLeaseId());
         for(int i = 0; i < payments.size() && paidFee > 0; i++){
