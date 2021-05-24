@@ -202,19 +202,18 @@ public class LeasesService extends SessService {
         //insurance
         Insurances insurance = insurancesRepository.findByInsuranceId(addUpdateLeaseRequest.getInsuranceId());
         //release
-        Releases release = releaseRepository.findByReleaseId(addUpdateLeaseRequest.getReleaseId());
         if(client!=null)
             lease.setClientNo(client.getClientNo());
         if(bike!=null)
             lease.setBikeNo(bike.getBikeNo());
-        if(release!=null)
-            lease.setReleaseNo(release.getReleaseNo());
+
         if(insurance!=null)
             lease.setInsuranceNo(insurance.getInsuranceNo());
         if(addUpdateLeaseRequest.getManagementType() != null)
             lease.setType(ManagementTypes.getManagementStatus(addUpdateLeaseRequest.getManagementType()));
         lease.setContractTypes(ContractTypes.OPERATING);
         lease.setCreatedAt(LocalDateTime.now());
+        lease.setReleaseNo(1);
         leaseRepository.save(lease);
 
         //lease info

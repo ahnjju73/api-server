@@ -45,6 +45,15 @@ public class LeaseExtrasHandlers {
                         .map(extraService::returnData), Map.class);
     }
 
+    public Mono<ServerResponse> fetchExceedExtras(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> extraService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(extraService::checkBikeSession)
+                        .map(extraService::fetchExceedLeaseExtras)
+                        .map(extraService::returnData), Map.class);
+    }
+
     public Mono<ServerResponse> addExtra(ServerRequest request) {
         return ServerResponse.ok().body(
                 request.bodyToMono(Map.class)

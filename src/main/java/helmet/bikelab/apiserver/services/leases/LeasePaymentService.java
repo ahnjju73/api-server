@@ -1,6 +1,5 @@
 package helmet.bikelab.apiserver.services.leases;
 
-import com.amazonaws.services.dynamodbv2.xspec.B;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.client.Clients;
 import helmet.bikelab.apiserver.domain.lease.LeaseExtras;
@@ -10,9 +9,9 @@ import helmet.bikelab.apiserver.domain.types.ExtraTypes;
 import helmet.bikelab.apiserver.domain.types.LeaseStatusTypes;
 import helmet.bikelab.apiserver.objects.BikeDto;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
+import helmet.bikelab.apiserver.objects.UnpaidExcelDto;
 import helmet.bikelab.apiserver.objects.bikelabs.clients.ClientDto;
 import helmet.bikelab.apiserver.objects.bikelabs.leases.FetchUnpaidLeasesResponse;
-import helmet.bikelab.apiserver.objects.bikelabs.leases.LeasePaymentDto;
 import helmet.bikelab.apiserver.objects.bikelabs.leases.PayLeaseRequest;
 import helmet.bikelab.apiserver.repositories.LeaseExtraRepository;
 import helmet.bikelab.apiserver.repositories.LeasePaymentsRepository;
@@ -20,9 +19,18 @@ import helmet.bikelab.apiserver.repositories.LeaseRepository;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.utils.AutoKey;
 import lombok.RequiredArgsConstructor;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.http.ZeroCopyHttpOutputMessage;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import reactor.core.publisher.Mono;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,6 +45,7 @@ public class LeasePaymentService  extends SessService {
     private final LeaseExtraRepository leaseExtraRepository;
     private final AutoKey autoKey;
 
+
     public BikeSessionRequest fetchUnpaidLeases(BikeSessionRequest request){
         List<Leases> leases = leaseRepository.findAll();
         Map response = new HashMap();
@@ -50,7 +59,6 @@ public class LeasePaymentService  extends SessService {
             int unpaidExtraFee = 0;
             while(index<payments.size()) {
                 if(!LocalDate.now().isAfter(payments.get(index).getPaymentDate())){
-                    System.out.print("");
                     break;
                 }
                 index++;
@@ -139,5 +147,95 @@ public class LeasePaymentService  extends SessService {
             leaseExtraRepository.save(leaseExtra);
         }
         return request;
+    }
+
+    public File unpaidExcelDownload(BikeSessionRequest request) {
+        List<Leases> leases = leaseRepository.findAll();
+        List<UnpaidExcelDto> unpaidExcelDtos = new ArrayList<>();
+
+        for(Leases lease : leases){
+            if(lease.getStatus() != LeaseStatusTypes.CONFIRM)
+                continue;
+            List<LeasePayments> payments = leasePaymentsRepository.findAllByLease_LeaseId(lease.getLeaseId());
+            int index = 0;
+            int unpaidFee = 0;
+            int unpaidExtraFee = 0;
+            while(index<payments.size()) {
+                if(!LocalDate.now().isAfter(payments.get(index).getPaymentDate())){
+                    break;
+                }
+                index++;
+            }
+            for(int i = 0; i < index; i++){
+                unpaidFee += payments.get(i).getLeaseFee() - payments.get(i).getPaidFee();
+                for(LeaseExtras le : leaseExtraRepository.findAllByPayment_PaymentId(payments.get(i).getPaymentId())){
+                    unpaidExtraFee += le.getExtraFee() - le.getPaidFee();
+                }
+            }
+            if(unpaidFee>0){
+                UnpaidExcelDto unpaidExcelDto = new UnpaidExcelDto();
+                unpaidExcelDto.setLeaseId(lease.getLeaseId());
+                unpaidExcelDto.setBikeId(lease.getBike().getBikeId());
+                unpaidExcelDto.setBikeNumber(lease.getBike().getCarNum());
+                unpaidExcelDto.setVimNumber(lease.getBike().getVimNum());
+                unpaidExcelDto.setClientId(lease.getClients().getClientId());
+                unpaidExcelDto.setClientName(lease.getClients().getClientInfo().getName());
+                unpaidExcelDto.setUnpaidFee(unpaidFee);
+                unpaidExcelDtos.add(unpaidExcelDto);
+            }
+        }
+        try {
+            File newFile = new File("./newfile");
+            FileOutputStream fileOutputStream = new FileOutputStream(newFile);
+            Workbook wb = new XSSFWorkbook();
+            Sheet sheet = wb.createSheet("첫번째 시트");
+            Row row = null;
+            Cell cell = null;
+            int rowNum = 0;
+
+            // Header
+            row = sheet.createRow(rowNum++);
+            cell = row.createCell(0);
+            cell.setCellValue("리스 아이디");
+            cell = row.createCell(1);
+            cell.setCellValue("바이크 아이디");
+            cell = row.createCell(2);
+            cell.setCellValue("고객 아이디");
+            cell = row.createCell(3);
+            cell.setCellValue("바이크 고유 번호");
+            cell = row.createCell(4);
+            cell.setCellValue("바이크 번호");
+            cell = row.createCell(5);
+            cell.setCellValue("고객명");
+            cell = row.createCell(6);
+            cell.setCellValue("미수금");
+
+            // Body
+            for(UnpaidExcelDto unpaidExcelDto : unpaidExcelDtos) {
+                row = sheet.createRow(rowNum++);
+                cell = row.createCell(0);
+                cell.setCellValue(unpaidExcelDto.getLeaseId());
+                cell = row.createCell(1);
+                cell.setCellValue(unpaidExcelDto.getBikeId());
+                cell = row.createCell(2);
+                cell.setCellValue(unpaidExcelDto.getClientId());
+                cell = row.createCell(3);
+                cell.setCellValue(unpaidExcelDto.getVimNumber());
+                cell = row.createCell(4);
+                cell.setCellValue(unpaidExcelDto.getBikeNumber());
+                cell = row.createCell(5);
+                cell.setCellValue(unpaidExcelDto.getClientName());
+                cell = row.createCell(6);
+                cell.setCellValue(unpaidExcelDto.getUnpaidFee());
+            }
+            // Excel File Output
+            wb.write(fileOutputStream);
+            fileOutputStream.flush();
+            return newFile;
+        }catch (Exception e){
+            System.out.println(e);
+            e.printStackTrace();
+        }
+        return null;
     }
 }

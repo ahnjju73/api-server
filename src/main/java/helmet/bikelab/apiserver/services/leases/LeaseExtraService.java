@@ -73,6 +73,31 @@ public class LeaseExtraService extends SessService {
         return request;
     }
 
+    public BikeSessionRequest fetchExceedLeaseExtras(BikeSessionRequest request){
+        Map response = new HashMap();
+        List<LeaseExtras> leaseExtras = leaseExtraRepository.findAll();
+        List<FetchLeaseExtraResponse> fetchLeaseExtraResponses = new ArrayList<>();
+        for(LeaseExtras le : leaseExtras){
+            if(le.getExtraFee()<0){
+                LeasePayments payment = leasePaymentsRepository.findByPaymentId(le.getPayment().getPaymentId());
+                FetchLeaseExtraResponse fetchLeaseExtraResponse = new FetchLeaseExtraResponse();
+                LeasePaymentDto dto = new LeasePaymentDto();
+                dto.setIdx(payment.getIndex());
+                dto.setPaymentId(payment.getPaymentId());
+                dto.setPaymentDate(payment.getPaymentDate());
+                fetchLeaseExtraResponse.setPayment(dto);
+                fetchLeaseExtraResponse.setExtraId(le.getExtraId());
+                fetchLeaseExtraResponse.setExtraFee(le.getExtraFee());
+                fetchLeaseExtraResponse.setExtraType(le.getExtraTypes().getExtra());
+                fetchLeaseExtraResponse.setDescription(le.getDescription());
+                fetchLeaseExtraResponses.add(fetchLeaseExtraResponse);
+            }
+        }
+        response.put("extras_to_refund", fetchLeaseExtraResponses);
+        request.setResponse(response);
+        return request;
+    }
+
     public BikeSessionRequest fetchLeaseExtrasByLeaseId(BikeSessionRequest request){
         Map param = request.getParam();
         Map response = new HashMap();
