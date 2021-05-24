@@ -415,7 +415,7 @@ public class LeasesService extends SessService {
         LeaseInfo leaseInfo = lease.getLeaseInfo();
         LeasePrice leasePrice = lease.getLeasePrice();
         if(!bePresent(lease.getClientNo())||!bePresent(lease.getReleaseNo())||!bePresent(lease.getBikeNo())||!bePresent(lease.getInsuranceNo())) withException("850-005");
-        if(!bePresent(leaseInfo.getNote())||!bePresent(leaseInfo.getNote())||!bePresent(leaseInfo.getStart())||!bePresent(leaseInfo.getEndDate())) withException("850-006");
+        if(!bePresent(leaseInfo.getStart())||!bePresent(leaseInfo.getEndDate())) withException("850-006");
         if(!bePresent(leasePrice.getPaymentDay())||!bePresent(leasePrice.getDeposit())||!bePresent(leasePrice.getPrepayment())||!bePresent(leasePrice.getProfit())||!bePresent(leasePrice.getTakeFee())||!bePresent(leasePrice.getRegisterFee())) withException("850-007");
         lease.setStatus(LeaseStatusTypes.PENDING);
         leaseRepository.save(lease);

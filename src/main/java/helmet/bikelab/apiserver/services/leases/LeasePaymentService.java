@@ -233,9 +233,8 @@ public class LeasePaymentService  extends SessService {
             fileOutputStream.flush();
             return newFile;
         }catch (Exception e){
-            System.out.println(e);
             e.printStackTrace();
+            return null;
         }
-        return null;
     }
 }
