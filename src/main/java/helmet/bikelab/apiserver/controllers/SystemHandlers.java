@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.controllers;
 
+import helmet.bikelab.apiserver.objects.AuthDto;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.SessionResponseDto;
 import helmet.bikelab.apiserver.services.SystemService;
@@ -54,6 +55,15 @@ public class SystemHandlers {
                         .map(systemHandlers::checkBikeSession)
                         .map(systemHandlers::handlePermissionToUser)
                         .map(systemHandlers::returnData), Map.class);
+    }
+
+    public Mono<ServerResponse> checkAuthorization(ServerRequest request){
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> systemHandlers.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(systemHandlers::checkBikeSession)
+                        .map(systemHandlers::checkAuthorization)
+                        .map(systemHandlers::returnData), AuthDto.class);
     }
 
 }

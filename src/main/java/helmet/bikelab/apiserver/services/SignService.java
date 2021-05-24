@@ -73,7 +73,7 @@ public class SignService extends SessService {
                             .forEach(program -> {
                                 ProgramUser programUser = new ProgramUser();
                                 programUser.setProgramNo(program.getProgramNo());
-                                programUser.setReadWriting(ReadWriteTypes.ONLY_VIEW);
+                                programUser.setReadWriting(ReadWriteTypes.READONLY);
                                 programUser.setBikeUserNo(newUser.getUserNo());
                                 programUserRepository.save(programUser);
                             });

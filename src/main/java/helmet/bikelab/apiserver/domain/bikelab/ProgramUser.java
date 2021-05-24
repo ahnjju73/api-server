@@ -37,7 +37,7 @@ public class ProgramUser {
 
     @Column(name = "read_wrt", columnDefinition = "ENUM")
     @Convert(converter = ReadWriteTypesConverter.class)
-    private ReadWriteTypes readWriting = ReadWriteTypes.ONLY_VIEW;
+    private ReadWriteTypes readWriting = ReadWriteTypes.READONLY;
 
     @Column(name = "created_at", columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt = LocalDateTime.now();

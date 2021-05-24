@@ -11,4 +11,6 @@ public interface ProgramUserRepository extends JpaRepository<ProgramUser, Progra
 
     Optional<ProgramUser> findByBikeUserNoAndProgram_ProgramIdAndProgram_Usable(Integer userNo, String programId, YesNoTypes usable);
 
+    ProgramUser findByProgram_ProgramIdAndProgram_UsableAndBikeUserNo(String programId, YesNoTypes usable, Integer userNo);
+
 }

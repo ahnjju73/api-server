@@ -5,6 +5,7 @@ import helmet.bikelab.apiserver.domain.bikelab.Program;
 import helmet.bikelab.apiserver.domain.bikelab.ProgramUser;
 import helmet.bikelab.apiserver.domain.types.BikeUserStatusTypes;
 import helmet.bikelab.apiserver.domain.types.YesNoTypes;
+import helmet.bikelab.apiserver.objects.AuthDto;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.bikelabs.systems.HandlePermissionRequest;
 import helmet.bikelab.apiserver.objects.bikelabs.systems.MenuDto;
@@ -74,6 +75,21 @@ public class SystemService extends SessService {
                     programUser.setBikeUserNo(byUserIdAndUserStatusTypes.getUserNo());
                     programUserRepository.save(programUser);
                 });
+        return request;
+    }
+
+    public BikeSessionRequest checkAuthorization(BikeSessionRequest request){
+        Map param = request.getParam();
+        BikeUser bikeSession = request.getSessionUser();
+        String programId = (String)param.get("program_id");
+        ProgramUser programUser = programUserRepository.findByProgram_ProgramIdAndProgram_UsableAndBikeUserNo(programId, YesNoTypes.YES, bikeSession.getUserNo());
+        if(bePresent(programUser)){
+            AuthDto authDto = new AuthDto();
+            authDto.setAuthType(programUser.getReadWriting());
+            authDto.setAuthTypeCode(programUser.getReadWriting().getAuth());
+            request.setResponse(authDto);
+        }else withException("010-001");
+
         return request;
     }
 }

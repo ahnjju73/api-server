@@ -1,7 +1,7 @@
 package helmet.bikelab.apiserver.domain.types;
 
 public enum ReadWriteTypes {
-    ONLY_VIEW("002-001"), WRTING("002-002");
+    READONLY("002-001"), WRTING("002-002");
 
     private String auth;
 
