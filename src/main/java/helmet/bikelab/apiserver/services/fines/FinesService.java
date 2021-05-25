@@ -25,7 +25,6 @@ import java.util.Map;
 public class FinesService extends SessService {
     private final FinesRepository finesRepository;
     private final LeaseFineRepository leaseFineRepository;
-    private final LeasePaymentsRepository leasePaymentsRepository;
     private final BikesRepository bikesRepository;
 
 //    private final Bike
@@ -55,7 +54,7 @@ public class FinesService extends SessService {
         Map response = new HashMap();
         FetchFineRequest fetchFineRequest = map(param, FetchFineRequest.class);
         Fines fines = finesRepository.findByFineId(fetchFineRequest.getFineId());
-        LeaseFine leaseFine = leaseFineRepository.findByFine(fines);
+        LeaseFine leaseFine = leaseFineRepository.findByFine_FineId(fines.getFineId());
         FetchFineResponse fetchFineResponse = new FetchFineResponse();
         if(leaseFine!=null) {
             Clients clients = leaseFine.getLease().getClients();
@@ -84,20 +83,19 @@ public class FinesService extends SessService {
         if(finesRepository.countFinesByFineNum(addFineRequest.getFineNum())>0) withException("700-009");
         Fines fine = new Fines();
         LeaseFine leaseFine = new LeaseFine();
-        LeasePayments leasePayments = leasePaymentsRepository.findByPaymentId(addFineRequest.getPaymentId());
+        Bikes bike = bikesRepository.findByBikeId(addFineRequest.getBikeId());
+        if(!bePresent(bike)) withException("700-011");
         String fineId = autoKey.makeGetKey("fine");
         fine.setPaidFee(addFineRequest.getPaidFee());
         fine.setFineId(fineId);
         fine.setFineDt(addFineRequest.getFineDate());
         fine.setFineNum(addFineRequest.getFineNum());
         fine.setFee(addFineRequest.getFee());
+        fine.setExpireDt(addFineRequest.getExpireDate());
         finesRepository.save(fine);
-        if(bePresent(leasePayments)){
-            leaseFine.setFineNo(fine.getFineNo());
-            leaseFine.setPaymentNo(leasePayments.getPaymentNo());
-            leaseFine.setLeaseNo(leasePayments.getLeaseNo());
-            leaseFineRepository.save(leaseFine);
-        }
+        leaseFine.setFineNo(fine.getFineNo());
+        leaseFine.setLeaseNo(bike.getLease().getLeaseNo());
+        leaseFineRepository.save(leaseFine);
         return request;
     }
 
@@ -109,22 +107,16 @@ public class FinesService extends SessService {
         if(!fine.getFineNum().equals(updateFineRequest.getFineNum())){
             if(finesRepository.countFinesByFineNum(updateFineRequest.getFineNum())>0) withException("700-010");
         }
+        Bikes bike = bikesRepository.findByBikeId(updateFineRequest.getBikeId());
         fine.setFineDt(updateFineRequest.getFineDate());
         fine.setExpireDt(updateFineRequest.getExpireDate());
         fine.setFee(updateFineRequest.getFee());
         fine.setFineNum(updateFineRequest.getFineNum());
         fine.setPaidFee(updateFineRequest.getPaidFee());
         finesRepository.save(fine);
-        //리스파인 수
-//        LeasePayments leasePayments = leasePaymentsRepository.findByPaymentId(updateFineRequest.getPaymentId());
-//        if(!bePresent(leasePayments)) withException("700-008");
-//        LeaseFine leaseFine = leaseFineRepository.findByFine(fine);
-//        if(bePresent(leaseFine)){
-//            leaseFineRepository.delete(leaseFine);
-//            leaseFine.setPaymentNo(leasePayments.getPaymentNo());
-//            leaseFine.setLeaseNo(leasePayments.getLeaseNo());
-//            leaseFineRepository.save(leaseFine);
-//        }
+        LeaseFine leaseFine = leaseFineRepository.findByFine_FineId(fine.getFineId());
+        leaseFine.setLeaseNo(bike.getLease().getLeaseNo());
+
         return request;
     }
 
@@ -135,7 +127,7 @@ public class FinesService extends SessService {
         deleteFineRequest.checkValidation();
         Fines fine = finesRepository.findByFineId(deleteFineRequest.getFineId());
         finesRepository.delete(fine);
-        LeaseFine leaseFine = leaseFineRepository.findByFine(fine);
+        LeaseFine leaseFine = leaseFineRepository.findByFine_FineId(fine.getFineId());
         if(bePresent(leaseFine)){
             leaseFineRepository.delete(leaseFine);
         }
@@ -148,7 +140,7 @@ public class FinesService extends SessService {
         FetchFineRequest fine = map(param, FetchFineRequest.class);
         Fines fines = finesRepository.findByFineId(fine.getFineId());
         if(fines==null) withException("");
-        LeaseFine leaseFine = leaseFineRepository.findByFine(fines);
+        LeaseFine leaseFine = leaseFineRepository.findByFine_FineId(fines.getFineId());
         Leases lease = leaseFine.getLease();
         List<LeaseFine> leaseFineList = leaseFineRepository.findAllByLease_LeaseId(lease.getLeaseId());
         List<Fines> finesList = new ArrayList<>();

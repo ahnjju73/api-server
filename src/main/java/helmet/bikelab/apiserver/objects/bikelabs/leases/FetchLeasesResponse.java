@@ -35,5 +35,8 @@ public class FetchLeasesResponse {
     private ReleaseDto release;
     private LeaseInfoDto leaseInfo;
     private LeasePriceDto leasePrice;
+    private UserDto createdUser;
+    private UserDto submittedUser;
+    private UserDto approvalUser;
     private List<LeasePaymentDto> leasePayments = new ArrayList<>();
 }
