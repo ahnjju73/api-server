@@ -400,11 +400,12 @@ public class LeasesService extends SessService {
         Map param = request.getParam();
         LeasesDto leasesDto = map(param, LeasesDto.class);
         Leases lease = leaseRepository.findByLeaseId(leasesDto.getLeaseId());
-        if(!lease.getStatus().getStatus().equals("550-002")) withException("850-008");
+        if(!lease.getStatus().getStatus().equals("550-002")) withException("850-009");
         lease.setStatus(LeaseStatusTypes.CONFIRM);
         leaseRepository.save(lease);
         return request;
     }
+
 
     @Transactional
     public BikeSessionRequest pendingLease (BikeSessionRequest request){
@@ -415,12 +416,20 @@ public class LeasesService extends SessService {
         LeaseInfo leaseInfo = lease.getLeaseInfo();
         LeasePrice leasePrice = lease.getLeasePrice();
         if(!bePresent(lease.getClientNo())||!bePresent(lease.getReleaseNo())||!bePresent(lease.getBikeNo())||!bePresent(lease.getInsuranceNo())) withException("850-005");
-        if(!bePresent(leaseInfo.getStart())||!bePresent(leaseInfo.getEndDate())) withException("850-006");
+        if(!bePresent(leaseInfo.getStart())) withException("850-006");
         if(!bePresent(leasePrice.getPaymentDay())||!bePresent(leasePrice.getDeposit())||!bePresent(leasePrice.getPrepayment())||!bePresent(leasePrice.getProfit())||!bePresent(leasePrice.getTakeFee())||!bePresent(leasePrice.getRegisterFee())) withException("850-007");
         lease.setStatus(LeaseStatusTypes.PENDING);
         leaseRepository.save(lease);
         return request;
     }
 
-
+    @Transactional BikeSessionRequest rejectLease(BikeSessionRequest request){
+        Map param = request.getParam();
+        LeasesDto leasesDto = map(param, LeasesDto.class);
+        Leases lease = leaseRepository.findByLeaseId(leasesDto.getLeaseId());
+        if(!lease.getStatus().getStatus().equals("550-002")) withException("850-020");
+        lease.setStatus(LeaseStatusTypes.DECLINE);
+        leaseRepository.save(lease);
+        return request;
+    }
 }
