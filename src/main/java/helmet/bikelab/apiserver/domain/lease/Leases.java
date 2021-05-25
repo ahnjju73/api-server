@@ -97,21 +97,21 @@ public class Leases {
     private Integer createdUserNo;
 
     @OneToOne
-    @JoinColumn(name = "created_user_no")
+    @JoinColumn(name = "created_user_no", insertable = false, updatable = false)
     private BikeUser createdUser;
 
     @Column(name = "submitted_user_no")
     private Integer submittedUserNo;
 
     @OneToOne
-    @JoinColumn(name = "submitted_user_no")
+    @JoinColumn(name = "submitted_user_no", insertable = false, updatable = false)
     private BikeUser submittedUser;
 
     @Column(name = "approval_user_no")
     private Integer approvalUserNo;
 
     @OneToOne
-    @JoinColumn(name = "approval_user_no")
+    @JoinColumn(name = "approval_user_no", insertable = false, updatable = false)
     private BikeUser approvalUser;
 
     @OneToOne(mappedBy = "lease", optional = false)
