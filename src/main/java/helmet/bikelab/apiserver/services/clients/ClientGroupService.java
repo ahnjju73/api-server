@@ -1,9 +1,13 @@
 package helmet.bikelab.apiserver.services.clients;
 
+import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
+import helmet.bikelab.apiserver.domain.bikelab.BikeUserLog;
 import helmet.bikelab.apiserver.domain.client.ClientGroups;
 import helmet.bikelab.apiserver.domain.client.Clients;
+import helmet.bikelab.apiserver.domain.types.BikeUserLogTypes;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.bikelabs.clients.group.*;
+import helmet.bikelab.apiserver.repositories.BikeUserLogRepository;
 import helmet.bikelab.apiserver.repositories.ClientGroupRepository;
 import helmet.bikelab.apiserver.repositories.ClientInfoRepository;
 import helmet.bikelab.apiserver.repositories.ClientsRepository;
@@ -18,14 +22,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static helmet.bikelab.apiserver.domain.bikelab.BikeUserLog.addLog;
+
 @RequiredArgsConstructor
 @Service
 public class ClientGroupService extends SessService {
 
    private final ClientsRepository clientsRepository;
    private final ClientGroupRepository groupRepository;
-   private final ClientInfoRepository infoRepository;
    private final AutoKey autoKey;
+   private final BikeUserLogRepository bikeUserLogRepository;
 
    public BikeSessionRequest fetchListOfGroup(BikeSessionRequest request){
       Map response = new HashMap();
@@ -38,6 +44,7 @@ public class ClientGroupService extends SessService {
    @Transactional
    public BikeSessionRequest addNewGroup(BikeSessionRequest request){
       Map param = request.getParam();
+      BikeUser session = request.getSessionUser();
       AddGroupRequest addGroupRequest = map(param, AddGroupRequest.class);
       addGroupRequest.checkValidation();
       String groupId = autoKey.makeGetKey("group");
@@ -49,6 +56,13 @@ public class ClientGroupService extends SessService {
       group.setCeoPhone(addGroupRequest.getCeoPhone());
       group.setRegNum(addGroupRequest.getRegNo());
       groupRepository.save(group);
+
+      BikeUserLog userLog = new BikeUserLog();
+      userLog.setLogType(BikeUserLogTypes.COMM_GROUP_ADDED);
+      userLog.setFromUserNo(session.getUserNo());
+      userLog.setReferenceId(group.getGroupNo().toString());
+      bikeUserLogRepository.save(addLog(BikeUserLogTypes.COMM_GROUP_ADDED, session.getUserNo(), group.getGroupNo().toString()));
+
       return request;
    }
 
@@ -75,17 +89,41 @@ public class ClientGroupService extends SessService {
    @Transactional
    public BikeSessionRequest updateGroupInfo(BikeSessionRequest request){
       Map param = request.getParam();
+      BikeUser session = request.getSessionUser();
       UpdateGroupRequest updateGroupRequest = map(param, UpdateGroupRequest.class);
       updateGroupRequest.checkValidation();
       ClientGroups group = groupRepository.findByGroupId(updateGroupRequest.getGroupId());
-      group.setGroupName(updateGroupRequest.getGroupName());
-      group.setCeoEmail(updateGroupRequest.getCeoEmail());
-      group.setCeoName(updateGroupRequest.getCeoName());
-      group.setCeoPhone(updateGroupRequest.getCeoPhone());
-      group.setRegNum(updateGroupRequest.getRegNo());
-      groupRepository.save(group);
+      if(bePresent(group)){
+         addLogGroupInfo(updateGroupRequest, group, session);
+         group.setGroupName(updateGroupRequest.getGroupName());
+         group.setCeoEmail(updateGroupRequest.getCeoEmail());
+         group.setCeoName(updateGroupRequest.getCeoName());
+         group.setCeoPhone(updateGroupRequest.getCeoPhone());
+         group.setRegNum(updateGroupRequest.getRegNo());
+         groupRepository.save(group);
+      }
       return request;
+   }
 
+   public void addLogGroupInfo(UpdateGroupRequest updateGroupRequest, ClientGroups group, BikeUser session){
+      List<String> stringList = new ArrayList<>();
+      if(bePresent(updateGroupRequest.getGroupName()) && !updateGroupRequest.getGroupName().equals(group.getGroupName())){
+         stringList.add("그룹명을 <>" + group.getGroupName() + "</>에서 <>" + updateGroupRequest.getGroupName() + "</>으로 변경하였습니다.");
+      }
+      if(bePresent(updateGroupRequest.getCeoEmail()) && !updateGroupRequest.getCeoEmail().equals(group.getCeoEmail())){
+         stringList.add("담당자 이메일을 <>" + group.getCeoEmail() + "</>에서 <>" + updateGroupRequest.getCeoEmail() + "</>으로 변경하였습니다.");
+      }
+      if(bePresent(updateGroupRequest.getCeoName()) && !updateGroupRequest.getCeoName().equals(group.getCeoName())){
+         stringList.add("담당자 이름을 <>" + group.getCeoName() + "</>에서 <>" + updateGroupRequest.getCeoName() + "</>으로 변경하였습니다.");
+      }
+      if(bePresent(updateGroupRequest.getCeoPhone()) && !updateGroupRequest.getCeoPhone().equals(group.getCeoPhone())){
+         stringList.add("담당자 연락처를 <>" + group.getCeoPhone() + "</>에서 <>" + updateGroupRequest.getCeoPhone() + "</>으로 변경하였습니다.");
+      }
+      if(bePresent(updateGroupRequest.getRegNo()) && !updateGroupRequest.getRegNo().equals(group.getRegNum())){
+         stringList.add("그룹 사업자번호를 <>" + group.getRegNum() + "</>에서 <>" + updateGroupRequest.getRegNo() + "</>으로 변경하였습니다.");
+      }
+      if(bePresent(stringList) && stringList.size() > 0)
+         bikeUserLogRepository.save(addLog(BikeUserLogTypes.COMM_GROUP_UPDATED, session.getUserNo(), group.getGroupNo().toString(), stringList));
    }
 
    public BikeSessionRequest deleteGroup (BikeSessionRequest request){
@@ -98,6 +136,5 @@ public class ClientGroupService extends SessService {
       groupRepository.delete(group);
       return request;
    }
-
 
 }

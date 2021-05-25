@@ -1,8 +1,10 @@
 package helmet.bikelab.apiserver.services.clients;
 
+import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.client.*;
 import helmet.bikelab.apiserver.domain.embeds.ModelPassword;
 import helmet.bikelab.apiserver.domain.types.AccountStatusTypes;
+import helmet.bikelab.apiserver.domain.types.BikeUserLogTypes;
 import helmet.bikelab.apiserver.domain.types.YesNoTypes;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.bikelabs.clients.*;
@@ -19,6 +21,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static helmet.bikelab.apiserver.domain.bikelab.BikeUserLog.addLog;
+
 @RequiredArgsConstructor
 @Service
 public class ClientsService extends SessService {
@@ -29,6 +33,7 @@ public class ClientsService extends SessService {
     private final ClientPasswordRepository clientPasswordRepository;
     private final ClientGroupRepository groupRepository;
     private final ClientAddressesRepository clientAddressesRepository;
+    private final BikeUserLogRepository bikeUserLogRepository;
 
     public BikeSessionRequest fetchListOfClients(BikeSessionRequest request){
         Map param = request.getParam();
@@ -78,6 +83,7 @@ public class ClientsService extends SessService {
     @Transactional
     public BikeSessionRequest addClient(BikeSessionRequest request){
         Map param = request.getParam();
+        BikeUser session = request.getSessionUser();
         AddClientRequest addClientRequest = map(param, AddClientRequest.class);
         String clientId = autoKey.makeGetKey("client");
         ClientGroups group = groupRepository.findByGroupId(addClientRequest.getGroupId());
@@ -113,6 +119,9 @@ public class ClientsService extends SessService {
         clientInfoRepository.save(clientInfo);
         clientAddressesRepository.save(clientAddresses);
         clientPasswordRepository.save(clientPassword);
+
+        bikeUserLogRepository.save(addLog(BikeUserLogTypes.COMM_CLIENT_ADDED, session.getUserNo(), clients.getClientNo().toString()));
+
         return request;
     }
 
@@ -147,6 +156,13 @@ public class ClientsService extends SessService {
         clientAddressesRepository.save(clientAddresses);
 
         return request;
+    }
+
+    public void updateClientUserLog(BikeUserLogTypes bikeUserLogTypes, Integer fromUserNo, UpdateClientRequest updateClientRequest, Clients clients, ClientInfo clientInfo){
+        StringBuffer content = new StringBuffer();
+        if(bePresent(updateClientRequest.getEmail()) && !updateClientRequest.getEmail().equals(clients.getEmail())){
+            content.append("고객사 이메일을 <>" + clients.getEmail() + "</>에서 <>" + updateClientRequest.getEmail() + "</>으로 변경하였습니다.\\n");
+        }
     }
 
     @Transactional
