@@ -14,12 +14,13 @@ import java.time.LocalDateTime;
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class UpdateFineRequest extends OriginObject {
     private String fineId;
-    private String paymentId;
+    private String bikeId;
     private String fineNum;
     private LocalDateTime fineDate;
     private LocalDateTime expireDate;
     private Integer fee;
     private Integer paidFee;
+
 
     public void setFineDate(String fineDate){
         this.fineDate =  LocalDateTime.parse(fineDate);

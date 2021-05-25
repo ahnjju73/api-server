@@ -1,6 +1,7 @@
 package helmet.bikelab.apiserver.domain.lease;
 
 import helmet.bikelab.apiserver.domain.bike.Bikes;
+import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.client.Clients;
 import helmet.bikelab.apiserver.domain.types.ContractTypes;
 import helmet.bikelab.apiserver.domain.types.LeaseStatusTypes;
@@ -91,6 +92,27 @@ public class Leases {
     @Column(name = "status", columnDefinition = "ENUM")
     @Convert(converter = LeaseStatusTypesConverter.class)
     private LeaseStatusTypes status = LeaseStatusTypes.IN_PROGRESS;
+
+    @Column(name = "created_user_no")
+    private Integer createdUserNo;
+
+    @OneToOne
+    @JoinColumn(name = "created_user_no")
+    private BikeUser createdUser;
+
+    @Column(name = "submitted_user_no")
+    private Integer submittedUserNo;
+
+    @OneToOne
+    @JoinColumn(name = "submitted_user_no")
+    private BikeUser submittedUser;
+
+    @Column(name = "approval_user_no")
+    private Integer approvalUserNo;
+
+    @OneToOne
+    @JoinColumn(name = "approval_user_no")
+    private BikeUser approvalUser;
 
     @OneToOne(mappedBy = "lease", optional = false)
     private LeaseInfo leaseInfo;

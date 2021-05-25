@@ -14,13 +14,6 @@ import javax.persistence.*;
 @IdClass(LeaseFinePK.class)
 @Table(name = "lease_fine")
 public class LeaseFine {
-    @Id
-    @Column(name = "payment_no", nullable = false)
-    private Integer paymentNo;
-
-    @ManyToOne
-    @JoinColumn(name = "payment_no", insertable = false, updatable = false)
-    private LeasePayments payments;
 
     @Id
     @Column(name = "fine_no", nullable = false)
@@ -30,6 +23,7 @@ public class LeaseFine {
     @JoinColumn(name = "fine_no", insertable = false, updatable = false)
     private Fines fine;
 
+    @Id
     @Column(name = "lease_no")
     private Integer leaseNo;
 
