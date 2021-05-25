@@ -14,8 +14,9 @@ import java.time.LocalDateTime;
 public class AddFineRequest extends OriginObject {
     private String fineNum;
     private LocalDateTime fineDate;
-    private LocalDateTime expireDate;
     private Integer fee;
+    private LocalDateTime expireDate;
+    private String paymentId;
     private Integer paidFee;
     private String bikeId;
 
