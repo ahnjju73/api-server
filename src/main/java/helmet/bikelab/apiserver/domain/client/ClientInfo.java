@@ -24,7 +24,7 @@ public class ClientInfo {
     private Integer clientNo;
 
     @JsonIgnore
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "client_no", insertable = false, updatable = false)
     private Clients client;
 

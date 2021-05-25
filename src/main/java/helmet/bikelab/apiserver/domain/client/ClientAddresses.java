@@ -22,7 +22,7 @@ public class ClientAddresses {
     @Column(name = "client_no", nullable = false)
     private Integer clientNo;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JsonIgnore
     @JoinColumn(name = "client_no", insertable = false, updatable = false)
     private Clients client;
