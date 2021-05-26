@@ -6,6 +6,7 @@ import helmet.bikelab.apiserver.services.internal.OriginObject;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -22,7 +23,7 @@ public class UpdateBikeRequest extends OriginObject {
     private LocalDateTime registerDt;
 
     public void setReceiveDt(String receiveDt) {
-        this.receiveDt = LocalDateTime.parse(receiveDt);
+        this.receiveDt = LocalDateTime.parse(receiveDt + "T00:00:00");
     }
     public void setRegisterDt(String registerDt) {
         this.registerDt = LocalDateTime.parse(registerDt);

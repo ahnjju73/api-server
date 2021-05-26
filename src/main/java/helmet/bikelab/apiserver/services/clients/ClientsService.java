@@ -166,47 +166,48 @@ public class ClientsService extends SessService {
     }
 
     public void updateClientUserLog(BikeUserLogTypes bikeUserLogTypes, Integer fromUserNo, UpdateClientRequest updateClientRequest, Clients clients, ClientInfo clientInfo){
-        List<String> stringList = new ArrayList<>();
-        ClientInfo ci = updateClientRequest.getClientInfo();
-        ClientAddresses clientAddresses = clients.getClientAddresses() == null ? new ClientAddresses() : clients.getClientAddresses();
-        ModelAddress modelAddress = clientAddresses.getModelAddress() == null ? new ModelAddress() : clientAddresses.getModelAddress();
-        ModelAddress address = updateClientRequest.getAddress();
-        if(bePresent(updateClientRequest.getEmail()) && !updateClientRequest.getEmail().equals(clients.getEmail())){
-            stringList.add("고객사 이메일을 <>" + clients.getEmail() + "</>에서 <>" + updateClientRequest.getEmail() + "</>으로 변경하였습니다.");
-        }
-        if(bePresent(updateClientRequest.getDirect()) && !YesNoTypes.getYesNo(updateClientRequest.getDirect()).equals(clients.getDirectType())){
-            stringList.add("고객사 직영여부를 변경하였습니다.");
-        }
-        if(bePresent(updateClientRequest.getRegNo()) && !updateClientRequest.getRegNo().equals(clients.getRegNum())){
-            stringList.add("고객사 고유번호를 <>" + clients.getRegNum() + "</>에서 <>" + updateClientRequest.getRegNo() + "</>로 변경하였습니다.");
-        }
-        if(bePresent(ci)){
-            if(bePresent(ci.getDescription()) && !ci.getDescription().equals(clientInfo.getDescription())){
-                stringList.add("고객사 설명을 <>" + clientInfo.getDescription() + "</>에서 <>" + ci.getDescription() + "</>로 변경하였습니다.");
+        if(bePresent(updateClientRequest)){
+            List<String> stringList = new ArrayList<>();
+            ClientInfo ci = updateClientRequest.getClientInfo();
+            ClientAddresses clientAddresses = clients.getClientAddresses() == null ? new ClientAddresses() : clients.getClientAddresses();
+            ModelAddress modelAddress = clientAddresses.getModelAddress() == null ? new ModelAddress() : clientAddresses.getModelAddress();
+            ModelAddress address = updateClientRequest.getAddress();
+            if(bePresent(updateClientRequest.getEmail()) && !updateClientRequest.getEmail().equals(clients.getEmail())){
+                stringList.add("고객사 이메일을 <>" + clients.getEmail() + "</>에서 <>" + updateClientRequest.getEmail() + "</>으로 변경하였습니다.");
             }
-            if(bePresent(ci.getPhone()) && !ci.getPhone().equals(clientInfo.getPhone())){
-                stringList.add("고객사 연락처를 <>" + clientInfo.getPhone() + "</>에서 <>" + ci.getPhone() + "</>로 변경하였습니다.");
+            if(bePresent(updateClientRequest.getDirect()) && !YesNoTypes.getYesNo(updateClientRequest.getDirect()).equals(clients.getDirectType())){
+                stringList.add("고객사 직영여부를 변경하였습니다.");
             }
-            if(bePresent(ci.getName()) && !ci.getName().equals(clientInfo.getName())){
-                stringList.add("고객사명을 <>" + clientInfo.getName() + "</>에서 <>" + ci.getName() + "</>로 변경하였습니다.");
+            if(bePresent(updateClientRequest.getRegNo()) && !updateClientRequest.getRegNo().equals(clients.getRegNum())){
+                stringList.add("고객사 고유번호를 <>" + clients.getRegNum() + "</>에서 <>" + updateClientRequest.getRegNo() + "</>로 변경하였습니다.");
             }
-            if(bePresent(ci.getManagerEmail()) && !ci.getManagerEmail().equals(clientInfo.getManagerEmail())){
-                stringList.add("고객사 담당자 Email을 <>" + clientInfo.getManagerEmail() + "</>에서 <>" + ci.getManagerEmail() + "</>로 변경하였습니다.");
-            }
-            if(bePresent(ci.getManagerName()) && !ci.getManagerName().equals(clientInfo.getManagerName())){
-                stringList.add("고객사 담당자명을 <>" + clientInfo.getManagerName() + "</>에서 <>" + ci.getManagerName() + "</>로 변경하였습니다.");
-            }
-            if(bePresent(ci.getManagerPhone()) && !ci.getManagerPhone().equals(clientInfo.getManagerPhone())){
-                stringList.add("고객사 담당자 연락처를 <>" + clientInfo.getManagerPhone() + "</>에서 <>" + ci.getManagerPhone() + "</>로 변경하였습니다.");
-            }
+            if(bePresent(ci)){
+                if(bePresent(ci.getDescription()) && !ci.getDescription().equals(clientInfo.getDescription())){
+                    stringList.add("고객사 설명을 <>" + clientInfo.getDescription() + "</>에서 <>" + ci.getDescription() + "</>로 변경하였습니다.");
+                }
+                if(bePresent(ci.getPhone()) && !ci.getPhone().equals(clientInfo.getPhone())){
+                    stringList.add("고객사 연락처를 <>" + clientInfo.getPhone() + "</>에서 <>" + ci.getPhone() + "</>로 변경하였습니다.");
+                }
+                if(bePresent(ci.getName()) && !ci.getName().equals(clientInfo.getName())){
+                    stringList.add("고객사명을 <>" + clientInfo.getName() + "</>에서 <>" + ci.getName() + "</>로 변경하였습니다.");
+                }
+                if(bePresent(ci.getManagerEmail()) && !ci.getManagerEmail().equals(clientInfo.getManagerEmail())){
+                    stringList.add("고객사 담당자 Email을 <>" + clientInfo.getManagerEmail() + "</>에서 <>" + ci.getManagerEmail() + "</>로 변경하였습니다.");
+                }
+                if(bePresent(ci.getManagerName()) && !ci.getManagerName().equals(clientInfo.getManagerName())){
+                    stringList.add("고객사 담당자명을 <>" + clientInfo.getManagerName() + "</>에서 <>" + ci.getManagerName() + "</>로 변경하였습니다.");
+                }
+                if(bePresent(ci.getManagerPhone()) && !ci.getManagerPhone().equals(clientInfo.getManagerPhone())){
+                    stringList.add("고객사 담당자 연락처를 <>" + clientInfo.getManagerPhone() + "</>에서 <>" + ci.getManagerPhone() + "</>로 변경하였습니다.");
+                }
 
-            if(bePresent(address) && !address.getAddress().equals(modelAddress.getAddress())){
-                stringList.add("고객사 주소를 변경하였습니다.");
+                if(bePresent(address) && !address.getAddress().equals(modelAddress.getAddress())){
+                    stringList.add("고객사 주소를 변경하였습니다.");
+                }
             }
+            if(bePresent(stringList) && stringList.size() > 0)
+                bikeUserLogRepository.save(addLog(bikeUserLogTypes, fromUserNo, clients.getClientNo().toString(), stringList));
         }
-        if(bePresent(stringList) && stringList.size() > 0)
-            bikeUserLogRepository.save(addLog(bikeUserLogTypes, fromUserNo, clients.getClientNo().toString(), stringList));
-
     }
 
     @Transactional
