@@ -93,6 +93,28 @@ public class LeasesService extends SessService {
                 releaseDto.setUseYn(lease.getReleases().getYesNoTypes().getYesNo());
                 releaseDto.setCreatedAt(lease.getReleases().getCreatedAt());
                 releaseDto.setReleaseAddress(lease.getReleases().getAddress().getAddress());
+                fetchLeasesResponse.setRelease(releaseDto);
+            }
+            if(bePresent(lease.getCreatedUser())) {
+                UserDto createdUser = new UserDto();
+                createdUser.setUserId(lease.getCreatedUser().getUserId());
+                createdUser.setEmail(lease.getCreatedUser().getEmail());
+                createdUser.setName(lease.getCreatedUser().getBikeUserInfo().getName());
+                fetchLeasesResponse.setCreatedUser(createdUser);
+            }
+            if(bePresent(lease.getSubmittedUser())) {
+                UserDto submittedUser = new UserDto();
+                submittedUser.setUserId(lease.getSubmittedUser().getUserId());
+                submittedUser.setEmail(lease.getSubmittedUser().getEmail());
+                submittedUser.setName(lease.getSubmittedUser().getBikeUserInfo().getName());
+                fetchLeasesResponse.setSubmittedUser(submittedUser);
+            }
+            if(bePresent(lease.getApprovalUser())) {
+                UserDto approvalUser = new UserDto();
+                approvalUser.setUserId(lease.getApprovalUser().getUserId());
+                approvalUser.setEmail(lease.getApprovalUser().getEmail());
+                approvalUser.setName(lease.getApprovalUser().getBikeUserInfo().getName());
+                fetchLeasesResponse.setCreatedUser(approvalUser);
             }
             fetchLeasesResponse.setStatus(lease.getStatus().getStatus());
             fetchLeasesResponse.setManagementType(lease.getType().getStatus());
@@ -171,6 +193,27 @@ public class LeasesService extends SessService {
             leasePaymentDto.setIdx(lp.getIndex());
             totalFee += lp.getLeaseFee();
             leasePayments.add(leasePaymentDto);
+        }
+        if(bePresent(lease.getCreatedUser())) {
+            UserDto createdUser = new UserDto();
+            createdUser.setUserId(lease.getCreatedUser().getUserId());
+            createdUser.setEmail(lease.getCreatedUser().getEmail());
+            createdUser.setName(lease.getCreatedUser().getBikeUserInfo().getName());
+            fetchLeasesResponse.setCreatedUser(createdUser);
+        }
+        if(bePresent(lease.getSubmittedUser())) {
+            UserDto submittedUser = new UserDto();
+            submittedUser.setUserId(lease.getSubmittedUser().getUserId());
+            submittedUser.setEmail(lease.getSubmittedUser().getEmail());
+            submittedUser.setName(lease.getSubmittedUser().getBikeUserInfo().getName());
+            fetchLeasesResponse.setSubmittedUser(submittedUser);
+        }
+        if(bePresent(lease.getApprovalUser())) {
+            UserDto approvalUser = new UserDto();
+            approvalUser.setUserId(lease.getApprovalUser().getUserId());
+            approvalUser.setEmail(lease.getApprovalUser().getEmail());
+            approvalUser.setName(lease.getApprovalUser().getBikeUserInfo().getName());
+            fetchLeasesResponse.setCreatedUser(approvalUser);
         }
         fetchLeasesResponse.getLeasePrice().setLeaseFee(totalFee);
         fetchLeasesResponse.setLeasePayments(leasePayments);
@@ -402,6 +445,14 @@ public class LeasesService extends SessService {
             if(bePresent(clientRequested) && !clientRequested.getClientNo().equals(leases.getClientNo())){
                 Clients clients = leases.getClients();
                 stringList.add("고객정보를 <>" + clients.getClientInfo().getName() + " [" + clients.getClientId() + "] " + "</>에서 <>" + clientRequested.getClientInfo().getName() + " [" + clientRequested.getClientId() + "] " + "</>으로 변경하였습니다.");
+            }
+            if(bePresent(bikeRequested) && !bikeRequested.getBikeNo().equals(leases.getBikeNo())){
+                Bikes bike = leases.getBike();
+                stringList.add("바이크 정보를 <>" + bike.getCarNum() + " [" + bike.getBikeId() + " ]" + "</>에서 <>" + bikeRequested.getCarNum() + " [" +  bikeRequested.getBikeId() + "] " + "</>으로 변경하였습니다.");
+            }
+            if(bePresent(insurancesRequested) && !insurancesRequested.getInsuranceNo().equals(leases.getInsuranceNo())){
+                Insurances insurance = leases.getInsurances();
+                stringList.add("보험 <>" + insurance.getInsuranceType().getName() + " [" + insurance.getInsuranceId() + " ]" + "</>에서 <>" + insurancesRequested.getInsuranceType().getName() + " [" +  insurancesRequested.getInsuranceId() + "] " + "</>으로 변경하였습니다.");
             }
             if(bePresent(bikeRequested) && !bikeRequested.getBikeNo().equals(leases.getBikeNo())){
                 Bikes bike = leases.getBike();
