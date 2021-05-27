@@ -114,7 +114,7 @@ public class LeasesService extends SessService {
                 approvalUser.setUserId(lease.getApprovalUser().getUserId());
                 approvalUser.setEmail(lease.getApprovalUser().getEmail());
                 approvalUser.setName(lease.getApprovalUser().getBikeUserInfo().getName());
-                fetchLeasesResponse.setCreatedUser(approvalUser);
+                fetchLeasesResponse.setApprovalUser(approvalUser);
             }
             fetchLeasesResponse.setStatus(lease.getStatus().getStatus());
             fetchLeasesResponse.setManagementType(lease.getType().getStatus());
@@ -213,7 +213,7 @@ public class LeasesService extends SessService {
             approvalUser.setUserId(lease.getApprovalUser().getUserId());
             approvalUser.setEmail(lease.getApprovalUser().getEmail());
             approvalUser.setName(lease.getApprovalUser().getBikeUserInfo().getName());
-            fetchLeasesResponse.setCreatedUser(approvalUser);
+            fetchLeasesResponse.setApprovalUser(approvalUser);
         }
         fetchLeasesResponse.getLeasePrice().setLeaseFee(totalFee);
         fetchLeasesResponse.setLeasePayments(leasePayments);
