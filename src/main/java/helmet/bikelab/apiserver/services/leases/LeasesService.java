@@ -486,7 +486,9 @@ public class LeasesService extends SessService {
         Leases lease = leaseRepository.findByLeaseId(leasesDto.getLeaseId());
         lease.setSubmittedUserNo(session.getUserNo());
         if(!lease.getStatus().getStatus().equals("550-001")) withException("850-008");
-        lease.setApprovalUserNo(bikeLabUserRepository.findByUserId(leasesDto.getApprovalUserId()).getUserNo());
+        BikeUser byUserId = bikeLabUserRepository.findByUserId(leasesDto.getApprovalUserId());
+        lease.setApprovalUserNo(byUserId.getUserNo());
+        lease.setApprovalUser(byUserId);
         LeaseInfo leaseInfo = lease.getLeaseInfo();
         LeasePrice leasePrice = lease.getLeasePrice();
         if(!bePresent(lease.getClientNo())||!bePresent(lease.getReleaseNo())||!bePresent(lease.getBikeNo())||!bePresent(lease.getInsuranceNo())) withException("850-005");
