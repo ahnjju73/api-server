@@ -54,14 +54,14 @@ public class Leases {
     @Column(name = "release_no")
     private Integer releaseNo;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "release_no", insertable = false, updatable = false)
     private Releases releases;
 
     @Column(name = "insurance_no")
     private Integer insuranceNo;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "insurance_no", insertable = false, updatable = false)
     private Insurances insurances;
 
@@ -96,21 +96,21 @@ public class Leases {
     @Column(name = "created_user_no")
     private Integer createdUserNo;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "created_user_no", insertable = false, updatable = false)
     private BikeUser createdUser;
 
     @Column(name = "submitted_user_no")
     private Integer submittedUserNo;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "submitted_user_no", insertable = false, updatable = false)
     private BikeUser submittedUser;
 
     @Column(name = "approval_user_no")
     private Integer approvalUserNo;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "approval_user_no", insertable = false, updatable = false)
     private BikeUser approvalUser;
 

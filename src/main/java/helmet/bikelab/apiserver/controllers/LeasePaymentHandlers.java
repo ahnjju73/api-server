@@ -56,4 +56,14 @@ public class LeasePaymentHandlers {
                     return resp.writeWith(excel, 0, excel.length());
                 }).doFinally(a -> excel.deleteOnExit());
     }
+
+    public Mono<ServerResponse> payLeaseWithExcel(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> leasePaymentService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(leasePaymentService::checkBikeSession)
+                        .map(leasePaymentService::payWithExcel)
+                        .map(leasePaymentService::returnData), Map.class);
+    }
 }

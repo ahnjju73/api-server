@@ -15,6 +15,7 @@ public interface BikeLabUserRepository extends JpaRepository<BikeUser, Integer> 
     Optional<BikeUser> findByEmailAndUserNoNot(String email, Integer userNo);
 
     BikeUser findByUserNoAndUserStatusTypes(Integer userNo, BikeUserStatusTypes bikeUserStatusTypes);
+    BikeUser findByUserId(String userId);
 
     @Modifying
     @Query("update BikeUser u set u.userStatusTypes = ?2 where u.userNo = ?1")

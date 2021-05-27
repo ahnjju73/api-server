@@ -13,16 +13,16 @@ import helmet.bikelab.apiserver.objects.UnpaidExcelDto;
 import helmet.bikelab.apiserver.objects.bikelabs.clients.ClientDto;
 import helmet.bikelab.apiserver.objects.bikelabs.leases.FetchUnpaidLeasesResponse;
 import helmet.bikelab.apiserver.objects.bikelabs.leases.PayLeaseRequest;
+import helmet.bikelab.apiserver.objects.bikelabs.leases.UploadExcelDto;
 import helmet.bikelab.apiserver.repositories.LeaseExtraRepository;
 import helmet.bikelab.apiserver.repositories.LeasePaymentsRepository;
 import helmet.bikelab.apiserver.repositories.LeaseRepository;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.utils.AutoKey;
 import lombok.RequiredArgsConstructor;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.hssf.util.HSSFColor;
+import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -193,21 +193,33 @@ public class LeasePaymentService  extends SessService {
             int rowNum = 0;
 
             // Header
+            CellStyle color = wb.createCellStyle();
+            color.setFillForegroundColor(HSSFColor.AQUA.index);
+            color.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
             row = sheet.createRow(rowNum++);
             cell = row.createCell(0);
             cell.setCellValue("리스 아이디");
+            cell.setCellStyle(color);
             cell = row.createCell(1);
             cell.setCellValue("바이크 아이디");
+            cell.setCellStyle(color);
             cell = row.createCell(2);
             cell.setCellValue("고객 아이디");
+            cell.setCellStyle(color);
             cell = row.createCell(3);
             cell.setCellValue("바이크 고유 번호");
+            cell.setCellStyle(color);
             cell = row.createCell(4);
             cell.setCellValue("바이크 번호");
+            cell.setCellStyle(color);
             cell = row.createCell(5);
             cell.setCellValue("고객명");
+            cell.setCellStyle(color);
             cell = row.createCell(6);
             cell.setCellValue("미수금");
+            cell.setCellStyle(color);
+            cell = row.createCell(7);
+            cell.setCellValue("납부 금");
 
             // Body
             for(UnpaidExcelDto unpaidExcelDto : unpaidExcelDtos) {
@@ -236,4 +248,60 @@ public class LeasePaymentService  extends SessService {
             return null;
         }
     }
+    public BikeSessionRequest payWithExcel(BikeSessionRequest request){
+        Map param = request.getParam();
+        UploadExcelDto uploadExcelDto = map(param, UploadExcelDto.class);
+        for(PayLeaseRequest payLeaseRequest : uploadExcelDto.getPayments()){
+            int paidFee = payLeaseRequest.getPaidFee();
+            List<LeasePayments> payments= leasePaymentsRepository.findAllByLease_LeaseId(payLeaseRequest.getLeaseId());
+            for(int i = 0; i < payments.size() && paidFee > 0; i++){
+                int unpaidFee = payments.get(i).getLeaseFee() - payments.get(i).getPaidFee();
+                if (unpaidFee > 0) {
+                    if(paidFee > unpaidFee){
+                        payments.get(i).setPaidFee(payments.get(i).getLeaseFee());
+                        paidFee -= unpaidFee;
+                        leasePaymentsRepository.save(payments.get(i));
+                    }else{
+                        payments.get(i).setPaidFee(payments.get(i).getPaidFee()+paidFee);
+                        leasePaymentsRepository.save(payments.get(i));
+                        paidFee = 0;
+                        break;
+                    }
+                }
+
+                List<LeaseExtras> extras = leaseExtraRepository.findAllByPayment_PaymentId(payments.get(i).getPaymentId());
+                for(LeaseExtras le : extras){
+                    int unpaidExtra = le.getExtraFee() - le.getPaidFee();
+                    if(unpaidExtra > 0){
+                        if(unpaidExtra < paidFee){
+                            le.setPaidFee(le.getExtraFee());
+                            paidFee -= unpaidExtra;
+                            leaseExtraRepository.save(le);
+                        }
+                        else{
+                            le.setPaidFee(le.getPaidFee() + paidFee);
+                            leaseExtraRepository.save(le);
+                            paidFee = 0;
+                            break;
+                        }
+                    }
+                }
+            }
+            if(paidFee > 0){
+                String extraId = autoKey.makeGetKey("lease_extra");
+                LeaseExtras leaseExtra = new LeaseExtras();
+                leaseExtra.setPaymentNo(payments.get(payments.size() - 1).getPaymentNo());
+                leaseExtra.setLeaseNo(payments.get(0).getLeaseNo());
+                leaseExtra.setExtraFee(-paidFee);
+                leaseExtra.setExtraId(extraId);
+                leaseExtra.setExtraTypes(ExtraTypes.ETC);
+                leaseExtra.setDescription("초과 금액");
+                leaseExtraRepository.save(leaseExtra);
+            }
+        }
+
+        return request;
+    }
+
+
 }
