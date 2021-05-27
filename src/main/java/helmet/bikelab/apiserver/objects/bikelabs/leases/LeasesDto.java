@@ -10,7 +10,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
-public class LeasesDto extends OriginObject {
+public class  LeasesDto extends OriginObject {
     private String leaseId;
     private String approvalUserId;
 }
