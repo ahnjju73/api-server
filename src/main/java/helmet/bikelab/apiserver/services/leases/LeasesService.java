@@ -38,6 +38,7 @@ public class LeasesService extends SessService {
     private final LeaseInfoRepository leaseInfoRepository;
     private final LeasePriceRepository leasePriceRepository;
     private final BikesRepository bikesRepository;
+    private final BikeLabUserRepository bikeLabUserRepository;
     private final ClientsRepository clientsRepository;
     private final ReleaseRepository releaseRepository;
     private final InsurancesRepository insurancesRepository;
@@ -201,7 +202,7 @@ public class LeasesService extends SessService {
         Clients client = clientsRepository.findByClientId(addUpdateLeaseRequest.getClientId());
         //insurance
         Insurances insurance = insurancesRepository.findByInsuranceId(addUpdateLeaseRequest.getInsuranceId());
-        //release
+        BikeUser session = request.getSessionUser();
         if(client!=null)
             lease.setClientNo(client.getClientNo());
         if(bike!=null)
@@ -214,6 +215,7 @@ public class LeasesService extends SessService {
         lease.setContractTypes(ContractTypes.OPERATING);
         lease.setCreatedAt(LocalDateTime.now());
         lease.setReleaseNo(1);
+        lease.setCreatedUserNo(session.getUserNo());
         leaseRepository.save(lease);
 
         //lease info
@@ -241,7 +243,6 @@ public class LeasesService extends SessService {
         leasePriceRepository.save(leasePrice);
 
         List<LeasePayments> leasePaymentsList = new ArrayList<>();
-        BikeUser session = request.getSessionUser();
         for(int i = 0; i < addUpdateLeaseRequest.getLeaseInfo().getPeriod(); i++){
             LeasePayments leasePayment = new LeasePayments();
             String paymentId = autoKey.makeGetKey("payment");
@@ -399,7 +400,9 @@ public class LeasesService extends SessService {
     public BikeSessionRequest confirmLease (BikeSessionRequest request){
         Map param = request.getParam();
         LeasesDto leasesDto = map(param, LeasesDto.class);
+        BikeUser session = request.getSessionUser();
         Leases lease = leaseRepository.findByLeaseId(leasesDto.getLeaseId());
+        lease.setSubmittedUserNo(session.getUserNo());
         if(!lease.getStatus().getStatus().equals("550-002")) withException("850-009");
         lease.setStatus(LeaseStatusTypes.CONFIRM);
         leaseRepository.save(lease);
@@ -413,17 +416,20 @@ public class LeasesService extends SessService {
         LeasesDto leasesDto = map(param, LeasesDto.class);
         Leases lease = leaseRepository.findByLeaseId(leasesDto.getLeaseId());
         if(!lease.getStatus().getStatus().equals("550-001")) withException("850-008");
+        lease.setApprovalUserNo(bikeLabUserRepository.findByUserId(leasesDto.getApprovalUserId()).getUserNo());
         LeaseInfo leaseInfo = lease.getLeaseInfo();
         LeasePrice leasePrice = lease.getLeasePrice();
         if(!bePresent(lease.getClientNo())||!bePresent(lease.getReleaseNo())||!bePresent(lease.getBikeNo())||!bePresent(lease.getInsuranceNo())) withException("850-005");
         if(!bePresent(leaseInfo.getStart())) withException("850-006");
         if(!bePresent(leasePrice.getPaymentDay())||!bePresent(leasePrice.getDeposit())||!bePresent(leasePrice.getPrepayment())||!bePresent(leasePrice.getProfit())||!bePresent(leasePrice.getTakeFee())||!bePresent(leasePrice.getRegisterFee())) withException("850-007");
+        if(!bePresent(lease.getApprovalUser())) withException("850-020");
         lease.setStatus(LeaseStatusTypes.PENDING);
         leaseRepository.save(lease);
         return request;
     }
 
-    @Transactional BikeSessionRequest rejectLease(BikeSessionRequest request){
+    @Transactional
+    public BikeSessionRequest rejectLease(BikeSessionRequest request){
         Map param = request.getParam();
         LeasesDto leasesDto = map(param, LeasesDto.class);
         Leases lease = leaseRepository.findByLeaseId(leasesDto.getLeaseId());

@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.controllers;
 
+import com.amazonaws.services.opsworkscm.model.Server;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.services.leases.LeasesService;
 import lombok.RequiredArgsConstructor;
@@ -70,6 +71,15 @@ public class LeasesHandler {
                         .subscribeOn(Schedulers.elastic())
                         .map(leasesService::checkBikeSession)
                         .map(leasesService::pendingLease)
+                        .map(leasesService::returnData), Map.class);
+    }
+
+    public Mono<ServerResponse> deleteInsurance(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> leasesService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(leasesService::checkBikeSession)
+                        .map(leasesService::rejectLease)
                         .map(leasesService::returnData), Map.class);
     }
 }
