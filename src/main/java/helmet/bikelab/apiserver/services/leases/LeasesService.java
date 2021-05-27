@@ -402,6 +402,7 @@ public class LeasesService extends SessService {
         LeasesDto leasesDto = map(param, LeasesDto.class);
         BikeUser session = request.getSessionUser();
         Leases lease = leaseRepository.findByLeaseId(leasesDto.getLeaseId());
+        if(!lease.getApprovalUser().getUserId().equals(session.getUserId())) withException("850-021");
         lease.setSubmittedUserNo(session.getUserNo());
         if(!lease.getStatus().getStatus().equals("550-002")) withException("850-009");
         lease.setStatus(LeaseStatusTypes.CONFIRM);
@@ -414,7 +415,9 @@ public class LeasesService extends SessService {
     public BikeSessionRequest pendingLease (BikeSessionRequest request){
         Map param = request.getParam();
         LeasesDto leasesDto = map(param, LeasesDto.class);
+        BikeUser session = request.getSessionUser();
         Leases lease = leaseRepository.findByLeaseId(leasesDto.getLeaseId());
+        lease.setSubmittedUserNo(session.getUserNo());
         if(!lease.getStatus().getStatus().equals("550-001")) withException("850-008");
         lease.setApprovalUserNo(bikeLabUserRepository.findByUserId(leasesDto.getApprovalUserId()).getUserNo());
         LeaseInfo leaseInfo = lease.getLeaseInfo();
