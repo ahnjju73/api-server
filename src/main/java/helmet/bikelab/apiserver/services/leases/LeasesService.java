@@ -203,7 +203,6 @@ public class LeasesService extends SessService {
         Clients client = clientsRepository.findByClientId(addUpdateLeaseRequest.getClientId());
         //insurance
         Insurances insurance = insurancesRepository.findByInsuranceId(addUpdateLeaseRequest.getInsuranceId());
-        BikeUser session = request.getSessionUser();
         if(client!=null)
             lease.setClientNo(client.getClientNo());
         if(bike!=null)
