@@ -13,4 +13,6 @@ public interface ProgramUserRepository extends JpaRepository<ProgramUser, Progra
 
     ProgramUser findByProgram_ProgramIdAndProgram_UsableAndBikeUserNo(String programId, YesNoTypes usable, Integer userNo);
 
+    ProgramUser findByProgramNoAndBikeUserNo(Integer programNo, Integer bikeUserNo);
+
 }

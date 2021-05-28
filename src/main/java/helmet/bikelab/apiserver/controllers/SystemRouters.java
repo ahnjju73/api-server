@@ -18,6 +18,7 @@ public class SystemRouters {
                 .andRoute(GET("/bike-labs/systems/menus"), handler::fetchAllMenus)
                 .andRoute(GET("/bike-labs/systems/menu/users"), handler::fetchUsersMenu)
                 .andRoute(PATCH("/bike-labs/systems/menu/users/authorizations"), handler::handlePermissionToUser)
+                .andRoute(PATCH("/bike-labs/systems/menu/users/permission"), handler::changeUserPermissionReadWrite)
                 .andRoute(GET("/bike-labs/authorizations/mine"), handler::checkAuthorization)
                 ;
     }

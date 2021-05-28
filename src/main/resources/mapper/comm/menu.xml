@@ -5,6 +5,12 @@
 
 <mapper namespace="comm.menu">
 
+    <select id="getProgramNoFromMenu" parameterType="hmap" resultType="int">
+        select program_no
+          from system_menu_mst
+         where menu_id = #{menu_id};
+    </select>
+
     <resultMap id="menu" type="hmap">
         <result property="menu_nm" column="menu_nm"/>
         <result property="path" column="path"/>

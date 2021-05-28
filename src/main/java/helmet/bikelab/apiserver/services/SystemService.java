@@ -1,9 +1,12 @@
 package helmet.bikelab.apiserver.services;
 
+import com.amazonaws.services.workdocs.model.UserStatusType;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.bikelab.Program;
 import helmet.bikelab.apiserver.domain.bikelab.ProgramUser;
 import helmet.bikelab.apiserver.domain.types.BikeUserStatusTypes;
+import helmet.bikelab.apiserver.domain.types.ReadWriteTypes;
+import helmet.bikelab.apiserver.domain.types.UserSessionTypes;
 import helmet.bikelab.apiserver.domain.types.YesNoTypes;
 import helmet.bikelab.apiserver.objects.AuthDto;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
@@ -90,6 +93,22 @@ public class SystemService extends SessService {
             request.setResponse(authDto);
         }else withException("010-001");
 
+        return request;
+    }
+
+    @Transactional
+    public BikeSessionRequest changeUserPermissionReadWrite(BikeSessionRequest request){
+        Map param = request.getParam();
+        String programId = (String)param.get("menu_id");
+        Integer userNo = (Integer)param.get("user_no");
+        ReadWriteTypes readWriteTypes = ReadWriteTypes.getAuth((String)param.get("read_write_code"));
+        if(!bePresent(readWriteTypes)) withException("020-001");
+        BikeUser bikeUser = bikeLabUserRepository.findByUserNoAndUserStatusTypes(userNo, BikeUserStatusTypes.COMPLETED);
+        if(!bePresent(bikeUser)) withException("020-002");
+        ProgramUser byProgramNoAndBikeUserNo = programUserRepository.findByProgram_ProgramIdAndProgram_UsableAndBikeUserNo(programId, YesNoTypes.YES, bikeUser.getUserNo());
+        if(!bePresent(byProgramNoAndBikeUserNo)) withException("020-003");
+        byProgramNoAndBikeUserNo.setReadWriting(readWriteTypes);
+        programUserRepository.save(byProgramNoAndBikeUserNo);
         return request;
     }
 }
