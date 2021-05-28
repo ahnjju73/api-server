@@ -471,6 +471,9 @@ public class LeasesService extends SessService {
             if(bePresent(leaseRequest.getLeasePrice().getPaymentType()) && !leaseRequest.getLeasePrice().getPaymentType().equals(leases.getLeasePrice().getType().getPaymentType())){
                 stringList.add("리스 납부 방법을 <>" + leases.getLeasePrice().getType().getPaymentType() + "</>에서 <>" + PaymentTypes.getPaymentType(leaseRequest.getLeasePrice().getPaymentType()) + "</>으로 변경하였습니다.");
             }
+            if(bePresent(leaseRequest.getLeasePrice().getPaymentType()) && !leaseRequest.getLeasePrice().getPaymentType().equals(leases.getLeasePrice().getType().getPaymentType())){
+                stringList.add("리스 납부 방법을 <>" + leases.getLeasePrice().getType().getPaymentType() + "</>에서 <>" + PaymentTypes.getPaymentType(leaseRequest.getLeasePrice().getPaymentType()) + "</>으로 변경하였습니다.");
+            }
             bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_UPDATED, session.getUserNo(), leases.getLeaseNo().toString(), stringList));
         }
 
