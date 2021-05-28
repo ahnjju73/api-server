@@ -171,7 +171,7 @@ public class LeasePaymentService  extends SessService {
                     unpaidExtraFee += le.getExtraFee() - le.getPaidFee();
                 }
             }
-            if(unpaidFee>0){
+            if(unpaidFee>0 || unpaidExtraFee>0){
                 UnpaidExcelDto unpaidExcelDto = new UnpaidExcelDto();
                 unpaidExcelDto.setLeaseId(lease.getLeaseId());
                 unpaidExcelDto.setBikeId(lease.getBike().getBikeId());
@@ -179,7 +179,9 @@ public class LeasePaymentService  extends SessService {
                 unpaidExcelDto.setVimNumber(lease.getBike().getVimNum());
                 unpaidExcelDto.setClientId(lease.getClients().getClientId());
                 unpaidExcelDto.setClientName(lease.getClients().getClientInfo().getName());
-                unpaidExcelDto.setUnpaidFee(unpaidFee);
+                unpaidExcelDto.setUnpaidFee(unpaidFee > 0 ? unpaidFee : 0);
+                unpaidExcelDto.setUnpaidExtra(unpaidExtraFee > 0 ? unpaidExtraFee : 0);
+                unpaidExcelDto.setUnpaidTotal(unpaidFee + unpaidExtraFee);
                 unpaidExcelDtos.add(unpaidExcelDto);
             }
         }
@@ -194,7 +196,7 @@ public class LeasePaymentService  extends SessService {
 
             // Header
             CellStyle color = wb.createCellStyle();
-            color.setFillForegroundColor(HSSFColor.AQUA.index);
+            color.setFillForegroundColor(HSSFColor.LIGHT_YELLOW.index);
             color.setFillPattern(HSSFCellStyle.SOLID_FOREGROUND);
             row = sheet.createRow(rowNum++);
             cell = row.createCell(0);
@@ -219,7 +221,13 @@ public class LeasePaymentService  extends SessService {
             cell.setCellValue("미수금");
             cell.setCellStyle(color);
             cell = row.createCell(7);
-            cell.setCellValue("납부 금");
+            cell.setCellValue("미수 추가금");
+            cell.setCellStyle(color);
+            cell = row.createCell(8);
+            cell.setCellValue("미수금");
+            cell.setCellStyle(color);
+            cell = row.createCell(9);
+            cell.setCellValue("납부금");
 
             // Body
             for(UnpaidExcelDto unpaidExcelDto : unpaidExcelDtos) {
@@ -238,6 +246,13 @@ public class LeasePaymentService  extends SessService {
                 cell.setCellValue(unpaidExcelDto.getClientName());
                 cell = row.createCell(6);
                 cell.setCellValue(unpaidExcelDto.getUnpaidFee());
+                cell = row.createCell(7);
+                cell.setCellValue(unpaidExcelDto.getUnpaidExtra());
+                cell = row.createCell(8);
+                cell.setCellValue(unpaidExcelDto.getUnpaidTotal());
+
+
+
             }
             // Excel File Output
             wb.write(fileOutputStream);
