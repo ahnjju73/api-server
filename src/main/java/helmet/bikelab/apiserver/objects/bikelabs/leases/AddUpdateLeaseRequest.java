@@ -31,7 +31,6 @@ public class AddUpdateLeaseRequest extends OriginObject {
     private String takeLoc;
     private LocalDateTime takeAt;
     private LocalDateTime releaseAt;
-    private LocalDateTime createdAt;
     private List<LeasePaymentDto> leasePayments = new ArrayList<>();
 
     public void setTakeAt(String takeAt) {
@@ -42,9 +41,6 @@ public class AddUpdateLeaseRequest extends OriginObject {
         this.releaseAt = LocalDateTime.parse(releaseAt);
     }
 
-    public void setCreatedAt(String createdAt) {
-        this.createdAt = LocalDateTime.parse(createdAt);
-    }
     public void setLeaseInfo(Map info) {
         ObjectMapper objectMapper = new ObjectMapper();
         this.leaseInfo = objectMapper.convertValue(info, LeaseInfoDto.class);

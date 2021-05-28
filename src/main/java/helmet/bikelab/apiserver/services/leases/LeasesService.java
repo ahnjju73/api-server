@@ -348,7 +348,6 @@ public class LeasesService extends SessService {
         lease.setTakeLocation(addUpdateLeaseRequest.getTakeLoc());
         lease.setTakeAt(addUpdateLeaseRequest.getTakeAt());
         lease.setReleaseAt(addUpdateLeaseRequest.getReleaseAt());
-        lease.setCreatedAt(addUpdateLeaseRequest.getCreatedAt());
         lease.setUpLesase(addUpdateLeaseRequest.getUpLeaseNo());
         leaseRepository.save(lease);
 
@@ -452,15 +451,33 @@ public class LeasesService extends SessService {
             }
             if(bePresent(insurancesRequested) && !insurancesRequested.getInsuranceNo().equals(leases.getInsuranceNo())){
                 Insurances insurance = leases.getInsurances();
-                stringList.add("보험 <>" + insurance.getInsuranceType().getName() + " [" + insurance.getInsuranceId() + " ]" + "</>에서 <>" + insurancesRequested.getInsuranceType().getName() + " [" +  insurancesRequested.getInsuranceId() + "] " + "</>으로 변경하였습니다.");
+                stringList.add("보험을 <>" + insurance.getCompanyName() + " " + insurance.getAge() + " [" + insurance.getInsuranceId() + " ]" + "</>에서 <>" + insurancesRequested.getCompanyName() + " " + insurancesRequested.getAge() + " [" +  insurancesRequested.getInsuranceId() + "] " + "</>으로 변경하였습니다.");
             }
-            if(bePresent(bikeRequested) && !bikeRequested.getBikeNo().equals(leases.getBikeNo())){
-                Bikes bike = leases.getBike();
-                stringList.add("바이크 정보를 <>" + bike.getCarNum() + " [" + bike.getBikeId() + " ]" + "</>에서 <>" + bikeRequested.getCarNum() + " [" +  bikeRequested.getBikeId() + "] " + "</>으로 변경하였습니다.");
+            if(bePresent(leaseRequest.getContractType()) && !leaseRequest.getContractType().equals(leases.getContractTypes().getStatus())){
+                stringList.add("계약 정보를 <>" + leases.getContractTypes() + "</>에서 <>" + ContractTypes.getContractType(leaseRequest.getContractType()) + "</>으로 변경하였습니다.");
+            }
+            if(bePresent(leaseRequest.getManagementType()) && !leaseRequest.getManagementType().equals(leases.getType().getStatus())){
+                stringList.add("운용 정보룰 <>" + leases.getType() + "</>에서 <>" + ManagementTypes.getManagementStatus(leaseRequest.getManagementType()) + "</>으로 변경하였습니다.");
+            }
+            if(bePresent(leaseRequest.getLeaseInfo().getPeriod()) && getDiffMonths(leases.getLeaseInfo().getStart(), leases.getLeaseInfo().getEndDate()) != leaseRequest.getLeaseInfo().getPeriod()){
+                stringList.add("리스 계약기간을 <>" +  getDiffMonths(leases.getLeaseInfo().getStart(), leases.getLeaseInfo().getEndDate()) + "</>에서 <>" + leaseRequest.getLeaseInfo().getPeriod() + "</>으로 변경하였습니다.");
+            }
+            if(bePresent(leaseRequest.getLeaseInfo().getStartDt()) && !LocalDate.parse(leaseRequest.getLeaseInfo().getStartDt()).equals(leases.getLeaseInfo().getStart())){
+                stringList.add("리스 시작 날짜를 <>" +  leases.getLeaseInfo().getStart() + "</>에서 <>" + LocalDate.parse(leaseRequest.getLeaseInfo().getStartDt()) + "</>으로 변경하였습니다.");
+            }
+            if(bePresent(leaseRequest.getLeaseInfo().getNote()) && !leaseRequest.getLeaseInfo().getNote().equals(leases.getLeaseInfo().getNote())){
+                stringList.add("노트 내용을 <>" +  leases.getLeaseInfo().getNote() + "</>에서 <>" + leaseRequest.getLeaseInfo().getNote() + "</>으로 변경하였습니다.");
+            }
+            if(bePresent(leaseRequest.getLeasePrice().getPaymentType()) && !leaseRequest.getLeasePrice().getPaymentType().equals(leases.getLeasePrice().getType().getPaymentType())){
+                stringList.add("리스 납부 방법을 <>" + leases.getLeasePrice().getType().getPaymentType() + "</>에서 <>" + PaymentTypes.getPaymentType(leaseRequest.getLeasePrice().getPaymentType()) + "</>으로 변경하였습니다.");
             }
             bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_UPDATED, session.getUserNo(), leases.getLeaseNo().toString(), stringList));
         }
 
+    }
+
+    private int getDiffMonths(LocalDate start, LocalDate end){
+        return (end.getYear()-start.getYear())*12 + end.getMonthValue()-start.getMonthValue();
     }
 
     @Transactional

@@ -16,7 +16,6 @@ import java.time.LocalDateTime;
 public class LeaseInfoDto {
     private Integer period;
     private String startDt;
-    private String endDt;
     private String contractDt;
     private String note;
 
@@ -24,7 +23,6 @@ public class LeaseInfoDto {
 
     public void setLeaseInfo(LeaseInfo leaseInfo){
         startDt = leaseInfo.getStart().toString();
-        endDt = leaseInfo.getEndDate().toString();
         note = leaseInfo.getNote();
         if(leaseInfo.getContractDate()!=null)
             contractDt = leaseInfo.getContractDate().toString();
