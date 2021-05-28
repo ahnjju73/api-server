@@ -21,4 +21,5 @@ public class FetchClientDetailResponse extends OriginObject {
     private String regNo;
     private ClientInfo clientInfo;
     private ModelAddress address;
+    private String uuid;
 }

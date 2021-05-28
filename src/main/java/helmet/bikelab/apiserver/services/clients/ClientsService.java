@@ -75,7 +75,7 @@ public class ClientsService extends SessService {
         fetchClientDetailResponse.setClientInfo(info);
         fetchClientDetailResponse.setAddress(addresses.getModelAddress());
         fetchClientDetailResponse.setGroupId(client.getClientGroup().getGroupId());
-
+        fetchClientDetailResponse.setUuid(client.getUuid());
         response.put("client", fetchClientDetailResponse);
         request.setResponse(response);
         return request;
@@ -98,6 +98,7 @@ public class ClientsService extends SessService {
         clients.setStatus(AccountStatusTypes.PENDING);
         clients.setEmail(addClientRequest.getEmail());
         clients.setRegNum(addClientRequest.getRegNo());
+        clients.setUuid(addClientRequest.getUuid());
         clientsRepository.save(clients);
 
         ClientInfo clientInfo = new ClientInfo();;
@@ -135,13 +136,14 @@ public class ClientsService extends SessService {
         ClientAddresses clientAddresses = client.getClientAddresses();
         Clients byEmail = clientsRepository.findByEmail(updateClientRequest.getEmail());
         if(bePresent(byEmail) && !byEmail.getClientNo().equals(client.getClientNo())) withException("400-004");
+        if(!bePresent(updateClientRequest.getUuid())) withException("400-006");
         client.setEmail(updateClientRequest.getEmail());
         ClientGroups clientGroups = groupRepository.findByGroupId(updateClientRequest.getGroupId());
         if(!bePresent(clientGroups)) withException("400-003");
 
         BikeUser session = request.getSessionUser();
         updateClientUserLog(BikeUserLogTypes.COMM_CLIENT_UPDATED, session.getUserNo(), updateClientRequest, client, clientInfo);
-
+        client.setUuid(updateClientRequest.getUuid());
         client.setGroupNo(clientGroups.getGroupNo());
         client.setDirectType(YesNoTypes.getYesNo(updateClientRequest.getDirect()));
         client.setRegNum(updateClientRequest.getRegNo());
