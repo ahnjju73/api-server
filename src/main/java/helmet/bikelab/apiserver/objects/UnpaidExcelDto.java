@@ -16,4 +16,6 @@ public class UnpaidExcelDto {
     private String bikeNumber;
     private String clientName;
     private Integer unpaidFee;
+    private Integer unpaidExtra;
+    private Integer unpaidTotal;
 }
