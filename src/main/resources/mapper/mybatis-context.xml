@@ -30,6 +30,7 @@
 
         <!-- bikelabs -->
         <mapper resource="mapper/bikelabs/employees.xml"/>
+        <mapper resource="mapper/bikelabs/todo.xml"/>
 
     </mappers>
 </configuration>

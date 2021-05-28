@@ -28,12 +28,11 @@ public class EmployeesRouters {
                 ;
     }
 
-//    @Bean
-//    public RouterFunction<ServerResponse> myInfoRouter(EmployeesHandlers handler){
-//        return RouterFunctions
-//                .route(GET("/me"), handler::fetchMyInfo)
-//                .andRoute(PUT("/me"), handler::updateMyInfo)
-//                ;
-//    }
+    @Bean
+    public RouterFunction<ServerResponse> todoRouter(EmployeesHandlers handler){
+        return RouterFunctions
+                .route(GET("/me/todo"), handler::fetchTodoSummery)
+                ;
+    }
 
 }
