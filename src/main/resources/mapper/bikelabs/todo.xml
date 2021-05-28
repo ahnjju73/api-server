@@ -5,11 +5,17 @@
 
 <mapper namespace="bikelabs.todo">
 
+    <select id="getLeaseIdFromLeaseNo" parameterType="hmap" resultType="string">
+        select lease_id
+          from leases
+         where lease_no = #{ref_id}
+    </select>
+
     <select id="fetchTodoSummery" parameterType="hmap" resultType="hmap">
         select todo_no,
                todo_type,
                ref_id,
-               date_format(tu.created_at, '%Y-%m-%d %H:%i') as created_at,
+               date_format(tu.created_at, '%Y년%m월%d일 %H시%i분') as created_at,
                tum.user_id as to_user_id,
                tum.email as to_user_email,
                tui.name as to_user_name,
@@ -28,5 +34,7 @@
                join bike_user_info fui on fum.user_no = fui.user_no
         order by todo_no desc
     </select>
+
+
 
 </mapper>

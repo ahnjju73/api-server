@@ -32,6 +32,7 @@ public class EmployeesRouters {
     public RouterFunction<ServerResponse> todoRouter(EmployeesHandlers handler){
         return RouterFunctions
                 .route(GET("/me/todo"), handler::fetchTodoSummery)
+                .andRoute(GET("/me/todo/reference-id"), handler::getReferenceIdFromNo)
                 ;
     }
 

@@ -9,6 +9,7 @@ import helmet.bikelab.apiserver.services.internal.SessService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -42,6 +43,18 @@ public class BikeUserTodoService extends SessService {
 
         request.setResponse(bikeUserTodoDto);
 
+        return request;
+    }
+
+    public BikeSessionRequest getReferenceIdFromNo(BikeSessionRequest request){
+        Map param = request.getParam();
+        Map response = new HashMap();
+        String referenceNo = (String)param.get("ref_id");
+        BikeUserTodoTypes bikeUserTodoTypes = BikeUserTodoTypes.getBikeUserTodoTypes((String)param.get("todo_type"));
+        if(BikeUserTodoTypes.LEASE_APPROVAL.equals(bikeUserTodoTypes)){
+            response.put("id", getItem("bikelabs.todo.getLeaseIdFromLeaseNo", param));
+        }
+        request.setResponse(response);
         return request;
     }
 
