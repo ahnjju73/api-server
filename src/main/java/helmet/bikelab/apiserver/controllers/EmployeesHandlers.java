@@ -37,6 +37,15 @@ public class EmployeesHandlers {
                         .map(bikeUserTodoService::returnData), Map.class);
     }
 
+    public Mono<ServerResponse> deleteMyTodo(ServerRequest request){
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> bikeUserTodoService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(bikeUserTodoService::checkBikeSession)
+                        .map(bikeUserTodoService::deleteMyTodo)
+                        .map(bikeUserTodoService::returnData), Map.class);
+    }
+
     public Mono<ServerResponse> fetchListOfEmployee(ServerRequest request){
         return ServerResponse.ok().body(
                 Mono.fromSupplier(() -> adminEmployeeService.makeSessionRequest(request, BikeSessionRequest.class))

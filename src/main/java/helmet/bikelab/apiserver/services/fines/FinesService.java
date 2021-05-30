@@ -115,7 +115,15 @@ public class FinesService extends SessService {
         fine.setPaidFee(updateFineRequest.getPaidFee());
         finesRepository.save(fine);
         LeaseFine leaseFine = leaseFineRepository.findByFine_FineId(fine.getFineId());
-        leaseFine.setLeaseNo(bike.getLease().getLeaseNo());
+        if(bePresent(leaseFine)){
+            leaseFine.setLeaseNo(bike.getLease().getLeaseNo());
+        }else {
+            leaseFine = new LeaseFine();
+            leaseFine.setLeaseNo(bike.getLease().getLeaseNo());
+            leaseFine.setFineNo(fine.getFineNo());
+        }
+        leaseFineRepository.save(leaseFine);
+
 
         return request;
     }

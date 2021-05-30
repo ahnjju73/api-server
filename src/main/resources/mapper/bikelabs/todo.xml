@@ -11,10 +11,17 @@
          where lease_no = #{ref_id}
     </select>
 
+    <select id="countMyTodo" parameterType="hmap" resultType="int">
+        select count(*)
+          from bike_user_todo
+         where to_user_no = #{sess_user_no}
+    </select>
+
     <select id="fetchTodoSummery" parameterType="hmap" resultType="hmap">
         select todo_no,
                todo_type,
                ref_id,
+               ref_uuid,
                date_format(tu.created_at, '%Y년%m월%d일 %H시%i분') as created_at,
                tum.user_id as to_user_id,
                tum.email as to_user_email,

@@ -16,7 +16,7 @@ public class BikeUserTodoDto {
 
     private Long refreshToken;
     private List<Map> todo = new ArrayList<>();
-
+    private Integer count = 0;
 
 
 }

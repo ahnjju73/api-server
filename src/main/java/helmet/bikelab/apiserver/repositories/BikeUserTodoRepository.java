@@ -10,6 +10,8 @@ public interface BikeUserTodoRepository extends JpaRepository<BikeUserTodo, Inte
 
     void deleteAllByTodoTypesAndToUserNoAndReferenceId(BikeUserTodoTypes bikeUserTodoTypes, Integer toUserNo, String referenceId);
     void deleteAllByTodoTypesAndReferenceId(BikeUserTodoTypes bikeUserTodoTypes, String referenceId);
+    void deleteAllByReferenceId(String referenceId);
+    void deleteAllByTodoNoAndToUserNo(Long todoNo, Integer toUserNo);
 
 }
 

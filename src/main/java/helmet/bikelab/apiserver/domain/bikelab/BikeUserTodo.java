@@ -45,6 +45,9 @@ public class BikeUserTodo {
     @Column(name = "ref_id")
     private String referenceId;
 
+    @Column(name = "ref_uuid")
+    private String referenceUuid;
+
     @ManyToOne
     @JoinColumn(name = "to_user_no", insertable = false, updatable = false)
     private BikeUser toUser;

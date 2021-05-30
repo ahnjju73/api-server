@@ -33,6 +33,7 @@ public class EmployeesRouters {
         return RouterFunctions
                 .route(GET("/me/todo"), handler::fetchTodoSummery)
                 .andRoute(GET("/me/todo/reference-id"), handler::getReferenceIdFromNo)
+                .andRoute(DELETE("/me/todo"), handler::deleteMyTodo)
                 ;
     }
 
