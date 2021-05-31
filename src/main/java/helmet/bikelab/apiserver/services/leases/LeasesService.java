@@ -46,7 +46,6 @@ public class LeasesService extends SessService {
     private final LeaseExtraRepository leaseExtraRepository;
     private final AutoKey autoKey;
     private final BikeUserLogRepository bikeUserLogRepository;
-    private final BikeUserTodoRepository bikeUserTodoRepository;
     private final BikeUserTodoService bikeUserTodoService;
 
     public BikeSessionRequest fetchLeases(BikeSessionRequest request){
@@ -503,6 +502,7 @@ public class LeasesService extends SessService {
         if(!lease.getStatus().getStatus().equals("550-002")) withException("850-009");
         lease.setStatus(LeaseStatusTypes.CONFIRM);
         leaseRepository.save(lease);
+        bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_APPROVE_COMPLETED, session.getUserNo(), lease.getLeaseNo().toString()));
         return request;
     }
 
@@ -527,6 +527,7 @@ public class LeasesService extends SessService {
         lease.setStatus(LeaseStatusTypes.PENDING);
         leaseRepository.save(lease);
         bikeUserTodoService.addTodo(BikeUserTodoTypes.LEASE_APPROVAL, session.getUserNo(), byUserId.getUserNo(), lease.getLeaseNo().toString(), lease.getLeaseId());
+        bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_APPROVE_REQUESTED, session.getUserNo(), lease.getLeaseNo().toString()));
         return request;
     }
 
@@ -540,6 +541,7 @@ public class LeasesService extends SessService {
         lease.setStatus(LeaseStatusTypes.DECLINE);
         leaseRepository.save(lease);
         bikeUserTodoService.addTodo(BikeUserTodoTypes.LEASE_REJECT, session.getUserNo(), lease.getSubmittedUserNo(), lease.getLeaseNo().toString(), lease.getLeaseId());
+        bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_APPROVE_REJECTED, session.getUserNo(), lease.getLeaseNo().toString()));
         return request;
     }
 }

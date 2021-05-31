@@ -5,6 +5,13 @@
 
 <mapper namespace="bikelabs.bike_user_log">
 
+    <select id="countAllBikeUserLogInLeases" parameterType="hmap" resultType="int">
+        select count(*)
+          from (select *
+                  from leases
+                 where lease_id = #{lease_id}) lm
+               join bike_user_log bul on lm.lease_no = bul.ref_id
+    </select>
     <select id="getBikeUserLogInLeases" parameterType="hmap" resultType="hmap">
         select bul.log_no,
                bul.lease_id,
@@ -16,7 +23,18 @@
                bum.status,
                bui.name,
                bui.phone,
-               date_format(bul.created_at, '%Y년%m월%d %H:%i') as created_at
+               case
+                when TIMESTAMPDIFF(SECOND, bul.created_at, now()) <![CDATA[ < ]]> 61 then TIMESTAMPDIFF(SECOND, bul.created_at, now())
+                when TIMESTAMPDIFF(MINUTE, bul.created_at, now()) <![CDATA[ < ]]> 61 then TIMESTAMPDIFF(MINUTE, bul.created_at, now())
+                when TIMESTAMPDIFF(HOUR, bul.created_at, now()) <![CDATA[ < ]]> 24 then TIMESTAMPDIFF(HOUR, bul.created_at, now())
+                ELSE date_format(bul.created_at, '%Y년%m월%d')
+               end as created_at,
+               case
+                when TIMESTAMPDIFF(SECOND, bul.created_at, now()) <![CDATA[ < ]]> 61 then '초전'
+                when TIMESTAMPDIFF(MINUTE, bul.created_at, now()) <![CDATA[ < ]]> 61 then '분전'
+                when TIMESTAMPDIFF(HOUR, bul.created_at, now()) <![CDATA[ < ]]> 24 then '시간전'
+                ELSE ''
+               end as created_at_unit
           from (select bul.*,
                        lm.lease_id
                   from (select *

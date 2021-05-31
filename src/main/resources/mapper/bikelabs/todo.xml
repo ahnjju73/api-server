@@ -22,7 +22,18 @@
                todo_type,
                ref_id,
                ref_uuid,
-               date_format(tu.created_at, '%Y년%m월%d일 %H시%i분') as created_at,
+               case
+                when TIMESTAMPDIFF(SECOND, tu.created_at, now()) <![CDATA[ < ]]> 61 then TIMESTAMPDIFF(SECOND, tu.created_at, now())
+                when TIMESTAMPDIFF(MINUTE, tu.created_at, now()) <![CDATA[ < ]]> 61 then TIMESTAMPDIFF(MINUTE, tu.created_at, now())
+                when TIMESTAMPDIFF(HOUR, tu.created_at, now()) <![CDATA[ < ]]> 24 then TIMESTAMPDIFF(HOUR, tu.created_at, now())
+                ELSE date_format(tu.created_at, '%Y년%m월%d일')
+               end as created_at,
+               case
+                when TIMESTAMPDIFF(SECOND, tu.created_at, now()) <![CDATA[ < ]]> 61 then '초전'
+                when TIMESTAMPDIFF(MINUTE, tu.created_at, now()) <![CDATA[ < ]]> 61 then '분전'
+                when TIMESTAMPDIFF(HOUR, tu.created_at, now()) <![CDATA[ < ]]> 24 then '시간전'
+                ELSE ''
+               end as created_at_unit,
                tum.user_id as to_user_id,
                tum.email as to_user_email,
                tui.name as to_user_name,

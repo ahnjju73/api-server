@@ -16,5 +16,6 @@ import java.util.Map;
 public class LeaseBikeUserLogs extends SessService {
 
     String nextToken;
+    Integer count = 0;
     List<Map> histories = new ArrayList<>();
 }

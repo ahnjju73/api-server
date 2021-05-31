@@ -20,7 +20,9 @@ public class BikeUserLogService extends SessService {
         }else {
             List<Map> histories = getList("bikelabs.bike_user_log.getBikeUserLogInLeases", param);
             if(bePresent(histories)){
+                Integer count = (Integer)getItem("bikelabs.bike_user_log.countAllBikeUserLogInLeases", param);
                 nextToken = ((Long)histories.get(histories.size() - 1).get("log_no")).toString();
+                bikeUserLogs.setCount(count);
             }else {
                 nextToken = "D";
             }
