@@ -234,7 +234,6 @@ public class LeasesService extends SessService {
         if(addUpdateLeaseRequest.getInsuranceId() == null)withException("850-013");
         if(addUpdateLeaseRequest.getLeasePrice().getPaymentType() == null)withException("850-014");
         if(addUpdateLeaseRequest.getLeaseInfo().getContractDt() == null)withException("850-016");
-        if(addUpdateLeaseRequest. getLeasePrice().getPaymentDay() == null)withException("850-018");
         if(addUpdateLeaseRequest.getLeaseInfo().getStartDt() == null)withException("850-017");
         Leases lease = new Leases();
         String leaseId = autoKey.makeGetKey("lease");
@@ -250,7 +249,6 @@ public class LeasesService extends SessService {
             lease.setClientNo(client.getClientNo());
         if(bike!=null)
             lease.setBikeNo(bike.getBikeNo());
-
         if(insurance!=null)
             lease.setInsuranceNo(insurance.getInsuranceNo());
         if(addUpdateLeaseRequest.getManagementType() != null)
@@ -281,7 +279,6 @@ public class LeasesService extends SessService {
         leasePrice.setTakeFee(addUpdateLeaseRequest.getLeasePrice().getTakeFee());
         if(addUpdateLeaseRequest.getLeasePrice().getPrePayment()!= null)
             leasePrice.setPrepayment(addUpdateLeaseRequest.getLeasePrice().getPrePayment());
-        leasePrice.setPaymentDay(addUpdateLeaseRequest.getLeasePrice().getPaymentDay());
         leasePrice.setTakeFee(addUpdateLeaseRequest.getLeasePrice().getTakeFee());
         leasePriceRepository.save(leasePrice);
 
@@ -363,7 +360,6 @@ public class LeasesService extends SessService {
         //lease price
         leasePrice.setLeaseNo(lease.getLeaseNo());
         leasePrice.setType(PaymentTypes.getPaymentType(leasePriceDto.getPaymentType()));
-        leasePrice.setPaymentDay(leasePriceDto.getPaymentDay());
         leasePrice.setDeposit(leasePriceDto.getDeposit());
         if(leasePriceDto.getPrePayment()!= null)
             leasePrice.setPrepayment(leasePriceDto.getPrePayment());
@@ -471,8 +467,17 @@ public class LeasesService extends SessService {
             if(bePresent(leaseRequest.getLeasePrice().getPaymentType()) && !leaseRequest.getLeasePrice().getPaymentType().equals(leases.getLeasePrice().getType().getPaymentType())){
                 stringList.add("리스 납부 방법을 <>" + leases.getLeasePrice().getType().getPaymentType() + "</>에서 <>" + PaymentTypes.getPaymentType(leaseRequest.getLeasePrice().getPaymentType()) + "</>으로 변경하였습니다.");
             }
-            if(bePresent(leaseRequest.getLeasePrice().getPaymentType()) && !leaseRequest.getLeasePrice().getPaymentType().equals(leases.getLeasePrice().getType().getPaymentType())){
-                stringList.add("리스 납부 방법을 <>" + leases.getLeasePrice().getType().getPaymentType() + "</>에서 <>" + PaymentTypes.getPaymentType(leaseRequest.getLeasePrice().getPaymentType()) + "</>으로 변경하였습니다.");
+            if(bePresent(leaseRequest.getLeasePrice().getDeposit()) && !leaseRequest.getLeasePrice().getDeposit().equals(leases.getLeasePrice().getDeposit())){
+                stringList.add("리스 담보금을 <>" + leases.getLeasePrice().getDeposit() + "</>에서 <>" + leaseRequest.getLeasePrice().getDeposit() + "</>으로 변경하였습니다.");
+            }
+            if(bePresent(leaseRequest.getLeasePrice().getProfitFee()) && !leaseRequest.getLeasePrice().getProfitFee().equals(leases.getLeasePrice().getProfit())){
+                stringList.add("리스 이익금을 <>" + leases.getLeasePrice().getProfit() + "</>에서 <>" + leaseRequest.getLeasePrice().getProfitFee() + "</>으로 변경하였습니다.");
+            }
+            if(bePresent(leaseRequest.getLeasePrice().getTakeFee()) && !leaseRequest.getLeasePrice().getTakeFee().equals(leases.getLeasePrice().getTakeFee())){
+                stringList.add("리스 인수비를 <>" + leases.getLeasePrice().getTakeFee() + "</>에서 <>" + leaseRequest.getLeasePrice().getTakeFee() + "</>으로 변경하였습니다.");
+            }
+            if(bePresent(leaseRequest.getLeasePrice().getRegisterFee()) && !leaseRequest.getLeasePrice().getRegisterFee().equals(leases.getLeasePrice().getRegisterFee())){
+                stringList.add("리스 등록비를 <>" + leases.getLeasePrice().getRegisterFee() + "</>에서 <>" + leaseRequest.getLeasePrice().getRegisterFee() + "</>으로 변경하였습니다.");
             }
             bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_UPDATED, session.getUserNo(), leases.getLeaseNo().toString(), stringList));
         }
@@ -511,7 +516,7 @@ public class LeasesService extends SessService {
         LeasePrice leasePrice = lease.getLeasePrice();
         if(!bePresent(lease.getClientNo())||!bePresent(lease.getReleaseNo())||!bePresent(lease.getBikeNo())||!bePresent(lease.getInsuranceNo())) withException("850-005");
         if(!bePresent(leaseInfo.getStart())) withException("850-006");
-        if(!bePresent(leasePrice.getPaymentDay())||!bePresent(leasePrice.getDeposit())||!bePresent(leasePrice.getPrepayment())||!bePresent(leasePrice.getProfit())||!bePresent(leasePrice.getTakeFee())||!bePresent(leasePrice.getRegisterFee())) withException("850-007");
+        if(!bePresent(leasePrice.getDeposit())||!bePresent(leasePrice.getPrepayment())||!bePresent(leasePrice.getProfit())||!bePresent(leasePrice.getTakeFee())||!bePresent(leasePrice.getRegisterFee())) withException("850-007");
         if(!bePresent(lease.getApprovalUser())) withException("850-020");
         lease.setStatus(LeaseStatusTypes.PENDING);
         leaseRepository.save(lease);
