@@ -1,7 +1,8 @@
 package helmet.bikelab.apiserver.controllers;
 
-import com.amazonaws.services.opsworkscm.model.Server;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
+import helmet.bikelab.apiserver.objects.bikelabs.leases.LeaseBikeUserLogs;
+import helmet.bikelab.apiserver.services.employees.BikeUserLogService;
 import helmet.bikelab.apiserver.services.leases.LeasesService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -15,7 +16,9 @@ import java.util.Map;
 @Component
 @RequiredArgsConstructor
 public class LeasesHandler {
+
     private final LeasesService leasesService;
+    private final BikeUserLogService bikeUserLogService;
 
     public Mono<ServerResponse> fetchLeases(ServerRequest request){
         return ServerResponse.ok().body(
@@ -25,6 +28,7 @@ public class LeasesHandler {
                         .map(leasesService::fetchLeases)
                         .map(leasesService::returnData), Map.class);
     }
+
     public Mono<ServerResponse> fetchLease(ServerRequest request) {
         return ServerResponse.ok().body(
                 Mono.fromSupplier(() -> leasesService.makeSessionRequest(request, BikeSessionRequest.class))
@@ -81,5 +85,15 @@ public class LeasesHandler {
                         .map(leasesService::checkBikeSession)
                         .map(leasesService::rejectLease)
                         .map(leasesService::returnData), Map.class);
+    }
+
+    public Mono<ServerResponse> fetchBikeUserLogInLeaseContract(ServerRequest request){
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> bikeUserLogService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(bikeUserLogService::checkBikeSession)
+                        .map(row -> bikeUserLogService.getPathVariable(row, "lease_id"))
+                        .map(bikeUserLogService::fetchBikeUserLogInLeaseContract)
+                        .map(bikeUserLogService::returnData), LeaseBikeUserLogs.class);
     }
 }

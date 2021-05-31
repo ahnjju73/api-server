@@ -21,4 +21,10 @@ public class LeasesRouters {
                 .andRoute(PUT("/leases/change_status/confirm"), handler::confirmApplication)
                 .andRoute(DELETE("/leases"), handler::deleteInsurance);
     }
+
+    @Bean
+    public RouterFunction<ServerResponse> leasesHistoryRouter(LeasesHandler handler){
+        return RouterFunctions
+                .route(GET("/leases/{lease_id}/histories"), handler::fetchBikeUserLogInLeaseContract);
+    }
 }
