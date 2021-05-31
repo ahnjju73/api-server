@@ -12,7 +12,6 @@ import lombok.Setter;
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class LeasePriceDto {
     private String paymentType;
-    private String paymentDay;
     private Integer deposit;
     private Integer prePayment;
     private Integer leaseFee;
@@ -21,7 +20,6 @@ public class LeasePriceDto {
     private Integer registerFee;
 
     public void setLeasePrice(LeasePrice leasePrice){
-        paymentDay = leasePrice.getPaymentDay();
         paymentType = leasePrice.getType().getPaymentType();
         deposit = leasePrice.getDeposit();
         prePayment = leasePrice.getPrepayment();

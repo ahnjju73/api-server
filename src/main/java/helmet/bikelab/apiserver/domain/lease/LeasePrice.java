@@ -27,22 +27,19 @@ public class LeasePrice {
     @Convert(converter = PaymentTypeConverter.class)
     private PaymentTypes type = PaymentTypes.MONTHLY;
 
-    @Column(name = "payment_day", length = 45)
-    private String paymentDay;
-
     @Column(name = "deposit")
-    private Integer deposit;
+    private Integer deposit = 0;
 
     @Column(name = "pre_payment")
     private Integer prepayment = 0;
 
     @Column(name = "profit_fee")
-    private Integer profit;
+    private Integer profit = 0;
 
     @Column(name = "take_fee")
-    private Integer takeFee;
+    private Integer takeFee = 0;
 
     @Column(name = "register_fee")
-    private Integer registerFee;
+    private Integer registerFee = 0;
 
 }
