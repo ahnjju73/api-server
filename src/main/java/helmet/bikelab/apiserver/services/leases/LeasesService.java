@@ -537,7 +537,7 @@ public class LeasesService extends SessService {
         BikeUser session = request.getSessionUser();
         LeasesDto leasesDto = map(param, LeasesDto.class);
         Leases lease = leaseRepository.findByLeaseId(leasesDto.getLeaseId());
-        if(!lease.getStatus().getStatus().equals("550-002")) withException("850-020");
+        if(lease.getStatus() != LeaseStatusTypes.PENDING) withException("850-022");
         lease.setStatus(LeaseStatusTypes.DECLINE);
         leaseRepository.save(lease);
         bikeUserTodoService.addTodo(BikeUserTodoTypes.LEASE_REJECT, session.getUserNo(), lease.getSubmittedUserNo(), lease.getLeaseNo().toString(), lease.getLeaseId());
@@ -550,6 +550,7 @@ public class LeasesService extends SessService {
         Map param = request.getParam();
         LeasesDto leasesDto = map(param, LeasesDto.class);
         Leases lease = leaseRepository.findByLeaseId(leasesDto.getLeaseId());
+        if(lease.getStatus() != LeaseStatusTypes.IN_PROGRESS) withException("850-023");
         LeaseInfo leaseInfo = lease.getLeaseInfo();
         List<LeasePayments> payments = leasePaymentsRepository.findAllByLease_LeaseId(lease.getLeaseId());
         List<LeaseFine> leaseFines = leaseFineRepository.findAllByLease_LeaseId(lease.getLeaseId());
