@@ -107,6 +107,7 @@ public class FinesService extends SessService {
         if(!fine.getFineNum().equals(updateFineRequest.getFineNum())){
             if(finesRepository.countFinesByFineNum(updateFineRequest.getFineNum())>0) withException("700-010");
         }
+        if(fine.getFee() < updateFineRequest.getPaidFee()) withException("700-012");
         Bikes bike = bikesRepository.findByBikeId(updateFineRequest.getBikeId());
         fine.setFineDt(updateFineRequest.getFineDate());
         fine.setExpireDt(updateFineRequest.getExpireDate());
