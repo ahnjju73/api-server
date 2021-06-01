@@ -78,12 +78,21 @@ public class LeasesHandler {
                         .map(leasesService::returnData), Map.class);
     }
 
-    public Mono<ServerResponse> deleteInsurance(ServerRequest request) {
+    public Mono<ServerResponse> rejectLease (ServerRequest request) {
         return ServerResponse.ok().body(
                 Mono.fromSupplier(() -> leasesService.makeSessionRequest(request, BikeSessionRequest.class))
                         .subscribeOn(Schedulers.elastic())
                         .map(leasesService::checkBikeSession)
                         .map(leasesService::rejectLease)
+                        .map(leasesService::returnData), Map.class);
+    }
+
+    public Mono<ServerResponse> deleteLease(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> leasesService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(leasesService::checkBikeSession)
+                        .map(leasesService::deleteLease)
                         .map(leasesService::returnData), Map.class);
     }
 

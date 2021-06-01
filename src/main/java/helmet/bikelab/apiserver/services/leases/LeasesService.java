@@ -23,10 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import static helmet.bikelab.apiserver.domain.bikelab.BikeUserLog.addLog;
 
@@ -44,6 +41,8 @@ public class LeasesService extends SessService {
     private final ReleaseRepository releaseRepository;
     private final InsurancesRepository insurancesRepository;
     private final LeaseExtraRepository leaseExtraRepository;
+    private final LeaseFineRepository leaseFineRepository;
+    private final FinesRepository finesRepository;
     private final AutoKey autoKey;
     private final BikeUserLogRepository bikeUserLogRepository;
     private final BikeUserTodoService bikeUserTodoService;
@@ -278,11 +277,12 @@ public class LeasesService extends SessService {
         leasePrice.setLeaseNo(lease.getLeaseNo());
         leasePrice.setProfit(addUpdateLeaseRequest.getLeasePrice().getProfitFee());
         leasePrice.setType(PaymentTypes.getPaymentType(addUpdateLeaseRequest.getLeasePrice().getPaymentType()));
-        leasePrice.setRegisterFee(addUpdateLeaseRequest.getLeasePrice().getRegisterFee());
-        leasePrice.setTakeFee(addUpdateLeaseRequest.getLeasePrice().getTakeFee());
+        leasePrice.setRegisterFee(addUpdateLeaseRequest.getLeasePrice().getRegisterFee() != null ? addUpdateLeaseRequest.getLeasePrice().getRegisterFee() : 0);
+        leasePrice.setTakeFee(addUpdateLeaseRequest.getLeasePrice().getTakeFee() == null ? 0 : addUpdateLeaseRequest.getLeasePrice().getTakeFee());
         if(addUpdateLeaseRequest.getLeasePrice().getPrePayment()!= null)
             leasePrice.setPrepayment(addUpdateLeaseRequest.getLeasePrice().getPrePayment());
-        leasePrice.setTakeFee(addUpdateLeaseRequest.getLeasePrice().getTakeFee());
+        leasePrice.setTakeFee(addUpdateLeaseRequest.getLeasePrice().getTakeFee() != null ? addUpdateLeaseRequest.getLeasePrice().getTakeFee() : 0);
+        leasePrice.setDeposit(addUpdateLeaseRequest.getLeasePrice().getDeposit() != null ? addUpdateLeaseRequest.getLeasePrice().getDeposit() : 0);
         leasePriceRepository.save(leasePrice);
 
         List<LeasePayments> leasePaymentsList = new ArrayList<>();
@@ -537,11 +537,37 @@ public class LeasesService extends SessService {
         BikeUser session = request.getSessionUser();
         LeasesDto leasesDto = map(param, LeasesDto.class);
         Leases lease = leaseRepository.findByLeaseId(leasesDto.getLeaseId());
-        if(!lease.getStatus().getStatus().equals("550-002")) withException("850-020");
+        if(lease.getStatus() != LeaseStatusTypes.PENDING) withException("850-022");
         lease.setStatus(LeaseStatusTypes.DECLINE);
         leaseRepository.save(lease);
         bikeUserTodoService.addTodo(BikeUserTodoTypes.LEASE_REJECT, session.getUserNo(), lease.getSubmittedUserNo(), lease.getLeaseNo().toString(), lease.getLeaseId());
         bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_APPROVE_REJECTED, session.getUserNo(), lease.getLeaseNo().toString()));
+        return request;
+    }
+
+    @Transactional
+    public BikeSessionRequest deleteLease(BikeSessionRequest request){
+        Map param = request.getParam();
+        LeasesDto leasesDto = map(param, LeasesDto.class);
+        Leases lease = leaseRepository.findByLeaseId(leasesDto.getLeaseId());
+        if(lease.getStatus() != LeaseStatusTypes.IN_PROGRESS) withException("850-023");
+        LeaseInfo leaseInfo = lease.getLeaseInfo();
+        List<LeasePayments> payments = leasePaymentsRepository.findAllByLease_LeaseId(lease.getLeaseId());
+        List<LeaseFine> leaseFines = leaseFineRepository.findAllByLease_LeaseId(lease.getLeaseId());
+        LeasePrice leasePrice = lease.getLeasePrice();
+        List<LeaseExtras> extras = leaseExtraRepository.findAllByLease_LeaseId(lease.getLeaseId());
+        leaseInfoRepository.delete(leaseInfo);
+        leasePriceRepository.delete(leasePrice);
+        for(LeasePayments lp : payments){
+            leasePaymentsRepository.delete(lp);
+        }
+        for(LeaseFine lf : leaseFines){
+            leaseFineRepository.delete(lf);
+        }
+        for(LeaseExtras le : extras){
+            leaseExtraRepository.delete(le);
+        }
+        leaseRepository.delete(lease);
         return request;
     }
 }
