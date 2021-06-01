@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.services.leases;
 
+import helmet.bikelab.apiserver.domain.bikelab.BikeUserTodo;
 import helmet.bikelab.apiserver.domain.types.*;
 import helmet.bikelab.apiserver.objects.BikeDto;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
@@ -12,6 +13,7 @@ import helmet.bikelab.apiserver.objects.bikelabs.release.ReleaseDto;
 import helmet.bikelab.apiserver.objects.bikelabs.clients.ClientDto;
 import helmet.bikelab.apiserver.objects.bikelabs.insurance.InsuranceDto;
 import helmet.bikelab.apiserver.repositories.*;
+import helmet.bikelab.apiserver.services.BikeUserTodoService;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.utils.AutoKey;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +45,7 @@ public class LeasesService extends SessService {
     private final FinesRepository finesRepository;
     private final AutoKey autoKey;
     private final BikeUserLogRepository bikeUserLogRepository;
+    private final BikeUserTodoService bikeUserTodoService;
 
     public BikeSessionRequest fetchLeases(BikeSessionRequest request){
         Map response = new HashMap();
@@ -499,6 +502,7 @@ public class LeasesService extends SessService {
         if(!lease.getStatus().getStatus().equals("550-002")) withException("850-009");
         lease.setStatus(LeaseStatusTypes.CONFIRM);
         leaseRepository.save(lease);
+        bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_APPROVE_COMPLETED, session.getUserNo(), lease.getLeaseNo().toString()));
         return request;
     }
 
@@ -510,8 +514,10 @@ public class LeasesService extends SessService {
         BikeUser session = request.getSessionUser();
         Leases lease = leaseRepository.findByLeaseId(leasesDto.getLeaseId());
         lease.setSubmittedUserNo(session.getUserNo());
-        if(!lease.getStatus().getStatus().equals("550-001")) withException("850-008");
-        lease.setApprovalUserNo(bikeLabUserRepository.findByUserId(leasesDto.getApprovalUserId()).getUserNo());
+        if(!LeaseStatusTypes.IN_PROGRESS.equals(lease.getStatus()) && !LeaseStatusTypes.DECLINE.equals(lease.getStatus())) withException("850-008");
+        BikeUser byUserId = bikeLabUserRepository.findByUserId(leasesDto.getApprovalUserId());
+        lease.setApprovalUserNo(byUserId.getUserNo());
+        lease.setApprovalUser(byUserId);
         LeaseInfo leaseInfo = lease.getLeaseInfo();
         LeasePrice leasePrice = lease.getLeasePrice();
         if(!bePresent(lease.getClientNo())||!bePresent(lease.getReleaseNo())||!bePresent(lease.getBikeNo())||!bePresent(lease.getInsuranceNo())) withException("850-005");
@@ -520,17 +526,22 @@ public class LeasesService extends SessService {
         if(!bePresent(lease.getApprovalUser())) withException("850-020");
         lease.setStatus(LeaseStatusTypes.PENDING);
         leaseRepository.save(lease);
+        bikeUserTodoService.addTodo(BikeUserTodoTypes.LEASE_APPROVAL, session.getUserNo(), byUserId.getUserNo(), lease.getLeaseNo().toString(), lease.getLeaseId());
+        bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_APPROVE_REQUESTED, session.getUserNo(), lease.getLeaseNo().toString()));
         return request;
     }
 
     @Transactional
     public BikeSessionRequest rejectLease(BikeSessionRequest request){
         Map param = request.getParam();
+        BikeUser session = request.getSessionUser();
         LeasesDto leasesDto = map(param, LeasesDto.class);
         Leases lease = leaseRepository.findByLeaseId(leasesDto.getLeaseId());
         if(!lease.getStatus().getStatus().equals("550-002")) withException("850-020");
         lease.setStatus(LeaseStatusTypes.DECLINE);
         leaseRepository.save(lease);
+        bikeUserTodoService.addTodo(BikeUserTodoTypes.LEASE_REJECT, session.getUserNo(), lease.getSubmittedUserNo(), lease.getLeaseNo().toString(), lease.getLeaseId());
+        bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_APPROVE_REJECTED, session.getUserNo(), lease.getLeaseNo().toString()));
         return request;
     }
 

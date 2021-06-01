@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding= "UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="bikelabs.bike_user_log">
+
+    <select id="countAllBikeUserLogInLeases" parameterType="hmap" resultType="int">
+        select count(*)
+          from (select *
+                  from leases
+                 where lease_id = #{lease_id}) lm
+               join bike_user_log bul on lm.lease_no = bul.ref_id
+    </select>
+    <select id="getBikeUserLogInLeases" parameterType="hmap" resultType="hmap">
+        select bul.log_no,
+               bul.lease_id,
+               bul.log_type,
+               bum.user_no,
+               if(content is null, '', content) as content,
+               bum.user_id,
+               bum.email,
+               bum.status,
+               bui.name,
+               bui.phone,
+               case
+                when TIMESTAMPDIFF(SECOND, bul.created_at, now()) <![CDATA[ < ]]> 61 then TIMESTAMPDIFF(SECOND, bul.created_at, now())
+                when TIMESTAMPDIFF(MINUTE, bul.created_at, now()) <![CDATA[ < ]]> 61 then TIMESTAMPDIFF(MINUTE, bul.created_at, now())
+                when TIMESTAMPDIFF(HOUR, bul.created_at, now()) <![CDATA[ < ]]> 24 then TIMESTAMPDIFF(HOUR, bul.created_at, now())
+                ELSE date_format(bul.created_at, '%Y년%m월%d')
+               end as created_at,
+               case
+                when TIMESTAMPDIFF(SECOND, bul.created_at, now()) <![CDATA[ < ]]> 61 then '초전'
+                when TIMESTAMPDIFF(MINUTE, bul.created_at, now()) <![CDATA[ < ]]> 61 then '분전'
+                when TIMESTAMPDIFF(HOUR, bul.created_at, now()) <![CDATA[ < ]]> 24 then '시간전'
+                ELSE ''
+               end as created_at_unit
+          from (select bul.*,
+                       lm.lease_id
+                  from (select *
+                          from leases
+                         where lease_id = #{lease_id}) lm
+                       join bike_user_log bul on lm.lease_no = bul.ref_id
+                 where 1 = 1
+                <if test="next_token != null and next_token != '' and next_token != 'undefined'">
+                    and log_no <![CDATA[ < ]]> #{next_token}
+                </if>
+                 order by bul.log_no desc limit 30) bul
+               join bike_user_mst bum on bul.from_user_no = bum.user_no
+               join bike_user_info bui on bum.user_no = bui.user_no
+    </select>
+
+    <select id="countMyTodo" parameterType="hmap" resultType="int">
+        select count(*)
+          from bike_user_todo
+         where to_user_no = #{sess_user_no}
+    </select>
+
+    <select id="fetchTodoSummery" parameterType="hmap" resultType="hmap">
+        select todo_no,
+               todo_type,
+               ref_id,
+               ref_uuid,
+               date_format(tu.created_at, '%Y년%m월%d일 %H시%i분') as created_at,
+               tum.user_id as to_user_id,
+               tum.email as to_user_email,
+               tui.name as to_user_name,
+               tui.phone as to_user_phone,
+               fum.user_id as from_user_id,
+               fum.email from_user_email,
+               fui.name as from_user_name,
+               fui.phone as from_user_phone
+          from (select *
+                  from bike_user_todo
+                 where to_user_no = #{sess_user_no}
+                 order by todo_no desc limit 10) tu
+               join bike_user_mst tum on tu.to_user_no = tum.user_no
+               join bike_user_info tui on tum.user_no = tui.user_no
+               join bike_user_mst fum on tu.from_user_no = fum.user_no
+               join bike_user_info fui on fum.user_no = fui.user_no
+        order by todo_no desc
+    </select>
+
+
+
+</mapper>

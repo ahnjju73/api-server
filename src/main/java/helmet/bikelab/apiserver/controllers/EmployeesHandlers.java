@@ -1,5 +1,7 @@
 package helmet.bikelab.apiserver.controllers;
 
+import helmet.bikelab.apiserver.objects.bikelabs.todo.BikeUserTodoDto;
+import helmet.bikelab.apiserver.services.BikeUserTodoService;
 import helmet.bikelab.apiserver.services.employees.EmployeesService;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import lombok.RequiredArgsConstructor;
@@ -15,6 +17,34 @@ import java.util.Map;
 public class EmployeesHandlers {
 
     private final EmployeesService adminEmployeeService;
+    private final BikeUserTodoService bikeUserTodoService;
+
+    public Mono<ServerResponse> fetchTodoSummery(ServerRequest request){
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> bikeUserTodoService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(bikeUserTodoService::checkBikeSession)
+                        .map(bikeUserTodoService::fetchTodoSummery)
+                        .map(bikeUserTodoService::returnData), BikeUserTodoDto.class);
+    }
+
+    public Mono<ServerResponse> getReferenceIdFromNo(ServerRequest request){
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> bikeUserTodoService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(bikeUserTodoService::checkBikeSession)
+                        .map(bikeUserTodoService::getReferenceIdFromNo)
+                        .map(bikeUserTodoService::returnData), Map.class);
+    }
+
+    public Mono<ServerResponse> deleteMyTodo(ServerRequest request){
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> bikeUserTodoService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(bikeUserTodoService::checkBikeSession)
+                        .map(bikeUserTodoService::deleteMyTodo)
+                        .map(bikeUserTodoService::returnData), Map.class);
+    }
 
     public Mono<ServerResponse> fetchListOfEmployee(ServerRequest request){
         return ServerResponse.ok().body(

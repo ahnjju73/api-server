@@ -66,4 +66,14 @@ public class SystemHandlers {
                         .map(systemHandlers::returnData), AuthDto.class);
     }
 
+    public Mono<ServerResponse> changeUserPermissionReadWrite(ServerRequest request){
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .map(row -> systemHandlers.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(systemHandlers::checkBikeSession)
+                        .map(systemHandlers::changeUserPermissionReadWrite)
+                        .map(systemHandlers::returnData), Map.class);
+    }
+
 }

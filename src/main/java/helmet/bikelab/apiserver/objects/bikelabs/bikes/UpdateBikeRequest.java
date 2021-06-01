@@ -23,8 +23,13 @@ public class UpdateBikeRequest extends OriginObject {
     private LocalDateTime registerDt;
 
     public void setReceiveDt(String receiveDt) {
-        this.receiveDt = LocalDateTime.parse(receiveDt + "T00:00:00");
+        try {
+            this.receiveDt = LocalDateTime.parse(receiveDt + "T00:00:00");
+        }catch (Exception e){
+            this.receiveDt = LocalDateTime.parse(receiveDt);
+        }
     }
+
     public void setRegisterDt(String registerDt) {
         this.registerDt = LocalDateTime.parse(registerDt);
     }

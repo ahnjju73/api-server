@@ -23,6 +23,7 @@ public class AddClientRequest extends OriginObject {
     private String clientDescription;
     private ClientInfo clientInfo;
     private ModelAddress address;
+    private String uuid;
 
     public void setAddress(Map address) {
         ObjectMapper objectMapper = new ObjectMapper();

@@ -19,14 +19,19 @@ public class AddFineRequest extends OriginObject {
     private Integer paidFee;
     private String bikeId;
 
-
-
-
     public void setFineDate(String fineDate){
-        this.fineDate = LocalDateTime.parse(fineDate);
+        try {
+            this.fineDate = LocalDateTime.parse(fineDate);
+        }catch (Exception e){
+            this.fineDate = LocalDateTime.parse(fineDate + "T00:00:00");
+        }
     }
     public void setExpireDate(String expireDate){
-        this.expireDate = LocalDateTime.parse(expireDate);
+        try {
+            this.expireDate = LocalDateTime.parse(expireDate);
+        }catch (Exception e){
+            this.expireDate = LocalDateTime.parse(expireDate + "T00:00:00");
+        }
     }
 
     public void checkValidation(){
