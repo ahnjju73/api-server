@@ -92,7 +92,7 @@ public class LeasesHandler {
                 Mono.fromSupplier(() -> leasesService.makeSessionRequest(request, BikeSessionRequest.class))
                         .subscribeOn(Schedulers.elastic())
                         .map(leasesService::checkBikeSession)
-                        .map(leasesService::rejectLease)
+                        .map(leasesService::deleteLease)
                         .map(leasesService::returnData), Map.class);
     }
 
