@@ -221,10 +221,10 @@ public class LeasePaymentService  extends SessService {
             cell.setCellValue("미수금");
             cell.setCellStyle(color);
             cell = row.createCell(7);
-            cell.setCellValue("미수 추가금");
+            cell.setCellValue("추가 미수금");
             cell.setCellStyle(color);
             cell = row.createCell(8);
-            cell.setCellValue("미수금");
+            cell.setCellValue("총 미수금");
             cell.setCellStyle(color);
             cell = row.createCell(9);
             cell.setCellValue("납부금");

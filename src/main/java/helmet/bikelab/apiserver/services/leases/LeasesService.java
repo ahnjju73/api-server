@@ -52,6 +52,7 @@ public class LeasesService extends SessService {
         List<Leases> leases = leaseRepository.findAll();
         List<FetchLeasesResponse> fetchLeasesResponses = new ArrayList<>();
         for(Leases lease : leases){
+            List<LeaseFine> leaseFineList = leaseFineRepository.findAllByLease_LeaseId(lease.getLeaseId());
             FetchLeasesResponse fetchLeasesResponse = new FetchLeasesResponse();
             fetchLeasesResponse.setLeaseId(lease.getLeaseId());
             fetchLeasesResponse.setStatus(lease.getStatus().getStatus());
