@@ -8,6 +8,7 @@ import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.client.Clients;
 import helmet.bikelab.apiserver.domain.lease.*;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
+import helmet.bikelab.apiserver.objects.bikelabs.fine.FetchFinesResponse;
 import helmet.bikelab.apiserver.objects.bikelabs.leases.*;
 import helmet.bikelab.apiserver.objects.bikelabs.release.ReleaseDto;
 import helmet.bikelab.apiserver.objects.bikelabs.clients.ClientDto;
@@ -53,9 +54,22 @@ public class LeasesService extends SessService {
         List<FetchLeasesResponse> fetchLeasesResponses = new ArrayList<>();
         for(Leases lease : leases){
             List<LeaseFine> leaseFineList = leaseFineRepository.findAllByLease_LeaseId(lease.getLeaseId());
+            List<FetchFinesResponse> fines = new ArrayList<>();
+            for(LeaseFine lf : leaseFineList){
+                FetchFinesResponse fineResponse = new FetchFinesResponse();
+                Fines fine = lf.getFine();
+                fineResponse.setFineId(fine.getFineId());
+                fineResponse.setFee(fine.getFee());
+                fineResponse.setPaidFee(fine.getPaidFee());
+                fineResponse.setFineNum(fine.getFineNum());
+                fineResponse.setFineDate(fine.getFineDt());
+                fineResponse.setFineExpireDate(fine.getExpireDt());
+                fines.add(fineResponse);
+            }
             FetchLeasesResponse fetchLeasesResponse = new FetchLeasesResponse();
             fetchLeasesResponse.setLeaseId(lease.getLeaseId());
             fetchLeasesResponse.setStatus(lease.getStatus().getStatus());
+            fetchLeasesResponse.setFines(fines);
             if(lease.getBike() != null) {
                 fetchLeasesResponse.setBikeId(lease.getBike().getBikeId());
                 BikeDto bikeDto = new BikeDto();
@@ -136,7 +150,21 @@ public class LeasesService extends SessService {
         Leases lease = leaseRepository.findByLeaseId(leasesDto.getLeaseId());
         List<LeasePayments> payments = leasePaymentsRepository.findAllByLease_LeaseId(lease.getLeaseId());
         if(lease == null) withException("850-002");
+        List<LeaseFine> leaseFineList = leaseFineRepository.findAllByLease_LeaseId(lease.getLeaseId());
+        List<FetchFinesResponse> fines = new ArrayList<>();
+        for(LeaseFine lf : leaseFineList){
+            FetchFinesResponse fineResponse = new FetchFinesResponse();
+            Fines fine = lf.getFine();
+            fineResponse.setFineId(fine.getFineId());
+            fineResponse.setFee(fine.getFee());
+            fineResponse.setPaidFee(fine.getPaidFee());
+            fineResponse.setFineNum(fine.getFineNum());
+            fineResponse.setFineDate(fine.getFineDt());
+            fineResponse.setFineExpireDate(fine.getExpireDt());
+            fines.add(fineResponse);
+        }
         FetchLeasesResponse fetchLeasesResponse = new FetchLeasesResponse();
+        fetchLeasesResponse.setFines(fines);
         fetchLeasesResponse.setLeaseId(lease.getLeaseId());
         fetchLeasesResponse.setStatus(lease.getStatus().getStatus());
         fetchLeasesResponse.setManagementType(lease.getType().getStatus());
@@ -499,7 +527,6 @@ public class LeasesService extends SessService {
         BikeUser session = request.getSessionUser();
         Leases lease = leaseRepository.findByLeaseId(leasesDto.getLeaseId());
         if(!lease.getApprovalUser().getUserId().equals(session.getUserId())) withException("850-021");
-        lease.setSubmittedUserNo(session.getUserNo());
         if(!lease.getStatus().getStatus().equals("550-002")) withException("850-009");
         lease.setStatus(LeaseStatusTypes.CONFIRM);
         leaseRepository.save(lease);
@@ -518,7 +545,6 @@ public class LeasesService extends SessService {
         if(!LeaseStatusTypes.IN_PROGRESS.equals(lease.getStatus()) && !LeaseStatusTypes.DECLINE.equals(lease.getStatus())) withException("850-008");
         BikeUser byUserId = bikeLabUserRepository.findByUserId(leasesDto.getApprovalUserId());
         lease.setApprovalUserNo(byUserId.getUserNo());
-        lease.setApprovalUser(byUserId);
         LeaseInfo leaseInfo = lease.getLeaseInfo();
         LeasePrice leasePrice = lease.getLeasePrice();
         if(!bePresent(lease.getClientNo())||!bePresent(lease.getReleaseNo())||!bePresent(lease.getBikeNo())||!bePresent(lease.getInsuranceNo())) withException("850-005");

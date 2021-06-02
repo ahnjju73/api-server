@@ -2,6 +2,7 @@ package helmet.bikelab.apiserver.objects.bikelabs.fine;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import helmet.bikelab.apiserver.objects.BikeDto;
 import helmet.bikelab.apiserver.services.internal.OriginObject;
 import lombok.Getter;
 import lombok.Setter;
@@ -18,10 +19,8 @@ public class FetchFineResponse extends OriginObject {
     private String clientId;
     private Integer fee;
     private Integer paidFee;
-    private String bikeId;
-    private String bikeNum;
     private String fineId;
     private String fineNum;
-
-
+    private String leaseId;
+    private BikeDto bike;
 }
