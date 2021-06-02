@@ -6,6 +6,7 @@ import helmet.bikelab.apiserver.domain.lease.Fines;
 import helmet.bikelab.apiserver.domain.lease.LeaseFine;
 import helmet.bikelab.apiserver.domain.lease.LeasePayments;
 import helmet.bikelab.apiserver.domain.lease.Leases;
+import helmet.bikelab.apiserver.objects.BikeDto;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.bikelabs.fine.*;
 import helmet.bikelab.apiserver.repositories.*;
@@ -42,7 +43,18 @@ public class FinesService extends SessService {
             fetchFinesResponse.setFineNum(fine.getFineNum());
             fetchFinesResponse.setFineId(fine.getFineId());
             fetchFinesResponse.setFineExpireDate(fine.getExpireDt());
+            LeaseFine leaseFine = leaseFineRepository.findByFine_FineId(fine.getFineId());
+            if(leaseFine != null){
+                Bikes bikes = leaseFine.getLease().getBike();
+                BikeDto bikeDto = new BikeDto();
+                bikeDto.setBikeId(bikes.getBikeId());
+                bikeDto.setBikeNum(bikes.getCarNum());
+                bikeDto.setVimNum(bikes.getVimNum());
+                fetchFinesResponse.setBike(bikeDto);
+                fetchFinesResponse.setLeaseId(leaseFine.getLease().getLeaseId());
+            }
             fetchFineResponseList.add(fetchFinesResponse);
+
         }
         response.put("fines", fetchFineResponseList);
         request.setResponse(response);
@@ -61,8 +73,12 @@ public class FinesService extends SessService {
             Bikes bikes = leaseFine.getLease().getBike();
             fetchFineResponse.setClientName(clients.getClientInfo().getName());
             fetchFineResponse.setClientId(clients.getClientId());
-            fetchFineResponse.setBikeNum(bikes.getCarNum());
-            fetchFineResponse.setBikeId(bikes.getBikeId());
+            BikeDto bikeDto = new BikeDto();
+            bikeDto.setBikeId(bikes.getBikeId());
+            bikeDto.setBikeNum(bikes.getCarNum());
+            bikeDto.setVimNum(bikes.getVimNum());
+            fetchFineResponse.setBike(bikeDto);
+            fetchFineResponse.setLeaseId(leaseFine.getLease().getLeaseId());
         }
         fetchFineResponse.setFineExpireDate(fines.getExpireDt());
         fetchFineResponse.setFineNum(fines.getFineNum());
@@ -124,8 +140,6 @@ public class FinesService extends SessService {
             leaseFine.setFineNo(fine.getFineNo());
         }
         leaseFineRepository.save(leaseFine);
-
-
         return request;
     }
 

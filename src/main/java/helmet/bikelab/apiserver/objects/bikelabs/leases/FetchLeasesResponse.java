@@ -3,6 +3,7 @@ package helmet.bikelab.apiserver.objects.bikelabs.leases;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import helmet.bikelab.apiserver.objects.BikeDto;
+import helmet.bikelab.apiserver.objects.bikelabs.fine.FetchFinesResponse;
 import helmet.bikelab.apiserver.objects.bikelabs.release.ReleaseDto;
 import helmet.bikelab.apiserver.objects.bikelabs.clients.ClientDto;
 import helmet.bikelab.apiserver.objects.bikelabs.insurance.InsuranceDto;
@@ -35,6 +36,7 @@ public class FetchLeasesResponse {
     private ReleaseDto release;
     private LeaseInfoDto leaseInfo;
     private LeasePriceDto leasePrice;
+    private List<FetchFinesResponse> fines;
     private UserDto createdUser;
     private UserDto submittedUser;
     private UserDto approvalUser;
