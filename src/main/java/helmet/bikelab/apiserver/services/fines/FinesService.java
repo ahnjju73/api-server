@@ -27,8 +27,6 @@ public class FinesService extends SessService {
     private final FinesRepository finesRepository;
     private final LeaseFineRepository leaseFineRepository;
     private final BikesRepository bikesRepository;
-
-//    private final Bike
     private final AutoKey autoKey;
 
     public BikeSessionRequest fetchFineList(BikeSessionRequest request){
