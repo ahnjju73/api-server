@@ -164,6 +164,7 @@ public class SignService extends SessService {
         sessionResponseDto.setStatus(userStatusTypes);
         sessionResponseDto.setStatusCode(userStatusTypes.getStatus());
         sessionResponseDto.setUserId(user.getUserId());
+        sessionResponseDto.setName(userInfo.getName());
         return sessionResponseDto;
     }
 
