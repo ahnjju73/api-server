@@ -45,7 +45,7 @@ public class Clients {
     @Convert(converter = AccountStatusConverter.class)
     private AccountStatusTypes status = AccountStatusTypes.PENDING;
 
-    @Column(name = "email", unique = true, nullable = false)
+    @Column(name = "email")
     private String email;
 
     @Column(name = "uuid", length = 100)

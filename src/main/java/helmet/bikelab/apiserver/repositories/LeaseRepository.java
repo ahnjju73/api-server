@@ -6,4 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface LeaseRepository extends JpaRepository<Leases, Integer> {
     Leases findByBikeNo(Integer bikeNo);
     Leases findByLeaseId(String leaseId);
+    Boolean existsAllByInsuranceNoEquals(Integer insuranceNo);
 }
