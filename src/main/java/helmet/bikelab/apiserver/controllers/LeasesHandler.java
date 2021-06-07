@@ -2,6 +2,7 @@ package helmet.bikelab.apiserver.controllers;
 
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.bikelabs.leases.LeaseBikeUserLogs;
+import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.services.employees.BikeUserLogService;
 import helmet.bikelab.apiserver.services.leases.LeasesService;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +27,7 @@ public class LeasesHandler {
                         .subscribeOn(Schedulers.elastic())
                         .map(leasesService::checkBikeSession)
                         .map(leasesService::fetchLeases)
-                        .map(leasesService::returnData), Map.class);
+                        .map(leasesService::returnData), ResponseListDto.class);
     }
 
     public Mono<ServerResponse> fetchLease(ServerRequest request) {

@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class ENV {
-
+    public static String LIST_COUNT_DONE = "D";
     public static String AWS_S3_QUEUE_DOMAIN;
     public static String AWS_S3_QUEUE_BUCKET;
     public static String AWS_S3_ORIGIN_DOMAIN;

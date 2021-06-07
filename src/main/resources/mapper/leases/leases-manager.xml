@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding= "UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="leases.leases-manager">
+
+    <select id="countAllLeases" parameterType="hmap" resultType="int">
+        select count(*)
+          from leases
+    </select>
+
+    <resultMap id="bikeMap" type="hmap">
+        <result property="bike_id" column="bike_id"/>
+        <result property="bike_model" column="bike_model"/>
+        <result property="bike_num" column="bike_num"/>
+        <result property="vim_num" column="vim_num"/>
+    </resultMap>
+    <resultMap id="clientMap" type="hmap">
+        <result property="client_id" column="client_id" />
+        <result property="client_name" column="client_name"/>
+    </resultMap>
+    <resultMap id="insuranceMap" type="hmap">
+        <result property="insurance_id" column="insurance_id" />
+        <result property="company_name" column="company_name"/>
+        <result property="insurance_age" column="insurance_age"/>
+    </resultMap>
+    <resultMap id="releaseMap" type="hmap">
+        <result property="release_id" column="release_id" />
+        <result property="release_name" column="release_name" />
+    </resultMap>
+    <resultMap id="leaseInfoMap" type="hmap">
+        <result property="period" column="period" />
+        <result property="start_dt" column="start_dt" />
+        <result property="end_dt" column="end_dt" />
+        <result property="contract_dt" column="contract_dt" />
+        <result property="note" column="note" />
+    </resultMap>
+    <resultMap id="leasePriceMap" type="hmap">
+        <result property="payment_type" column="payment_type" />
+        <result property="deposit" column="deposit" />
+        <result property="pre_payment" column="pre_payment" />
+        <result property="lease_fee" column="lease_fee" />
+        <result property="profit_fee" column="profit_fee" />
+        <result property="take_fee" column="take_fee" />
+        <result property="register_fee" column="register_fee" />
+    </resultMap>
+    <resultMap id="createdUserMap" type="hmap">
+        <result property="user_id" column="created_user_id" />
+        <result property="email" column="created_email" />
+        <result property="name" column="created_name" />
+    </resultMap>
+    <resultMap id="submittedUserMap" type="hmap">
+        <result property="user_id" column="submitted_user_id" />
+        <result property="email" column="submitted_email" />
+        <result property="name" column="submitted_name" />
+    </resultMap>
+    <resultMap id="approvalUserMap" type="hmap">
+        <result property="user_id" column="approval_user_id" />
+        <result property="email" column="approval_email" />
+        <result property="name" column="approval_name" />
+    </resultMap>
+    <resultMap id="fetchLeasesMap" type="hmap">
+        <result property="lease_id" column="lease_id"/>
+        <result property="bike_id" column="bike_id"/>
+        <result property="client_id" column="client_id"/>
+        <result property="insurance_id" column="insurance_id"/>
+        <result property="release_id" column="release_id"/>
+        <result property="status" column="status"/>
+        <result property="contract_type" column="contract_type"/>
+        <result property="management_type" column="management_type"/>
+        <result property="take_loc" column="take_loc"/>
+        <result property="take_at" column="take_at"/>
+        <result property="release_at" column="release_at"/>
+        <result property="created_at" column="created_at"/>
+        <collection property="bike" javaType="hmap" resultMap="bikeMap" />
+        <collection property="client" javaType="hmap" resultMap="clientMap" />
+        <collection property="insurance" javaType="hmap" resultMap="insuranceMap" />
+        <collection property="release" javaType="hmap" resultMap="releaseMap" />
+        <collection property="lease_info" javaType="hmap" resultMap="leaseInfoMap" />
+        <collection property="lease_price" javaType="hmap" resultMap="leasePriceMap" />
+        <collection property="created_user" javaType="hmap" resultMap="createdUserMap" />
+        <collection property="submitted_user" javaType="hmap" resultMap="submittedUserMap" />
+        <collection property="approval_user" javaType="hmap" resultMap="approvalUserMap" />
+    </resultMap>
+    <select id="fetchLeases" parameterType="hmap" resultMap="fetchLeasesMap">
+        select lm.lease_id,
+               lm.status,
+               bm.bike_id,
+               bm.number as bike_num,
+               bm.car_model as bike_model,
+               cm.client_id,
+               if(ci.name is null, '', ci.name) as client_name,
+               ins.insurance_id,
+               ins.insurance_age,
+               if(ins.company_name is null, '', ins.company_name) as company_name,
+               rls.release_id,
+               if(rls.release_name is null, '', rls.release_name) as release_name,
+               TIMESTAMPDIFF(MONTH, li.start_dt, li.end_dt) as period,
+               if(li.start_dt is null, '', li.start_dt) as start_dt,
+               if(li.end_dt is null, '', li.end_dt) as end_dt,
+               if(li.note is null, '', li.note) as note,
+               lp.payment_type,
+               if(lp.deposit is null, 0, lp.deposit) as deposit,
+               if(lp.pre_payment is null, 0, lp.pre_payment) as pre_payment,
+               if(lp.profit_fee is null, 0, lp.profit_fee) as profit_fee,
+               if(lp.take_fee is null, 0, lp.take_fee) as take_fee,
+               if(lp.register_fee is null, 0, lp.register_fee) as register_fee,
+               lm.up_lease_no,
+               lm.contract_type,
+               lm.management_type,
+               if(lm.take_loc is null, '', lm.take_loc) as take_loc,
+               if(lm.take_at is null, '', lm.take_at) as take_at,
+               if(lm.release_at is null, '', lm.release_at) as release_at,
+               if(lm.created_at is null, '', date_format(lm.created_at, '%Y-%m-%d %H:%i')) as created_at,
+               if(li.contract_dt is null, '', date_format(li.contract_dt, '%Y-%m-%d %H:%i')) as contract_dt,
+               cum.user_id as created_user_id,
+               cum.email as created_email,
+               cui.name as created_name,
+               sum.user_id as submitted_user_id,
+               sum.email as submitted_email,
+               sui.name as submitted_name,
+               aum.user_id as approval_user_id,
+               aum.email as approval_email,
+               aui.name as approval_name
+        from (select *
+                from leases
+               where 1 = 1
+                <if test="nextToken != null and nextToken != '' and nextToken != 'undefined'">
+                 and lease_id <![CDATA[ < ]]> #{nextToken}
+                </if>
+               order by lease_id desc limit 6) lm
+             join lease_info li on lm.lease_no = li.lease_no
+             join lease_price lp on lm.lease_no = lp.lease_no
+             join bikes bm on lm.bike_no = bm.bike_no
+             join clients cm on lm.client_no = cm.client_no
+             join client_info ci on cm.client_no = ci.client_no
+             join insurances ins on lm.insurance_no = ins.insurance_no
+             join releases rls on lm.release_no = rls.release_no
+             join bike_user_mst cum on cum.user_no = lm.created_user_no
+             join bike_user_info cui on cum.user_no = cui.user_no
+             left outer join bike_user_mst sum on sum.user_no = lm.submitted_user_no
+             left outer join bike_user_info sui on sum.user_no = sui.user_no
+             left outer join bike_user_mst aum on aum.user_no = lm.approval_user_no
+             left outer join bike_user_info aui on aum.user_no = aui.user_no
+        order by lease_id desc
+    </select>
+
+</mapper>

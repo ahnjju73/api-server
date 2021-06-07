@@ -32,6 +32,7 @@
         <mapper resource="mapper/bikelabs/employees.xml"/>
         <mapper resource="mapper/bikelabs/todo.xml"/>
         <mapper resource="mapper/bikelabs/bike_user_log.xml"/>
+        <mapper resource="mapper/leases/leases-manager.xml"/>
 
     </mappers>
 </configuration>

@@ -13,10 +13,13 @@ import helmet.bikelab.apiserver.objects.bikelabs.leases.*;
 import helmet.bikelab.apiserver.objects.bikelabs.release.ReleaseDto;
 import helmet.bikelab.apiserver.objects.bikelabs.clients.ClientDto;
 import helmet.bikelab.apiserver.objects.bikelabs.insurance.InsuranceDto;
+import helmet.bikelab.apiserver.objects.requests.RequestListDto;
+import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.repositories.*;
 import helmet.bikelab.apiserver.services.BikeUserTodoService;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.utils.AutoKey;
+import helmet.bikelab.apiserver.workers.LeaseWorker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,8 +50,18 @@ public class LeasesService extends SessService {
     private final AutoKey autoKey;
     private final BikeUserLogRepository bikeUserLogRepository;
     private final BikeUserTodoService bikeUserTodoService;
+    private final LeaseWorker leaseWorker;
 
     public BikeSessionRequest fetchLeases(BikeSessionRequest request){
+        Map param = request.getParam();
+        RequestListDto requestListDto = map(param, RequestListDto.class);
+        ResponseListDto responseListDto = leaseWorker.fetchLeases(requestListDto);
+        request.setResponse(responseListDto);
+        return request;
+    }
+
+    @Deprecated
+    public BikeSessionRequest bak_fetchLeases(BikeSessionRequest request){
         Map response = new HashMap();
         List<Leases> leases = leaseRepository.findAll();
         List<FetchLeasesResponse> fetchLeasesResponses = new ArrayList<>();
