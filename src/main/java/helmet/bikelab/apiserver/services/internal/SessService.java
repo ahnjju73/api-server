@@ -158,6 +158,7 @@ public abstract class SessService extends Workspace {
         ServerRequest serverRequest = sessionRequest.getServerRequest();
         stopWatch.stop();
         Map logData = new HashMap();
+        logData.put("status", HttpStatus.OK);
         logData.put("uri", serverRequest.path());
         logData.put("remote_address", serverRequest.remoteAddress().get().getAddress());
         logData.put("path", serverRequest.path());
