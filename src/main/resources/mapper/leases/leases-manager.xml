@@ -129,7 +129,7 @@
                 <if test="nextToken != null and nextToken != '' and nextToken != 'undefined'">
                  and lease_id <![CDATA[ < ]]> #{nextToken}
                 </if>
-               order by lease_id desc limit 6) lm
+               order by lease_id desc limit 30) lm
              join lease_info li on lm.lease_no = li.lease_no
              join lease_price lp on lm.lease_no = lp.lease_no
              join bikes bm on lm.bike_no = bm.bike_no
