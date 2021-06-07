@@ -15,7 +15,6 @@ import javax.persistence.*;
 @Table(name = "releases")
 public class Releases {
 
-    // todo db에서 ai안되어있음
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "release_no", nullable = false)

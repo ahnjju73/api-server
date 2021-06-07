@@ -9,6 +9,7 @@ import helmet.bikelab.apiserver.objects.bikelabs.insurance.FetchInsuranceRequest
 import helmet.bikelab.apiserver.objects.bikelabs.insurance.FetchInsuranceResponse;
 import helmet.bikelab.apiserver.repositories.InsuranceOptionlRepository;
 import helmet.bikelab.apiserver.repositories.InsurancesRepository;
+import helmet.bikelab.apiserver.repositories.LeaseRepository;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.utils.AutoKey;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,7 @@ public class InsurancesService extends SessService {
     private final InsurancesRepository insurancesRepository;
     private final AutoKey autoKey;
     private final InsuranceOptionlRepository insuranceOptionlRepository;
+    private final LeaseRepository leaseRepository;
 
 
     public BikeSessionRequest fetchInsurances(BikeSessionRequest request){
@@ -75,9 +77,8 @@ public class InsurancesService extends SessService {
         Map param = request.getParam();
         DeleteInsuranceRequest deleteInsuranceRequest = map(param, DeleteInsuranceRequest.class);
         Insurances insurances = insurancesRepository.findByInsuranceId(deleteInsuranceRequest.getInsuranceId());
-        // todo 만약 lease에서 해당 insurance를 들고있는 경우 withException("")
+        if(leaseRepository.existsAllByInsuranceNoEquals(insurances.getInsuranceNo())) withException("");
         insurancesRepository.delete(insurances);
-
         return request;
     }
 

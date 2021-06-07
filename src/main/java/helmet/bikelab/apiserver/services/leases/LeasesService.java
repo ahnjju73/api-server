@@ -563,7 +563,7 @@ public class LeasesService extends SessService {
         if(!bePresent(lease.getClientNo())||!bePresent(lease.getReleaseNo())||!bePresent(lease.getBikeNo())||!bePresent(lease.getInsuranceNo())) withException("850-005");
         if(!bePresent(leaseInfo.getStart())) withException("850-006");
         if(!bePresent(leasePrice.getDeposit())||!bePresent(leasePrice.getPrepayment())||!bePresent(leasePrice.getProfit())||!bePresent(leasePrice.getTakeFee())||!bePresent(leasePrice.getRegisterFee())) withException("850-007");
-        if(!bePresent(lease.getApprovalUser())) withException("850-020");
+        if(leasesDto.getApprovalUserId()!=null) withException("850-020");
         lease.setStatus(LeaseStatusTypes.PENDING);
         leaseRepository.save(lease);
         bikeUserTodoService.addTodo(BikeUserTodoTypes.LEASE_APPROVAL, session.getUserNo(), byUserId.getUserNo(), lease.getLeaseNo().toString(), lease.getLeaseId());
@@ -610,4 +610,5 @@ public class LeasesService extends SessService {
         leaseRepository.delete(lease);
         return request;
     }
+
 }
