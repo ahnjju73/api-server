@@ -1,9 +1,13 @@
 package helmet.bikelab.apiserver.config;
 
+import com.google.gson.Gson;
 import helmet.bikelab.apiserver.objects.exceptions.BusinessException;
 import helmet.bikelab.apiserver.objects.exceptions.BusinessExceptionWithMessage;
+import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.services.internal.Workspace;
 import lombok.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.ResourceProperties;
 import org.springframework.boot.autoconfigure.web.reactive.error.AbstractErrorWebExceptionHandler;
@@ -24,8 +28,10 @@ import java.util.Map;
 @Order(-2)
 public class ErrorGlobalHandler<T extends BusinessException> extends AbstractErrorWebExceptionHandler {
 
+    static final Logger logger = LoggerFactory.getLogger(SessService.class);
+
     @Autowired
-    Workspace workspace;
+    private Workspace workspace;
 
     public ErrorGlobalHandler(ErrorAttributes errorAttributes, ResourceProperties resourceProperties, ApplicationContext applicationContext, ServerCodecConfigurer configurer) {
         super(errorAttributes, resourceProperties, applicationContext);
@@ -62,21 +68,22 @@ public class ErrorGlobalHandler<T extends BusinessException> extends AbstractErr
             return responseTo(request, response);
         }else if(error instanceof Exception){
             Exception exception = (Exception) getError(request);
+            apiLogger(HttpStatus.BAD_REQUEST, exception);
             exception.printStackTrace();
-            Response response = new Response();
-            response.setErrCode("000");
-            response.setMessage("HAS ERR");
-            response.setResult(HttpStatus.BAD_REQUEST);
-            return responseTo(request, response);
+            return responseTo(request, new Response());
         }else {
             Throwable exception = getError(request);
+            apiLogger(HttpStatus.BAD_REQUEST, exception);
             exception.printStackTrace();
-            Response response = new Response();
-            response.setErrCode("000");
-            response.setMessage("HAS ERR");
-            response.setResult(HttpStatus.BAD_REQUEST);
-            return responseTo(request, response);
+            return responseTo(request, new Response());
         }
+    }
+
+    private void apiLogger(HttpStatus httpStatus, Throwable exception){
+        Map logData = new HashMap();
+        logData.put("status", httpStatus);
+        logData.put("error_message", exception.getMessage());
+        logger.info(new Gson().toJson(logData));
     }
 
     private Mono<ServerResponse> responseTo(ServerRequest request, Response response){
@@ -90,11 +97,11 @@ public class ErrorGlobalHandler<T extends BusinessException> extends AbstractErr
     @NoArgsConstructor
     class Response {
 
-        private String message;
+        private String message = "HAS ERR";
 
-        private String errCode;
+        private String errCode = "000";
 
-        private HttpStatus result;
+        private HttpStatus result = HttpStatus.BAD_REQUEST;
 
     }
 }
