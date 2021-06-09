@@ -11,6 +11,7 @@ import lombok.Setter;
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class FetchBikeDetailRequest extends OriginObject {
     private String bikeId;
+    private String clientId;
 
     public void checkValidation(){
         if(!bePresent(bikeId)) withException("500-001");

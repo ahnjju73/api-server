@@ -32,9 +32,40 @@ public class BikesService extends SessService {
     private final AutoKey autoKey;
     private final BikeModelsRepository bikeModelsRepository;
     private final BikeUserLogRepository bikeUserLogRepository;
+    private final ClientsRepository clientsRepository;
 
     public BikeSessionRequest fetchBikes(BikeSessionRequest request){
         List<Bikes> bikes = bikesRepository.findAll();
+        List<FetchBikesResponse> fetchBikesResponses = new ArrayList<>();
+        Map response = new HashMap();
+        for(Bikes bike : bikes){
+            FetchBikesResponse fetchBikesResponse = new FetchBikesResponse();
+            CommonCode carModel = bike.getCarModel();
+            fetchBikesResponse.setColor(bike.getColor());
+            fetchBikesResponse.setNumber(bike.getCarNum());
+            CarModel model = new CarModel();
+            model.setCarModelCode(carModel.getCode());
+            model.setCarModelName(carModel.getCodeName());
+            fetchBikesResponse.setModel(model);
+            fetchBikesResponse.setYears(bike.getYears());
+            fetchBikesResponse.setVimNum(bike.getVimNum());
+            fetchBikesResponse.setBikeId(bike.getBikeId());
+            fetchBikesResponses.add(fetchBikesResponse);
+        }
+        response.put("bikes", fetchBikesResponses);
+        request.setResponse(response);
+        return request;
+    }
+
+
+    public BikeSessionRequest fetchBikesByClient(BikeSessionRequest request){
+        Map param = request.getParam();
+        FetchBikeDetailRequest fetchBikeDetailRequest = map(param, FetchBikeDetailRequest.class);
+        clientsRepository.findByClientId(fetchBikeDetailRequest.getClientId());
+        List<Leases> leases = leaseRepository.findAllByClients_ClientId(fetchBikeDetailRequest.getClientId());
+        List<Bikes> bikes = new ArrayList<>();
+        for(Leases lease : leases)
+            bikes.add(lease.getBike());
         List<FetchBikesResponse> fetchBikesResponses = new ArrayList<>();
         Map response = new HashMap();
         for(Bikes bike : bikes){
@@ -83,6 +114,7 @@ public class BikesService extends SessService {
             client.setClientId(clients.getClientId());
             LeasesDto lease = new LeasesDto();
             lease.setLeaseId(leases.getLeaseId());
+
             fetchBikeDetailResponse.setClient(client);
             fetchBikeDetailResponse.setLease(lease);
         }

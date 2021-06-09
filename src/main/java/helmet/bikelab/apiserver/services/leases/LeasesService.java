@@ -393,7 +393,7 @@ public class LeasesService extends SessService {
         lease.setUpLesase(addUpdateLeaseRequest.getUpLeaseNo());
         leaseRepository.save(lease);
 
-//        leaseInfo.setLeaseNo(lease.getLeaseNo());
+        //leaseInfo.setLeaseNo(lease.getLeaseNo());
         if(leaseInfoDto.getStartDt()!=null) {
             leaseInfo.setStart(LocalDate.parse(leaseInfoDto.getStartDt()));
             leaseInfo.setEndDate(leaseInfo.getStart().plusMonths(addUpdateLeaseRequest.getLeasePayments().size()));
@@ -479,20 +479,31 @@ public class LeasesService extends SessService {
         return request;
     }
 
+    //todo null일때 다른 로그 쌓이게 만들어줘야
     private void updateLeaseInfoLog(BikeUser session, AddUpdateLeaseRequest leaseRequest, Clients clientRequested, Insurances insurancesRequested, Bikes bikeRequested, Leases leases, LeaseInfo leaseInfo, LeasePrice leasePrice, List<LeasePayments> leasePaymentsList){
         List<String> stringList = new ArrayList<>();
         if(bePresent(leaseRequest)){
             if(bePresent(clientRequested) && !clientRequested.getClientNo().equals(leases.getClientNo())){
                 Clients clients = leases.getClients();
-                stringList.add("고객정보를 <>" + clients.getClientInfo().getName() + " [" + clients.getClientId() + "] " + "</>에서 <>" + clientRequested.getClientInfo().getName() + " [" + clientRequested.getClientId() + "] " + "</>으로 변경하였습니다.");
+                if(clients == null){
+                    stringList.add("고객정보 <>" + clientRequested.getClientInfo().getName() + " [" + clientRequested.getClientId() + "] " + "</>로 설정하였습니다.");
+                }else{
+                    stringList.add("고객정보를 <>" + clients.getClientInfo().getName() + " [" + clients.getClientId() + "] " + "</>에서 <>" + clientRequested.getClientInfo().getName() + " [" + clientRequested.getClientId() + "] " + "</>으로 변경하였습니다.");
+                }
             }
             if(bePresent(bikeRequested) && !bikeRequested.getBikeNo().equals(leases.getBikeNo())){
                 Bikes bike = leases.getBike();
-                stringList.add("바이크 정보를 <>" + bike.getCarNum() + " [" + bike.getBikeId() + " ]" + "</>에서 <>" + bikeRequested.getCarNum() + " [" +  bikeRequested.getBikeId() + "] " + "</>으로 변경하였습니다.");
+                if(bike == null)
+                    stringList.add("바이크 정보 <>" + bikeRequested.getCarNum() + " [" +  bikeRequested.getBikeId() + "] " + "</>로 설정하였습니다.");
+                else
+                    stringList.add("바이크 정보를 <>" + bike.getCarNum() + " [" + bike.getBikeId() + " ]" + "</>에서 <>" + bikeRequested.getCarNum() + " [" +  bikeRequested.getBikeId() + "] " + "</>으로 변경하였습니다.");
             }
             if(bePresent(insurancesRequested) && !insurancesRequested.getInsuranceNo().equals(leases.getInsuranceNo())){
                 Insurances insurance = leases.getInsurances();
-                stringList.add("보험을 <>" + insurance.getCompanyName() + " " + insurance.getAge() + " [" + insurance.getInsuranceId() + " ]" + "</>에서 <>" + insurancesRequested.getCompanyName() + " " + insurancesRequested.getAge() + " [" +  insurancesRequested.getInsuranceId() + "] " + "</>으로 변경하였습니다.");
+                if(insurance == null)
+                    stringList.add("보험을 <>" + insurancesRequested.getCompanyName() + " " + insurancesRequested.getAge() + " [" +  insurancesRequested.getInsuranceId() + "] " + "</>로 설정하였습니다.");
+                else
+                    stringList.add("보험을 <>" + insurance.getCompanyName() + " " + insurance.getAge() + " [" + insurance.getInsuranceId() + " ]" + "</>에서 <>" + insurancesRequested.getCompanyName() + " " + insurancesRequested.getAge() + " [" +  insurancesRequested.getInsuranceId() + "] " + "</>으로 변경하였습니다.");
             }
             if(bePresent(leaseRequest.getContractType()) && !leaseRequest.getContractType().equals(leases.getContractTypes().getStatus())){
                 stringList.add("계약 정보를 <>" + leases.getContractTypes() + "</>에서 <>" + ContractTypes.getContractType(leaseRequest.getContractType()) + "</>으로 변경하였습니다.");
@@ -501,15 +512,22 @@ public class LeasesService extends SessService {
                 stringList.add("운용 정보룰 <>" + leases.getType() + "</>에서 <>" + ManagementTypes.getManagementStatus(leaseRequest.getManagementType()) + "</>으로 변경하였습니다.");
             }
             if(bePresent(leaseRequest.getLeaseInfo().getPeriod()) && getDiffMonths(leases.getLeaseInfo().getStart(), leases.getLeaseInfo().getEndDate()) != leaseRequest.getLeaseInfo().getPeriod()){
-                stringList.add("리스 계약기간을 <>" +  getDiffMonths(leases.getLeaseInfo().getStart(), leases.getLeaseInfo().getEndDate()) + "</>에서 <>" + leaseRequest.getLeaseInfo().getPeriod() + "</>으로 변경하였습니다.");
+                if(leases.getLeaseInfo().getEndDate() == null)
+                    stringList.add("리스 계약기간을 <>" + leaseRequest.getLeaseInfo().getPeriod() + "</>으로 설정하였습니다.");
+                else
+                    stringList.add("리스 계약기간을 <>" +  getDiffMonths(leases.getLeaseInfo().getStart(), leases.getLeaseInfo().getEndDate()) + "</>에서 <>" + leaseRequest.getLeaseInfo().getPeriod() + "</>으로 변경하였습니다.");
             }
             if(bePresent(leaseRequest.getLeaseInfo().getStartDt()) && !LocalDate.parse(leaseRequest.getLeaseInfo().getStartDt()).equals(leases.getLeaseInfo().getStart())){
                 stringList.add("리스 시작 날짜를 <>" +  leases.getLeaseInfo().getStart() + "</>에서 <>" + LocalDate.parse(leaseRequest.getLeaseInfo().getStartDt()) + "</>으로 변경하였습니다.");
             }
             if(bePresent(leaseRequest.getLeaseInfo().getNote()) && !leaseRequest.getLeaseInfo().getNote().equals(leases.getLeaseInfo().getNote())){
-                stringList.add("노트 내용을 <>" +  leases.getLeaseInfo().getNote() + "</>에서 <>" + leaseRequest.getLeaseInfo().getNote() + "</>으로 변경하였습니다.");
+                if(leases.getLeaseInfo().getNote() == null)
+                    stringList.add("노트 내용을 <>" + leaseRequest.getLeaseInfo().getNote() + "</>로 설정하였습니다.");
+                else
+                    stringList.add("노트 내용을 <>" +  leases.getLeaseInfo().getNote() + "</>에서 <>" + leaseRequest.getLeaseInfo().getNote() + "</>으로 변경하였습니다.");
             }
             if(bePresent(leaseRequest.getLeasePrice().getPaymentType()) && !leaseRequest.getLeasePrice().getPaymentType().equals(leases.getLeasePrice().getType().getPaymentType())){
+
                 stringList.add("리스 납부 방법을 <>" + leases.getLeasePrice().getType().getPaymentType() + "</>에서 <>" + PaymentTypes.getPaymentType(leaseRequest.getLeasePrice().getPaymentType()) + "</>으로 변경하였습니다.");
             }
             if(bePresent(leaseRequest.getLeasePrice().getDeposit()) && !leaseRequest.getLeasePrice().getDeposit().equals(leases.getLeasePrice().getDeposit())){
