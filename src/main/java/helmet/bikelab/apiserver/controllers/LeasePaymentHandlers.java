@@ -46,7 +46,6 @@ public class LeasePaymentHandlers {
 
     public Mono<ServerResponse> unpaidExcelDownload(ServerRequest request) {
         BikeSessionRequest bikeSessionRequest = leasePaymentService.makeSessionRequest(request, BikeSessionRequest.class);
-//        leasePaymentService.checkBikeSession(bikeSessionRequest);
         File excel = leasePaymentService.unpaidExcelDownload(bikeSessionRequest);
         return ServerResponse.ok()
                 .header(CONTENT_DISPOSITION, "attachment;filename=test.xlsx")
