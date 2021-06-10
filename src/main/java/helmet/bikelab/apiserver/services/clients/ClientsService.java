@@ -88,8 +88,6 @@ public class ClientsService extends SessService {
         AddClientRequest addClientRequest = map(param, AddClientRequest.class);
         String clientId = autoKey.makeGetKey("client");
         ClientGroups group = groupRepository.findByGroupId(addClientRequest.getGroupId());
-        Clients byEmail = clientsRepository.findByEmail(addClientRequest.getEmail());
-        if(bePresent(byEmail)) withException("400-005");
         if(!bePresent(group)) withException("400-002");
         Clients clients = new Clients();
         clients.setClientId(clientId);
@@ -134,8 +132,6 @@ public class ClientsService extends SessService {
         Clients client = clientsRepository.findByClientId(updateClientRequest.getClientId());
         ClientInfo clientInfo = client.getClientInfo();
         ClientAddresses clientAddresses = client.getClientAddresses();
-        Clients byEmail = clientsRepository.findByEmail(updateClientRequest.getEmail());
-        if(bePresent(byEmail) && !byEmail.getClientNo().equals(client.getClientNo())) withException("400-004");
         if(!bePresent(updateClientRequest.getUuid())) withException("400-006");
         client.setEmail(updateClientRequest.getEmail());
         ClientGroups clientGroups = groupRepository.findByGroupId(updateClientRequest.getGroupId());

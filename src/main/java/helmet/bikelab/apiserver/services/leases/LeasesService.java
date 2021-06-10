@@ -479,7 +479,6 @@ public class LeasesService extends SessService {
         return request;
     }
 
-    //todo null일때 다른 로그 쌓이게 만들어줘야
     private void updateLeaseInfoLog(BikeUser session, AddUpdateLeaseRequest leaseRequest, Clients clientRequested, Insurances insurancesRequested, Bikes bikeRequested, Leases leases, LeaseInfo leaseInfo, LeasePrice leasePrice, List<LeasePayments> leasePaymentsList){
         List<String> stringList = new ArrayList<>();
         if(bePresent(leaseRequest)){
