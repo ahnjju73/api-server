@@ -41,18 +41,11 @@ public class SignService extends SessService {
     public SessionRequest addBikeUser(SessionRequest request){
         Map map = request.getParam();
         NewBikeUserDto newBikeUserDto = map(map, NewBikeUserDto.class);
+        newBikeUserDto.checkValidation();
         userRepository
                 .findByEmail(newBikeUserDto.getEmail())
-                .ifPresentOrElse(user -> withException("800-000"), () -> {
-
-                    if(!bePresent(newBikeUserDto.getName())) writeError(map, "800-001");
-                    if(!bePresent(newBikeUserDto.getEmail())) writeError(map, "800-002");
-//                    if(!bePresent(signUpDto.getPhone())) writeError(map, "800-003");
-
-                    Map keyMap = new HashMap();
-                    keyMap.put("autono_tp", "bike_user");
-                    String userId = ak.makeGetKey(keyMap);
-
+                .ifPresentOrElse(user -> withException("101-001"), () -> {
+                    String userId = ak.makeGetKey("bike_user");
                     BikeUser newUser = new BikeUser();
                     newUser.setEmail(newBikeUserDto.getEmail());
                     newUser.setUserStatusTypes(BikeUserStatusTypes.COMPLETED);

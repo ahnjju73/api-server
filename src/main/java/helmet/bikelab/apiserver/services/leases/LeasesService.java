@@ -88,7 +88,7 @@ public class LeasesService extends SessService {
                 BikeDto bikeDto = new BikeDto();
                 bikeDto.setBikeNum(lease.getBike().getCarNum());
                 bikeDto.setBikeId(lease.getBike().getBikeId());
-                bikeDto.setBikeModel(lease.getBike().getCarModel().getCodeName());
+                bikeDto.setBikeModel(lease.getBike().getCarModel().getModel());
                 fetchLeasesResponse.setBike(bikeDto);
             }
             if(lease.getClients() != null) {
@@ -190,7 +190,7 @@ public class LeasesService extends SessService {
             fetchLeasesResponse.setBikeId(lease.getBike().getBikeId());
             BikeDto bikeDto = new BikeDto();
             bikeDto.setBikeId(lease.getBike().getBikeId());
-            bikeDto.setBikeModel(lease.getBike().getCarModel().getCodeName());
+            bikeDto.setBikeModel(lease.getBike().getCarModel().getModel());
             bikeDto.setBikeNum(lease.getBike().getCarNum());
             fetchLeasesResponse.setBike(bikeDto);
         }
