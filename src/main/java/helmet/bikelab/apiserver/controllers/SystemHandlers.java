@@ -76,4 +76,12 @@ public class SystemHandlers {
                         .map(systemHandlers::returnData), Map.class);
     }
 
+    public Mono<ServerResponse> checkLoadbalancer(ServerRequest request){
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> systemHandlers.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(systemHandlers::checkLoadbalancer)
+                        .map(systemHandlers::returnData), Map.class);
+    }
+
 }

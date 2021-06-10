@@ -20,6 +20,7 @@ public class SystemRouters {
                 .andRoute(PATCH("/bike-labs/systems/menu/users/authorizations"), handler::handlePermissionToUser)
                 .andRoute(PATCH("/bike-labs/systems/menu/users/permission"), handler::changeUserPermissionReadWrite)
                 .andRoute(GET("/bike-labs/authorizations/mine"), handler::checkAuthorization)
+                .andRoute(GET("/check-loadbalancer"), handler::checkLoadbalancer)
                 ;
     }
 }
