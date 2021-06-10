@@ -40,12 +40,12 @@ public class BikesService extends SessService {
         Map response = new HashMap();
         for(Bikes bike : bikes){
             FetchBikesResponse fetchBikesResponse = new FetchBikesResponse();
-            CommonCode carModel = bike.getCarModel();
+            CommonCodeBikes carModel = bike.getCarModel();
             fetchBikesResponse.setColor(bike.getColor());
             fetchBikesResponse.setNumber(bike.getCarNum());
             CarModel model = new CarModel();
             model.setCarModelCode(carModel.getCode());
-            model.setCarModelName(carModel.getCodeName());
+            model.setCarModelName(carModel.getModel());
             fetchBikesResponse.setModel(model);
             fetchBikesResponse.setYears(bike.getYears());
             fetchBikesResponse.setVimNum(bike.getVimNum());
@@ -70,12 +70,12 @@ public class BikesService extends SessService {
         Map response = new HashMap();
         for(Bikes bike : bikes){
             FetchBikesResponse fetchBikesResponse = new FetchBikesResponse();
-            CommonCode carModel = bike.getCarModel();
+            CommonCodeBikes carModel = bike.getCarModel();
             fetchBikesResponse.setColor(bike.getColor());
             fetchBikesResponse.setNumber(bike.getCarNum());
             CarModel model = new CarModel();
             model.setCarModelCode(carModel.getCode());
-            model.setCarModelName(carModel.getCodeName());
+            model.setCarModelName(carModel.getModel());
             fetchBikesResponse.setModel(model);
             fetchBikesResponse.setYears(bike.getYears());
             fetchBikesResponse.setVimNum(bike.getVimNum());
@@ -96,10 +96,10 @@ public class BikesService extends SessService {
         Leases leases = leaseRepository.findByBikeNo(bike.getBikeNo());
         Clients clients = leases == null ? null : leases.getClients();
         FetchBikeDetailResponse fetchBikeDetailResponse = new FetchBikeDetailResponse();
-        CommonCode carModel = bike.getCarModel();
+        CommonCodeBikes carModel = bike.getCarModel();
         CarModel model = new CarModel();
         model.setCarModelCode(carModel.getCode());
-        model.setCarModelName(carModel.getCodeName());
+        model.setCarModelName(carModel.getModel());
         fetchBikeDetailResponse.setYears(bike.getYears());
         fetchBikeDetailResponse.setModel(model);
         fetchBikeDetailResponse.setBikeId(bike.getBikeId());
