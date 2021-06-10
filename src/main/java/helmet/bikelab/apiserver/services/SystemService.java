@@ -33,6 +33,10 @@ public class SystemService extends SessService {
     private final ProgramRepository programRepository;
     private final BikeLabUserRepository bikeLabUserRepository;
 
+    public BikeSessionRequest checkLoadbalancer(BikeSessionRequest request){
+        return request;
+    }
+
     public BikeSessionRequest fetchMyLeftMenu(BikeSessionRequest request){
         Map param = request.getParam();
         param.put("up_menu_id", "L_MENU");
