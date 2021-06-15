@@ -12,25 +12,25 @@ import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
-public class LeaseWorker extends SessService {
+public class CommonWorker extends SessService {
 
-    public ResponseListDto fetchLeases(RequestListDto requestListDto){
+    public ResponseListDto fetchItemListByNextToken(RequestListDto requestListDto, String listPath, String countPath, String id){
         ResponseListDto responseListDto = new ResponseListDto();
         if(bePresent(requestListDto) && ENV.LIST_COUNT_DONE.equals(requestListDto.getNextToken())) {
             responseListDto.setNextToken(ENV.LIST_COUNT_DONE);
         }else {
 
-            List<Map> items = getList("leases.leases-manager.fetchLeases", requestListDto);
+            List<Map> items = getList(listPath, requestListDto);
             if(!bePresent(items)){
                 responseListDto.setNextToken(ENV.LIST_COUNT_DONE);
             }else {
 
-                String nextToken = (String)items.get(items.size() - 1).get("lease_id");
+                String nextToken = (String)items.get(items.size() - 1).get(id);
                 responseListDto.setNextToken(nextToken);
                 responseListDto.setItems(items);
             }
         }
-        Integer countAll = (Integer)getItem("leases.leases-manager.countAllLeases", null);
+        Integer countAll = (Integer)getItem(countPath, null);
         responseListDto.setTotal(countAll);
         return responseListDto;
     }
