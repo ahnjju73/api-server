@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding= "UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="bikelabs.commons.bikes">
+
+    <select id="countAllBikeList" parameterType="hmap" resultType="int">
+        <if test="search_client_id != null and search_client_id != '' and search_client_id != 'undefined'">
+            select count(*)
+              from (select *
+                      from bikes
+                     where 1 = 1
+                    <if test="search_name != null and search_name != '' and search_name != 'undefined'">
+                       and (
+                            vim_num like concat('%', #{search_name}, '%')
+                            or `number` like concat('%', #{search_name}, '%')
+                           )
+                     </if>) b
+                   join leases l on b.bike_no = l.bike_no
+                   join clients c on l.client_no = c.client_no
+                                 and c.client_id = #{search_client_id}
+        </if>
+        <if test="search_client_id == null or search_client_id == '' or search_client_id == 'undefined'">
+            select count(*) from bikes
+        </if>
+    </select>
+
+    <select id="fetchBikesList" parameterType="hmap" resultType="hmap">
+        select bike_id,
+               vim_num,
+               bm.number,
+               car_model as car_model_code,
+               commb.comm_nm as car_model,
+               color,
+               years,
+               ls.lease_id,
+               c.client_id,
+               ci.name as client_name
+        from (select *
+              from bikes b
+              where 1 = 1
+                <if test="search_name != null and search_name != '' and search_name != 'undefined'">
+                and (
+                        vim_num like concat('%', #{search_name}, '%')
+                        or `number` like concat('%', #{search_name}, '%')
+                    )
+                </if>
+                <if test="next_token != null and next_token != '' and next_token != 'undefined'">
+                and bike_id <![CDATA[ < ]]> #{nextToken}
+                </if>
+              order by bike_no desc limit 30) bm
+                 join com_comm_bikes commb on bm.car_model = commb.comm_cd
+                 left outer join leases ls on bm.bike_no = ls.bike_no
+                <if test="search_client_id != null and search_client_id != '' and search_client_id != 'undefined'">
+                    join (select *
+                            from clients
+                           where client_id = #{search_client_id}) c on ls.client_no = c.client_no
+                </if>
+                <if test="search_client_id == null or search_client_id == '' or search_client_id == 'undefined'">
+                    left outer join clients c on ls.client_no = c.client_no
+                </if>
+                 left outer join client_info ci on c.client_no = ci.client_no
+         order by bm.bike_no desc
+    </select>
+
+</mapper>

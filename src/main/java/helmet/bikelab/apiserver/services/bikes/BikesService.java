@@ -12,6 +12,7 @@ import helmet.bikelab.apiserver.objects.CarModel;
 import helmet.bikelab.apiserver.objects.bikelabs.bikes.*;
 import helmet.bikelab.apiserver.objects.bikelabs.clients.ClientDto;
 import helmet.bikelab.apiserver.objects.bikelabs.leases.LeasesDto;
+import helmet.bikelab.apiserver.objects.requests.BikeRequestListDto;
 import helmet.bikelab.apiserver.objects.requests.RequestListDto;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.repositories.*;
@@ -39,6 +40,15 @@ public class BikesService extends SessService {
     private final CommonWorker commonWorker;
 
     public BikeSessionRequest fetchBikes(BikeSessionRequest request){
+        Map param = request.getParam();
+        BikeRequestListDto requestListDto = map(param, BikeRequestListDto.class);
+        ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "bikelabs.commons.bikes.fetchBikesList", "bikelabs.commons.bikes.countAllBikeList", "bike_id");
+        request.setResponse(responseListDto);
+        return request;
+    }
+
+    @Deprecated
+    public BikeSessionRequest bak_fetchBikes(BikeSessionRequest request){
         List<Bikes> bikes = bikesRepository.findAll();
         List<FetchBikesResponse> fetchBikesResponses = new ArrayList<>();
         Map response = new HashMap();
@@ -128,6 +138,7 @@ public class BikesService extends SessService {
     }
 
     public BikeSessionRequest fetchBikesWithoutLease(BikeSessionRequest request){
+        // todo : 수정하기
         request = fetchBikes(request);
         Map response = (HashMap)request.getResponse();
         List<FetchBikesResponse> bikes = (List)response.get("bikes");

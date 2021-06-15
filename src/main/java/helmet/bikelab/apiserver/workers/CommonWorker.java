@@ -7,6 +7,7 @@ import helmet.bikelab.apiserver.utils.keys.ENV;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -14,13 +15,13 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class CommonWorker extends SessService {
 
-    public ResponseListDto fetchItemListByNextToken(RequestListDto requestListDto, String listPath, String countPath, String id){
+    public <T extends RequestListDto> ResponseListDto fetchItemListByNextToken(T requestListDto, String listPath, String countPath, String id){
         ResponseListDto responseListDto = new ResponseListDto();
+        Map param = map(requestListDto, HashMap.class);
         if(bePresent(requestListDto) && ENV.LIST_COUNT_DONE.equals(requestListDto.getNextToken())) {
             responseListDto.setNextToken(ENV.LIST_COUNT_DONE);
         }else {
-
-            List<Map> items = getList(listPath, requestListDto);
+            List<Map> items = getList(listPath, param);
             if(!bePresent(items)){
                 responseListDto.setNextToken(ENV.LIST_COUNT_DONE);
             }else {
@@ -30,7 +31,7 @@ public class CommonWorker extends SessService {
                 responseListDto.setItems(items);
             }
         }
-        Integer countAll = (Integer)getItem(countPath, null);
+        Integer countAll = (Integer)getItem(countPath, param);
         responseListDto.setTotal(countAll);
         return responseListDto;
     }
