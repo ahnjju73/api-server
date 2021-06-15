@@ -335,9 +335,9 @@ public class LeasePaymentService  extends SessService {
     private void paymentLog(BikeUser session, Leases leases, LeasePayments payment, Integer changedFee, boolean isFull) {
         List<String> stringList = new ArrayList<>();
         if(isFull)
-            stringList.add(payment.getPaymentDate().getMonthValue() + "월 납부한 금액 " + payment.getPaidFee() + "에서 " + (changedFee + payment.getPaidFee()) + "로 완납하였습니다.");
+            stringList.add("<>" + payment.getPaymentDate().getMonthValue() + "월</> 납부한 금액 <>" + payment.getPaidFee() + "원</>에서 <>" + (changedFee + payment.getPaidFee()) + "원</>로 완납하였습니다.");
         else
-            stringList.add(payment.getPaymentDate().getMonthValue() + "월 납부한 금액 " + payment.getPaidFee() + "에서 " + (changedFee + payment.getPaidFee()) + "로 잔여금액 " + (payment.getLeaseFee() - (changedFee + payment.getPaidFee())) + "원 있습니다.");
+            stringList.add("<>" + payment.getPaymentDate().getMonthValue() + "월</> 납부한 금액 <>" + payment.getPaidFee() + "원</>에서 " + (changedFee + payment.getPaidFee()) + "로 잔여금액 <>" + (payment.getLeaseFee() - (changedFee + payment.getPaidFee())) + "원</> 있습니다.");
 
         bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_PAYMENT, session.getUserNo(), leases.getLeaseNo().toString(), stringList));
     }
@@ -345,9 +345,9 @@ public class LeasePaymentService  extends SessService {
     private void extraPaymentLog(BikeUser session, Leases leases, LeaseExtras extra, Integer changedFee, boolean isFull) {
         List<String> stringList = new ArrayList<>();
         if(isFull)
-            stringList.add(extra.getPayment().getPaymentDate().getMonthValue() + "월 추가금 납부한 금액 " + extra.getPaidFee() + "에서 " + (extra.getPaidFee() + changedFee) + "로 완납하였습니다.");
+            stringList.add("<>" + extra.getPayment().getPaymentDate().getMonthValue() + "월</> 추가금 납부한 금액 <>" + extra.getPaidFee() + "원</>에서 <>" + (extra.getPaidFee() + changedFee) + "원</>으로 완납하였습니다.");
         else
-            stringList.add(extra.getPayment().getPaymentDate().getMonthValue() + "월 추가금 납부한 금액 " + extra.getPaidFee() + "에서 " + (extra.getPaidFee() + changedFee) + "로 잔여금액 " + (extra.getExtraFee() - (extra.getPaidFee() + changedFee)) + "원 있습니다.");
+            stringList.add("<>" + extra.getPayment().getPaymentDate().getMonthValue() + "월</> 추가금 납부한 금액 <>" + extra.getPaidFee() + "원</>에서 <>" + (extra.getPaidFee() + changedFee) + "원</>으로 잔여금액 <>" + (extra.getExtraFee() - (extra.getPaidFee() + changedFee)) + "원</> 있습니다.");
 
         bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_PAYMENT, session.getUserNo(), leases.getLeaseNo().toString(), stringList));
     }
