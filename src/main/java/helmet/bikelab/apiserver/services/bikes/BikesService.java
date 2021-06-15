@@ -39,6 +39,14 @@ public class BikesService extends SessService {
     private final ClientsRepository clientsRepository;
     private final CommonWorker commonWorker;
 
+    public BikeSessionRequest fetchBikesWithoutLease(BikeSessionRequest request){
+        Map param = request.getParam();
+        BikeRequestListDto requestListDto = map(param, BikeRequestListDto.class);
+        ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "bikelabs.commons.bikes.fetchBikesListByNoLease", "bikelabs.commons.bikes.countAllBikeListByNoLease", "bike_id");
+        request.setResponse(responseListDto);
+        return request;
+    }
+
     public BikeSessionRequest fetchBikes(BikeSessionRequest request){
         Map param = request.getParam();
         BikeRequestListDto requestListDto = map(param, BikeRequestListDto.class);
@@ -134,19 +142,6 @@ public class BikesService extends SessService {
         }
         response.put("bike", fetchBikeDetailResponse);
         request.setResponse(response);
-        return request;
-    }
-
-    public BikeSessionRequest fetchBikesWithoutLease(BikeSessionRequest request){
-        // todo : 수정하기
-        request = fetchBikes(request);
-        Map response = (HashMap)request.getResponse();
-        List<FetchBikesResponse> bikes = (List)response.get("bikes");
-        for(int i = bikes.size()-1; i >= 0; i--){
-            Bikes bike = bikesRepository.findByBikeId(bikes.get(i).getBikeId());
-            if(bike.getLease()!= null)
-                bikes.remove(i);
-        }
         return request;
     }
 

@@ -80,7 +80,7 @@ public class BikesHandlers {
                         .subscribeOn(Schedulers.elastic())
                         .map(bikesService::checkBikeSession)
                         .map(bikesService::fetchBikesWithoutLease)
-                        .map(bikesService::returnData), Map.class);
+                        .map(bikesService::returnData), ResponseListDto.class);
     }
 
     public Mono<ServerResponse> fetchBikesByClient(ServerRequest request) {
