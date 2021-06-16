@@ -35,7 +35,7 @@ public class ClientGroupService extends SessService {
 
    public BikeSessionRequest fetchListOfGroup(BikeSessionRequest request){
       Map response = new HashMap();
-      List<ClientGroups> groups = groupRepository.findAll();
+      List<Map> groups = getList("bikelabs.commons.clients.fetchGroupList", request.getParam());
       response.put("group", groups);
       request.setResponse(response);
       return request;
