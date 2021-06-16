@@ -14,10 +14,12 @@ public class ClientGroupRouters {
     @Bean
     public RouterFunction<ServerResponse> groupRouter(ClientGroupHandlers handler){
         return RouterFunctions
-                .route(GET("/client/groups"), handler::fetchListOfGroup)
+                .route(GET("/client/groups"), handler::uploadExcel)
                 .andRoute(GET("/client/groups/clients"), handler::fetchClientsByGroup)
                 .andRoute(POST("/client/groups"), handler::addClientGroup)
                 .andRoute(PUT("/client/groups"), handler::updateClientGroup)
-                .andRoute(DELETE("/client/groups"), handler::deleteClientGroup);
+                .andRoute(DELETE("/client/groups"), handler::deleteClientGroup)
+                .andRoute(POST("/client/groups/excel"), handler::uploadExcel)
+                .andRoute(DELETE("/client/groups/force"), handler::forceDeleteClientGroup);
     }
 }
