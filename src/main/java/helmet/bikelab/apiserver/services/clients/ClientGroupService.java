@@ -3,20 +3,36 @@ package helmet.bikelab.apiserver.services.clients;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUserLog;
 import helmet.bikelab.apiserver.domain.client.ClientGroups;
+import helmet.bikelab.apiserver.domain.client.ClientInfo;
 import helmet.bikelab.apiserver.domain.client.Clients;
 import helmet.bikelab.apiserver.domain.types.BikeUserLogTypes;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.bikelabs.clients.group.*;
 import helmet.bikelab.apiserver.repositories.BikeUserLogRepository;
 import helmet.bikelab.apiserver.repositories.ClientGroupRepository;
-import helmet.bikelab.apiserver.repositories.ClientInfoRepository;
 import helmet.bikelab.apiserver.repositories.ClientsRepository;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.utils.AutoKey;
+import io.undertow.util.MultipartParser;
 import lombok.RequiredArgsConstructor;
+import org.apache.poi.xssf.usermodel.XSSFCell;
+import org.apache.poi.xssf.usermodel.XSSFRow;
+import org.apache.poi.xssf.usermodel.XSSFSheet;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.springframework.http.codec.multipart.FilePart;
+import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.reactive.function.server.ServerRequest;
+import org.springframework.web.reactive.function.server.ServerResponse;
+import reactor.core.publisher.Mono;
 
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -126,6 +142,7 @@ public class ClientGroupService extends SessService {
          bikeUserLogRepository.save(addLog(BikeUserLogTypes.COMM_GROUP_UPDATED, session.getUserNo(), group.getGroupNo().toString(), stringList));
    }
 
+   @Transactional
    public BikeSessionRequest deleteGroup (BikeSessionRequest request){
       Map param = request.getParam();
       DeleteGroupRequest deleteGroupRequest = map(param, DeleteGroupRequest.class);
@@ -136,5 +153,125 @@ public class ClientGroupService extends SessService {
       groupRepository.delete(group);
       return request;
    }
+
+   @Transactional
+   public BikeSessionRequest forceDeleteGroup (BikeSessionRequest request){
+      Map param = request.getParam();
+      DeleteGroupRequest deleteGroupRequest = map(param, DeleteGroupRequest.class);
+      deleteGroupRequest.checkValidation();
+
+
+      return request;
+   }
+
+   @Transactional
+   public BikeSessionRequest uploadExcel (BikeSessionRequest request){
+      FilePart filePart = (FilePart) request.getParam().get("test");
+      File excel = new File("/Users/joohonga/workspaces/api-server/" + filePart.filename());
+      filePart.transferTo(excel);
+      try {
+         FileInputStream fis = new FileInputStream(excel);
+         XSSFWorkbook workbook = new XSSFWorkbook(fis);
+         for(int i = 0; i < workbook.getNumberOfSheets(); i++){
+            XSSFSheet sheet = workbook.getSheetAt(i);
+            if(sheet.getSheetName().contains("그룹")){
+               groupProcess(sheet);
+            }else if(sheet.getSheetName().contains("고객")){
+
+            }
+         }
+
+
+
+      }catch (Exception e){
+         e.printStackTrace();
+      }finally {
+         if(excel != null && excel.exists()) {
+            excel.deleteOnExit();
+         }
+      }
+      return request;
+   }
+
+
+   @Transactional
+   void groupProcess(XSSFSheet sheet){
+      int rowIdx;
+      int colIdx;
+      int rows=sheet.getPhysicalNumberOfRows();
+      for(rowIdx=0; rowIdx<rows; rowIdx++) {
+         XSSFRow row = sheet.getRow(rowIdx);
+         String head = row.getCell(0).toString();
+         if(head.matches("\\d+\\.\\d")) {
+            ClientGroups groups = new ClientGroups();
+            String groupId = autoKey.makeGetKey("group");
+            groups.setGroupId(groupId);
+            for (colIdx = 1; colIdx < row.getPhysicalNumberOfCells(); colIdx++) {
+               XSSFCell cell = row.getCell(colIdx);
+               if (cell != null && !cell.getStringCellValue().equals("")) {
+                  String value = cell.toString();
+                  if(colIdx == 1){
+                     groups.setGroupName(value);
+                  }
+                  if(colIdx == 2){
+                     groups.setRegNum(value);
+                  }
+                  if(colIdx == 3){
+                     groups.setCeoName(value);
+                  }
+                  if(colIdx == 4){
+                     groups.setCeoEmail(value);
+                  }
+                  if(colIdx == 5){
+                     groups.setCeoPhone(value);
+                  }
+               }
+            }
+            groupRepository.save(groups);
+         }
+      }
+   }
+//   @Transactional
+//   void clientProcess(XSSFSheet sheet){
+//      int rowIdx;
+//      int colIdx;
+//      int rows=sheet.getPhysicalNumberOfRows();
+//      for(rowIdx=0; rowIdx<rows; rowIdx++) {
+//         XSSFRow row = sheet.getRow(rowIdx);
+//         String head = row.getCell(0).toString();
+//         String sheetName = sheet.getSheetName();
+//         String groupName = sheetName.split("_")[1];
+//         ClientGroups group = groupRepository.findByGroupId();
+//
+//         if(head.matches("\\d+\\.\\d")) {
+//            Clients clients = new Clients();
+//            ClientInfo clientInfo = new ClientInfo();
+//            String clientId = autoKey.makeGetKey("client");
+//            groups.setGroupId(clientId);
+//            for (colIdx = 1; colIdx < row.getPhysicalNumberOfCells(); colIdx++) {
+//               XSSFCell cell = row.getCell(colIdx);
+//               if (cell != null && !cell.getStringCellValue().equals("")) {
+//                  String value = cell.toString();
+//                  if(colIdx == 1){
+//                     groups.setGroupName(value);
+//                  }
+//                  if(colIdx == 2){
+//                     groups.setRegNum(value);
+//                  }
+//                  if(colIdx == 3){
+//                     groups.setCeoName(value);
+//                  }
+//                  if(colIdx == 4){
+//                     groups.setCeoEmail(value);
+//                  }
+//                  if(colIdx == 5){
+//                     groups.setCeoPhone(value);
+//                  }
+//               }
+//            }
+//            groupRepository.save(groups);
+//         }
+//      }
+//   }
 
 }

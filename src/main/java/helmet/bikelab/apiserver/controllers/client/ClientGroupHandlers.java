@@ -2,6 +2,7 @@ package helmet.bikelab.apiserver.controllers.client;
 
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.services.clients.ClientGroupService;
+import helmet.bikelab.apiserver.utils.MultiFiles;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyExtractors;
@@ -17,6 +18,7 @@ import java.util.Map;
 public class ClientGroupHandlers {
 
     private final ClientGroupService groupService;
+    private final MultiFiles multiFiles;
 
     public Mono<ServerResponse> fetchListOfGroup(ServerRequest request){
         return ServerResponse.ok().body(
@@ -63,6 +65,28 @@ public class ClientGroupHandlers {
                         .map(groupService::checkBikeSession)
                         .map(groupService::deleteGroup)
                         .map(groupService::returnData), Map.class);
+    }
+
+
+    public Mono<ServerResponse> forceDeleteClientGroup(ServerRequest request){
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> groupService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(groupService::checkBikeSession)
+                        .map(groupService::forceDeleteGroup)
+                        .map(groupService::returnData), Map.class);
+    }
+
+    public Mono<ServerResponse> uploadExcel(ServerRequest request){
+        return request.body(BodyExtractors.toMultipartData())
+                .flatMap(m -> multiFiles.multipartFile(m, "excel"))
+                .map(m -> groupService.makeSessionRequest(request, m, BikeSessionRequest.class))
+                .map(row -> groupService.checkBikeSession(row))
+                .flatMap(sessionRequest ->
+                        ServerResponse.ok().body(
+                                Mono.just(groupService.uploadExcel(sessionRequest))
+                                        .map(groupService::returnData), Map.class)
+                );
     }
 
 }
