@@ -22,4 +22,12 @@ public class LeasePaymentDto {
     public boolean equals(LeasePayments leasePayments){
         return paymentId.equals(leasePayments.getPaymentId());
     }
+
+    public void setPaymentDate(LocalDate paymentDate) {
+        this.paymentDate = paymentDate;
+    }
+
+    public void setPaymentDate(String paymentDate) {
+        this.paymentDate = LocalDate.parse(paymentDate);
+    }
 }
