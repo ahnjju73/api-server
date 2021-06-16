@@ -14,7 +14,7 @@ public class ClientGroupRouters {
     @Bean
     public RouterFunction<ServerResponse> groupRouter(ClientGroupHandlers handler){
         return RouterFunctions
-                .route(GET("/client/groups"), handler::uploadExcel)
+                .route(GET("/client/groups"), handler::fetchListOfGroup)
                 .andRoute(GET("/client/groups/clients"), handler::fetchClientsByGroup)
                 .andRoute(POST("/client/groups"), handler::addClientGroup)
                 .andRoute(PUT("/client/groups"), handler::updateClientGroup)

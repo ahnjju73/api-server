@@ -195,8 +195,8 @@ public class LeasePaymentService  extends SessService {
                 unpaidExcelDtos.add(unpaidExcelDto);
             }
         }
+        File newFile = new File("./newfile");
         try {
-            File newFile = new File("./newfile");
             FileOutputStream fileOutputStream = new FileOutputStream(newFile);
             Workbook wb = new XSSFWorkbook();
             Sheet sheet = wb.createSheet("첫번째 시트");
@@ -270,6 +270,8 @@ public class LeasePaymentService  extends SessService {
         } catch (Exception e) {
             e.printStackTrace();
             return null;
+        }finally {
+            if(newFile != null && newFile.exists()) newFile.delete();
         }
     }
 
