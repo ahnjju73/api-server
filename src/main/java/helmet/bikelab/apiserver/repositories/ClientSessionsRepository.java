@@ -5,5 +5,5 @@ import helmet.bikelab.apiserver.domain.client.ClientSessions;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ClientSessionsRepository extends JpaRepository<ClientSessions, Integer> {
-
+    void deleteAllByClient_ClientId(String clientId);
 }

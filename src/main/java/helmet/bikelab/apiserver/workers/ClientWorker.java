@@ -22,8 +22,14 @@ public class ClientWorker extends SessService {
     private final ClientInfoRepository clientInfoRepository;
     private final ClientPasswordRepository clientPasswordRepository;
     private final ClientSessionsRepository clientSessionsRepository;
+    private final ClientsRepository clientsRepository;
 
     public void deleteClientAccount(String clientId){
-
+        clientAccountsRepository.deleteAllByClient_ClientId(clientId);
+        clientAddressesRepository.deleteAllByClient_ClientId(clientId);
+        clientInfoRepository.deleteAllByClient_ClientId(clientId);
+        clientPasswordRepository.deleteAllByClient_ClientId(clientId);
+        clientSessionsRepository.deleteAllByClient_ClientId(clientId);
+        clientsRepository.deleteByClientId(clientId);
     }
 }

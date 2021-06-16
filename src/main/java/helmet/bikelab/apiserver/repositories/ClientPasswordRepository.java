@@ -5,4 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ClientPasswordRepository extends JpaRepository<ClientPassword, Integer> {
     ClientPassword findByClientNo(Integer clientNo);
+    void deleteAllByClient_ClientId(String clientId);
 }

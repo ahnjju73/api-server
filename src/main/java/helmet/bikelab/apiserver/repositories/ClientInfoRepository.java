@@ -6,4 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface ClientInfoRepository extends JpaRepository<ClientInfo, Integer> {
     ClientInfo findByClient(Clients clients);
+    void deleteAllByClient_ClientId(String clientId);
 }
