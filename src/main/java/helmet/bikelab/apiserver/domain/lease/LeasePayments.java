@@ -32,7 +32,7 @@ public class LeasePayments {
     @JoinColumn(name = "lease_no", insertable = false, updatable = false)
     private Leases lease;
 
-    @Column(name = "idx", columnDefinition = "TINYINT")
+    @Column(name = "idx")
     private Integer index;
 
     @Column(name = "payment_date")
