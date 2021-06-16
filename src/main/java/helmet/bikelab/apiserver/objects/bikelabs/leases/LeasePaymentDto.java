@@ -14,7 +14,7 @@ import java.time.LocalDate;
 public class LeasePaymentDto {
     private String paymentId;
     private Integer idx;
-    private LocalDate paymentDate;
+    private String paymentDate;
     private Integer leaseFee;
     private Integer paidFee;
     private Integer unpaidFee;

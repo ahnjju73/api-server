@@ -231,7 +231,7 @@ public class LeasesService extends SessService {
             LeasePaymentDto leasePaymentDto = new LeasePaymentDto();
             leasePaymentDto.setLeaseFee(lp.getLeaseFee());
             leasePaymentDto.setPaymentId(lp.getPaymentId());
-            leasePaymentDto.setPaymentDate(lp.getPaymentDate());
+            leasePaymentDto.setPaymentDate(lp.getPaymentDate().toString());
             leasePaymentDto.setPaidFee(lp.getPaidFee());
             leasePaymentDto.setIdx(lp.getIndex());
             totalFee += lp.getLeaseFee();
