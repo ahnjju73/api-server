@@ -395,10 +395,13 @@ public class LeasesService extends SessService {
             lease.setInsuranceNo(insurance.getInsuranceNo());
         if(addUpdateLeaseRequest.getManagementType() != null)
             lease.setType(ManagementTypes.getManagementStatus(addUpdateLeaseRequest.getManagementType()));
-        lease.setTakeLocation(addUpdateLeaseRequest.getTakeLoc());
-        lease.setTakeAt(addUpdateLeaseRequest.getTakeAt());
-        lease.setReleaseAt(addUpdateLeaseRequest.getReleaseAt());
-        lease.setUpLesase(addUpdateLeaseRequest.getUpLeaseNo());
+        if(addUpdateLeaseRequest.getTakeLoc() != null)
+            lease.setTakeLocation(addUpdateLeaseRequest.getTakeLoc());
+        if(addUpdateLeaseRequest.getTakeAt() != null)
+            lease.setTakeAt(addUpdateLeaseRequest.getTakeAt());
+        if(addUpdateLeaseRequest.getReleaseAt() != null)
+            lease.setReleaseAt(addUpdateLeaseRequest.getReleaseAt());
+            lease.setUpLesase(addUpdateLeaseRequest.getUpLeaseNo());
         leaseRepository.save(lease);
 
         //leaseInfo.setLeaseNo(lease.getLeaseNo());

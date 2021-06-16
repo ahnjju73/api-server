@@ -34,11 +34,13 @@ public class AddUpdateLeaseRequest extends OriginObject {
     private List<LeasePaymentDto> leasePayments = new ArrayList<>();
 
     public void setTakeAt(String takeAt) {
-        this.takeAt = LocalDateTime.parse(takeAt);
+        if(takeAt != null)
+            this.takeAt = LocalDateTime.parse(takeAt);
     }
 
     public void setReleaseAt(String releaseAt) {
-        this.releaseAt = LocalDateTime.parse(releaseAt);
+        if(releaseAt != null)
+            this.releaseAt = LocalDateTime.parse(releaseAt);
     }
 
     public void setLeaseInfo(Map info) {
