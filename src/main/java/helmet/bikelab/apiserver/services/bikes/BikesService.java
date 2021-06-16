@@ -12,9 +12,13 @@ import helmet.bikelab.apiserver.objects.CarModel;
 import helmet.bikelab.apiserver.objects.bikelabs.bikes.*;
 import helmet.bikelab.apiserver.objects.bikelabs.clients.ClientDto;
 import helmet.bikelab.apiserver.objects.bikelabs.leases.LeasesDto;
+import helmet.bikelab.apiserver.objects.requests.BikeRequestListDto;
+import helmet.bikelab.apiserver.objects.requests.RequestListDto;
+import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.repositories.*;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.utils.AutoKey;
+import helmet.bikelab.apiserver.workers.CommonWorker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -33,8 +37,26 @@ public class BikesService extends SessService {
     private final BikeModelsRepository bikeModelsRepository;
     private final BikeUserLogRepository bikeUserLogRepository;
     private final ClientsRepository clientsRepository;
+    private final CommonWorker commonWorker;
+
+    public BikeSessionRequest fetchBikesWithoutLease(BikeSessionRequest request){
+        Map param = request.getParam();
+        BikeRequestListDto requestListDto = map(param, BikeRequestListDto.class);
+        ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "bikelabs.commons.bikes.fetchBikesListByNoLease", "bikelabs.commons.bikes.countAllBikeListByNoLease", "bike_id");
+        request.setResponse(responseListDto);
+        return request;
+    }
 
     public BikeSessionRequest fetchBikes(BikeSessionRequest request){
+        Map param = request.getParam();
+        BikeRequestListDto requestListDto = map(param, BikeRequestListDto.class);
+        ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "bikelabs.commons.bikes.fetchBikesList", "bikelabs.commons.bikes.countAllBikeList", "bike_id");
+        request.setResponse(responseListDto);
+        return request;
+    }
+
+    @Deprecated
+    public BikeSessionRequest bak_fetchBikes(BikeSessionRequest request){
         List<Bikes> bikes = bikesRepository.findAll();
         List<FetchBikesResponse> fetchBikesResponses = new ArrayList<>();
         Map response = new HashMap();
@@ -120,18 +142,6 @@ public class BikesService extends SessService {
         }
         response.put("bike", fetchBikeDetailResponse);
         request.setResponse(response);
-        return request;
-    }
-
-    public BikeSessionRequest fetchBikesWithoutLease(BikeSessionRequest request){
-        request = fetchBikes(request);
-        Map response = (HashMap)request.getResponse();
-        List<FetchBikesResponse> bikes = (List)response.get("bikes");
-        for(int i = bikes.size()-1; i >= 0; i--){
-            Bikes bike = bikesRepository.findByBikeId(bikes.get(i).getBikeId());
-            if(bike.getLease()!= null)
-                bikes.remove(i);
-        }
         return request;
     }
 

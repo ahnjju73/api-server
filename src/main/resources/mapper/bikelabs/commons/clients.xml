@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding= "UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="bikelabs.commons.clients">
+
+    <select id="countAllClientList" parameterType="hmap" resultType="int">
+        select count(*)
+          from clients
+    </select>
+
+    <select id="fetchClientList" parameterType="hmap" resultType="hmap">
+        select client_id,
+               group_id,
+               group_name,
+               if(ci.name is null, '', ci.name) as client_name,
+               if(ci.phone is null, '', ci.phone) as client_phone,
+               if(ci.manager_email is null, '', ci.manager_email) as manager_email
+        from (select *
+              from clients
+              where 1 = 1
+<!--                <if test="nextToken != null and nextToken != '' and nextToken != 'undefined'">-->
+<!--                and client_id <![CDATA[ < ]]> #{nextToken}-->
+<!--                </if>-->
+              order by client_no desc) c
+                 join client_info ci on c.client_no = ci.client_no
+                 join `groups` g on c.group_no = g.group_no
+                 left outer join (select client_no,
+                                         count(*) orders
+                                    from leases
+                                   group by client_no) ord on c.client_no = ord.client_no
+         order by ord.orders desc, c.client_no desc
+    </select>
+
+</mapper>

@@ -9,10 +9,13 @@ import helmet.bikelab.apiserver.domain.types.BikeUserLogTypes;
 import helmet.bikelab.apiserver.domain.types.YesNoTypes;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.bikelabs.clients.*;
+import helmet.bikelab.apiserver.objects.requests.RequestListDto;
+import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.repositories.*;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.utils.AutoKey;
 import helmet.bikelab.apiserver.utils.Crypt;
+import helmet.bikelab.apiserver.workers.CommonWorker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,8 +38,18 @@ public class ClientsService extends SessService {
     private final ClientGroupRepository groupRepository;
     private final ClientAddressesRepository clientAddressesRepository;
     private final BikeUserLogRepository bikeUserLogRepository;
+    private final CommonWorker commonWorker;
 
     public BikeSessionRequest fetchListOfClients(BikeSessionRequest request){
+        Map param = request.getParam();
+        RequestListDto requestListDto = map(param, RequestListDto.class);
+        ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "bikelabs.commons.clients.fetchClientList", "bikelabs.commons.clients.countAllClientList", "client_id");
+        request.setResponse(responseListDto);
+        return request;
+    }
+
+    @Deprecated
+    public BikeSessionRequest bak_fetchListOfClients(BikeSessionRequest request){
         Map param = request.getParam();
         Map response = new HashMap();
         List<Clients> clients = clientsRepository.findAll();

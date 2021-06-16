@@ -1,6 +1,5 @@
 package helmet.bikelab.apiserver.services.leases;
 
-import helmet.bikelab.apiserver.domain.bikelab.BikeUserTodo;
 import helmet.bikelab.apiserver.domain.types.*;
 import helmet.bikelab.apiserver.objects.BikeDto;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
@@ -19,7 +18,7 @@ import helmet.bikelab.apiserver.repositories.*;
 import helmet.bikelab.apiserver.services.BikeUserTodoService;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.utils.AutoKey;
-import helmet.bikelab.apiserver.workers.LeaseWorker;
+import helmet.bikelab.apiserver.workers.CommonWorker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -50,12 +49,12 @@ public class LeasesService extends SessService {
     private final AutoKey autoKey;
     private final BikeUserLogRepository bikeUserLogRepository;
     private final BikeUserTodoService bikeUserTodoService;
-    private final LeaseWorker leaseWorker;
+    private final CommonWorker commonWorker;
 
     public BikeSessionRequest fetchLeases(BikeSessionRequest request){
         Map param = request.getParam();
         RequestListDto requestListDto = map(param, RequestListDto.class);
-        ResponseListDto responseListDto = leaseWorker.fetchLeases(requestListDto);
+        ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "leases.leases-manager.fetchLeases", "leases.leases-manager.countAllLeases", "lease_id");
         request.setResponse(responseListDto);
         return request;
     }

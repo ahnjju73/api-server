@@ -1,6 +1,7 @@
 package helmet.bikelab.apiserver.services.internal;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import helmet.bikelab.apiserver.config.SqlMaster;
@@ -149,8 +150,16 @@ public class Workspace extends OriginObject{
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        };
-        return modelMapper.map(o, cls);
+        }
+        try{
+            ObjectMapper objectMapper = new ObjectMapper();
+            objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            return objectMapper.convertValue(o, cls);
+//            return modelMapper.map(o, cls);
+        }catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }
     }
 
     protected <T, K> T map(K o, TypeReference<T> typeReference){

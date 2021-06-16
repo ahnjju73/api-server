@@ -1,6 +1,7 @@
 package helmet.bikelab.apiserver.controllers;
 
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
+import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.services.bikes.BikesService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -22,7 +23,7 @@ public class BikesHandlers {
                         .subscribeOn(Schedulers.elastic())
                         .map(bikesService::checkBikeSession)
                         .map(bikesService::fetchBikes)
-                        .map(bikesService::returnData), Map.class);
+                        .map(bikesService::returnData), ResponseListDto.class);
     }
 
     public Mono<ServerResponse> fetchBikeDetail(ServerRequest request){
@@ -79,7 +80,7 @@ public class BikesHandlers {
                         .subscribeOn(Schedulers.elastic())
                         .map(bikesService::checkBikeSession)
                         .map(bikesService::fetchBikesWithoutLease)
-                        .map(bikesService::returnData), Map.class);
+                        .map(bikesService::returnData), ResponseListDto.class);
     }
 
     public Mono<ServerResponse> fetchBikesByClient(ServerRequest request) {
