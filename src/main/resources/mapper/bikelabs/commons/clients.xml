@@ -5,9 +5,28 @@
 
 <mapper namespace="bikelabs.commons.clients">
 
+    <select id="fetchGroupList" parameterType="hmap" resultType="hmap">
+        select g.group_no,
+               group_id,
+               group_name,
+               ceo_name,
+               ceo_phone,
+               ceo_email,
+               reg_no as reg_num,
+               if(c.group_no is null, 0, counts) as client_counts
+        from `groups` g
+                 left outer join (select group_no,
+                                         count(*) as counts
+                                  from clients
+                                 where status != '201-004'
+                                 group by group_no) c on g.group_no = c.group_no
+        order by counts desc, g.group_no desc
+    </select>
+
     <select id="countAllClientList" parameterType="hmap" resultType="int">
         select count(*)
           from clients
+         where status != '201-004'
     </select>
 
     <select id="fetchClientList" parameterType="hmap" resultType="hmap">
@@ -16,10 +35,11 @@
                group_name,
                if(ci.name is null, '', ci.name) as client_name,
                if(ci.phone is null, '', ci.phone) as client_phone,
-               if(ci.manager_email is null, '', ci.manager_email) as manager_email
+               if(ci.manager_email is null, '', ci.manager_email) as manager_email,
+               if(ord.client_no is null, 0, orders) as orders
         from (select *
               from clients
-              where 1 = 1
+             where status != '201-004'
 <!--                <if test="nextToken != null and nextToken != '' and nextToken != 'undefined'">-->
 <!--                and client_id <![CDATA[ < ]]> #{nextToken}-->
 <!--                </if>-->

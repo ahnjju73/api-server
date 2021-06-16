@@ -15,4 +15,5 @@ public interface ClientsRepository extends JpaRepository<Clients, Integer> {
     List<Clients> findByClientGroup_GroupId(String groupId);
     Integer countAllByClientGroup_GroupId(String groupId);
     Clients findByEmail(String email);
+
 }
