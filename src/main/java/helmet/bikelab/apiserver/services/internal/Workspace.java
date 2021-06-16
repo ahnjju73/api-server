@@ -154,6 +154,7 @@ public class Workspace extends OriginObject{
         try{
             ObjectMapper objectMapper = new ObjectMapper();
             objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            objectMapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
             return objectMapper.convertValue(o, cls);
 //            return modelMapper.map(o, cls);
         }catch (Exception e){

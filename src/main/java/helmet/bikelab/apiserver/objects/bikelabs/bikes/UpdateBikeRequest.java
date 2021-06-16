@@ -31,9 +31,7 @@ public class UpdateBikeRequest extends OriginObject {
     }
 
     public void setRegisterDt(String registerDt) {
-        this.registerDt = LocalDateTime.parse(registerDt);
+        if(bePresent(registerDt)) this.registerDt = LocalDateTime.parse(registerDt);
     }
-
-
 
 }

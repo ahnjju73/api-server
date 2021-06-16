@@ -36,7 +36,8 @@
                years,
                ls.lease_id,
                c.client_id,
-               ci.name as client_name
+               ci.name as client_name,
+               if(l.lease_no is null, false, true) as used
         from (select *
               from bikes b
               where 1 = 1
@@ -61,6 +62,7 @@
                     left outer join clients c on ls.client_no = c.client_no
                 </if>
                  left outer join client_info ci on c.client_no = ci.client_no
+                 left outer join leases l on bm.bike_no = l.bike_no
          order by bm.bike_no desc
     </select>
 

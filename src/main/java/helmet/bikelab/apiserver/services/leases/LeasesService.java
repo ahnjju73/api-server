@@ -316,14 +316,14 @@ public class LeasesService extends SessService {
 
         LeasePrice leasePrice = new LeasePrice();
         leasePrice.setLeaseNo(lease.getLeaseNo());
-        leasePrice.setProfit(addUpdateLeaseRequest.getLeasePrice().getProfitFee());
+//        leasePrice.setProfit(addUpdateLeaseRequest.getLeasePrice().getProfitFee());
         leasePrice.setType(PaymentTypes.getPaymentType(addUpdateLeaseRequest.getLeasePrice().getPaymentType()));
-        leasePrice.setRegisterFee(addUpdateLeaseRequest.getLeasePrice().getRegisterFee() != null ? addUpdateLeaseRequest.getLeasePrice().getRegisterFee() : 0);
-        leasePrice.setTakeFee(addUpdateLeaseRequest.getLeasePrice().getTakeFee() == null ? 0 : addUpdateLeaseRequest.getLeasePrice().getTakeFee());
+//        leasePrice.setRegisterFee(addUpdateLeaseRequest.getLeasePrice().getRegisterFee() != null ? addUpdateLeaseRequest.getLeasePrice().getRegisterFee() : 0);
+//        leasePrice.setTakeFee(addUpdateLeaseRequest.getLeasePrice().getTakeFee() == null ? 0 : addUpdateLeaseRequest.getLeasePrice().getTakeFee());
         if(addUpdateLeaseRequest.getLeasePrice().getPrePayment()!= null)
             leasePrice.setPrepayment(addUpdateLeaseRequest.getLeasePrice().getPrePayment());
-        leasePrice.setTakeFee(addUpdateLeaseRequest.getLeasePrice().getTakeFee() != null ? addUpdateLeaseRequest.getLeasePrice().getTakeFee() : 0);
-        leasePrice.setDeposit(addUpdateLeaseRequest.getLeasePrice().getDeposit() != null ? addUpdateLeaseRequest.getLeasePrice().getDeposit() : 0);
+//        leasePrice.setTakeFee(addUpdateLeaseRequest.getLeasePrice().getTakeFee() != null ? addUpdateLeaseRequest.getLeasePrice().getTakeFee() : 0);
+//        leasePrice.setDeposit(addUpdateLeaseRequest.getLeasePrice().getDeposit() != null ? addUpdateLeaseRequest.getLeasePrice().getDeposit() : 0);
         leasePriceRepository.save(leasePrice);
 
         List<LeasePayments> leasePaymentsList = new ArrayList<>();
