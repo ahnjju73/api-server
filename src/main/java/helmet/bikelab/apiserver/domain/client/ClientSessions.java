@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.domain.client;
 
+import helmet.bikelab.apiserver.domain.types.ClientSessionPK;
 import helmet.bikelab.apiserver.domain.types.UserSessionTypes;
 import helmet.bikelab.apiserver.domain.types.converters.UserSessionTypeConverter;
 import helmet.bikelab.apiserver.utils.keys.SESSION;
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Setter
+@IdClass(ClientSessionPK.class)
 @Table(name = "client_sessions", catalog = SESSION.SCHEME_SERVICE)
 public class ClientSessions implements Serializable {
 
