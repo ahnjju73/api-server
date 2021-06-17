@@ -23,7 +23,7 @@
         select cast(dummy.rownum as char) as rownum,
                dummy.lease_id,
                dummy.payment_id,
-               date_format(dummy.payment_date, '%Y-%m-%d') as payment_date,
+               date_format(dummy.payment_date, '%Y년%m월%d일') as payment_date,
                dummy.idx,
                dummy.lease_fee,
                dummy.paid_fee,
@@ -69,7 +69,7 @@
                join client_info ci on c.client_no = ci.client_no
                join bikes b on dummy.bike_no = b.bike_no
                join com_comm_bikes cb on b.car_model = cb.comm_cd
-        order by rownum
+        order by dummy.rownum
     </select>
 
 </mapper>
