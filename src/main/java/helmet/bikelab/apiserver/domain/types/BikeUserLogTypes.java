@@ -21,6 +21,7 @@ public enum BikeUserLogTypes {
     LEASE_APPROVE_COMPLETED("150-015"),
     LEASE_APPROVE_REJECTED("150-014"),
     LEASE_PAYMENT("150-016"),
+    LEASE_EXTRA_PAYMENT("150-017"),
     ;
 
     private String status;

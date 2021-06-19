@@ -35,7 +35,7 @@ public class LeaseExtras {
     @Column(name = "lease_no", nullable = false)
     private Integer leaseNo;
 
-    @ManyToOne
+    @ManyToOne(optional = false)
     @JoinColumn(name = "lease_no", insertable = false, updatable = false)
     private Leases lease;
 

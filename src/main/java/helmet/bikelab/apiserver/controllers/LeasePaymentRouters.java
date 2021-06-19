@@ -18,6 +18,8 @@ public class LeasePaymentRouters {
                 .route(GET("/unpaid-leases"), handler::fetchLeases)
                 .andRoute(GET("/leases-payments-by-index"), handler::fetchLeasePaymentsByIndex)
                 .andRoute(PUT("/leases-payments-by-index"), handler::payLeaseFeeByPaymentId)
+                .andRoute(PUT("/leases-payments-by-index/extra"), handler::payLeaseExtraFeeByExtraId)
+                .andRoute(GET("/leases-payments-by-index/extra"), handler::fetchLeasePaymentExtraByIndex)
                 .andRoute(PUT("/unpaid-leases/without-excel/{lease_id}"), handler::payLease)
                 .andRoute(GET("/unpaid-leases/excel"), handler::unpaidExcelDownload)
                 .andRoute(POST("/unpaid-leases/excel"), handler::payLeaseWithExcel);

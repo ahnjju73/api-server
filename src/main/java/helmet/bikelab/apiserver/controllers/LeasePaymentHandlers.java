@@ -25,6 +25,15 @@ import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 public class LeasePaymentHandlers {
     private final LeasePaymentService leasePaymentService;
 
+    public Mono<ServerResponse> fetchLeasePaymentExtraByIndex(ServerRequest request){
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> leasePaymentService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(leasePaymentService::checkBikeSession)
+                        .map(leasePaymentService::fetchLeasePaymentExtraByIndex)
+                        .map(leasePaymentService::returnData), ResponseListDto.class);
+    }
+
     public Mono<ServerResponse> fetchLeasePaymentsByIndex(ServerRequest request){
         return ServerResponse.ok().body(
                 Mono.fromSupplier(() -> leasePaymentService.makeSessionRequest(request, BikeSessionRequest.class))
@@ -41,6 +50,16 @@ public class LeasePaymentHandlers {
                         .map(row -> leasePaymentService.makeSessionRequest(request, row, BikeSessionRequest.class))
                         .map(leasePaymentService::checkBikeSession)
                         .map(leasePaymentService::payLeaseFeeByPaymentId)
+                        .map(leasePaymentService::returnData), Map.class);
+    }
+
+    public Mono<ServerResponse> payLeaseExtraFeeByExtraId(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> leasePaymentService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(leasePaymentService::checkBikeSession)
+                        .map(leasePaymentService::payLeaseExtraFeeByExtraId)
                         .map(leasePaymentService::returnData), Map.class);
     }
 

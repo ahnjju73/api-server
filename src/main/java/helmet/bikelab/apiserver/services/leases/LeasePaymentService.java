@@ -14,6 +14,7 @@ import helmet.bikelab.apiserver.objects.bikelabs.clients.ClientDto;
 import helmet.bikelab.apiserver.objects.bikelabs.leases.FetchUnpaidLeasesResponse;
 import helmet.bikelab.apiserver.objects.bikelabs.leases.PayLeaseRequest;
 import helmet.bikelab.apiserver.objects.bikelabs.leases.UploadExcelDto;
+import helmet.bikelab.apiserver.objects.requests.LeasePaymentsRequestListDto;
 import helmet.bikelab.apiserver.objects.requests.RequestListDto;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.repositories.BikeUserLogRepository;
@@ -57,6 +58,23 @@ public class LeasePaymentService  extends SessService {
     private final LeasePaymentWorker leasePaymentWorker;
 
     @Transactional
+    public BikeSessionRequest payLeaseExtraFeeByExtraId(BikeSessionRequest request){
+        Map param = request.getParam();
+        BikeUser session = request.getSessionUser();
+        String extraId = (String)param.get("extra_id");
+        leasePaymentWorker.payLeaseExtraFeeByExtraId(extraId, session);
+        return request;
+    }
+
+    public BikeSessionRequest fetchLeasePaymentExtraByIndex(BikeSessionRequest request){
+        Map param = request.getParam();
+        LeasePaymentsRequestListDto requestListDto = map(param, LeasePaymentsRequestListDto.class);
+        ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "leases.leases-payments.fetchLeasePaymentExtraByIndex", "leases.leases-payments.countAllPaymentExtraByIndex", "rownum");
+        request.setResponse(responseListDto);
+        return request;
+    }
+
+    @Transactional
     public BikeSessionRequest payLeaseFeeByPaymentId(BikeSessionRequest request){
         Map param = request.getParam();
         BikeUser session = request.getSessionUser();
@@ -67,7 +85,7 @@ public class LeasePaymentService  extends SessService {
 
     public BikeSessionRequest fetchLeasePaymentsByIndex(BikeSessionRequest request){
         Map param = request.getParam();
-        RequestListDto requestListDto = map(param, RequestListDto.class);
+        LeasePaymentsRequestListDto requestListDto = map(param, LeasePaymentsRequestListDto.class);
         ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "leases.leases-payments.fetchLeasePaymentsByIndex", "leases.leases-payments.countAllPaymentsByIndex", "rownum");
         request.setResponse(responseListDto);
         return request;
