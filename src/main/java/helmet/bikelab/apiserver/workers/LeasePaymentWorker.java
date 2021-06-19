@@ -44,7 +44,7 @@ public class LeasePaymentWorker extends SessService {
         Integer prevPaidFee = leaseExtras.getPaidFee();
         leaseExtras.setPaidFee(leaseExtras.getExtraFee());
         leaseExtraRepository.save(leaseExtras);
-        String content = "<>" + payment.getIndex() + "</>회차 <>(" + payment.getPaymentDate().format(dateTimeFormatter) + " - " + leaseExtras.getExtraId() + ")</> 추가 납부료 미납금 <>" + Utils.getCurrencyFormat(leaseExtras.getExtraFee() - prevPaidFee) + "원</>을 완납하였습니다. (<>" + Utils.getCurrencyFormat(prevPaidFee) + "원</> -> <>" + Utils.getCurrencyFormat(leaseExtras.getExtraFee())+ "원</>)";
+        String content = "<>" + payment.getIndex() + "회차 (" + payment.getPaymentDate().format(dateTimeFormatter) + " - " + leaseExtras.getExtraId() + ")</> 추가 납부료 미납금 <>" + Utils.getCurrencyFormat(leaseExtras.getExtraFee() - prevPaidFee) + "원</>을 완납하였습니다. (<>" + Utils.getCurrencyFormat(prevPaidFee) + "원</> -> <>" + Utils.getCurrencyFormat(leaseExtras.getExtraFee())+ "원</>)";
         List<String> strings = new ArrayList<>();
         strings.add(content);
         bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_EXTRA_PAYMENT, session.getUserNo(), leases.getLeaseNo().toString(), strings));
@@ -64,7 +64,7 @@ public class LeasePaymentWorker extends SessService {
         Integer prevPaidFee = byPaymentId.getPaidFee();
         byPaymentId.setPaidFee(byPaymentId.getLeaseFee());
         leasePaymentsRepository.save(byPaymentId);
-        String content = "<>" + byPaymentId.getIndex() + "</>회차 <>(" + byPaymentId.getPaymentDate().format(dateTimeFormatter) + ")</> 납부료 미납금 <>" + Utils.getCurrencyFormat(byPaymentId.getLeaseFee() - prevPaidFee) + "원</>을 완납하였습니다. (<>" + Utils.getCurrencyFormat(prevPaidFee) + "원</> -> <>" + Utils.getCurrencyFormat(byPaymentId.getLeaseFee())+ "원</>)";
+        String content = "<>" + byPaymentId.getIndex() + "회차 (" + byPaymentId.getPaymentDate().format(dateTimeFormatter) + ")</> 납부료 미납금 <>" + Utils.getCurrencyFormat(byPaymentId.getLeaseFee() - prevPaidFee) + "원</>을 완납하였습니다. (<>" + Utils.getCurrencyFormat(prevPaidFee) + "원</> -> <>" + Utils.getCurrencyFormat(byPaymentId.getLeaseFee())+ "원</>)";
         List<String> strings = new ArrayList<>();
         strings.add(content);
         bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_PAYMENT, session.getUserNo(), leases.getLeaseNo().toString(), strings));

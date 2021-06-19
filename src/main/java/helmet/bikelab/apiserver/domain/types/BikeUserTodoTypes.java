@@ -5,7 +5,7 @@ import lombok.Getter;
 @Getter
 public enum BikeUserTodoTypes {
 
-    LEASE_APPROVAL("111-001"), LEASE_REJECT("111-002");
+    LEASE_APPROVAL("111-001"), LEASE_REJECT("111-002"), LEASE_CONFIRM("111-003");
 
     private String status;
 

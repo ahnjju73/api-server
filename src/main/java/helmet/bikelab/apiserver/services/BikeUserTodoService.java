@@ -54,7 +54,7 @@ public class BikeUserTodoService extends SessService {
         Map response = new HashMap();
         String referenceNo = (String)param.get("ref_id");
         BikeUserTodoTypes bikeUserTodoTypes = BikeUserTodoTypes.getBikeUserTodoTypes((String)param.get("todo_type"));
-        if(BikeUserTodoTypes.LEASE_APPROVAL.equals(bikeUserTodoTypes) || BikeUserTodoTypes.LEASE_REJECT.equals(bikeUserTodoTypes)){
+        if(BikeUserTodoTypes.LEASE_APPROVAL.equals(bikeUserTodoTypes) || BikeUserTodoTypes.LEASE_REJECT.equals(bikeUserTodoTypes) || BikeUserTodoTypes.LEASE_CONFIRM.equals(bikeUserTodoTypes)){
             response.put("id", getItem("bikelabs.todo.getLeaseIdFromLeaseNo", param));
         }
         request.setResponse(response);

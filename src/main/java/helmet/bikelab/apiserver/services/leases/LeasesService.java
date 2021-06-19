@@ -501,7 +501,7 @@ public class LeasesService extends SessService {
     }
 
     @Transactional
-    private void updateLeaseInfoLog(BikeUser session, AddUpdateLeaseRequest leaseRequest, Clients clientRequested, Insurances insurancesRequested, Bikes bikeRequested, Leases leases, LeaseInfo leaseInfo, LeasePrice leasePrice, List<LeasePayments> leasePaymentsList){
+    public void updateLeaseInfoLog(BikeUser session, AddUpdateLeaseRequest leaseRequest, Clients clientRequested, Insurances insurancesRequested, Bikes bikeRequested, Leases leases, LeaseInfo leaseInfo, LeasePrice leasePrice, List<LeasePayments> leasePaymentsList){
         List<String> stringList = new ArrayList<>();
         if(bePresent(leaseRequest)){
             if(bePresent(clientRequested) && !clientRequested.getClientNo().equals(leases.getClientNo())){
@@ -583,6 +583,7 @@ public class LeasesService extends SessService {
         lease.setStatus(LeaseStatusTypes.CONFIRM);
         leaseRepository.save(lease);
         bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_APPROVE_COMPLETED, session.getUserNo(), lease.getLeaseNo().toString()));
+        bikeUserTodoService.addTodo(BikeUserTodoTypes.LEASE_CONFIRM, session.getUserNo(), lease.getSubmittedUserNo(), lease.getLeaseNo().toString(), lease.getLeaseId());
         return request;
     }
 
