@@ -9,6 +9,6 @@ public interface LeaseRepository extends JpaRepository<Leases, Integer> {
     Leases findByBikeNo(Integer bikeNo);
     Leases findByLeaseId(String leaseId);
     Boolean existsAllByInsuranceNoEquals(Integer insuranceNo);
-    List<Leases> findAllByClients_ClientId(String clientId);
+    List<Leases> findAllByClients_ClientIdOrderByLeaseInfo_ContractDate(String clientId);
     Leases findByBike_BikeId(String bikeId);
 }

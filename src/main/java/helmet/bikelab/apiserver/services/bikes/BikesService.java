@@ -1,6 +1,5 @@
 package helmet.bikelab.apiserver.services.bikes;
 
-import helmet.bikelab.apiserver.domain.CommonCode;
 import helmet.bikelab.apiserver.domain.CommonCodeBikes;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
@@ -13,7 +12,6 @@ import helmet.bikelab.apiserver.objects.bikelabs.bikes.*;
 import helmet.bikelab.apiserver.objects.bikelabs.clients.ClientDto;
 import helmet.bikelab.apiserver.objects.bikelabs.leases.LeasesDto;
 import helmet.bikelab.apiserver.objects.requests.BikeRequestListDto;
-import helmet.bikelab.apiserver.objects.requests.RequestListDto;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.repositories.*;
 import helmet.bikelab.apiserver.services.internal.SessService;
@@ -84,7 +82,7 @@ public class BikesService extends SessService {
         Map param = request.getParam();
         FetchBikeDetailRequest fetchBikeDetailRequest = map(param, FetchBikeDetailRequest.class);
         clientsRepository.findByClientId(fetchBikeDetailRequest.getClientId());
-        List<Leases> leases = leaseRepository.findAllByClients_ClientId(fetchBikeDetailRequest.getClientId());
+        List<Leases> leases = leaseRepository.findAllByClients_ClientIdOrderByLeaseInfo_ContractDate(fetchBikeDetailRequest.getClientId());
         List<Bikes> bikes = new ArrayList<>();
         for(Leases lease : leases)
             bikes.add(lease.getBike());

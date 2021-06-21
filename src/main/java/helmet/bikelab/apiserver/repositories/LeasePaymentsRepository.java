@@ -8,5 +8,4 @@ import java.util.List;
 public interface LeasePaymentsRepository extends JpaRepository<LeasePayments, Integer> {
     LeasePayments findByPaymentId(String paymentId);
     List<LeasePayments> findAllByLease_LeaseId(String leaseId);
-
 }
