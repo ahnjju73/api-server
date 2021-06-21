@@ -11,4 +11,5 @@ import lombok.Setter;
 public class PayLeaseRequest {
     private String leaseId;
     private Integer paidFee;
+    private String clientId;
 }

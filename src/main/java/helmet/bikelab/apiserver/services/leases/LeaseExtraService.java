@@ -1,19 +1,23 @@
 package helmet.bikelab.apiserver.services.leases;
 
+import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.lease.LeaseExtras;
 import helmet.bikelab.apiserver.domain.lease.LeasePayments;
 import helmet.bikelab.apiserver.domain.lease.Leases;
+import helmet.bikelab.apiserver.domain.types.BikeUserLogTypes;
 import helmet.bikelab.apiserver.domain.types.ExtraTypes;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.bikelabs.leases.AddUpdateExtraRequest;
 import helmet.bikelab.apiserver.objects.bikelabs.leases.FetchLeaseExtraRequest;
 import helmet.bikelab.apiserver.objects.bikelabs.leases.FetchLeaseExtraResponse;
 import helmet.bikelab.apiserver.objects.bikelabs.leases.LeasePaymentDto;
+import helmet.bikelab.apiserver.repositories.BikeUserLogRepository;
 import helmet.bikelab.apiserver.repositories.LeaseExtraRepository;
 import helmet.bikelab.apiserver.repositories.LeasePaymentsRepository;
 import helmet.bikelab.apiserver.repositories.LeaseRepository;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.utils.AutoKey;
+import helmet.bikelab.apiserver.utils.Utils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,16 +27,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static helmet.bikelab.apiserver.domain.bikelab.BikeUserLog.addLog;
+
 @RequiredArgsConstructor
 @Service
 public class LeaseExtraService extends SessService {
     private final LeaseExtraRepository leaseExtraRepository;
     private final LeaseRepository leaseRepository;
     private final LeasePaymentsRepository leasePaymentsRepository;
+    private final BikeUserLogRepository bikeUserLogRepository;
     private final AutoKey autoKey;
 
     @Transactional
     public BikeSessionRequest addLeaseExtra(BikeSessionRequest request){
+        ArrayList<String> logList = new ArrayList<>();
         Map param = request.getParam();
         AddUpdateExtraRequest addUpdateExtraRequest = map(param, AddUpdateExtraRequest.class);
         LeaseExtras leaseExtras = new LeaseExtras();
@@ -46,7 +54,10 @@ public class LeaseExtraService extends SessService {
         leaseExtras.setExtraTypes(ExtraTypes.getExtraType(addUpdateExtraRequest.getExtraType()));
         leaseExtras.setPaidFee(addUpdateExtraRequest.getPaidFee());
         leaseExtras.setDescription(addUpdateExtraRequest.getDescription());
+        String log = leasePayment.getIndex() + "회차에 " + leaseExtras.getExtraTypes().getReason() + "으로 " + Utils.getCurrencyFormat(leaseExtras.getExtraFee()) + "원의 추가금이 발생하였습니다.";
+        logList.add(log);
         leaseExtraRepository.save(leaseExtras);
+        bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_PAYMENT, request.getSessionUser().getUserNo(), lease.getLeaseNo().toString(), logList));
         return request;
     }
 
@@ -175,16 +186,21 @@ public class LeaseExtraService extends SessService {
 
     @Transactional
     public BikeSessionRequest updateLeaseExtra(BikeSessionRequest request){
+        ArrayList<String> logList = new ArrayList<>();
         Map param = request.getParam();
         AddUpdateExtraRequest addUpdateExtraRequest = map(param, AddUpdateExtraRequest.class);
         LeaseExtras extra = leaseExtraRepository.findByExtraId(addUpdateExtraRequest.getExtraId());
         LeasePayments payment = leasePaymentsRepository.findByPaymentId(addUpdateExtraRequest.getPaymentId());
+        Leases lease = payment.getLease();
         extra.setPaymentNo(payment.getPaymentNo());
         extra.setLeaseNo(payment.getLeaseNo());
         extra.setExtraFee(addUpdateExtraRequest.getExtraFee());
         extra.setExtraTypes(ExtraTypes.getExtraType(addUpdateExtraRequest.getExtraType()));
         extra.setPaidFee(addUpdateExtraRequest.getPaidFee());
         extra.setDescription(addUpdateExtraRequest.getDescription());
+        String log = request.getSessionUser().getBikeUserInfo().getName() + "님께서 " + payment.getIndex() + "회차에 " + extra.getExtraTypes().getReason() + "으로 " + Utils.getCurrencyFormat(extra.getExtraFee()) + "원의 추가금이 발생하였습니다.";
+        logList.add(log);
+        bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_PAYMENT, request.getSessionUser().getUserNo(), lease.getLeaseNo().toString(), logList));
         leaseExtraRepository.save(extra);
         return request;
     }
@@ -198,4 +214,28 @@ public class LeaseExtraService extends SessService {
             leaseExtraRepository.delete(extra);
         return request;
     }
+
+    private void updateExtraLog(AddUpdateExtraRequest request, BikeUser user, LeasePayments payment, Integer extraFee, ExtraTypes extraTypes, Integer paidFee, String description, BikeUser bikeUser){
+        ArrayList<String> logList = new ArrayList<>();
+        String head = "<>" + user.getBikeUserInfo().getName() + "</>님께서 ";
+        LeasePayments payments = leasePaymentsRepository.findByPaymentId(request.getPaymentId());
+        if(bePresent(payments) && !payments.getPaymentId().equals(payment.getPaymentId())){
+            logList.add(head + "<>" + payment.getIndex()+"</>회차에서 <>" + payments.getIndex() + "</>회차로 변경하였습니다.");
+        }
+        if(bePresent(request.getExtraFee()) && request.getExtraFee() != extraFee){
+            logList.add(head + "추가금을 <>" + extraFee+ "</>에서 <>" + request.getExtraFee() + "</>로 변경하였습니다.");
+        }
+        if(bePresent(request.getExtraType()) && request.getExtraType().equals(extraTypes.getExtra())){
+            logList.add(head + "추가금 타입을 <>" + extraTypes.getReason() + "</>에서 <>" + ExtraTypes.getExtraType(request.getExtraType()).getReason() + "</>으로 변경하였습니다.");
+        }
+        if(bePresent(request.getPaidFee()) && request.getPaidFee() != paidFee){
+            logList.add(head + "납부금을 <>" + paidFee + "</>에서 <>" + request.getPaidFee() + "<>로 변경하였습니다.");
+        }
+        if(bePresent(request.getDescription()) && request.getDescription().equals(description)){
+            logList.add(head + "설명을 <>\"" + description + "\"</>에서 <>\"" + request.getDescription() + "\"</>로 변경하였습니다.");
+        }
+        bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_PAYMENT, user.getUserNo(), payment.getPaymentNo().toString(), logList));
+    }
+
+
 }

@@ -21,6 +21,9 @@ public class LeaseInfo {
     @JoinColumn(name = "lease_no")
     private Leases lease;
 
+    @Column(name = "period")
+    private Integer period;
+
     @Column(name = "start_dt")
     private LocalDate start;
 
