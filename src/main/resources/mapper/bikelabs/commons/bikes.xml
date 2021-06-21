@@ -108,7 +108,7 @@
                        )
                 </if>
                 <if test="next_token != null and next_token != '' and next_token != 'undefined'">
-                   and bike_id <![CDATA[ < ]]> #{nextToken}
+                   and bike_id <![CDATA[ < ]]> #{next_token}
                 </if>
                  order by bike_no desc limit 30) bm
                 join com_comm_bikes commb on bm.car_model = commb.comm_cd
