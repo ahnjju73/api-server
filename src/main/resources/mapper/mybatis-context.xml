@@ -35,6 +35,7 @@
         <mapper resource="mapper/bikelabs/commons/clients.xml"/>
         <mapper resource="mapper/bikelabs/bike_user_log.xml"/>
         <mapper resource="mapper/leases/leases-manager.xml"/>
+        <mapper resource="mapper/leases/leases-payments.xml"/>
 
     </mappers>
 </configuration>

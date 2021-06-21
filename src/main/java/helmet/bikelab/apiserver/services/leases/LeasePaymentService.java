@@ -11,14 +11,24 @@ import helmet.bikelab.apiserver.objects.BikeDto;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.UnpaidExcelDto;
 import helmet.bikelab.apiserver.objects.bikelabs.clients.ClientDto;
-import helmet.bikelab.apiserver.objects.bikelabs.leases.AddUpdateLeaseRequest;
 import helmet.bikelab.apiserver.objects.bikelabs.leases.FetchUnpaidLeasesResponse;
 import helmet.bikelab.apiserver.objects.bikelabs.leases.PayLeaseRequest;
 import helmet.bikelab.apiserver.objects.bikelabs.leases.UploadExcelDto;
+<<<<<<< HEAD
 import helmet.bikelab.apiserver.repositories.*;
+=======
+import helmet.bikelab.apiserver.objects.requests.LeasePaymentsRequestListDto;
+import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
+import helmet.bikelab.apiserver.repositories.BikeUserLogRepository;
+import helmet.bikelab.apiserver.repositories.LeaseExtraRepository;
+import helmet.bikelab.apiserver.repositories.LeasePaymentsRepository;
+import helmet.bikelab.apiserver.repositories.LeaseRepository;
+>>>>>>> 25ee6f3057f8bdb954003114e0713502da6b9124
 import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.utils.AutoKey;
 import helmet.bikelab.apiserver.utils.Utils;
+import helmet.bikelab.apiserver.workers.CommonWorker;
+import helmet.bikelab.apiserver.workers.LeasePaymentWorker;
 import lombok.RequiredArgsConstructor;
 import org.apache.poi.hssf.usermodel.HSSFCellStyle;
 import org.apache.poi.hssf.util.HSSFColor;
@@ -41,13 +51,65 @@ import static helmet.bikelab.apiserver.domain.bikelab.BikeUserLog.addLog;
 @Service
 @RequiredArgsConstructor
 public class LeasePaymentService  extends SessService {
+
     private final LeaseRepository leaseRepository;
     private final LeasePaymentsRepository leasePaymentsRepository;
     private final LeaseExtraRepository leaseExtraRepository;
     private final BikeUserLogRepository bikeUserLogRepository;
     private final ClientsRepository clientsRepository;
     private final AutoKey autoKey;
+    private final CommonWorker commonWorker;
+    private final LeasePaymentWorker leasePaymentWorker;
 
+    public BikeSessionRequest fetchLeaseExtrasGroupByClient(BikeSessionRequest request){
+        Map param = request.getParam();
+        LeasePaymentsRequestListDto requestListDto = map(param, LeasePaymentsRequestListDto.class);
+        ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "leases.leases-payments.fetchLeaseExtrasGroupByClient", "leases.leases-payments.countAllLeaseExtrasGroupByClient", "client_id");
+        request.setResponse(responseListDto);
+        return request;
+    }
+
+    public BikeSessionRequest fetchLeasePaymentsByClient(BikeSessionRequest request){
+        Map param = request.getParam();
+        LeasePaymentsRequestListDto requestListDto = map(param, LeasePaymentsRequestListDto.class);
+        ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "leases.leases-payments.fetchLeasePaymentsGroupByClient", "leases.leases-payments.countAllLeasePaymentsGroupByClient", "client_id");
+        request.setResponse(responseListDto);
+        return request;
+    }
+
+    @Transactional
+    public BikeSessionRequest payLeaseExtraFeeByExtraId(BikeSessionRequest request){
+        Map param = request.getParam();
+        BikeUser session = request.getSessionUser();
+        String extraId = (String)param.get("extra_id");
+        leasePaymentWorker.payLeaseExtraFeeByExtraId(extraId, session);
+        return request;
+    }
+
+    public BikeSessionRequest fetchLeasePaymentExtraByIndex(BikeSessionRequest request){
+        Map param = request.getParam();
+        LeasePaymentsRequestListDto requestListDto = map(param, LeasePaymentsRequestListDto.class);
+        ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "leases.leases-payments.fetchLeasePaymentExtraByIndex", "leases.leases-payments.countAllPaymentExtraByIndex", "rownum");
+        request.setResponse(responseListDto);
+        return request;
+    }
+
+    @Transactional
+    public BikeSessionRequest payLeaseFeeByPaymentId(BikeSessionRequest request){
+        Map param = request.getParam();
+        BikeUser session = request.getSessionUser();
+        String paymentId = (String)param.get("payment_id");
+        leasePaymentWorker.payLeaseFeeByPaymentId(paymentId, session);
+        return request;
+    }
+
+    public BikeSessionRequest fetchLeasePaymentsByIndex(BikeSessionRequest request){
+        Map param = request.getParam();
+        LeasePaymentsRequestListDto requestListDto = map(param, LeasePaymentsRequestListDto.class);
+        ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "leases.leases-payments.fetchLeasePaymentsByIndex", "leases.leases-payments.countAllPaymentsByIndex", "rownum");
+        request.setResponse(responseListDto);
+        return request;
+    }
 
     public BikeSessionRequest fetchUnpaidLeases(BikeSessionRequest request) {
         List<Leases> leases = leaseRepository.findAll();

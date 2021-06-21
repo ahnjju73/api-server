@@ -1,6 +1,7 @@
 package helmet.bikelab.apiserver.controllers;
 
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
+import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.services.leases.LeasePaymentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
@@ -23,6 +24,62 @@ import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 @RequiredArgsConstructor
 public class LeasePaymentHandlers {
     private final LeasePaymentService leasePaymentService;
+
+    public Mono<ServerResponse> fetchLeaseExtrasGroupByClient(ServerRequest request){
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> leasePaymentService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(leasePaymentService::checkBikeSession)
+                        .map(leasePaymentService::fetchLeaseExtrasGroupByClient)
+                        .map(leasePaymentService::returnData), ResponseListDto.class);
+    }
+
+    public Mono<ServerResponse> fetchLeasePaymentsByClient(ServerRequest request){
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> leasePaymentService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(leasePaymentService::checkBikeSession)
+                        .map(leasePaymentService::fetchLeasePaymentsByClient)
+                        .map(leasePaymentService::returnData), ResponseListDto.class);
+    }
+
+    public Mono<ServerResponse> fetchLeasePaymentExtraByIndex(ServerRequest request){
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> leasePaymentService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(leasePaymentService::checkBikeSession)
+                        .map(leasePaymentService::fetchLeasePaymentExtraByIndex)
+                        .map(leasePaymentService::returnData), ResponseListDto.class);
+    }
+
+    public Mono<ServerResponse> fetchLeasePaymentsByIndex(ServerRequest request){
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> leasePaymentService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(leasePaymentService::checkBikeSession)
+                        .map(leasePaymentService::fetchLeasePaymentsByIndex)
+                        .map(leasePaymentService::returnData), ResponseListDto.class);
+    }
+
+    public Mono<ServerResponse> payLeaseFeeByPaymentId(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> leasePaymentService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(leasePaymentService::checkBikeSession)
+                        .map(leasePaymentService::payLeaseFeeByPaymentId)
+                        .map(leasePaymentService::returnData), Map.class);
+    }
+
+    public Mono<ServerResponse> payLeaseExtraFeeByExtraId(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> leasePaymentService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(leasePaymentService::checkBikeSession)
+                        .map(leasePaymentService::payLeaseExtraFeeByExtraId)
+                        .map(leasePaymentService::returnData), Map.class);
+    }
 
     public Mono<ServerResponse> fetchLeases(ServerRequest request){
         return ServerResponse.ok().body(

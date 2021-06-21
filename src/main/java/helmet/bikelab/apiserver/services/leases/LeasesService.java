@@ -12,6 +12,7 @@ import helmet.bikelab.apiserver.objects.bikelabs.leases.*;
 import helmet.bikelab.apiserver.objects.bikelabs.release.ReleaseDto;
 import helmet.bikelab.apiserver.objects.bikelabs.clients.ClientDto;
 import helmet.bikelab.apiserver.objects.bikelabs.insurance.InsuranceDto;
+import helmet.bikelab.apiserver.objects.requests.LeasesRequestListDto;
 import helmet.bikelab.apiserver.objects.requests.RequestListDto;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.repositories.*;
@@ -54,7 +55,11 @@ public class LeasesService extends SessService {
 
     public BikeSessionRequest fetchLeases(BikeSessionRequest request){
         Map param = request.getParam();
-        RequestListDto requestListDto = map(param, RequestListDto.class);
+        LeasesRequestListDto requestListDto = map(param, LeasesRequestListDto.class);
+        if(bePresent(requestListDto.getClientId())){
+            Clients byClientId = clientsRepository.findByClientId(requestListDto.getClientId());
+            requestListDto.setSearchClientNo(byClientId.getClientNo());
+        }
         ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "leases.leases-manager.fetchLeases", "leases.leases-manager.countAllLeases", "lease_id");
         request.setResponse(responseListDto);
         return request;
@@ -503,7 +508,7 @@ public class LeasesService extends SessService {
     }
 
     @Transactional
-    private void updateLeaseInfoLog(BikeUser session, AddUpdateLeaseRequest leaseRequest, Clients clientRequested, Insurances insurancesRequested, Bikes bikeRequested, Leases leases, LeaseInfo leaseInfo, LeasePrice leasePrice, List<LeasePayments> leasePaymentsList){
+    public void updateLeaseInfoLog(BikeUser session, AddUpdateLeaseRequest leaseRequest, Clients clientRequested, Insurances insurancesRequested, Bikes bikeRequested, Leases leases, LeaseInfo leaseInfo, LeasePrice leasePrice, List<LeasePayments> leasePaymentsList){
         List<String> stringList = new ArrayList<>();
         boolean isSet = true;
         if(bePresent(leaseRequest)){
@@ -596,6 +601,7 @@ public class LeasesService extends SessService {
         lease.setStatus(LeaseStatusTypes.CONFIRM);
         leaseRepository.save(lease);
         bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_APPROVE_COMPLETED, session.getUserNo(), lease.getLeaseNo().toString()));
+        bikeUserTodoService.addTodo(BikeUserTodoTypes.LEASE_CONFIRM, session.getUserNo(), lease.getSubmittedUserNo(), lease.getLeaseNo().toString(), lease.getLeaseId());
         return request;
     }
 

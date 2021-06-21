@@ -7,6 +7,7 @@ import helmet.bikelab.apiserver.utils.keys.ENV;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +19,7 @@ public class CommonWorker extends SessService {
     public <T extends RequestListDto> ResponseListDto fetchItemListByNextToken(T requestListDto, String listPath, String countPath, String id){
         ResponseListDto responseListDto = new ResponseListDto();
         Map param = map(requestListDto, HashMap.class);
+        param.put("now", LocalDate.now());
         if(bePresent(requestListDto) && ENV.LIST_COUNT_DONE.equals(requestListDto.getNextToken())) {
             responseListDto.setNextToken(ENV.LIST_COUNT_DONE);
         }else {
