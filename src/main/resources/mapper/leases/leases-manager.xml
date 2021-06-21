@@ -100,7 +100,7 @@
                if(ins.company_name is null, '', ins.company_name) as company_name,
                rls.release_id,
                if(rls.release_name is null, '', rls.release_name) as release_name,
-               TIMESTAMPDIFF(MONTH, li.start_dt, li.end_dt) as period,
+               li.period,
                if(li.start_dt is null, '', li.start_dt) as start_dt,
                if(li.end_dt is null, '', li.end_dt) as end_dt,
                if(li.note is null, '', li.note) as note,
