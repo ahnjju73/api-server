@@ -214,7 +214,7 @@ public class LeasesService extends SessService {
         if(lease.getLeaseInfo()!=null){
             LeaseInfoDto leaseInfoDto = new LeaseInfoDto();
             leaseInfoDto.setLeaseInfo(lease.getLeaseInfo());
-            leaseInfoDto.setPeriod(payments.size());
+            leaseInfoDto.setPeriod(lease.getLeaseInfo().getPeriod());
             fetchLeasesResponse.setLeaseInfo(leaseInfoDto);
         }
         if(lease.getInsurances()!=null){
