@@ -39,7 +39,7 @@
                if(ord.client_no is null, 0, orders) as orders
         from (select *
               from clients
-             where status != '201-004'
+             where 1 = 1 -- status != '201-004'
 <!--                <if test="nextToken != null and nextToken != '' and nextToken != 'undefined'">-->
 <!--                and client_id <![CDATA[ < ]]> #{nextToken}-->
 <!--                </if>-->

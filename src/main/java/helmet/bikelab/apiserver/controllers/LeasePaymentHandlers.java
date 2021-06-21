@@ -25,6 +25,24 @@ import static org.springframework.http.HttpHeaders.CONTENT_TYPE;
 public class LeasePaymentHandlers {
     private final LeasePaymentService leasePaymentService;
 
+    public Mono<ServerResponse> fetchLeaseExtrasGroupByClient(ServerRequest request){
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> leasePaymentService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(leasePaymentService::checkBikeSession)
+                        .map(leasePaymentService::fetchLeaseExtrasGroupByClient)
+                        .map(leasePaymentService::returnData), ResponseListDto.class);
+    }
+
+    public Mono<ServerResponse> fetchLeasePaymentsByClient(ServerRequest request){
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> leasePaymentService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(leasePaymentService::checkBikeSession)
+                        .map(leasePaymentService::fetchLeasePaymentsByClient)
+                        .map(leasePaymentService::returnData), ResponseListDto.class);
+    }
+
     public Mono<ServerResponse> fetchLeasePaymentExtraByIndex(ServerRequest request){
         return ServerResponse.ok().body(
                 Mono.fromSupplier(() -> leasePaymentService.makeSessionRequest(request, BikeSessionRequest.class))

@@ -5,6 +5,125 @@
 
 <mapper namespace="leases.leases-payments">
 
+    <select id="countAllLeaseExtrasGroupByClient" parameterType="hmap" resultType="int">
+        select count(*)
+          from (select lp.payment_date,
+                       sum(le.extra_fee) as extra_fee,
+                       sum(le.paid_fee) as paid_fee,
+                       lm.client_no
+                  from (select *
+                          from leases
+                         where status = '550-003') lm
+                       join (select *
+                               from lease_payments
+                              where 1 = 1
+                              <if test="start_at != null and start_at != '' and start_at != 'undefined' and end_at != null and end_at != '' and end_at != 'undefined'">
+                                and payment_date between #{end_at} and #{start_at}
+                              </if>) lp on lm.lease_no = lp.lease_no
+                       join (select *
+                               from lease_extra
+                              where 1 = 1
+                                and extra_fee != paid_fee) le on lp.payment_no = le.payment_no
+                 group by client_no) c
+    </select>
+
+    <select id="fetchLeaseExtrasGroupByClient" parameterType="hmap" resultType="hmap">
+        select c.client_id,
+               c.uuid,
+               c.email,
+               c.reg_no,
+               ci.name as client_name,
+               ci.phone as client_phone,
+               if(ci.manager_name is null, '', ci.manager_name) as manager_name,
+               if(ci.manager_email is null, '', ci.manager_email) as manager_email,
+               if(ci.manager_phone is null, '', ci.manager_phone) as manager_phone,
+               et.comm_nm as extra_type,
+               extra_fee,
+               paid_fee
+          from (select lp.payment_date,
+                       sum(le.extra_fee) as extra_fee,
+                       sum(le.paid_fee) as paid_fee,
+                       lm.client_no,
+                       le.extra_type
+                  from (select *
+                          from leases
+                         where status = '550-003') lm
+                       join (select *
+                               from lease_payments
+                              where 1 = 1
+                              <if test="start_at != null and start_at != '' and start_at != 'undefined' and end_at != null and end_at != '' and end_at != 'undefined'">
+                                and payment_date between #{end_at} and #{start_at}
+                              </if>) lp on lm.lease_no = lp.lease_no
+                       join (select *
+                               from lease_extra
+                              where 1 = 1
+                                and extra_fee != paid_fee) le on lp.payment_no = le.payment_no
+                 group by client_no) m
+             join clients c on m.client_no = c.client_no
+             join client_info ci on ci.client_no = c.client_no
+             join (select *
+                     from com_comm_mst
+                    where up_comm_cd = 503) et on m.extra_type = et.comm_cd
+    </select>
+
+    <select id="countAllLeasePaymentsGroupByClient" parameterType="hmap" resultType="int">
+        select count(*)
+          from (select *
+                  from (select l.client_no
+                          from (select *
+                                  from leases
+                                 where status = '550-003') l
+                                join (select *
+                                        from lease_payments
+                                       where 1 = 1
+                                    <if test="start_at != null and start_at != '' and start_at != 'undefined' and end_at != null and end_at != '' and end_at != 'undefined'">
+                                        and payment_date between #{end_at} and #{start_at}
+                                    </if>
+                                    <if test="start_at == null or start_at == '' or start_at == 'undefined' or end_at == null or end_at == '' or end_at == 'undefined'">
+                                        and date_format(payment_date, '%Y-%m-%d') <![CDATA[ <= ]]> #{now}
+                                    </if>
+                                         and lease_fee != paid_fee) lp on l.lease_no = lp.lease_no) l
+          group by client_no) c
+    </select>
+
+    <select id="fetchLeasePaymentsGroupByClient" parameterType="hmap" resultType="hmap">
+        select l.client_no,
+               client_id,l.idx,
+               sum(l.lease_fee) as lease_fee,
+               sum(l.paid_fee) as paid_fee,
+               client_name,
+               client_phone,
+               manager_name,
+               manager_email
+         from (select l.*,
+                      lp.payment_date,
+                      lp.payment_id,
+                      lp.idx,
+                      lp.lease_fee,
+                      lp.paid_fee,
+                      client_id,
+                      ci.name as client_name,
+                      ci.phone as client_phone,
+                      if(ci.manager_name is null, '', ci.manager_name) as manager_name,
+                      if(ci.manager_email is null, '', ci.manager_email) as manager_email
+                 from (select *
+                         from leases
+                        where status = '550-003') l
+                      join (select *
+                             from lease_payments
+                             where 1 = 1
+                             <if test="start_at != null and start_at != '' and start_at != 'undefined' and end_at != null and end_at != '' and end_at != 'undefined'">
+                               and payment_date between #{end_at} and #{start_at}
+                             </if>
+                             <if test="start_at == null or start_at == '' or start_at == 'undefined' or end_at == null or end_at == '' or end_at == 'undefined'">
+                                and date_format(payment_date, '%Y-%m-%d') <![CDATA[ <= ]]> #{now}
+                             </if>
+                               and lease_fee != paid_fee) lp on l.lease_no = lp.lease_no
+                       join clients c on l.client_no = c.client_no
+                       join client_info ci on c.client_no = ci.client_no) l
+        group by client_no
+    </select>
+
     <select id="countAllPaymentExtraByIndex" parameterType="hmap" resultType="int">
         select count(*)
           from (select *

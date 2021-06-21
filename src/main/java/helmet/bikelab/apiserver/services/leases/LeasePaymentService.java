@@ -15,7 +15,6 @@ import helmet.bikelab.apiserver.objects.bikelabs.leases.FetchUnpaidLeasesRespons
 import helmet.bikelab.apiserver.objects.bikelabs.leases.PayLeaseRequest;
 import helmet.bikelab.apiserver.objects.bikelabs.leases.UploadExcelDto;
 import helmet.bikelab.apiserver.objects.requests.LeasePaymentsRequestListDto;
-import helmet.bikelab.apiserver.objects.requests.RequestListDto;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.repositories.BikeUserLogRepository;
 import helmet.bikelab.apiserver.repositories.LeaseExtraRepository;
@@ -56,6 +55,22 @@ public class LeasePaymentService  extends SessService {
     private final AutoKey autoKey;
     private final CommonWorker commonWorker;
     private final LeasePaymentWorker leasePaymentWorker;
+
+    public BikeSessionRequest fetchLeaseExtrasGroupByClient(BikeSessionRequest request){
+        Map param = request.getParam();
+        LeasePaymentsRequestListDto requestListDto = map(param, LeasePaymentsRequestListDto.class);
+        ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "leases.leases-payments.fetchLeaseExtrasGroupByClient", "leases.leases-payments.countAllLeaseExtrasGroupByClient", "client_id");
+        request.setResponse(responseListDto);
+        return request;
+    }
+
+    public BikeSessionRequest fetchLeasePaymentsByClient(BikeSessionRequest request){
+        Map param = request.getParam();
+        LeasePaymentsRequestListDto requestListDto = map(param, LeasePaymentsRequestListDto.class);
+        ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "leases.leases-payments.fetchLeasePaymentsGroupByClient", "leases.leases-payments.countAllLeasePaymentsGroupByClient", "client_id");
+        request.setResponse(responseListDto);
+        return request;
+    }
 
     @Transactional
     public BikeSessionRequest payLeaseExtraFeeByExtraId(BikeSessionRequest request){
