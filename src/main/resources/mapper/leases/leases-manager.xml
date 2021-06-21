@@ -8,6 +8,10 @@
     <select id="countAllLeases" parameterType="hmap" resultType="int">
         select count(*)
           from leases
+         where 1 = 1
+        <if test="search_client_no != null">
+           and client_no = #{search_client_no}
+        </if>
     </select>
 
     <resultMap id="bikeMap" type="hmap">
@@ -128,6 +132,9 @@
                where 1 = 1
                 <if test="next_token != null and next_token != '' and next_token != 'undefined'">
                  and lease_id <![CDATA[ < ]]> #{next_token}
+                </if>
+                <if test="search_client_no != null">
+                    and client_no = #{search_client_no}
                 </if>
                order by lease_id desc limit 30) lm
              join lease_info li on lm.lease_no = li.lease_no

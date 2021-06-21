@@ -12,6 +12,7 @@ import helmet.bikelab.apiserver.objects.bikelabs.leases.*;
 import helmet.bikelab.apiserver.objects.bikelabs.release.ReleaseDto;
 import helmet.bikelab.apiserver.objects.bikelabs.clients.ClientDto;
 import helmet.bikelab.apiserver.objects.bikelabs.insurance.InsuranceDto;
+import helmet.bikelab.apiserver.objects.requests.LeasesRequestListDto;
 import helmet.bikelab.apiserver.objects.requests.RequestListDto;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.repositories.*;
@@ -53,7 +54,11 @@ public class LeasesService extends SessService {
 
     public BikeSessionRequest fetchLeases(BikeSessionRequest request){
         Map param = request.getParam();
-        RequestListDto requestListDto = map(param, RequestListDto.class);
+        LeasesRequestListDto requestListDto = map(param, LeasesRequestListDto.class);
+        if(bePresent(requestListDto.getClientId())){
+            Clients byClientId = clientsRepository.findByClientId(requestListDto.getClientId());
+            requestListDto.setSearchClientNo(byClientId.getClientNo());
+        }
         ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "leases.leases-manager.fetchLeases", "leases.leases-manager.countAllLeases", "lease_id");
         request.setResponse(responseListDto);
         return request;
