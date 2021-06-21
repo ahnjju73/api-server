@@ -23,4 +23,15 @@ public enum ExtraTypes {
         }
         return null;
     }
+
+    public String getReason(){
+        switch (getExtraType(extra)){
+            case ALTERATION:
+                return "보험료 변경";
+            case INCREMENT:
+                return "보험료 인상";
+            default:
+                return "기타";
+        }
+    }
 }

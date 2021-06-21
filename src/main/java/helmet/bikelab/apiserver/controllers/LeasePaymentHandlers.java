@@ -43,6 +43,16 @@ public class LeasePaymentHandlers {
                         .map(leasePaymentService::payLeaseFee)
                         .map(leasePaymentService::returnData), Map.class);
     }
+    public Mono<ServerResponse> payClientLease(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> leasePaymentService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(row -> leasePaymentService.getPathVariable(row, "client_id"))
+                        .map(leasePaymentService::checkBikeSession)
+                        .map(leasePaymentService::payByClient)
+                        .map(leasePaymentService::returnData), Map.class);
+    }
 
     public Mono<ServerResponse> unpaidExcelDownload(ServerRequest request) {
         BikeSessionRequest bikeSessionRequest = leasePaymentService.makeSessionRequest(request, BikeSessionRequest.class);
