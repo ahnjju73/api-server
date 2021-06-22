@@ -3,7 +3,6 @@ package helmet.bikelab.apiserver.services.clients;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.client.*;
 import helmet.bikelab.apiserver.domain.embeds.ModelAddress;
-import helmet.bikelab.apiserver.domain.embeds.ModelPassword;
 import helmet.bikelab.apiserver.domain.lease.Leases;
 import helmet.bikelab.apiserver.domain.types.AccountStatusTypes;
 import helmet.bikelab.apiserver.domain.types.BikeUserLogTypes;
@@ -15,7 +14,6 @@ import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.repositories.*;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.utils.AutoKey;
-import helmet.bikelab.apiserver.utils.Crypt;
 import helmet.bikelab.apiserver.workers.ClientWorker;
 import helmet.bikelab.apiserver.workers.CommonWorker;
 import lombok.RequiredArgsConstructor;
@@ -245,7 +243,7 @@ public class ClientsService extends SessService {
     public BikeSessionRequest deleteClient(BikeSessionRequest request){
         Map param = request.getParam();
         DeleteClientRequest deleteClientRequest = map(param, DeleteClientRequest.class);
-        List<Leases> allByClients_clientId = leaseRepository.findAllByClients_ClientId(deleteClientRequest.getClientId());
+        List<Leases> allByClients_clientId = leaseRepository.findAllByClients_ClientIdOrderByLeaseInfo_ContractDate(deleteClientRequest.getClientId());
         if(bePresent(allByClients_clientId)) withException("410-001");
         clientWorker.deleteClientAccount(deleteClientRequest.getClientId());
         return request;
