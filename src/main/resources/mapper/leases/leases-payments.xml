@@ -88,7 +88,7 @@
 
     <select id="fetchLeasePaymentsGroupByClient" parameterType="hmap" resultType="hmap">
         select l.client_no,
-               client_id,l.idx,
+               client_id,
                sum(l.lease_fee) as lease_fee,
                sum(l.paid_fee) as paid_fee,
                client_name,
