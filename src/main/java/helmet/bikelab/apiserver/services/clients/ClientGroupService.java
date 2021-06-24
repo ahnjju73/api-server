@@ -1,16 +1,21 @@
 package helmet.bikelab.apiserver.services.clients;
 
+import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUserLog;
 import helmet.bikelab.apiserver.domain.client.ClientGroups;
 import helmet.bikelab.apiserver.domain.client.ClientInfo;
 import helmet.bikelab.apiserver.domain.client.Clients;
+import helmet.bikelab.apiserver.domain.lease.LeaseInfo;
+import helmet.bikelab.apiserver.domain.lease.LeasePayments;
+import helmet.bikelab.apiserver.domain.lease.LeasePrice;
+import helmet.bikelab.apiserver.domain.lease.Leases;
 import helmet.bikelab.apiserver.domain.types.BikeUserLogTypes;
+import helmet.bikelab.apiserver.domain.types.ManagementTypes;
+import helmet.bikelab.apiserver.domain.types.PaymentTypes;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.bikelabs.clients.group.*;
-import helmet.bikelab.apiserver.repositories.BikeUserLogRepository;
-import helmet.bikelab.apiserver.repositories.ClientGroupRepository;
-import helmet.bikelab.apiserver.repositories.ClientsRepository;
+import helmet.bikelab.apiserver.repositories.*;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.utils.AutoKey;
 import io.undertow.util.MultipartParser;
@@ -33,10 +38,14 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 
 import static helmet.bikelab.apiserver.domain.bikelab.BikeUserLog.addLog;
 
@@ -46,6 +55,14 @@ public class ClientGroupService extends SessService {
 
    private final ClientsRepository clientsRepository;
    private final ClientGroupRepository groupRepository;
+   private final LeaseRepository leaseRepository;
+   private final LeasePaymentsRepository leasePaymentsRepository;
+   private final LeaseInfoRepository leaseInfoRepository;
+   private final LeasePriceRepository leasePriceRepository;
+   private final BikesRepository bikesRepository;
+   private final BikeLabUserRepository bikeLabUserRepository;
+   private final ReleaseRepository releaseRepository;
+   private final InsurancesRepository insurancesRepository;
    private final AutoKey autoKey;
    private final BikeUserLogRepository bikeUserLogRepository;
 
@@ -167,7 +184,7 @@ public class ClientGroupService extends SessService {
    @Transactional
    public BikeSessionRequest uploadExcel (BikeSessionRequest request){
       FilePart filePart = (FilePart) request.getParam().get("test");
-      File excel = new File("/Users/joohonga/workspaces/api-server/" + filePart.filename());
+      File excel = new File("/Users/joohonga/workspaces/api-server/" +  filePart.filename());
       filePart.transferTo(excel);
       try {
          FileInputStream fis = new FileInputStream(excel);
@@ -176,8 +193,8 @@ public class ClientGroupService extends SessService {
             XSSFSheet sheet = workbook.getSheetAt(i);
             if(sheet.getSheetName().contains("그룹")){
                groupProcess(sheet);
-            }else if(sheet.getSheetName().contains("고객")){
-
+            }else if(sheet.getSheetName().contains("바이크")){
+               leaseProcess(sheet, request.getSessionUser());
             }
          }
 
@@ -274,4 +291,120 @@ public class ClientGroupService extends SessService {
 //      }
 //   }
 
+   void leaseProcess(XSSFSheet sheet, BikeUser session){
+      int rowIdx;
+      int colIdx;
+      int rows=sheet.getPhysicalNumberOfRows();
+      for(rowIdx=0; rowIdx<rows; rowIdx++) {
+         XSSFRow row = sheet.getRow(rowIdx);
+         String head = row.getCell(0).toString();
+         if(head.matches("\\d+\\.\\d")) {
+            int leaseFee = 0;
+            Leases lease = new Leases();
+            LeaseInfo leaseInfo = new LeaseInfo();
+            LeasePrice leasePrice = new LeasePrice();
+            String leaseId = autoKey.makeGetKey("lease");
+            lease.setLeaseId(leaseId);
+            for (colIdx = 1; colIdx < row.getPhysicalNumberOfCells(); colIdx++) {
+               XSSFCell cell = row.getCell(colIdx);
+               if (cell != null && !"".equals(cell.getRawValue())) {
+                  String value = cell.toString();
+                  if(colIdx == 1){
+                     Clients client = clientsRepository.findByClientInfo_Name(value);
+                     lease.setClientNo(client.getClientNo());
+                  }
+                  if(colIdx == 7){
+                     Bikes bike = bikesRepository.findByCarNum(value);
+                     lease.setBikeNo(bike.getBikeNo());
+                  }
+                  if(colIdx == 9){
+                     int age = (int)Double.parseDouble(value);
+                     if(age == 21){
+                        lease.setInsuranceNo(15);
+                     }else if(age == 24){
+                        lease.setInsuranceNo(13);
+                     }else{
+                        lease.setInsuranceNo(14);
+                     }
+                  }
+                  if(colIdx == 11){
+                     DateTimeFormatter dTF =
+                             new DateTimeFormatterBuilder().parseCaseInsensitive()
+                                     .appendPattern("dd-MMM-yyyy")
+                                     .toFormatter();
+                     leaseInfo.setStart(LocalDate.parse(value, dTF));
+                  }
+                  if(colIdx == 13){
+                     //바로고 테라 무빙 딜리체
+//                     String price = value.replaceAll("," , "");
+//                     leasePrice.setDeposit((int)Double.parseDouble(price));
+                     //만나
+                     double price = cell.getNumericCellValue();
+                     leasePrice.setDeposit((int) price);
+                  }
+//                바로고 테라 무빙 딜리 정
+//                  if(colIdx == 14){
+//                     String price = value.replaceAll("," , "");
+//                     leaseFee = (int)Double.parseDouble(price);
+//                  }
+//                  if(colIdx == 15){
+//                     leaseInfo.setNote(value);
+//                  }
+                  if(colIdx == 15){
+                     double price = cell.getNumericCellValue();
+                     leaseFee = (int) price;
+                  }
+                  if(colIdx == 116){
+                     leaseInfo.setNote(value);
+                  }
+               }
+            }
+            lease.setType(ManagementTypes.FINANCIAL);
+            lease.setCreatedAt(LocalDateTime.now());
+            lease.setReleaseNo(1);
+            lease.setCreatedUserNo(session.getUserNo());
+            leaseRepository.save(lease);
+            bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_UPDATED, session.getUserNo(), lease.getLeaseNo().toString(), Arrays.asList("초기 데이터 셋팅에 의해 생성되였습니다.")));
+            leaseInfo.setPeriod(12);
+            leaseInfo.setEndDate(leaseInfo.getStart().plusMonths(12));
+            leaseInfo.setLeaseNo(lease.getLeaseNo());
+            leaseInfo.setContractDate(leaseInfo.getStart());
+            leaseInfoRepository.save(leaseInfo);
+            leasePrice.setLeaseNo(lease.getLeaseNo());
+            leasePrice.setPrepayment(0);
+            leasePrice.setProfit(0);
+            leasePrice.setTakeFee(0);
+            leasePrice.setRegisterFee(0);
+            leasePrice.setType(PaymentTypes.DAILY);
+            leasePriceRepository.save(leasePrice);
+
+            List<LeasePayments> leasePaymentsList = new ArrayList<>();
+
+//            for (int i = 0; i < leaseInfo.getPeriod(); i++) {
+//               LeasePayments leasePayment = new LeasePayments();
+//               String paymentId = autoKey.makeGetKey("payment");
+//               leasePayment.setPaymentId(paymentId);
+//               leasePayment.setLeaseNo(lease.getLeaseNo());
+//               leasePayment.setIndex(i + 1);
+//               leasePayment.setPaymentDate(leaseInfo.getStart().plusMonths(i));
+//               leasePayment.setInsertedUserNo(session.getUserNo());
+//               leasePayment.setLeaseFee(leaseFee);
+//               leasePaymentsList.add(leasePayment);
+//            }
+            int days = (int)(ChronoUnit.DAYS.between(leaseInfo.getStart(), leaseInfo.getStart().plusMonths(leaseInfo.getPeriod())));
+            for(int i = 0 ; i < days; i++){
+               LeasePayments leasePayment = new LeasePayments();
+               String paymentId = autoKey.makeGetKey("payment");
+               leasePayment.setPaymentId(paymentId);
+               leasePayment.setLeaseNo(lease.getLeaseNo());
+               leasePayment.setIndex(i + 1);
+               leasePayment.setPaymentDate(leaseInfo.getStart().plusDays(i));
+               leasePayment.setInsertedUserNo(session.getUserNo());
+               leasePayment.setLeaseFee(leaseFee);
+               leasePaymentsList.add(leasePayment);
+            }
+            leasePaymentsRepository.saveAll(leasePaymentsList);
+         }
+      }
+   }
 }

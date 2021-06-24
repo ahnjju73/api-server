@@ -132,4 +132,14 @@ public class LeasePaymentHandlers {
                         .map(leasePaymentService::payWithExcel)
                         .map(leasePaymentService::returnData), Map.class);
     }
+
+    public Mono<ServerResponse> payLeaseWithClientExcel(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> leasePaymentService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(leasePaymentService::checkBikeSession)
+                        .map(leasePaymentService::payByClientWithExcel)
+                        .map(leasePaymentService::returnData), Map.class);
+    }
 }

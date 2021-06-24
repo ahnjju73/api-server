@@ -505,7 +505,7 @@ public class LeasePaymentService  extends SessService {
             }
         }
         for(PayLeaseRequest payLeaseRequest : sorted){
-            Clients client = clientsRepository.findByRegNum(payLeaseRequest.getClientNum());
+            Clients client = clientsRepository.findByRegNum(payLeaseRequest.getClientNum().replace("-", ""));
             List<Leases> leases = leaseRepository.findAllByClients_ClientIdOrderByLeaseInfo_ContractDate(client.getClientId());
             int paidFee = payLeaseRequest.getPaidFee();
             for(Leases lease : leases){
