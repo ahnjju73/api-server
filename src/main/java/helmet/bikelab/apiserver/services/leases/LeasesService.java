@@ -288,7 +288,7 @@ public class LeasesService extends SessService {
         //bike
         Bikes bike = bikesRepository.findByBikeId(addUpdateLeaseRequest.getBikeId());
         if(bike!=null && bike.getLease()!=null) withException("850-001"); //이미 리스가 존재할때
-        //client
+        //clientÎ
         Clients client = clientsRepository.findByClientId(addUpdateLeaseRequest.getClientId());
         //insurance
         Insurances insurance = insurancesRepository.findByInsuranceId(addUpdateLeaseRequest.getInsuranceId());
