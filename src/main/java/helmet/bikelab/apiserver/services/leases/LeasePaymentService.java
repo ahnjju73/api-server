@@ -443,13 +443,13 @@ public class LeasePaymentService  extends SessService {
         ArrayList<PayLeaseRequest> excludeBike = new ArrayList<>();
         ArrayList<PayLeaseRequest> sorted = new ArrayList<>();
         for (PayLeaseRequest payLeaseRequest : uploadExcelDto.getPayments()) {
-            if (payLeaseRequest.getBikeNum() != null) {
+            if (payLeaseRequest.getBikeNum() != null && !payLeaseRequest.getBikeNum().equals("")) {
                 Bikes bike = bikesRepository.findByCarNum(payLeaseRequest.getBikeNum());
                 Leases lease = leaseRepository.findByBikeNo(bike.getBikeNo());
                 if (lease.getStatus() != LeaseStatusTypes.CONFIRM)
-                    withException("900-001");
+                    continue;
                 int paidFee = payLeaseRequest.getPaidFee();
-                List<LeasePayments> payments = leasePaymentsRepository.findAllByLease_LeaseId(payLeaseRequest.getLeaseId());
+                List<LeasePayments> payments = leasePaymentsRepository.findAllByLease_LeaseId(lease.getLeaseId());
                 for (int i = 0; i < payments.size() && payments.get(i).getPaymentDate().isBefore(LocalDate.now().plusDays(1)); i++) {
                     int unpaidFee = payments.get(i).getLeaseFee() - payments.get(i).getPaidFee();
                     if (unpaidFee > 0) {
@@ -505,13 +505,13 @@ public class LeasePaymentService  extends SessService {
             }
         }
         for(PayLeaseRequest payLeaseRequest : sorted){
-            Clients client = clientsRepository.findByRegNum(payLeaseRequest.getClientNum().replace("-", ""));
+            Clients client = clientsRepository.findByRegNum(payLeaseRequest.getClientNum());
             List<Leases> leases = leaseRepository.findAllByClients_ClientIdOrderByLeaseInfo_ContractDate(client.getClientId());
             int paidFee = payLeaseRequest.getPaidFee();
             for(Leases lease : leases){
                 if (lease.getStatus() != LeaseStatusTypes.CONFIRM)
-                    withException("900-001");
-                List<LeasePayments> payments = leasePaymentsRepository.findAllByLease_LeaseId(payLeaseRequest.getLeaseId());
+                    continue;
+                List<LeasePayments> payments = leasePaymentsRepository.findAllByLease_LeaseId(lease.getLeaseId());
                 for (int i = 0; i < payments.size() && payments.get(i).getPaymentDate().isBefore(LocalDate.now().plusDays(1)); i++) {
                     int unpaidFee = payments.get(i).getLeaseFee() - payments.get(i).getPaidFee();
                     if (unpaidFee > 0) {
