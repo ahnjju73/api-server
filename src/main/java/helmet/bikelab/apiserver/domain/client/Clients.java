@@ -33,7 +33,7 @@ public class Clients {
     @Column(name = "group_no", nullable = false)
     private Integer groupNo;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "group_no", insertable = false, updatable = false)
     private ClientGroups clientGroup;
 

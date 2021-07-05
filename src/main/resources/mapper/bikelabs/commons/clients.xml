@@ -5,7 +5,36 @@
 
 <mapper namespace="bikelabs.commons.clients">
 
-    <select id="fetchGroupDetailsByGroupId" parameterType="hmap" resultType="hmap">
+    <resultMap id="groupDetailAddressMap" type="hmap">
+        <result property="country" column="country" />
+        <result property="country_code" column="country_code" />
+        <result property="address" column="address" />
+        <result property="address_english" column="address_english" />
+        <result property="address_detail" column="address_detail" />
+        <result property="building_code" column="building_code" />
+        <result property="building_name" column="building_name" />
+        <result property="jibun_address" column="jibun_address" />
+        <result property="jibun_address_english" column="jibun_address_english" />
+        <result property="road_address" column="road_address" />
+        <result property="road_address_english" column="road_address_english" />
+        <result property="roadname" column="roadname" />
+        <result property="roadname_code" column="roadname_code" />
+        <result property="sido" column="sido" />
+        <result property="sigungu" column="sigungu" />
+        <result property="sigungu_code" column="sigungu_code" />
+        <result property="zonecode" column="zonecode" />
+    </resultMap>
+    <resultMap id="groupDetailMap" type="hmap">
+        <result property="group_id" column="group_id"/>
+        <result property="group_name" column="group_name"/>
+        <result property="ceo_name" column="ceo_name"/>
+        <result property="ceo_phone" column="ceo_phone"/>
+        <result property="ceo_email" column="ceo_email"/>
+        <result property="reg_no" column="reg_no"/>
+        <result property="counts" column="counts"/>
+        <collection property="address" javaType="hmap" resultMap="groupDetailAddressMap" />
+    </resultMap>
+    <select id="fetchGroupDetailsByGroupId" parameterType="hmap" resultMap="groupDetailMap">
         select group_id,
                if(group_name is null, '', group_name) as group_name,
                if(ceo_name is null, '', ceo_name) as ceo_name,
@@ -13,23 +42,23 @@
                if(ceo_email is null, '', ceo_email) as ceo_email,
                if(reg_no is null, '', reg_no) as reg_no,
                if(gc.group_no is null, 0, counts) as counts,
-               if(ga.country is null, '', ga.country) as ga.country,
-               if(ga.country_code is null, '', ga.country_code) as ga.country_code,
-               if(ga.address is null, '', ga.address) as ga.address,
-               if(ga.address_english is null, '', ga.address_english) as ga.address_english,
-               if(ga.address_detail is null, '', ga.address_detail) as ga.address_detail,
-               if(ga.building_code is null, '', ga.building_code) as ga.building_code,
-               if(ga.building_name is null, '', ga.building_name) as ga.building_name,
-               if(ga.jibun_address is null, '', ga.jibun_address) as ga.jibun_address,
-               if(ga.jibun_address_english is null, '', ga.jibun_address_english) as ga.jibun_address_english,
-               if(ga.road_address is null, '', road_address) as ga.road_address,
-               if(ga.road_address_english is null, '', ga.road_address_english) as ga.road_address_english,
-               if(ga.roadname is null, '', ga.roadname) as ga.roadname,
-               if(ga.roadname_code is null, '', ga.roadname_code) as ga.roadname_code,
-               if(ga.sido is null, '', ga.sido) as ga.sido,
-               if(ga.sigungu is null, '', ga.sigungu) as ga.sigungu,
-               if(ga.sigungu_code is null, '', ga.sigungu_code) as ga.sigungu_code,
-               if(ga.zonecode is null, '', ga.zonecode) as ga.zonecode
+               if(ga.country is null, '', ga.country) as country,
+               if(ga.country_code is null, '', ga.country_code) as country_code,
+               if(ga.address is null, '', ga.address) as address,
+               if(ga.address_english is null, '', ga.address_english) as address_english,
+               if(ga.address_detail is null, '', ga.address_detail) as address_detail,
+               if(ga.building_code is null, '', ga.building_code) as building_code,
+               if(ga.building_name is null, '', ga.building_name) as building_name,
+               if(ga.jibun_address is null, '', ga.jibun_address) as jibun_address,
+               if(ga.jibun_address_english is null, '', ga.jibun_address_english) as jibun_address_english,
+               if(ga.road_address is null, '', road_address) as road_address,
+               if(ga.road_address_english is null, '', ga.road_address_english) as road_address_english,
+               if(ga.roadname is null, '', ga.roadname) as roadname,
+               if(ga.roadname_code is null, '', ga.roadname_code) as roadname_code,
+               if(ga.sido is null, '', ga.sido) as sido,
+               if(ga.sigungu is null, '', ga.sigungu) as sigungu,
+               if(ga.sigungu_code is null, '', ga.sigungu_code) as sigungu_code,
+               if(ga.zonecode is null, '', ga.zonecode) as zonecode
         from (select *
               from `groups`
               where group_id = #{group_id}) g

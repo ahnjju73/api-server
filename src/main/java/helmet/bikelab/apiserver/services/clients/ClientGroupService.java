@@ -140,7 +140,13 @@ public class ClientGroupService extends SessService {
          group.setCeoName(updateGroupRequest.getCeoName());
          group.setCeoPhone(updateGroupRequest.getCeoPhone());
          group.setRegNum(updateGroupRequest.getRegNo());
-         group.getGroupAddresses().setModelAddress(updateGroupRequest.getAddress());
+         GroupAddresses groupAddresses = group.getGroupAddresses();
+         if(!bePresent(groupAddresses)) {
+            groupAddresses = new GroupAddresses();
+            groupAddresses.setGroupNo(group.getGroupNo());
+         }
+         groupAddresses.setModelAddress(updateGroupRequest.getAddress());
+         clientGroupAddressRepository.save(groupAddresses);
          groupRepository.save(group);
       }
       return request;
