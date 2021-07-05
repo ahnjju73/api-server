@@ -10,8 +10,8 @@ import lombok.Setter;
 
 import javax.persistence.*;
 
-//@Entity
-//@Table(name = "group_addresses")
+@Entity
+@Table(name = "group_addresses")
 @Getter
 @Setter
 @NoArgsConstructor

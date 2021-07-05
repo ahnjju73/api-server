@@ -12,7 +12,24 @@
                if(ceo_phone is null, '', ceo_phone) as ceo_phone,
                if(ceo_email is null, '', ceo_email) as ceo_email,
                if(reg_no is null, '', reg_no) as reg_no,
-               if(gc.group_no is null, 0, counts) as counts
+               if(gc.group_no is null, 0, counts) as counts,
+               if(ga.country is null, '', ga.country) as ga.country,
+               if(ga.country_code is null, '', ga.country_code) as ga.country_code,
+               if(ga.address is null, '', ga.address) as ga.address,
+               if(ga.address_english is null, '', ga.address_english) as ga.address_english,
+               if(ga.address_detail is null, '', ga.address_detail) as ga.address_detail,
+               if(ga.building_code is null, '', ga.building_code) as ga.building_code,
+               if(ga.building_name is null, '', ga.building_name) as ga.building_name,
+               if(ga.jibun_address is null, '', ga.jibun_address) as ga.jibun_address,
+               if(ga.jibun_address_english is null, '', ga.jibun_address_english) as ga.jibun_address_english,
+               if(ga.road_address is null, '', road_address) as ga.road_address,
+               if(ga.road_address_english is null, '', ga.road_address_english) as ga.road_address_english,
+               if(ga.roadname is null, '', ga.roadname) as ga.roadname,
+               if(ga.roadname_code is null, '', ga.roadname_code) as ga.roadname_code,
+               if(ga.sido is null, '', ga.sido) as ga.sido,
+               if(ga.sigungu is null, '', ga.sigungu) as ga.sigungu,
+               if(ga.sigungu_code is null, '', ga.sigungu_code) as ga.sigungu_code,
+               if(ga.zonecode is null, '', ga.zonecode) as ga.zonecode
         from (select *
               from `groups`
               where group_id = #{group_id}) g
@@ -20,6 +37,7 @@
                                          count(*) as counts
                                     from clients
                                    group by group_no) gc on g.group_no = gc.group_no
+                left outer join (select * from group_addresses group by group_no) ga on g.group_no = ga.group_no
     </select>
 
     <select id="fetchGroupList" parameterType="hmap" resultType="hmap">
