@@ -184,7 +184,7 @@ public class ClientGroupService extends SessService {
    @Transactional
    public BikeSessionRequest uploadExcel (BikeSessionRequest request){
       FilePart filePart = (FilePart) request.getParam().get("test");
-      File excel = new File("/Users/joohonga/workspaces/api-server/" +  filePart.filename());
+      File excel = new File("/home/ubuntu/api-server/" +  filePart.filename());
       filePart.transferTo(excel);
       try {
          FileInputStream fis = new FileInputStream(excel);
