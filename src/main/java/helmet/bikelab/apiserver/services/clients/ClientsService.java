@@ -103,6 +103,10 @@ public class ClientsService extends SessService {
         String clientId = autoKey.makeGetKey("client");
         ClientGroups group = groupRepository.findByGroupId(addClientRequest.getGroupId());
         if(!bePresent(group)) withException("400-002");
+        if(addClientRequest.getUuid() != null && clientsRepository.countAllByUuid(addClientRequest.getUuid()) > 0)
+            withException("");
+        if(addClientRequest.getRegNo() != null && clientsRepository.countAllByRegNum(addClientRequest.getRegNo()) > 0)
+            withException("");
         Clients clients = new Clients();
         clients.setClientId(clientId);
         clients.setGroupNo(group.getGroupNo());
@@ -150,6 +154,10 @@ public class ClientsService extends SessService {
         client.setEmail(updateClientRequest.getEmail());
         ClientGroups clientGroups = groupRepository.findByGroupId(updateClientRequest.getGroupId());
         if(!bePresent(clientGroups)) withException("400-003");
+        if(clientsRepository.findByUuid(updateClientRequest.getUuid())!= null && !client.getClientId().equals(clientsRepository.findByUuid(updateClientRequest.getUuid()).getClientId()))
+            withException("");
+        if(clientsRepository.findByRegNum(updateClientRequest.getRegNo()) != null && !client.getClientId().equals(clientsRepository.findByRegNum(updateClientRequest.getRegNo()).getClientId()))
+            withException("");
 
         BikeUser session = request.getSessionUser();
         updateClientUserLog(BikeUserLogTypes.COMM_CLIENT_UPDATED, session.getUserNo(), updateClientRequest, client, clientInfo);

@@ -16,4 +16,7 @@ public interface ClientsRepository extends JpaRepository<Clients, Integer> {
     void deleteByClientId(String clientId);
     Clients findByRegNum(String regNum);
     Clients findByClientInfo_Name(String clientName);
+    Clients findByUuid(String uuid);
+    Integer countAllByUuid(String uuid);
+    Integer countAllByRegNum(String regNum);
 }
