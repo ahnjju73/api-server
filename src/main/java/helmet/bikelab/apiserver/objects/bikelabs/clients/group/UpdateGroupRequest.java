@@ -20,6 +20,5 @@ public class UpdateGroupRequest extends OriginObject {
     public void checkValidation(){
         if(!bePresent(groupName)) withException("300-003");
         if(!bePresent(groupId)) withException("300-004");
-
     }
 }

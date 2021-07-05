@@ -26,6 +26,7 @@ import java.util.List;
 @NoArgsConstructor
 @Table(name = "leases")
 public class Leases {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "lease_no", nullable = false)
@@ -41,10 +42,10 @@ public class Leases {
     private Integer clientNo;
 
     @ManyToOne
-    @JoinColumn(name = "client_no", insertable = false, updatable = false)
+    @JoinColumn(name = "client_no", insertable = false, updatable = false, unique = true)
     private Clients clients;
 
-    @Column(name = "bike_no")
+    @Column(name = "bike_no", unique = true)
     private Integer bikeNo;
 
     @OneToOne
@@ -117,7 +118,7 @@ public class Leases {
     @OneToOne(mappedBy = "lease", optional = false)
     private LeaseInfo leaseInfo;
 
-    @OneToOne(mappedBy = "lease", optional = false, fetch = FetchType.EAGER)
+    @OneToOne(mappedBy = "lease", optional = false, fetch = FetchType.LAZY)
     private LeasePrice leasePrice;
 
     @OneToMany(mappedBy = "lease", fetch = FetchType.LAZY)

@@ -5,6 +5,23 @@
 
 <mapper namespace="bikelabs.commons.clients">
 
+    <select id="fetchGroupDetailsByGroupId" parameterType="hmap" resultType="hmap">
+        select group_id,
+               if(group_name is null, '', group_name) as group_name,
+               if(ceo_name is null, '', ceo_name) as ceo_name,
+               if(ceo_phone is null, '', ceo_phone) as ceo_phone,
+               if(ceo_email is null, '', ceo_email) as ceo_email,
+               if(reg_no is null, '', reg_no) as reg_no,
+               if(gc.group_no is null, 0, counts) as counts
+        from (select *
+              from `groups`
+              where group_id = #{group_id}) g
+                 left outer join (select group_no,
+                                         count(*) as counts
+                                    from clients
+                                   group by group_no) gc on g.group_no = gc.group_no
+    </select>
+
     <select id="fetchGroupList" parameterType="hmap" resultType="hmap">
         select g.group_no,
                group_id,
@@ -14,13 +31,13 @@
                ceo_email,
                reg_no as reg_num,
                if(c.group_no is null, 0, counts) as client_counts
-        from `groups` g
-                 left outer join (select group_no,
-                                         count(*) as counts
+          from `groups` g
+               left outer join (select group_no,
+                                       count(*) as counts
                                   from clients
                                  where status != '201-004'
                                  group by group_no) c on g.group_no = c.group_no
-        order by counts desc, g.group_no desc
+         order by counts desc, g.group_no desc
     </select>
 
     <select id="countAllClientList" parameterType="hmap" resultType="int">

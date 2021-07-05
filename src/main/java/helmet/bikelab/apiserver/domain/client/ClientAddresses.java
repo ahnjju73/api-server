@@ -28,5 +28,5 @@ public class ClientAddresses {
     private Clients client;
 
     @Embedded
-    private ModelAddress modelAddress;
+    private ModelAddress modelAddress = new ModelAddress();
 }

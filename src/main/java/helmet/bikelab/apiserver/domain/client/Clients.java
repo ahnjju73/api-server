@@ -58,13 +58,13 @@ public class Clients {
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @OneToOne(mappedBy = "client", optional = false, fetch = FetchType.EAGER)
-    private ClientInfo clientInfo;
+    private ClientInfo clientInfo = new ClientInfo();
 
     @OneToOne(mappedBy = "client", optional = false, fetch = FetchType.EAGER)
-    private ClientAddresses clientAddresses;
+    private ClientAddresses clientAddresses = new ClientAddresses();
 
     @OneToOne(mappedBy = "client", optional = false, fetch = FetchType.EAGER)
-    private ClientPassword clientPassword;
+    private ClientPassword clientPassword = new ClientPassword();
 
     @OneToMany(mappedBy = "clients", fetch = FetchType.LAZY)
     private List<Leases> lease;

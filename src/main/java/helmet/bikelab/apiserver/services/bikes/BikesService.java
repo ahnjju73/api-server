@@ -37,6 +37,14 @@ public class BikesService extends SessService {
     private final ClientsRepository clientsRepository;
     private final CommonWorker commonWorker;
 
+    public BikeSessionRequest fetchGroupDetailsByGroupId(BikeSessionRequest request){
+        Map param = request.getParam();
+        String groupId = (String)param.get("group_id");
+        Map details = (Map)getItem("bikelabs.commons.clients.fetchGroupDetailsByGroupId", param);
+        request.setResponse(details);
+        return request;
+    }
+
     public BikeSessionRequest fetchBikesWithoutLease(BikeSessionRequest request){
         Map param = request.getParam();
         BikeRequestListDto requestListDto = map(param, BikeRequestListDto.class);
