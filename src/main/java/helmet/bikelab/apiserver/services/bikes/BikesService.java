@@ -85,12 +85,22 @@ public class BikesService extends SessService {
         return request;
     }
 
+//    public BikeSessionRequest fetchBikeByBikeNum(BikeSessionRequest request){
+//        Map param = request.getParam();
+//        FetchBikeRequest fetchBikeRequest = map(param, FetchBikeRequest.class);
+//
+//    }
+//
+//    public BikeSessionRequest fetchBikesByClientName(BikeSessionRequest request){
+//
+//    }
+
+
 
     public BikeSessionRequest fetchBikesByClient(BikeSessionRequest request){
         Map param = request.getParam();
-        FetchBikeDetailRequest fetchBikeDetailRequest = map(param, FetchBikeDetailRequest.class);
-        clientsRepository.findByClientId(fetchBikeDetailRequest.getClientId());
-        List<Leases> leases = leaseRepository.findAllByClients_ClientIdOrderByLeaseInfo_ContractDate(fetchBikeDetailRequest.getClientId());
+        FetchBikeRequest fetchBikeRequest = map(param, FetchBikeRequest.class);
+        List<Leases> leases = leaseRepository.findAllByClients_ClientIdOrderByLeaseInfo_ContractDate(fetchBikeRequest.getClientId());
         List<Bikes> bikes = new ArrayList<>();
         for(Leases lease : leases)
             bikes.add(lease.getBike());
@@ -118,9 +128,9 @@ public class BikesService extends SessService {
     public BikeSessionRequest fetchBikeDetail(BikeSessionRequest request){
         Map param = request.getParam();
         Map response = new HashMap();
-        FetchBikeDetailRequest fetchBikeDetailRequest = map(param, FetchBikeDetailRequest.class);
-        fetchBikeDetailRequest.checkValidation();
-        Bikes bike = bikesRepository.findByBikeId(fetchBikeDetailRequest.getBikeId());
+        FetchBikeRequest fetchBikeRequest = map(param, FetchBikeRequest.class);
+        fetchBikeRequest.checkValidation();
+        Bikes bike = bikesRepository.findByBikeId(fetchBikeRequest.getBikeId());
         Leases leases = leaseRepository.findByBikeNo(bike.getBikeNo());
         Clients clients = leases == null ? null : leases.getClients();
         FetchBikeDetailResponse fetchBikeDetailResponse = new FetchBikeDetailResponse();

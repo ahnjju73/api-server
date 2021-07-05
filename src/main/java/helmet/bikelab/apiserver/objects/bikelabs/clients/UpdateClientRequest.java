@@ -16,13 +16,13 @@ import java.util.Map;
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class UpdateClientRequest extends OriginObject {
     private String clientId;
+    private String uuid;
     private String email;
     private String groupId;
     private String direct;
     private String regNo;
     private ClientInfo clientInfo;
     private ModelAddress address;
-    private String uuid;
 
     public void setAddress(Map address) {
         ObjectMapper objectMapper = new ObjectMapper();
