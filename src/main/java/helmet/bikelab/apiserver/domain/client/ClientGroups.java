@@ -37,7 +37,7 @@ public class ClientGroups {
     @Column(name = "reg_no")
     private String regNum;
 
-//    @OneToOne(mappedBy = "group", optional = false, fetch = FetchType.EAGER)
-//    private GroupAddresses groupAddresses;
+    @OneToOne(mappedBy = "group", optional = false, fetch = FetchType.EAGER)
+    private GroupAddresses groupAddresses;
 
 }
