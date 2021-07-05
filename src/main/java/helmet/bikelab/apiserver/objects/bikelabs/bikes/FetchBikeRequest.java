@@ -9,7 +9,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
-public class FetchBikeDetailRequest extends OriginObject {
+public class FetchBikeRequest extends OriginObject {
     private String bikeId;
     private String clientId;
 
