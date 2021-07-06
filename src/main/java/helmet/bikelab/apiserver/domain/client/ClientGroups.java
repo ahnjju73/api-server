@@ -1,5 +1,7 @@
 package helmet.bikelab.apiserver.domain.client;
 
+import helmet.bikelab.apiserver.domain.types.InsuranceTypes;
+import helmet.bikelab.apiserver.domain.types.converters.InsuranceTypesConverter;
 import helmet.bikelab.apiserver.utils.keys.SESSION;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
