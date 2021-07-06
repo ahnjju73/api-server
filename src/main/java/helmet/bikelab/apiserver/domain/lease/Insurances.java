@@ -64,7 +64,7 @@ public class Insurances extends OriginObject {
     @Column(name = "no_insurance_cover", nullable = false)
     private Integer noInsuranceCover;
 
-    @Column(name = "type")
+    @Column(name = "type", columnDefinition = "ENUM")
     @Convert(converter = InsuranceTypesConverter.class)
     private InsuranceTypes type = InsuranceTypes.PERSONAL;
 

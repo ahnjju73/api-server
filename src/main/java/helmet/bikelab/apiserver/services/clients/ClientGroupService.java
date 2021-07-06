@@ -133,7 +133,6 @@ public class ClientGroupService extends SessService {
       UpdateGroupRequest updateGroupRequest = map(param, UpdateGroupRequest.class);
       updateGroupRequest.checkValidation();
       ClientGroups group = groupRepository.findByGroupId(updateGroupRequest.getGroupId());
-      GroupAddresses groupAddresses = clientGroupAddressRepository.findById(group.getGroupNo()).get();
       if(bePresent(group)){
          addLogGroupInfo(updateGroupRequest, group, session);
          group.setGroupName(updateGroupRequest.getGroupName());
@@ -141,10 +140,15 @@ public class ClientGroupService extends SessService {
          group.setCeoName(updateGroupRequest.getCeoName());
          group.setCeoPhone(updateGroupRequest.getCeoPhone());
          group.setRegNum(updateGroupRequest.getRegNo());
+         GroupAddresses groupAddresses = group.getGroupAddresses();
+         if(!bePresent(groupAddresses)) {
+            groupAddresses = new GroupAddresses();
+            groupAddresses.setGroupNo(group.getGroupNo());
+         }
+         groupAddresses.setModelAddress(updateGroupRequest.getAddress());
+         clientGroupAddressRepository.save(groupAddresses);
          groupRepository.save(group);
       }
-      groupAddresses.setModelAddress(updateGroupRequest.getAddress());
-      clientGroupAddressRepository.save(groupAddresses);
       return request;
    }
 
