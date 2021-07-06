@@ -5,6 +5,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import helmet.bikelab.apiserver.domain.CommonCodeInsurances;
+import helmet.bikelab.apiserver.domain.types.InsuranceTypes;
+import helmet.bikelab.apiserver.domain.types.converters.InsuranceTypesConverter;
 import helmet.bikelab.apiserver.services.internal.OriginObject;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -61,6 +63,10 @@ public class Insurances extends OriginObject {
 
     @Column(name = "no_insurance_cover", nullable = false)
     private Integer noInsuranceCover;
+
+    @Column(name = "type")
+    @Convert(converter = InsuranceTypesConverter.class)
+    private InsuranceTypes type = InsuranceTypes.PERSONAL;
 
 
     public void checkValidation(){
