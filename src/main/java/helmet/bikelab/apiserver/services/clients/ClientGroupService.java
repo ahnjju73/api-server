@@ -102,7 +102,6 @@ public class ClientGroupService extends SessService {
       userLog.setFromUserNo(session.getUserNo());
       userLog.setReferenceId(group.getGroupNo().toString());
       bikeUserLogRepository.save(addLog(BikeUserLogTypes.COMM_GROUP_ADDED, session.getUserNo(), group.getGroupNo().toString()));
-
       return request;
    }
 
