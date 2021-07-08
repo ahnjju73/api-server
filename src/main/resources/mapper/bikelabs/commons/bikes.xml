@@ -77,13 +77,32 @@
                         vim_num like concat('%', #{search_name}, '%')
                         or `number` like concat('%', #{search_name}, '%')
                         )
+                    </if>
+                    <if test="search_bike_id != null and search_bike_id != '' and search_bike_id != 'undefined'">
+                        and bike_id like concat('%', #{search_bike_id}, '%')
+                    </if>
+                    <if test="search_number != null and search_number != '' and search_number != 'undefined'">
+                        and `number` like concat('%', #{search_number}, '%')
+                    </if>
+                    <if test="search_vim != null and search_vim != '' and search_vim != 'undefined'">
+                        and vim_num like concat('%', #{search_vim}, '%')
                     </if>) b
                    join leases l on b.bike_no = l.bike_no
                    join clients c on l.client_no = c.client_no
                                  and c.client_id = #{search_client_id}
         </if>
         <if test="search_client_id == null or search_client_id == '' or search_client_id == 'undefined'">
-            select count(*) from bikes where bike_no not in (select bike_no from leases)
+            select count(*) from bikes
+             where bike_no not in (select bike_no from leases)
+            <if test="search_bike_id != null and search_bike_id != '' and search_bike_id != 'undefined'">
+                and bike_id like concat('%', #{search_bike_id}, '%')
+            </if>
+            <if test="search_number != null and search_number != '' and search_number != 'undefined'">
+                and `number` like concat('%', #{search_number}, '%')
+            </if>
+            <if test="search_vim != null and search_vim != '' and search_vim != 'undefined'">
+                and vim_num like concat('%', #{search_vim}, '%')
+            </if>
         </if>
     </select>
 
@@ -106,6 +125,15 @@
                         vim_num like concat('%', #{search_name}, '%')
                         or `number` like concat('%', #{search_name}, '%')
                        )
+                </if>
+                <if test="search_bike_id != null and search_bike_id != '' and search_bike_id != 'undefined'">
+                    and bike_id like concat('%', #{search_bike_id}, '%')
+                </if>
+                <if test="search_number != null and search_number != '' and search_number != 'undefined'">
+                    and `number` like concat('%', #{search_number}, '%')
+                </if>
+                <if test="search_vim != null and search_vim != '' and search_vim != 'undefined'">
+                    and vim_num like concat('%', #{search_vim}, '%')
                 </if>
                 <if test="next_token != null and next_token != '' and next_token != 'undefined'">
                    and bike_id <![CDATA[ < ]]> #{next_token}

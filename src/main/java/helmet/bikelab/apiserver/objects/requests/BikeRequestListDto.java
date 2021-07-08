@@ -12,4 +12,8 @@ public class BikeRequestListDto extends RequestListDto{
 
     private String searchClientId;
     private String searchName;
+    private String searchBikeId;
+    private String searchNumber;
+    private String searchVim;
+
 }
