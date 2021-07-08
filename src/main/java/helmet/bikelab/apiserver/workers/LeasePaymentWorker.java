@@ -50,6 +50,22 @@ public class LeasePaymentWorker extends SessService {
         bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_EXTRA_PAYMENT, session.getUserNo(), leases.getLeaseNo().toString(), strings));
     }
 
+    public void readLeaseExtraFeeByExtraId(String extraId, BikeUser session){
+        LeaseExtras leaseExtras = leaseExtraRepository.findByExtraId(extraId);
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일");
+        if(!bePresent(leaseExtras)) withException("901-001");
+        Leases leases = leaseExtras.getLease();
+        LeasePayments payment = leaseExtras.getPayment();
+        checkLeaseIsConfirmed(leases);
+        leaseExtras.setRead(true);
+        leaseExtras.setReadUserNo(session.getUserNo());
+        leaseExtraRepository.save(leaseExtras);
+        String content = "<>" + payment.getIndex() + "회차 (" + payment.getPaymentDate().format(dateTimeFormatter) + ")</> 납부료 추가미납금 <>납부확인처리</>를 하였습니다.";
+        List<String> strings = new ArrayList<>();
+        strings.add(content);
+        bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_EXTRA_PAYMENT, session.getUserNo(), leases.getLeaseNo().toString(), strings));
+    }
+
     public void checkLeaseIsConfirmed(Leases leases){
         if(!LeaseStatusTypes.CONFIRM.equals(leases.getStatus())) withException("901-002");
     }

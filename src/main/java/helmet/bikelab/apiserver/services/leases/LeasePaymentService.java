@@ -72,7 +72,8 @@ public class LeasePaymentService  extends SessService {
         Map param = request.getParam();
         BikeUser session = request.getSessionUser();
         String extraId = (String)param.get("extra_id");
-        leasePaymentWorker.payLeaseExtraFeeByExtraId(extraId, session);
+        leasePaymentWorker.readLeaseExtraFeeByExtraId(extraId, session);
+//        leasePaymentWorker.payLeaseExtraFeeByExtraId(extraId, session);
         return request;
     }
 
