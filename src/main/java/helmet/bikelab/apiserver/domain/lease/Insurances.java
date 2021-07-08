@@ -68,6 +68,9 @@ public class Insurances extends OriginObject {
     @Convert(converter = InsuranceTypesConverter.class)
     private InsuranceTypes type = InsuranceTypes.PERSONAL;
 
+    @Column(name = "insurance_name", unique = true)
+    private String insuranceName;
+
 
     public void checkValidation(){
         if(!bePresent(liabilityCar)) withException("800-002");

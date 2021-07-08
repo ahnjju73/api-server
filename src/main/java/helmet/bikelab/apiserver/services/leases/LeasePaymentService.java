@@ -324,10 +324,10 @@ public class LeasePaymentService  extends SessService {
 
     @Transactional
     public BikeSessionRequest payWithExcel(BikeSessionRequest request) {
-        ArrayList<String> logList = new ArrayList<>();
         Map param = request.getParam();
         UploadExcelDto uploadExcelDto = map(param, UploadExcelDto.class);
         for (PayLeaseRequest payLeaseRequest : uploadExcelDto.getPayments()) {
+            ArrayList<String> logList = new ArrayList<>();
             Leases lease = leaseRepository.findByLeaseId(payLeaseRequest.getLeaseId());
             int paidFee = payLeaseRequest.getPaidFee();
             List<LeasePayments> payments = leasePaymentsRepository.findAllByLease_LeaseId(payLeaseRequest.getLeaseId());
@@ -372,14 +372,13 @@ public class LeasePaymentService  extends SessService {
                 overPaylog.add("<>" + lease.getClients().getClientInfo().getName() + "</>에서 " + Utils.getCurrencyFormat(paidFee) + "원 추가 납입 하셨습니다");
                 bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_PAYMENT, request.getSessionUser().getUserNo(), lease.getClientNo().toString(), overPaylog));
             }
-            bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_PAYMENT, request.getSessionUser().getUserNo(), lease.getClients().getClientNo().toString(), logList));
+            bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_PAYMENT, request.getSessionUser().getUserNo(), lease.getLeaseNo().toString(), logList));
         }
         return request;
     }
 
     @Transactional
     public BikeSessionRequest payByClient(BikeSessionRequest request){
-        ArrayList<String> logList = new ArrayList<>();
         Map param = request.getParam();
         PayLeaseRequest payLeaseRequest = map(param, PayLeaseRequest.class);
         Clients client = clientsRepository.findByClientId(payLeaseRequest.getClientId());
@@ -387,6 +386,7 @@ public class LeasePaymentService  extends SessService {
         int paidFee = payLeaseRequest.getPaidFee();
         for(Leases lease : leaseList){
             List<LeasePayments> payments = leasePaymentsRepository.findAllByLeaseNo(lease.getLeaseNo());
+            ArrayList<String> logList = new ArrayList<>();
             for (int i = 0; i < payments.size() && payments.get(i).getPaymentDate().isBefore(LocalDate.now().plusDays(1)); i++) {
                 int unpaidFee = payments.get(i).getLeaseFee() - payments.get(i).getPaidFee();
                 if (unpaidFee > 0) {
@@ -422,21 +422,18 @@ public class LeasePaymentService  extends SessService {
                     }
                 }
             }
+            bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_PAYMENT, request.getSessionUser().getUserNo(), lease.getLeaseNo().toString(), logList));
             if(paidFee == 0)
                 break;
         }
         if (paidFee > 0) {
-//            ArrayList<String> overPaylog = new ArrayList<>();
-            logList.add("<>" + client.getClientInfo().getName() + "</>에서 " + Utils.getCurrencyFormat(paidFee) + "원 추가 납입 하셨습니다");
-//            bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_PAYMENT, request.getSessionUser().getUserNo(), client.getClientNo().toString(), overPaylog));
+            // todo: client overpay 처리
         }
-        bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_PAYMENT, request.getSessionUser().getUserNo(), client.getClientNo().toString(), logList));
         return request;
     }
 
     @Transactional
     public BikeSessionRequest payByClientWithExcel(BikeSessionRequest request) {
-        ArrayList<String> logList = new ArrayList<>();
         Map param = request.getParam();
         UploadExcelDto uploadExcelDto = map(param, UploadExcelDto.class);
         ArrayList<PayLeaseRequest> excludeBike = new ArrayList<>();
@@ -444,6 +441,7 @@ public class LeasePaymentService  extends SessService {
         for (PayLeaseRequest payLeaseRequest : uploadExcelDto.getPayments()) {
             if (payLeaseRequest.getBikeNum() != null && !payLeaseRequest.getBikeNum().equals("")) {
                 Bikes bike = bikesRepository.findByCarNum(payLeaseRequest.getBikeNum());
+                ArrayList<String> logList = new ArrayList<>();
                 Leases lease = leaseRepository.findByBikeNo(bike.getBikeNo());
                 if (lease.getStatus() != LeaseStatusTypes.CONFIRM)
                     continue;
@@ -489,7 +487,7 @@ public class LeasePaymentService  extends SessService {
                     overPaylog.add("<>" + lease.getClients().getClientInfo().getName() + "</>에서 " + Utils.getCurrencyFormat(paidFee) + "원 추가 납입 하셨습니다");
                     bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_PAYMENT, request.getSessionUser().getUserNo(), lease.getClientNo().toString(), overPaylog));
                 }
-                bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_PAYMENT, request.getSessionUser().getUserNo(), lease.getClients().getClientNo().toString(), logList));
+                bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_PAYMENT, request.getSessionUser().getUserNo(), lease.getLeaseNo().toString(), logList));
             }
             else
                 excludeBike.add(payLeaseRequest);
@@ -508,6 +506,7 @@ public class LeasePaymentService  extends SessService {
             List<Leases> leases = leaseRepository.findAllByClients_ClientIdOrderByLeaseInfo_ContractDate(client.getClientId());
             int paidFee = payLeaseRequest.getPaidFee();
             for(Leases lease : leases){
+                List<String> logList = new ArrayList<>();
                 if (lease.getStatus() != LeaseStatusTypes.CONFIRM)
                     continue;
                 List<LeasePayments> payments = leasePaymentsRepository.findAllByLease_LeaseId(lease.getLeaseId());
@@ -546,6 +545,7 @@ public class LeasePaymentService  extends SessService {
                         }
                     }
                 }
+                bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_PAYMENT, request.getSessionUser().getUserNo(), lease.getLeaseNo().toString(), logList));
                 if(paidFee == 0)
                     break;
             }
@@ -554,7 +554,6 @@ public class LeasePaymentService  extends SessService {
                 overPaylog.add("<>" + client.getClientInfo().getName() + "</>에서 " + Utils.getCurrencyFormat(paidFee) + "원 추가 납입 하셨습니다");
                 bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_PAYMENT, request.getSessionUser().getUserNo(), client.getClientNo().toString(), overPaylog));
             }
-            bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_PAYMENT, request.getSessionUser().getUserNo(), client.getClientNo().toString(), logList));
         }
         return request;
     }
