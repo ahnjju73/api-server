@@ -55,8 +55,8 @@ public class LeasePaymentWorker extends SessService {
     }
 
     public void payLeaseFeeByPaymentId(String paymentId, BikeUser session){
-        LeasePayments byPaymentId = leasePaymentsRepository.findByPaymentId(paymentId);
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일");
+        LeasePayments byPaymentId = leasePaymentsRepository.findByPaymentId(paymentId);
         if(!bePresent(byPaymentId)) withException("901-001");
         Leases leases = byPaymentId.getLease();
         checkLeaseIsConfirmed(leases);
@@ -65,6 +65,21 @@ public class LeasePaymentWorker extends SessService {
         byPaymentId.setPaidFee(byPaymentId.getLeaseFee());
         leasePaymentsRepository.save(byPaymentId);
         String content = "<>" + byPaymentId.getIndex() + "회차 (" + byPaymentId.getPaymentDate().format(dateTimeFormatter) + ")</> 납부료 미납금 <>" + Utils.getCurrencyFormat(byPaymentId.getLeaseFee() - prevPaidFee) + "원</>을 완납하였습니다. (<>" + Utils.getCurrencyFormat(prevPaidFee) + "원</> -> <>" + Utils.getCurrencyFormat(byPaymentId.getLeaseFee())+ "원</>)";
+        List<String> strings = new ArrayList<>();
+        strings.add(content);
+        bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_PAYMENT, session.getUserNo(), leases.getLeaseNo().toString(), strings));
+    }
+
+    public void readLeaseFeeByPaymentId(String paymentId, BikeUser session){
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일");
+        LeasePayments byPaymentId = leasePaymentsRepository.findByPaymentId(paymentId);
+        if(!bePresent(byPaymentId)) withException("901-001");
+        Leases leases = byPaymentId.getLease();
+        checkLeaseIsConfirmed(leases);
+        byPaymentId.setRead(Boolean.TRUE);
+        byPaymentId.setReadUserNo(session.getUserNo());
+        leasePaymentsRepository.save(byPaymentId);
+        String content = "<>" + byPaymentId.getIndex() + "회차 (" + byPaymentId.getPaymentDate().format(dateTimeFormatter) + ")</> 납부료 미납금 <>납부확인처리</>를 하였습니다.";
         List<String> strings = new ArrayList<>();
         strings.add(content);
         bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_PAYMENT, session.getUserNo(), leases.getLeaseNo().toString(), strings));

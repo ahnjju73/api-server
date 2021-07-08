@@ -89,7 +89,8 @@ public class LeasePaymentService  extends SessService {
         Map param = request.getParam();
         BikeUser session = request.getSessionUser();
         String paymentId = (String)param.get("payment_id");
-        leasePaymentWorker.payLeaseFeeByPaymentId(paymentId, session);
+//        leasePaymentWorker.payLeaseFeeByPaymentId(paymentId, session);
+        leasePaymentWorker.readLeaseFeeByPaymentId(paymentId, session);
         return request;
     }
 
@@ -382,12 +383,9 @@ public class LeasePaymentService  extends SessService {
         Map param = request.getParam();
         PayLeaseRequest payLeaseRequest = map(param, PayLeaseRequest.class);
         Clients client = clientsRepository.findByClientId(payLeaseRequest.getClientId());
-        // todo : check this line.
         List<Leases> leaseList = leaseRepository.findAllByClients_ClientIdAndStatusOrderByLeaseInfo_ContractDate(payLeaseRequest.getClientId(), LeaseStatusTypes.CONFIRM);
         int paidFee = payLeaseRequest.getPaidFee();
         for(Leases lease : leaseList){
-//            if (lease.getStatus() != LeaseStatusTypes.CONFIRM)
-//                withException("900-001");
             List<LeasePayments> payments = leasePaymentsRepository.findAllByLeaseNo(lease.getLeaseNo());
             for (int i = 0; i < payments.size() && payments.get(i).getPaymentDate().isBefore(LocalDate.now().plusDays(1)); i++) {
                 int unpaidFee = payments.get(i).getLeaseFee() - payments.get(i).getPaidFee();
@@ -428,9 +426,9 @@ public class LeasePaymentService  extends SessService {
                 break;
         }
         if (paidFee > 0) {
-            ArrayList<String> overPaylog = new ArrayList<>();
-            overPaylog.add("<>" + client.getClientInfo().getName() + "</>에서 " + Utils.getCurrencyFormat(paidFee) + "원 추가 납입 하셨습니다");
-            bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_PAYMENT, request.getSessionUser().getUserNo(), client.getClientNo().toString(), overPaylog));
+//            ArrayList<String> overPaylog = new ArrayList<>();
+            logList.add("<>" + client.getClientInfo().getName() + "</>에서 " + Utils.getCurrencyFormat(paidFee) + "원 추가 납입 하셨습니다");
+//            bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_PAYMENT, request.getSessionUser().getUserNo(), client.getClientNo().toString(), overPaylog));
         }
         bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_PAYMENT, request.getSessionUser().getUserNo(), client.getClientNo().toString(), logList));
         return request;

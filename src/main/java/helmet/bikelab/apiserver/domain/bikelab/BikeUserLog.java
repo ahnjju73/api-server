@@ -62,7 +62,7 @@ public class BikeUserLog extends OriginObject {
         return addLog(bikeUserLogTypes, fromUserNo, null, null, referenceId);
     }
 
-    public static BikeUserLog addLog(BikeUserLogTypes bikeUserLogTypes, Integer fromUserNo, String referenceId, List<String>  content){
+    public static BikeUserLog addLog(BikeUserLogTypes bikeUserLogTypes, Integer fromUserNo, String referenceId, List<String> content){
         return addLog(bikeUserLogTypes, fromUserNo, null, content, referenceId);
     }
 

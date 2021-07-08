@@ -54,4 +54,14 @@ public class LeasePayments {
     @JoinColumn(name = "inserted_user_no", insertable = false, updatable = false)
     private BikeUser user;
 
+    @Column(name = "read_user_no", nullable = false)
+    private Integer readUserNo;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "read_user_no", insertable = false, updatable = false)
+    private BikeUser readUser;
+
+    @Column(name = "read_yn")
+    private Boolean read = false;
+
 }
