@@ -68,6 +68,7 @@ public class InsurancesService extends SessService {
         insurance.setLiabilityMan2(newInsurance.getLiabilityMan2());
         insurance.setNoInsuranceCover(newInsurance.getNoInsuranceCover());
         insurance.setType(newInsurance.getType());
+        insurance.setInsuranceName(newInsurance.getInsuranceName());
         insurancesRepository.save(insurance);
 
         return request;
