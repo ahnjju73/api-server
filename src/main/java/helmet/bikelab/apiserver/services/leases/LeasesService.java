@@ -44,8 +44,6 @@ public class LeasesService extends SessService {
     private final ReleaseRepository releaseRepository;
     private final InsurancesRepository insurancesRepository;
     private final LeaseExtraRepository leaseExtraRepository;
-    private final LeaseFineRepository leaseFineRepository;
-    private final FinesRepository finesRepository;
     private final AutoKey autoKey;
     private final BikeUserLogRepository bikeUserLogRepository;
     private final BikeUserTodoService bikeUserTodoService;
@@ -69,23 +67,9 @@ public class LeasesService extends SessService {
         List<Leases> leases = leaseRepository.findAll();
         List<FetchLeasesResponse> fetchLeasesResponses = new ArrayList<>();
         for(Leases lease : leases){
-            List<LeaseFine> leaseFineList = leaseFineRepository.findAllByLease_LeaseId(lease.getLeaseId());
-            List<FetchFinesResponse> fines = new ArrayList<>();
-            for(LeaseFine lf : leaseFineList){
-                FetchFinesResponse fineResponse = new FetchFinesResponse();
-                Fines fine = lf.getFine();
-                fineResponse.setFineId(fine.getFineId());
-                fineResponse.setFee(fine.getFee());
-                fineResponse.setPaidFee(fine.getPaidFee());
-                fineResponse.setFineNum(fine.getFineNum());
-                fineResponse.setFineDate(fine.getFineDt());
-                fineResponse.setFineExpireDate(fine.getExpireDt());
-                fines.add(fineResponse);
-            }
             FetchLeasesResponse fetchLeasesResponse = new FetchLeasesResponse();
             fetchLeasesResponse.setLeaseId(lease.getLeaseId());
             fetchLeasesResponse.setStatus(lease.getStatus().getStatus());
-            fetchLeasesResponse.setFines(fines);
             if(lease.getBike() != null) {
                 fetchLeasesResponse.setBikeId(lease.getBike().getBikeId());
                 BikeDto bikeDto = new BikeDto();
@@ -166,19 +150,7 @@ public class LeasesService extends SessService {
         Leases lease = leaseRepository.findByLeaseId(leasesDto.getLeaseId());
         List<LeasePayments> payments = leasePaymentsRepository.findAllByLease_LeaseId(lease.getLeaseId());
         if(lease == null) withException("850-002");
-        List<LeaseFine> leaseFineList = leaseFineRepository.findAllByLease_LeaseId(lease.getLeaseId());
         List<FetchFinesResponse> fines = new ArrayList<>();
-        for(LeaseFine lf : leaseFineList){
-            FetchFinesResponse fineResponse = new FetchFinesResponse();
-            Fines fine = lf.getFine();
-            fineResponse.setFineId(fine.getFineId());
-            fineResponse.setFee(fine.getFee());
-            fineResponse.setPaidFee(fine.getPaidFee());
-            fineResponse.setFineNum(fine.getFineNum());
-            fineResponse.setFineDate(fine.getFineDt());
-            fineResponse.setFineExpireDate(fine.getExpireDt());
-            fines.add(fineResponse);
-        }
         FetchLeasesResponse fetchLeasesResponse = new FetchLeasesResponse();
         fetchLeasesResponse.setFines(fines);
         fetchLeasesResponse.setLeaseId(lease.getLeaseId());
@@ -481,7 +453,8 @@ public class LeasesService extends SessService {
                 payment.setLeaseNo(lease.getLeaseNo());
                 payment.setIndex(i + 1);
                 payment.setLeaseFee(dtosList.get(i).getLeaseFee());
-                payment.setPaymentDate(leaseInfo.getStart().plusMonths(i));
+
+                payment.setPaymentDate(leasePrice.getType() == PaymentTypes.MONTHLY ? leaseInfo.getStart().plusMonths(i): leaseInfo.getStart().plusDays(i));
                 payment.setInsertedUserNo(session.getUserNo());
                 newPaymentList.add(payment);
             }
@@ -649,16 +622,12 @@ public class LeasesService extends SessService {
         if(lease.getStatus() != LeaseStatusTypes.IN_PROGRESS) withException("850-023");
         LeaseInfo leaseInfo = lease.getLeaseInfo();
         List<LeasePayments> payments = leasePaymentsRepository.findAllByLease_LeaseId(lease.getLeaseId());
-        List<LeaseFine> leaseFines = leaseFineRepository.findAllByLease_LeaseId(lease.getLeaseId());
         LeasePrice leasePrice = lease.getLeasePrice();
         List<LeaseExtras> extras = leaseExtraRepository.findAllByLease_LeaseId(lease.getLeaseId());
         leaseInfoRepository.delete(leaseInfo);
         leasePriceRepository.delete(leasePrice);
         for(LeasePayments lp : payments){
             leasePaymentsRepository.delete(lp);
-        }
-        for(LeaseFine lf : leaseFines){
-            leaseFineRepository.delete(lf);
         }
         for(LeaseExtras le : extras){
             leaseExtraRepository.delete(le);

@@ -165,7 +165,8 @@ public class LeasePaymentService  extends SessService {
             withException("900-001");
         int paidFee = payLeaseRequest.getPaidFee();
         List<LeasePayments> payments = leasePaymentsRepository.findAllByLease_LeaseId(payLeaseRequest.getLeaseId());
-        for (int i = 0; i < payments.size() && paidFee > 0; i++) {
+        for (int i = 0; i < payments.size() && paidFee > 0 && payments.get(i).getPaymentDate().isBefore(LocalDate.now().plusDays(1)); i++) {
+
             int unpaidFee = payments.get(i).getLeaseFee() - payments.get(i).getPaidFee();
             if (unpaidFee > 0) {
                 if (paidFee > unpaidFee) {
@@ -389,6 +390,9 @@ public class LeasePaymentService  extends SessService {
             ArrayList<String> logList = new ArrayList<>();
             for (int i = 0; i < payments.size() && payments.get(i).getPaymentDate().isBefore(LocalDate.now().plusDays(1)); i++) {
                 int unpaidFee = payments.get(i).getLeaseFee() - payments.get(i).getPaidFee();
+                payments.get(i).setRead(true);
+                if(payments.get(i).getReadUserNo() == null)
+                    payments.get(i).setReadUserNo(request.getSessionUser().getUserNo());
                 if (unpaidFee > 0) {
                     if (paidFee > unpaidFee) {
                         logList.add(paymentLog(payments.get(i), unpaidFee, true));
@@ -405,6 +409,9 @@ public class LeasePaymentService  extends SessService {
                 }
                 List<LeaseExtras> extras = leaseExtraRepository.findAllByPayment_PaymentId(payments.get(i).getPaymentId());
                 for (LeaseExtras le : extras) {
+                    le.setRead(true);
+                    if(le.getReadUserNo() == null)
+                        le.setReadUserNo(request.getSessionUser().getUserNo());
                     int unpaidExtra = le.getExtraFee() - le.getPaidFee();
                     if (unpaidExtra > 0) {
                         if (unpaidExtra < paidFee) {
