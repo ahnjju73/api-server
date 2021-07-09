@@ -22,4 +22,9 @@ public class ClientsRouters {
                 .andRoute(PUT("/clients/password"), handler::resetPassword)
                 .andRoute(GET("/clients/{client_id}/histories"), handler::fetchHistoryOfClient);
     }
+    @Bean
+    public RouterFunction<ServerResponse> clientOverpayRouter(ClientsHandlers handler){
+        return RouterFunctions
+                .route(GET("/clients/overpay/{client_id}"), handler::fetchClientOverpay);
+    }
 }
