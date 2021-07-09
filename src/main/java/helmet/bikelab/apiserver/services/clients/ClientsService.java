@@ -38,6 +38,7 @@ public class ClientsService extends SessService {
     private final ClientPasswordRepository clientPasswordRepository;
     private final ClientGroupRepository groupRepository;
     private final ClientAddressesRepository clientAddressesRepository;
+    private final ClientOverpayRepository clientOverpayRepository;
     private final BikeUserLogRepository bikeUserLogRepository;
     private final CommonWorker commonWorker;
     private final LeaseRepository leaseRepository;
@@ -101,6 +102,18 @@ public class ClientsService extends SessService {
         fetchClientDetailResponse.setGroupId(client.getClientGroup().getGroupId());
         fetchClientDetailResponse.setUuid(client.getUuid());
         response.put("client", fetchClientDetailResponse);
+        request.setResponse(response);
+        return request;
+    }
+
+    @Transactional
+    public BikeSessionRequest fetchClientOverpays(BikeSessionRequest request){
+        Map param = request.getParam();
+        Map response = new HashMap();
+        FetchClientDetailRequest clientDetail = map(param, FetchClientDetailRequest.class);
+        Clients client = clientsRepository.findByClientId(clientDetail.getClientId());
+        List<ClientOverpay> overpays = clientOverpayRepository.findAllByClientNo(client.getClientNo());
+        response.put("overpay", overpays);
         request.setResponse(response);
         return request;
     }

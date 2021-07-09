@@ -2,6 +2,7 @@ package helmet.bikelab.apiserver.services.leases;
 
 import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
+import helmet.bikelab.apiserver.domain.client.ClientOverpay;
 import helmet.bikelab.apiserver.domain.client.Clients;
 import helmet.bikelab.apiserver.domain.lease.*;
 import helmet.bikelab.apiserver.domain.types.BikeUserLogTypes;
@@ -33,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static helmet.bikelab.apiserver.domain.bikelab.BikeUserLog.addLog;
@@ -46,6 +48,7 @@ public class LeasePaymentService  extends SessService {
     private final LeaseExtraRepository leaseExtraRepository;
     private final BikeUserLogRepository bikeUserLogRepository;
     private final ClientsRepository clientsRepository;
+    private final ClientOverpayRepository clientOverpayRepository;
     private final BikesRepository bikesRepository;
     private final AutoKey autoKey;
     private final CommonWorker commonWorker;
@@ -166,12 +169,12 @@ public class LeasePaymentService  extends SessService {
             int unpaidFee = payments.get(i).getLeaseFee() - payments.get(i).getPaidFee();
             if (unpaidFee > 0) {
                 if (paidFee > unpaidFee) {
-                    logList.add(paymentLog(request.getSessionUser(), lease, payments.get(i), unpaidFee, true));
+                    logList.add(paymentLog(payments.get(i), unpaidFee, true));
                     payments.get(i).setPaidFee(payments.get(i).getLeaseFee());
                     paidFee -= unpaidFee;
                     leasePaymentsRepository.save(payments.get(i));
                 } else {
-                    logList.add(paymentLog(request.getSessionUser(), lease, payments.get(i), paidFee, false));
+                    logList.add(paymentLog(payments.get(i), paidFee, false));
                     payments.get(i).setPaidFee(payments.get(i).getPaidFee() + paidFee);
                     leasePaymentsRepository.save(payments.get(i));
                     paidFee = 0;
@@ -183,12 +186,12 @@ public class LeasePaymentService  extends SessService {
                 int unpaidExtra = le.getExtraFee() - le.getPaidFee();
                 if (unpaidExtra > 0) {
                     if (unpaidExtra < paidFee) {
-                        logList.add(extraPaymentLog(request.getSessionUser(), lease, le, unpaidExtra, true));
+                        logList.add(extraPaymentLog(le, unpaidExtra, true));
                         le.setPaidFee(le.getExtraFee());
                         paidFee -= unpaidExtra;
                         leaseExtraRepository.save(le);
                     } else {
-                        logList.add(extraPaymentLog(request.getSessionUser(), lease, le, paidFee, false));
+                        logList.add(extraPaymentLog(le, paidFee, false));
                         le.setPaidFee(le.getPaidFee() + paidFee);
                         leaseExtraRepository.save(le);
                         paidFee = 0;
@@ -198,9 +201,7 @@ public class LeasePaymentService  extends SessService {
             }
         }
         if (paidFee > 0) {
-            ArrayList<String> overPaylog = new ArrayList<>();
-            overPaylog.add("<>" + lease.getClients().getClientInfo().getName() + "</>에서 " + Utils.getCurrencyFormat(paidFee) + "원 추가 납입 하셨습니다");
-            bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_PAYMENT, request.getSessionUser().getUserNo(), lease.getClientNo().toString(), overPaylog));
+            saveOverpayLog(request.getSessionUser(), lease, paidFee);
         }
         bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_PAYMENT, request.getSessionUser().getUserNo(), lease.getLeaseNo().toString(), logList));
         return request;
@@ -336,12 +337,12 @@ public class LeasePaymentService  extends SessService {
                 int unpaidFee = payments.get(i).getLeaseFee() - payments.get(i).getPaidFee();
                 if (unpaidFee > 0) {
                     if (paidFee > unpaidFee) {
-                        logList.add(paymentLog(request.getSessionUser(), lease, payments.get(i), unpaidFee, true));
+                        logList.add(paymentLog(payments.get(i), unpaidFee, true));
                         payments.get(i).setPaidFee(payments.get(i).getLeaseFee());
                         paidFee -= unpaidFee;
                         leasePaymentsRepository.save(payments.get(i));
                     } else {
-                        logList.add(paymentLog(request.getSessionUser(), lease, payments.get(i), paidFee, false));
+                        logList.add(paymentLog(payments.get(i), paidFee, false));
                         payments.get(i).setPaidFee(payments.get(i).getPaidFee() + paidFee);
                         leasePaymentsRepository.save(payments.get(i));
                         paidFee = 0;
@@ -354,12 +355,12 @@ public class LeasePaymentService  extends SessService {
                     int unpaidExtra = le.getExtraFee() - le.getPaidFee();
                     if (unpaidExtra > 0) {
                         if (unpaidExtra < paidFee) {
-                            logList.add(extraPaymentLog(request.getSessionUser(), lease, le, unpaidExtra, true));
+                            logList.add(extraPaymentLog(le, unpaidExtra, true));
                             le.setPaidFee(le.getExtraFee());
                             paidFee -= unpaidExtra;
                             leaseExtraRepository.save(le);
                         } else {
-                            logList.add(extraPaymentLog(request.getSessionUser(), lease, le, paidFee, false));
+                            logList.add(extraPaymentLog(le, paidFee, false));
                             le.setPaidFee(le.getPaidFee() + paidFee);
                             leaseExtraRepository.save(le);
                             paidFee = 0;
@@ -369,9 +370,7 @@ public class LeasePaymentService  extends SessService {
                 }
             }
             if (paidFee > 0) {
-                ArrayList<String> overPaylog = new ArrayList<>();
-                overPaylog.add("<>" + lease.getClients().getClientInfo().getName() + "</>에서 " + Utils.getCurrencyFormat(paidFee) + "원 추가 납입 하셨습니다");
-                bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_PAYMENT, request.getSessionUser().getUserNo(), lease.getClientNo().toString(), overPaylog));
+                saveOverpayLog(request.getSessionUser(), lease, paidFee);
             }
             bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_PAYMENT, request.getSessionUser().getUserNo(), lease.getLeaseNo().toString(), logList));
         }
@@ -392,12 +391,12 @@ public class LeasePaymentService  extends SessService {
                 int unpaidFee = payments.get(i).getLeaseFee() - payments.get(i).getPaidFee();
                 if (unpaidFee > 0) {
                     if (paidFee > unpaidFee) {
-                        logList.add(paymentLog(request.getSessionUser(), lease, payments.get(i), unpaidFee, true));
+                        logList.add(paymentLog(payments.get(i), unpaidFee, true));
                         payments.get(i).setPaidFee(payments.get(i).getLeaseFee());
                         paidFee -= unpaidFee;
                         leasePaymentsRepository.save(payments.get(i));
                     } else {
-                        logList.add(paymentLog(request.getSessionUser(), lease, payments.get(i), paidFee, false));
+                        logList.add(paymentLog(payments.get(i), paidFee, false));
                         payments.get(i).setPaidFee(payments.get(i).getPaidFee() + paidFee);
                         leasePaymentsRepository.save(payments.get(i));
                         paidFee = 0;
@@ -409,12 +408,12 @@ public class LeasePaymentService  extends SessService {
                     int unpaidExtra = le.getExtraFee() - le.getPaidFee();
                     if (unpaidExtra > 0) {
                         if (unpaidExtra < paidFee) {
-                            logList.add(extraPaymentLog(request.getSessionUser(), lease, le, unpaidExtra, true));
+                            logList.add(extraPaymentLog(le, unpaidExtra, true));
                             le.setPaidFee(le.getExtraFee());
                             paidFee -= unpaidExtra;
                             leaseExtraRepository.save(le);
                         } else {
-                            logList.add(extraPaymentLog(request.getSessionUser(), lease, le, paidFee, false));
+                            logList.add(extraPaymentLog(le, paidFee, false));
                             le.setPaidFee(le.getPaidFee() + paidFee);
                             leaseExtraRepository.save(le);
                             paidFee = 0;
@@ -428,7 +427,7 @@ public class LeasePaymentService  extends SessService {
                 break;
         }
         if (paidFee > 0) {
-            // todo: client overpay 처리
+            saveOverpayLog(request.getSessionUser(), leaseList.get(leaseList.size()-1), paidFee);
         }
         return request;
     }
@@ -452,12 +451,12 @@ public class LeasePaymentService  extends SessService {
                     int unpaidFee = payments.get(i).getLeaseFee() - payments.get(i).getPaidFee();
                     if (unpaidFee > 0) {
                         if (paidFee > unpaidFee) {
-                            logList.add(paymentLog(request.getSessionUser(), lease, payments.get(i), unpaidFee, true));
+                            logList.add(paymentLog(payments.get(i), unpaidFee, true));
                             payments.get(i).setPaidFee(payments.get(i).getLeaseFee());
                             paidFee -= unpaidFee;
                             leasePaymentsRepository.save(payments.get(i));
                         } else {
-                            logList.add(paymentLog(request.getSessionUser(), lease, payments.get(i), paidFee, false));
+                            logList.add(paymentLog(payments.get(i), paidFee, false));
                             payments.get(i).setPaidFee(payments.get(i).getPaidFee() + paidFee);
                             leasePaymentsRepository.save(payments.get(i));
                             paidFee = 0;
@@ -469,12 +468,12 @@ public class LeasePaymentService  extends SessService {
                         int unpaidExtra = le.getExtraFee() - le.getPaidFee();
                         if (unpaidExtra > 0) {
                             if (unpaidExtra < paidFee) {
-                                logList.add(extraPaymentLog(request.getSessionUser(), lease, le, unpaidExtra, true));
+                                logList.add(extraPaymentLog(le, unpaidExtra, true));
                                 le.setPaidFee(le.getExtraFee());
                                 paidFee -= unpaidExtra;
                                 leaseExtraRepository.save(le);
                             } else {
-                                logList.add(extraPaymentLog(request.getSessionUser(), lease, le, paidFee, false));
+                                logList.add(extraPaymentLog(le, paidFee, false));
                                 le.setPaidFee(le.getPaidFee() + paidFee);
                                 leaseExtraRepository.save(le);
                                 paidFee = 0;
@@ -484,9 +483,7 @@ public class LeasePaymentService  extends SessService {
                     }
                 }
                 if (paidFee > 0) {
-                    ArrayList<String> overPaylog = new ArrayList<>();
-                    overPaylog.add("<>" + lease.getClients().getClientInfo().getName() + "</>에서 " + Utils.getCurrencyFormat(paidFee) + "원 추가 납입 하셨습니다");
-                    bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_PAYMENT, request.getSessionUser().getUserNo(), lease.getClientNo().toString(), overPaylog));
+                   saveOverpayLog(request.getSessionUser(), lease, paidFee);
                 }
                 bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_PAYMENT, request.getSessionUser().getUserNo(), lease.getLeaseNo().toString(), logList));
             }
@@ -515,12 +512,12 @@ public class LeasePaymentService  extends SessService {
                     int unpaidFee = payments.get(i).getLeaseFee() - payments.get(i).getPaidFee();
                     if (unpaidFee > 0) {
                         if (paidFee > unpaidFee) {
-                            logList.add(paymentLog(request.getSessionUser(), lease, payments.get(i), unpaidFee, true));
+                            logList.add(paymentLog(payments.get(i), unpaidFee, true));
                             payments.get(i).setPaidFee(payments.get(i).getLeaseFee());
                             paidFee -= unpaidFee;
                             leasePaymentsRepository.save(payments.get(i));
                         } else {
-                            logList.add(paymentLog(request.getSessionUser(), lease, payments.get(i), paidFee, false));
+                            logList.add(paymentLog(payments.get(i), paidFee, false));
                             payments.get(i).setPaidFee(payments.get(i).getPaidFee() + paidFee);
                             leasePaymentsRepository.save(payments.get(i));
                             paidFee = 0;
@@ -532,12 +529,12 @@ public class LeasePaymentService  extends SessService {
                         int unpaidExtra = le.getExtraFee() - le.getPaidFee();
                         if (unpaidExtra > 0) {
                             if (unpaidExtra < paidFee) {
-                                logList.add(extraPaymentLog(request.getSessionUser(), lease, le, unpaidExtra, true));
+                                logList.add(extraPaymentLog(le, unpaidExtra, true));
                                 le.setPaidFee(le.getExtraFee());
                                 paidFee -= unpaidExtra;
                                 leaseExtraRepository.save(le);
                             } else {
-                                logList.add(extraPaymentLog(request.getSessionUser(), lease, le, paidFee, false));
+                                logList.add(extraPaymentLog(le, paidFee, false));
                                 le.setPaidFee(le.getPaidFee() + paidFee);
                                 leaseExtraRepository.save(le);
                                 paidFee = 0;
@@ -551,9 +548,7 @@ public class LeasePaymentService  extends SessService {
                     break;
             }
             if(paidFee > 0){
-                ArrayList<String> overPaylog = new ArrayList<>();
-                overPaylog.add("<>" + client.getClientInfo().getName() + "</>에서 " + Utils.getCurrencyFormat(paidFee) + "원 추가 납입 하셨습니다");
-                bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_PAYMENT, request.getSessionUser().getUserNo(), client.getClientNo().toString(), overPaylog));
+                saveOverpayLog(request.getSessionUser(), leases.get(leases.size()-1), paidFee);
             }
         }
         return request;
@@ -561,17 +556,28 @@ public class LeasePaymentService  extends SessService {
 
 
 
-    private String paymentLog(BikeUser session, Leases leases, LeasePayments payment, Integer changedFee, boolean isFull) {
+    private String paymentLog(LeasePayments payment, Integer changedFee, boolean isFull) {
         if(isFull)
             return ("<>" + payment.getPaymentDate().getMonthValue() + "월</> 리스료 <>" + Utils.getCurrencyFormat(payment.getLeaseFee()) + "원</>중에서 납부금액 (<>" + Utils.getCurrencyFormat(payment.getPaidFee()) + "원</>에서 <>" + Utils.getCurrencyFormat(changedFee + payment.getPaidFee()) + "원</>로) 완납하였습니다.");
         else
             return ("<>" + payment.getPaymentDate().getMonthValue() + "월</> 리스료 <>" + Utils.getCurrencyFormat(payment.getLeaseFee()) + "원</>중에서 납부금액 (<>" + Utils.getCurrencyFormat(payment.getPaidFee()) + "원</>에서 <>" + Utils.getCurrencyFormat(changedFee + payment.getPaidFee()) + "원</>) 납부하여서 잔여금액은 <>" + Utils.getCurrencyFormat(payment.getLeaseFee() - (changedFee + payment.getPaidFee())) + "원</>입니다.");
     }
 
-    private String extraPaymentLog(BikeUser session, Leases leases, LeaseExtras extra, Integer changedFee, boolean isFull) {
+    private String extraPaymentLog(LeaseExtras extra, Integer changedFee, boolean isFull) {
         if(isFull)
             return ("<>" + extra.getPayment().getPaymentDate().getMonthValue() + "월</> 총추가납부금 <>" + Utils.getCurrencyFormat(extra.getExtraFee()) + "원</>중에서 납부금액 (<>" + Utils.getCurrencyFormat(extra.getPaidFee()) + "원</>에서 <>" + Utils.getCurrencyFormat(extra.getPaidFee() + changedFee) + "원</>)으로 완납하였습니다.");
         else
             return ("<>" + extra.getPayment().getPaymentDate().getMonthValue() + "월</> 총추가납부금 <>" + Utils.getCurrencyFormat(extra.getExtraFee()) + "원</>중에서 납부금액 (<>" + Utils.getCurrencyFormat(extra.getPaidFee()) + "원</>에서 <>" + Utils.getCurrencyFormat(extra.getPaidFee() + changedFee) + "원</>)을 납부하여 잔여금액은 <>" + Utils.getCurrencyFormat(extra.getExtraFee() - (extra.getPaidFee() + changedFee)) + "원</>입니다.");
+    }
+
+    private void saveOverpayLog(BikeUser session, Leases lease, Integer overpayFee){
+        ClientOverpay clientOverpay = new ClientOverpay();
+        clientOverpay.setClientNo(lease.getClientNo());
+        clientOverpay.setOverpayFee(overpayFee);
+        clientOverpay.setDate(LocalDateTime.now());
+        clientOverpayRepository.save(clientOverpay);
+        String log = "리스료 <>" + overpayFee + "</>원 과납입 되었습니다.";
+        bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_OVERPAY, session.getUserNo(), lease.getLeaseNo().toString(), log));
+        bikeUserLogRepository.save(addLog(BikeUserLogTypes.COMM_CLIENT_OVERPAY, session.getUserNo(), lease.getClientNo().toString(), log));
     }
 }

@@ -15,6 +15,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -65,6 +67,11 @@ public class BikeUserLog extends OriginObject {
     public static BikeUserLog addLog(BikeUserLogTypes bikeUserLogTypes, Integer fromUserNo, String referenceId, List<String> content){
         return addLog(bikeUserLogTypes, fromUserNo, null, content, referenceId);
     }
+
+    public static BikeUserLog addLog(BikeUserLogTypes bikeUserLogTypes, Integer fromUserNo, String referenceId, String content){
+        return addLog(bikeUserLogTypes, fromUserNo, null, Arrays.asList(content), referenceId);
+    }
+
 
     public static BikeUserLog addLog(BikeUserLogTypes bikeUserLogTypes, Integer fromUserNo, Integer toUserNo, List<String> content, String referenceId){
         BikeUserLog bikeUserLog = new BikeUserLog();
