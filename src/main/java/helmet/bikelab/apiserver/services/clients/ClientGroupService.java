@@ -349,28 +349,28 @@ public class ClientGroupService extends SessService {
                   }
                   if(colIdx == 13){
                      //바로고 테라 무빙 딜리체
-//                     String price = value.replaceAll("," , "");
-//                     leasePrice.setDeposit((int)Double.parseDouble(price));
+                     String price = value.replaceAll("," , "");
+                     leasePrice.setDeposit((int)Double.parseDouble(price));
                      //만나
-                     double price = cell.getNumericCellValue();
-                     leasePrice.setDeposit((int) price);
+//                     double price = cell.getNumericCellValue();
+//                     leasePrice.setDeposit((int) price);
                   }
 //                바로고 테라 무빙 딜리 정
-//                  if(colIdx == 14){
-//                     String price = value.replaceAll("," , "");
-//                     leaseFee = (int)Double.parseDouble(price);
-//                  }
-//                  if(colIdx == 15){
-//                     leaseInfo.setNote(value);
-//                  }
-                  //만나
-                  if(colIdx == 15){
-                     double price = cell.getNumericCellValue();
-                     leaseFee = (int) price;
+                  if(colIdx == 14){
+                     String price = value.replaceAll("," , "");
+                     leaseFee = (int)Double.parseDouble(price);
                   }
-                  if(colIdx == 116){
+                  if(colIdx == 15){
                      leaseInfo.setNote(value);
                   }
+                  //만나
+//                  if(colIdx == 15){
+//                     double price = cell.getNumericCellValue();
+//                     leaseFee = (int) price;
+//                  }
+//                  if(colIdx == 116){
+//                     leaseInfo.setNote(value);
+//                  }
                }
             }
             lease.setType(ManagementTypes.FINANCIAL);
@@ -392,34 +392,34 @@ public class ClientGroupService extends SessService {
             leasePrice.setProfit(0);
             leasePrice.setTakeFee(0);
             leasePrice.setRegisterFee(0);
-            leasePrice.setType(PaymentTypes.DAILY);
+            leasePrice.setType(PaymentTypes.MONTHLY);
             leasePriceRepository.save(leasePrice);
 
             List<LeasePayments> leasePaymentsList = new ArrayList<>();
 
-//            for (int i = 0; i < leaseInfo.getPeriod(); i++) {
-//               LeasePayments leasePayment = new LeasePayments();
-//               String paymentId = autoKey.makeGetKey("payment");
-//               leasePayment.setPaymentId(paymentId);
-//               leasePayment.setLeaseNo(lease.getLeaseNo());
-//               leasePayment.setIndex(i + 1);
-//               leasePayment.setPaymentDate(leaseInfo.getStart().plusMonths(i));
-//               leasePayment.setInsertedUserNo(session.getUserNo());
-//               leasePayment.setLeaseFee(leaseFee);
-//               leasePaymentsList.add(leasePayment);
-//            }
-            int days = (int)(ChronoUnit.DAYS.between(leaseInfo.getStart(), leaseInfo.getStart().plusMonths(leaseInfo.getPeriod())));
-            for(int i = 0 ; i < days; i++){
+            for (int i = 0; i < leaseInfo.getPeriod(); i++) {
                LeasePayments leasePayment = new LeasePayments();
                String paymentId = autoKey.makeGetKey("payment");
                leasePayment.setPaymentId(paymentId);
                leasePayment.setLeaseNo(lease.getLeaseNo());
                leasePayment.setIndex(i + 1);
-               leasePayment.setPaymentDate(leaseInfo.getStart().plusDays(i));
+               leasePayment.setPaymentDate(leaseInfo.getStart().plusMonths(i));
                leasePayment.setInsertedUserNo(session.getUserNo());
                leasePayment.setLeaseFee(leaseFee);
                leasePaymentsList.add(leasePayment);
             }
+//            int days = (int)(ChronoUnit.DAYS.between(leaseInfo.getStart(), leaseInfo.getStart().plusMonths(leaseInfo.getPeriod())));
+//            for(int i = 0 ; i < days; i++){
+//               LeasePayments leasePayment = new LeasePayments();
+//               String paymentId = autoKey.makeGetKey("payment");
+//               leasePayment.setPaymentId(paymentId);
+//               leasePayment.setLeaseNo(lease.getLeaseNo());
+//               leasePayment.setIndex(i + 1);
+//               leasePayment.setPaymentDate(leaseInfo.getStart().plusDays(i));
+//               leasePayment.setInsertedUserNo(session.getUserNo());
+//               leasePayment.setLeaseFee(leaseFee);
+//               leasePaymentsList.add(leasePayment);
+//            }
             leasePaymentsRepository.saveAll(leasePaymentsList);
          }
       }

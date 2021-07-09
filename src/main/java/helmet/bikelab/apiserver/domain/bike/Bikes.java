@@ -2,17 +2,12 @@ package helmet.bikelab.apiserver.domain.bike;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import helmet.bikelab.apiserver.domain.CommonCode;
 import helmet.bikelab.apiserver.domain.CommonCodeBikes;
-import helmet.bikelab.apiserver.domain.lease.Fines;
-import helmet.bikelab.apiserver.domain.lease.LeaseInfo;
 import helmet.bikelab.apiserver.domain.lease.Leases;
 import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 @Entity
 @Getter
