@@ -68,7 +68,7 @@ public class Insurances extends OriginObject {
     @Convert(converter = InsuranceTypesConverter.class)
     private InsuranceTypes type = InsuranceTypes.PERSONAL;
 
-    @Column(name = "insurance_name", unique = true)
+    @Column(name = "insurance_name", length = 40)
     private String insuranceName;
 
 

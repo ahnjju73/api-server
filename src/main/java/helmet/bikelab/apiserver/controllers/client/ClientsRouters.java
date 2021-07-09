@@ -21,4 +21,9 @@ public class ClientsRouters {
                 .andRoute(DELETE("/clients"), handler::deleteClient)
                 .andRoute(PUT("/clients/password"), handler::resetPassword);
     }
+    @Bean
+    public RouterFunction<ServerResponse> clientOverpayRouter(ClientsHandlers handler){
+        return RouterFunctions
+                .route(GET("/clients/overpay/{client_id}"), handler::fetchClientOverpay);
+    }
 }

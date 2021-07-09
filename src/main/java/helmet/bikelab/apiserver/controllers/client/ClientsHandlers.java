@@ -74,4 +74,14 @@ public class ClientsHandlers {
                         .map(clientsService::resetPassword)
                         .map(clientsService::returnData), Map.class);
     }
+
+    public Mono<ServerResponse> fetchClientOverpay(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> clientsService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(req -> clientsService.getPathVariable(req, "client_id"))
+                        .map(clientsService::checkBikeSession)
+                        .map(clientsService::fetchClientOverpays)
+                        .map(clientsService::returnData), Map.class);
+    }
 }
