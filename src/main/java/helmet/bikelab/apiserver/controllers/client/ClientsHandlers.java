@@ -17,6 +17,15 @@ import java.util.Map;
 public class ClientsHandlers {
     private final ClientsService clientsService;
 
+    public Mono<ServerResponse> fetchHistoryOfClient(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> clientsService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(clientsService::checkBikeSession)
+                        .map(row -> clientsService.getPathVariable(row, "client_id"))
+                        .map(clientsService::fetchHistoryOfClient)
+                        .map(clientsService::returnData), ResponseListDto.class);
+    }
 
     public Mono<ServerResponse> fetchListOfClients(ServerRequest request) {
         return ServerResponse.ok().body(

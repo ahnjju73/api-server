@@ -9,6 +9,7 @@ import helmet.bikelab.apiserver.domain.types.BikeUserLogTypes;
 import helmet.bikelab.apiserver.domain.types.YesNoTypes;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.bikelabs.clients.*;
+import helmet.bikelab.apiserver.objects.requests.ClientListDto;
 import helmet.bikelab.apiserver.objects.requests.RequestListDto;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.repositories.*;
@@ -42,6 +43,15 @@ public class ClientsService extends SessService {
     private final CommonWorker commonWorker;
     private final LeaseRepository leaseRepository;
     private final ClientWorker clientWorker;
+
+    public BikeSessionRequest fetchHistoryOfClient(BikeSessionRequest request){
+        Map param = request.getParam();
+        ClientListDto requestListDto = map(param, ClientListDto.class);
+        ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "bikelabs.bike_user_log.getBikeUserLogInClients", "bikelabs.bike_user_log.countAllBikeUserLogInClients", "log_no");
+        request.setResponse(responseListDto);
+        return request;
+    }
+
     public BikeSessionRequest fetchListOfClients(BikeSessionRequest request){
         Map param = request.getParam();
         RequestListDto requestListDto = map(param, RequestListDto.class);
@@ -120,6 +130,7 @@ public class ClientsService extends SessService {
             withException("");
         if(addClientRequest.getRegNo() != null && clientsRepository.countAllByRegNum(addClientRequest.getRegNo()) > 0)
             withException("");
+
         Clients clients = new Clients();
         clients.setClientId(clientId);
         clients.setGroupNo(group.getGroupNo());
@@ -138,19 +149,25 @@ public class ClientsService extends SessService {
         clientInfo.setManagerEmail(addClientRequest.getClientInfo().getManagerEmail());
         clientInfo.setManagerName(addClientRequest.getClientInfo().getManagerName());
         clientInfo.setManagerPhone(addClientRequest.getClientInfo().getManagerPhone());
+        clientInfo.setClient(clients);
+        clientInfoRepository.save(clientInfo);
 
         ClientAddresses clientAddresses = new ClientAddresses();
         clientAddresses.setModelAddress(addClientRequest.getAddress());
         clientAddresses.setClientNo(clients.getClientNo());
+        clientAddresses.setClient(clients);
+
+        clientAddressesRepository.save(clientAddresses);
 
         ClientPassword clientPassword = new ClientPassword();
         clientPassword.newPassword(addClientRequest.getEmail());
         clientPassword.setClientNo(clients.getClientNo());
-
-        clientInfoRepository.save(clientInfo);
-        clientAddressesRepository.save(clientAddresses);
+        clientPassword.setClient(clients);
         clientPasswordRepository.save(clientPassword);
 
+        clients.setClientAddresses(clientAddresses);
+        clients.setClientInfo(clientInfo);
+        clients.setClientPassword(clientPassword);
         bikeUserLogRepository.save(addLog(BikeUserLogTypes.COMM_CLIENT_ADDED, session.getUserNo(), clients.getClientNo().toString()));
 
         return request;
@@ -173,13 +190,15 @@ public class ClientsService extends SessService {
             withException("");
 
         BikeUser session = request.getSessionUser();
-        updateClientUserLog(BikeUserLogTypes.COMM_CLIENT_UPDATED, session.getUserNo(), updateClientRequest, client, clientInfo);
-        client.setUuid(updateClientRequest.getUuid());
+        ClientGroups preGroup = client.getClientGroup();
+        client.setClientGroup(clientGroups);
         client.setGroupNo(clientGroups.getGroupNo());
+        updateClientUserLog(BikeUserLogTypes.COMM_CLIENT_UPDATED, session.getUserNo(), updateClientRequest, client, clientInfo, preGroup);
+        client.setUuid(updateClientRequest.getUuid());
+
         client.setDirectType(YesNoTypes.getYesNo(updateClientRequest.getDirect()));
         client.setRegNum(updateClientRequest.getRegNo());
         clientsRepository.save(client);
-
         clientInfo.setClientNo(client.getClientNo());
         clientInfo.setDescription(updateClientRequest.getClientInfo().getDescription());
         clientInfo.setPhone(updateClientRequest.getClientInfo().getPhone());
@@ -187,53 +206,74 @@ public class ClientsService extends SessService {
         clientInfo.setManagerEmail(updateClientRequest.getClientInfo().getManagerEmail());
         clientInfo.setManagerName(updateClientRequest.getClientInfo().getManagerName());
         clientInfo.setManagerPhone(updateClientRequest.getClientInfo().getManagerPhone());
-
-
         clientAddresses.setModelAddress(updateClientRequest.getAddress());
         clientAddresses.setClientNo(client.getClientNo());
-
         clientInfoRepository.save(clientInfo);
         clientAddressesRepository.save(clientAddresses);
 
         return request;
     }
 
-    public void updateClientUserLog(BikeUserLogTypes bikeUserLogTypes, Integer fromUserNo, UpdateClientRequest updateClientRequest, Clients clients, ClientInfo clientInfo){
+    public void updateClientUserLog(BikeUserLogTypes bikeUserLogTypes, Integer fromUserNo, UpdateClientRequest updateClientRequest, Clients clients, ClientInfo clientInfo, ClientGroups preGroup){
         if(bePresent(updateClientRequest)){
             List<String> stringList = new ArrayList<>();
             ClientInfo ci = updateClientRequest.getClientInfo();
             ClientAddresses clientAddresses = clients.getClientAddresses() == null ? new ClientAddresses() : clients.getClientAddresses();
             ModelAddress modelAddress = clientAddresses.getModelAddress() == null ? new ModelAddress() : clientAddresses.getModelAddress();
             ModelAddress address = updateClientRequest.getAddress();
+            if(bePresent(updateClientRequest.getGroupId()) && !updateClientRequest.getGroupId().equals(preGroup.getGroupId())){
+                ClientGroups clientGroup = clients.getClientGroup();
+                stringList.add("그룹정보를 <>" + preGroup.getGroupName() + "[" +  preGroup.getGroupId()+ "]</>에서 <>" + clientGroup.getGroupName() + "[" + clientGroup.getGroupId() + "]</>으로 변경하였습니다.");
+            }
             if(bePresent(updateClientRequest.getEmail()) && !updateClientRequest.getEmail().equals(clients.getEmail())){
-                stringList.add("고객사 이메일을 <>" + clients.getEmail() + "</>에서 <>" + updateClientRequest.getEmail() + "</>으로 변경하였습니다.");
+                if(clients.getEmail() == null){
+                    stringList.add("고객사 이메일을 <>" + updateClientRequest.getEmail() + "</>으로 변경하였습니다.");
+                }else stringList.add("고객사 이메일을 <>" + clients.getEmail() + "</>에서 <>" + updateClientRequest.getEmail() + "</>으로 변경하였습니다.");
             }
             if(bePresent(updateClientRequest.getDirect()) && !YesNoTypes.getYesNo(updateClientRequest.getDirect()).equals(clients.getDirectType())){
                 stringList.add("고객사 직영여부를 변경하였습니다.");
             }
             if(bePresent(updateClientRequest.getRegNo()) && !updateClientRequest.getRegNo().equals(clients.getRegNum())){
-                stringList.add("고객사 고유번호를 <>" + clients.getRegNum() + "</>에서 <>" + updateClientRequest.getRegNo() + "</>로 변경하였습니다.");
+                if(clients.getRegNum() == null){
+                    stringList.add("사업자번호를 <>" + updateClientRequest.getRegNo() + "</>으로 변경하였습니다.");
+                }else stringList.add("사업자번호를 <>" + clients.getRegNum() + "</>에서 <>" + updateClientRequest.getRegNo() + "</>로 변경하였습니다.");
+            }
+            if(bePresent(updateClientRequest.getUuid()) && !updateClientRequest.getUuid().equals(clients.getUuid())){
+                if(clients.getUuid() == null){
+                    stringList.add("총판코드를 <>" + updateClientRequest.getUuid() + "</>으로 변경하였습니다.");
+                }else stringList.add("총판코드를 <>" + clients.getUuid() + "</>에서 <>" + updateClientRequest.getUuid() + "</>로 변경하였습니다.");
             }
             if(bePresent(ci)){
                 if(bePresent(ci.getDescription()) && !ci.getDescription().equals(clientInfo.getDescription())){
-                    stringList.add("고객사 설명을 <>" + clientInfo.getDescription() + "</>에서 <>" + ci.getDescription() + "</>로 변경하였습니다.");
+                    if(clientInfo.getDescription() == null){
+                        stringList.add("고객사 설명을 <>" + ci.getDescription() + "</>로 변경하였습니다.");
+                    }else stringList.add("고객사 설명을 <>" + clientInfo.getDescription() + "</>에서 <>" + ci.getDescription() + "</>로 변경하였습니다.");
                 }
                 if(bePresent(ci.getPhone()) && !ci.getPhone().equals(clientInfo.getPhone())){
-                    stringList.add("고객사 연락처를 <>" + clientInfo.getPhone() + "</>에서 <>" + ci.getPhone() + "</>로 변경하였습니다.");
+                    if(clientInfo.getPhone() == null){
+                        stringList.add("고객사 연락처를 <>" + ci.getPhone() + "</>로 변경하였습니다.");
+                    }else stringList.add("고객사 연락처를 <>" + clientInfo.getPhone() + "</>에서 <>" + ci.getPhone() + "</>로 변경하였습니다.");
                 }
                 if(bePresent(ci.getName()) && !ci.getName().equals(clientInfo.getName())){
-                    stringList.add("고객사명을 <>" + clientInfo.getName() + "</>에서 <>" + ci.getName() + "</>로 변경하였습니다.");
+                    if(clientInfo.getName() == null){
+                        stringList.add("고객사명을 <>" + ci.getName() + "</>로 변경하였습니다.");
+                    }else stringList.add("고객사명을 <>" + clientInfo.getName() + "</>에서 <>" + ci.getName() + "</>로 변경하였습니다.");
                 }
                 if(bePresent(ci.getManagerEmail()) && !ci.getManagerEmail().equals(clientInfo.getManagerEmail())){
-                    stringList.add("고객사 담당자 Email을 <>" + clientInfo.getManagerEmail() + "</>에서 <>" + ci.getManagerEmail() + "</>로 변경하였습니다.");
+                    if(clientInfo.getManagerEmail() == null){
+                        stringList.add("고객사 담당자 Email을 <>" + ci.getManagerEmail() + "</>로 변경하였습니다.");
+                    }else stringList.add("고객사 담당자 Email을 <>" + clientInfo.getManagerEmail() + "</>에서 <>" + ci.getManagerEmail() + "</>로 변경하였습니다.");
                 }
                 if(bePresent(ci.getManagerName()) && !ci.getManagerName().equals(clientInfo.getManagerName())){
-                    stringList.add("고객사 담당자명을 <>" + clientInfo.getManagerName() + "</>에서 <>" + ci.getManagerName() + "</>로 변경하였습니다.");
+                    if(clientInfo.getManagerName() == null){
+                        stringList.add("고객사 담당자명을 <>" + ci.getManagerName() + "</>로 변경하였습니다.");
+                    }else stringList.add("고객사 담당자명을 <>" + clientInfo.getManagerName() + "</>에서 <>" + ci.getManagerName() + "</>로 변경하였습니다.");
                 }
                 if(bePresent(ci.getManagerPhone()) && !ci.getManagerPhone().equals(clientInfo.getManagerPhone())){
-                    stringList.add("고객사 담당자 연락처를 <>" + clientInfo.getManagerPhone() + "</>에서 <>" + ci.getManagerPhone() + "</>로 변경하였습니다.");
+                    if(clientInfo.getManagerPhone() == null){
+                        stringList.add("고객사 담당자 연락처를 <>" + ci.getManagerPhone() + "</>로 변경하였습니다.");
+                    }else stringList.add("고객사 담당자 연락처를 <>" + clientInfo.getManagerPhone() + "</>에서 <>" + ci.getManagerPhone() + "</>로 변경하였습니다.");
                 }
-
                 if(bePresent(address) && !address.getAddress().equals(modelAddress.getAddress())){
                     stringList.add("고객사 주소를 변경하였습니다.");
                 }
