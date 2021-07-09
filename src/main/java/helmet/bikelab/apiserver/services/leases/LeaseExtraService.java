@@ -162,7 +162,7 @@ public class LeaseExtraService extends SessService {
         List<LeaseExtras> extras = leaseExtraRepository.findAllByPayment_PaymentId(fetchLeaseExtraRequest.getPaymentId());
         List<FetchLeaseExtraResponse> fetchLeaseExtraResponses = new ArrayList<>();
         for(LeaseExtras le : extras){
-            LeasePayments payment = leasePaymentsRepository.findByPaymentId(le.getPayment().getPaymentId());
+            LeasePayments payment = le.getPayment();
             FetchLeaseExtraResponse fetchLeaseExtraResponse = new FetchLeaseExtraResponse();
             LeasePaymentDto dto = new LeasePaymentDto();
             dto.setIdx(payment.getIndex());

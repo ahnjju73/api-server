@@ -5,13 +5,66 @@
 
 <mapper namespace="bikelabs.bike_user_log">
 
+    <select id="countAllBikeUserLogInClients" parameterType="hmap" resultType="int">
+        select count(*)
+          from (select *
+                  from clients
+                 where client_id = #{client_id}) cls
+               join (select *
+                       from bike_user_log
+                      where log_type in ('150-003', '150-004', '150-020')) bul on cls.client_no = bul.ref_id
+    </select>
+
+    <select id="getBikeUserLogInClients" parameterType="hmap" resultType="hmap">
+          select cast(log.log_no as char) log_no,
+                 log.client_id,
+                 log.log_type,
+                 bum.user_no,
+                 if(content is null, '', content) as content,
+                 bum.user_id,
+                 bum.email,
+                 bum.status,
+                 bui.name,
+                 bui.phone,
+                 case
+                     when TIMESTAMPDIFF(SECOND, log.created_at, now()) <![CDATA[ < ]]> 61 then TIMESTAMPDIFF(SECOND, log.created_at, now())
+                     when TIMESTAMPDIFF(MINUTE, log.created_at, now()) <![CDATA[ < ]]> 61 then TIMESTAMPDIFF(MINUTE, log.created_at, now())
+                     when TIMESTAMPDIFF(HOUR, log.created_at, now()) <![CDATA[ < ]]> 24 then TIMESTAMPDIFF(HOUR, log.created_at, now())
+                     ELSE date_format(log.created_at, '%Y년%m월%d')
+                     end as created_at,
+                 case
+                     when TIMESTAMPDIFF(SECOND, log.created_at, now()) <![CDATA[ < ]]> 61 then '초전'
+                     when TIMESTAMPDIFF(MINUTE, log.created_at, now()) <![CDATA[ < ]]> 61 then '분전'
+                     when TIMESTAMPDIFF(HOUR, log.created_at, now()) <![CDATA[ < ]]> 24 then '시간전'
+                     ELSE ''
+                 end as created_at_unit
+            from (select cls.client_id,
+                         bul.*
+                    from (select *
+                            from clients
+                           where client_id = #{client_id}) cls
+                         join (select *
+                                 from bike_user_log
+                                 where log_type in ('150-003', '150-004', '150-020')) bul on cls.client_no = bul.ref_id
+                   where 1 = 1
+                    <if test="next_token != null and next_token != '' and next_token != 'undefined'">
+                     and log_no <![CDATA[ < ]]> #{next_token}
+                    </if>
+                   order by bul.log_no desc limit 30) log
+                 join bike_user_mst bum on log.from_user_no = bum.user_no
+                 join bike_user_info bui on bum.user_no = bui.user_no
+    </select>
+
     <select id="countAllBikeUserLogInLeases" parameterType="hmap" resultType="int">
         select count(*)
           from (select *
                   from leases
                  where lease_id = #{lease_id}) lm
-               join bike_user_log bul on lm.lease_no = bul.ref_id
+               join (select *
+                       from bike_user_log
+                      where log_type in ('150-011', '150-012', '150-013', '150-014', '150-015', '150-016', '150-017', '150-018', '150-019', '150-021')) bul on lm.lease_no = bul.ref_id
     </select>
+
     <select id="getBikeUserLogInLeases" parameterType="hmap" resultType="hmap">
         select bul.log_no,
                bul.lease_id,
@@ -40,7 +93,9 @@
                   from (select *
                           from leases
                          where lease_id = #{lease_id}) lm
-                       join bike_user_log bul on lm.lease_no = bul.ref_id
+                       join (select *
+                               from bike_user_log
+                              where log_type in ('150-011', '150-012', '150-013', '150-014', '150-015', '150-016', '150-017', '150-018', '150-019', '150-021')) bul on lm.lease_no = bul.ref_id
                  where 1 = 1
                 <if test="next_token != null and next_token != '' and next_token != 'undefined'">
                     and log_no <![CDATA[ < ]]> #{next_token}

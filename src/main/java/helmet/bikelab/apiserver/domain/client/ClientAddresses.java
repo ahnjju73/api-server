@@ -12,7 +12,7 @@ import lombok.Setter;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "client_addresses")
+@Table(name = "client_addresses", catalog = SESSION.SCHEME_SERVICE)
 @Getter
 @Setter
 @NoArgsConstructor

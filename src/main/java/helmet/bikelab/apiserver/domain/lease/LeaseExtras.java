@@ -2,6 +2,7 @@ package helmet.bikelab.apiserver.domain.lease;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.types.ExtraTypes;
 import helmet.bikelab.apiserver.domain.types.converters.ExtraTypeConverter;
 import lombok.Getter;
@@ -28,7 +29,7 @@ public class LeaseExtras {
     @Column(name = "extra_id")
     private String extraId;
 
-    @OneToOne(optional = false)
+    @ManyToOne(optional = false)
     @JoinColumn(name = "payment_no", nullable = false, insertable = false, updatable = false)
     private LeasePayments payment;
 
@@ -52,6 +53,14 @@ public class LeaseExtras {
     @Column(name = "description", columnDefinition = "MEDIUMTEXT")
     private String description;
 
+    @Column(name = "read_user_no", nullable = false)
+    private Integer readUserNo;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "read_user_no", insertable = false, updatable = false)
+    private BikeUser readUser;
+
+    @Column(name = "read_yn")
+    private Boolean read = false;
 
 }

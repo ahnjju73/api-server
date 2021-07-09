@@ -57,7 +57,7 @@ public class LeasePayments {
     @Column(name = "read_user_no", nullable = false)
     private Integer readUserNo;
 
-    @ManyToOne(optional = false)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "read_user_no", insertable = false, updatable = false)
     private BikeUser readUser;
 
