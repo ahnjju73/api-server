@@ -24,7 +24,8 @@ public enum BikeUserLogTypes {
     LEASE_EXTRA_PAYMENT("150-017"),
     LEASE_PAYMENT_READ("150-018"),
     LEASE_OVERPAY("150-019"),
-    COMM_CLIENT_OVERPAY("150-020")
+    COMM_CLIENT_OVERPAY("150-020"),
+    LEASE_EXTRA_READ("150-021"),
     ;
 
     private String status;

@@ -138,6 +138,9 @@
                      join (select *
                            from lease_extra
                            where 1 = 1
+                            <if test='search_read == "N"'>
+                             and read_yn = false
+                            </if>
                              and extra_fee != paid_fee) le on lp.payment_no = le.payment_no
             order by lp.payment_date desc, lp.payment_no desc
     </select>
@@ -162,11 +165,15 @@
                b.number,
                cb.comm_nm as car_model,
                lp.payment_type,
-               et.comm_nm as extra_type
-        from (select *
-                from (select @rownum:=@rownum+1 as rownum,
-                             dum.*
-                        from (select lm.lease_id,
+               et.comm_nm as extra_type,
+               main.read_yn as `read`,
+               bum.user_id as read_user_id,
+               bui.name as read_user_name,
+               bum.email as read_user_email
+          from (select *
+                  from (select @rownum:=@rownum+1 as rownum,
+                               dum.*
+                          from (select lm.lease_id,
                                      lm.lease_no,
                                      lm.client_no,
                                      lm.bike_no,
@@ -176,7 +183,9 @@
                                      lp.idx,
                                      le.extra_fee,
                                      le.paid_fee,
-                                     le.extra_type
+                                     le.extra_type,
+                                     le.read_yn,
+                                     le.read_user_no
                                 from (select *
                                         from leases
                                        where status = '550-003') lm
@@ -189,6 +198,9 @@
                                      join (select *
                                              from lease_extra
                                             where 1 = 1
+                                            <if test='search_read == "N"'>
+                                              and read_yn = false
+                                            </if>
                                               and extra_fee != paid_fee) le on lp.payment_no = le.payment_no
                               order by lp.payment_date desc, lp.payment_no desc) dum,
                               (SELECT @rownum :=0) AS R) lst
@@ -205,6 +217,8 @@
                  join (select *
                          from com_comm_mst
                         where up_comm_cd = 503) et on main.extra_type = et.comm_cd
+                 left outer join bike_user_mst bum on main.read_user_no = bum.user_no
+                 left outer join bike_user_info bui on bum.user_no = bui.user_no
         order by main.rownum
     </select>
 
@@ -216,8 +230,8 @@
                 join (select *
                         from lease_payments
                        where date_format(payment_date, '%Y-%m-%d') <![CDATA[ <= ]]> #{now}
-                        <if test="search_read != null and search_read != 'undefined' and search_read != ''">
-                         and `read_yn` = 0
+                        <if test='search_read == "N"'>
+                         and `read_yn` = false
                         </if>
                         <if test="start_at != null and start_at != '' and start_at != 'undefined' and end_at != null and end_at != '' and end_at != 'undefined'">
                          and payment_date between #{end_at} and #{start_at}
@@ -265,8 +279,8 @@
                                      join (select *
                                              from lease_payments
                                             where date_format(payment_date, '%Y-%m-%d') <![CDATA[ <= ]]> #{now}
-                                            <if test="search_read != null and search_read != 'undefined' and search_read != ''">
-                                              and `read_yn` = 0
+                                            <if test='search_read == "N"'>
+                                              and `read_yn` = false
                                             </if>
                                             <if test="start_at != null and start_at != '' and start_at != 'undefined' and end_at != null and end_at != '' and end_at != 'undefined'">
                                               and payment_date between #{end_at} and #{start_at}
