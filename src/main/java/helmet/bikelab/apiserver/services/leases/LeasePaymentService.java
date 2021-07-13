@@ -35,6 +35,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 import static helmet.bikelab.apiserver.domain.bikelab.BikeUserLog.addLog;
@@ -570,17 +571,22 @@ public class LeasePaymentService  extends SessService {
 
 
     private String paymentLog(LeasePayments payment, Integer changedFee, boolean isFull) {
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일");
+        LocalDate paymentDate = payment.getPaymentDate();
         if(isFull)
-            return ("<>" + payment.getPaymentDate().getMonthValue() + "월</> 리스료 <>" + Utils.getCurrencyFormat(payment.getLeaseFee()) + "원</>중에서 납부금액 (<>" + Utils.getCurrencyFormat(payment.getPaidFee()) + "원</>에서 <>" + Utils.getCurrencyFormat(changedFee + payment.getPaidFee()) + "원</>로) 완납하였습니다.");
+            return ("<>" + payment.getIndex() + "회차 (" + paymentDate.format(dateTimeFormatter) + ")</> 리스료 <>" + Utils.getCurrencyFormat(payment.getLeaseFee()) + "원</>중에서 납부금액 (<>" + Utils.getCurrencyFormat(payment.getPaidFee()) + "원</>에서 <>" + Utils.getCurrencyFormat(changedFee + payment.getPaidFee()) + "원</>로) 완납하였습니다.");
         else
-            return ("<>" + payment.getPaymentDate().getMonthValue() + "월</> 리스료 <>" + Utils.getCurrencyFormat(payment.getLeaseFee()) + "원</>중에서 납부금액 (<>" + Utils.getCurrencyFormat(payment.getPaidFee()) + "원</>에서 <>" + Utils.getCurrencyFormat(changedFee + payment.getPaidFee()) + "원</>) 납부하여서 잔여금액은 <>" + Utils.getCurrencyFormat(payment.getLeaseFee() - (changedFee + payment.getPaidFee())) + "원</>입니다.");
+            return ("<>" + payment.getIndex() + "회차 (" + paymentDate.format(dateTimeFormatter) + ")</> 리스료 <>" + Utils.getCurrencyFormat(payment.getLeaseFee()) + "원</>중에서 납부금액 (<>" + Utils.getCurrencyFormat(payment.getPaidFee()) + "원</>에서 <>" + Utils.getCurrencyFormat(changedFee + payment.getPaidFee()) + "원</>) 납부하여서 잔여금액은 <>" + Utils.getCurrencyFormat(payment.getLeaseFee() - (changedFee + payment.getPaidFee())) + "원</>입니다.");
     }
 
     private String extraPaymentLog(LeaseExtras extra, Integer changedFee, boolean isFull) {
+        LeasePayments payment = extra.getPayment();
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일");
+        LocalDate paymentDate = payment.getPaymentDate();
         if(isFull)
-            return ("<>" + extra.getPayment().getPaymentDate().getMonthValue() + "월</> 총추가납부금 <>" + Utils.getCurrencyFormat(extra.getExtraFee()) + "원</>중에서 납부금액 (<>" + Utils.getCurrencyFormat(extra.getPaidFee()) + "원</>에서 <>" + Utils.getCurrencyFormat(extra.getPaidFee() + changedFee) + "원</>)으로 완납하였습니다.");
+            return ("<>" + payment.getIndex() + "회차 (" + paymentDate.format(dateTimeFormatter) + ")</> 총추가납부금 <>" + Utils.getCurrencyFormat(extra.getExtraFee()) + "원</>중에서 납부금액 (<>" + Utils.getCurrencyFormat(extra.getPaidFee()) + "원</>에서 <>" + Utils.getCurrencyFormat(extra.getPaidFee() + changedFee) + "원</>)으로 완납하였습니다.");
         else
-            return ("<>" + extra.getPayment().getPaymentDate().getMonthValue() + "월</> 총추가납부금 <>" + Utils.getCurrencyFormat(extra.getExtraFee()) + "원</>중에서 납부금액 (<>" + Utils.getCurrencyFormat(extra.getPaidFee()) + "원</>에서 <>" + Utils.getCurrencyFormat(extra.getPaidFee() + changedFee) + "원</>)을 납부하여 잔여금액은 <>" + Utils.getCurrencyFormat(extra.getExtraFee() - (extra.getPaidFee() + changedFee)) + "원</>입니다.");
+            return ("<>" + payment.getIndex() + "회차 (" + paymentDate.format(dateTimeFormatter) + ")</> 총추가납부금 <>" + Utils.getCurrencyFormat(extra.getExtraFee()) + "원</>중에서 납부금액 (<>" + Utils.getCurrencyFormat(extra.getPaidFee()) + "원</>에서 <>" + Utils.getCurrencyFormat(extra.getPaidFee() + changedFee) + "원</>)을 납부하여 잔여금액은 <>" + Utils.getCurrencyFormat(extra.getExtraFee() - (extra.getPaidFee() + changedFee)) + "원</>입니다.");
     }
 
     private void saveOverpayLog(BikeUser session, Leases lease, Integer overpayFee){
