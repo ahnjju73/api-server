@@ -411,7 +411,7 @@ public class LeasePaymentService  extends SessService {
                 }
             }
             else{
-                List<LeaseExtras> extras = leaseExtraRepository.findAllByPayment_Lease_Clients_ClientIdOOrderByPaymentNo(payLeaseRequest.getClientId());
+                List<LeaseExtras> extras = leaseExtraRepository.findAllByPayment_Lease_Clients_ClientIdOrderByPaymentNo(payLeaseRequest.getClientId());
                 for (LeaseExtras le : extras) {
                     le.setRead(true);
                     if(le.getReadUserNo() == null)

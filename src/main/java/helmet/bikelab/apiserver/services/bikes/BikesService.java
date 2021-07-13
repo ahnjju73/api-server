@@ -139,6 +139,7 @@ public class BikesService extends SessService {
         model.setCarModelCode(carModel.getCode());
         model.setCarModelName(carModel.getModel());
         fetchBikeDetailResponse.setYears(bike.getYears());
+        fetchBikeDetailResponse.setVolume(bike.getVolume());
         fetchBikeDetailResponse.setModel(model);
         fetchBikeDetailResponse.setBikeId(bike.getBikeId());
         fetchBikeDetailResponse.setColor(bike.getColor());
@@ -257,7 +258,6 @@ public class BikesService extends SessService {
               FetchBikeModelsResponse fetchBikeModelsResponse = new FetchBikeModelsResponse();
               fetchBikeModelsResponse.setModel(model.getModel());
               fetchBikeModelsResponse.setCode(model.getCode());
-              fetchBikeModelsResponse.setVolume(model.getVolume());
               fetchBikeModelsResponse.setDiscontinue(model.getDiscontinue());
               fetchBikeModelsResponses.add(fetchBikeModelsResponse);
         }
@@ -271,9 +271,9 @@ public class BikesService extends SessService {
         Map param = request.getParam();
         BikeModelDto bikeModelDto = map(param, BikeModelDto.class);
         CommonCodeBikes codeBike = new CommonCodeBikes();
-        codeBike.setCode(bikeModelDto.getCode());
+        String modelCode = autoKey.makeGetKey("model");
+        codeBike.setCode(modelCode);
         codeBike.setModel(bikeModelDto.getModel());
-        codeBike.setVolume(bikeModelDto.getVolume());
         codeBike.setDiscontinue(bikeModelDto.getDiscontinue());
         bikeModelsRepository.save(codeBike);
         return request;
@@ -285,7 +285,6 @@ public class BikesService extends SessService {
         BikeModelDto bikeModelDto = map(param, BikeModelDto.class);
         CommonCodeBikes codeBike = bikeModelsRepository.findByCode(bikeModelDto.getCode());
         codeBike.setModel(bikeModelDto.getModel());
-        codeBike.setVolume(bikeModelDto.getVolume());
         codeBike.setDiscontinue(bikeModelDto.getDiscontinue());
         bikeModelsRepository.save(codeBike);
         return request;
