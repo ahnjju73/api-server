@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import helmet.bikelab.apiserver.objects.CarModel;
 import helmet.bikelab.apiserver.objects.bikelabs.clients.ClientDto;
+import helmet.bikelab.apiserver.objects.bikelabs.insurance.InsuranceDto;
 import helmet.bikelab.apiserver.objects.bikelabs.leases.LeasesDto;
 import helmet.bikelab.apiserver.services.internal.OriginObject;
 import lombok.Getter;
@@ -25,5 +26,5 @@ public class FetchBikeDetailResponse extends OriginObject {
     private Integer years;
     private LocalDateTime receiveDt;
     private LocalDateTime registerDt;
-
+    private InsuranceDto insuranceInfo;
 }
