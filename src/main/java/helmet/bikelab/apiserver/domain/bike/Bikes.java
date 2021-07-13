@@ -51,4 +51,7 @@ public class Bikes {
 
     @OneToOne(mappedBy = "bike", fetch = FetchType.EAGER)
     private Leases lease;
+
+    @Column(name = "volume")
+    private Integer volume;
 }

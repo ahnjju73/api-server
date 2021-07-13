@@ -22,6 +22,8 @@ public class BikesRouters {
                 .andRoute(PUT("/bikes"), handler::updateBike)
                 .andRoute(DELETE("/bikes"), handler::deleteBike)
                 .andRoute(GET("/bikes_model"), handler::fetchBikeModels)
+                .andRoute(POST("/bikes_model"), handler::addBikeModel)
+                .andRoute(PUT("/bikes_model"), handler::updateBikeModel)
                 .andRoute(GET("/bikes_no_lease"), handler::fetchBikesWithoutLease);
     }
 }
