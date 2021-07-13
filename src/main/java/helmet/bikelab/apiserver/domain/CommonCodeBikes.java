@@ -25,4 +25,7 @@ public class CommonCodeBikes {
     @Column(name = "comm_nm")
     private String model;
 
+    @Column(name = "discontinue")
+    private Boolean discontinue;
+
 }

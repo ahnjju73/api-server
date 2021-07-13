@@ -29,7 +29,6 @@ public class AddBikeRequest extends OriginObject {
 
     public void checkValidation(){
         if(!bePresent(this.vimNumber)) withException("500-002");
-        if(!bePresent(this.number)) withException("500-003");
         if(!bePresent(this.carModel)) withException("500-004");
         if(!bePresent(this.color)) withException("500-005");
 

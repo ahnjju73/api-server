@@ -139,6 +139,7 @@ public class BikesService extends SessService {
         model.setCarModelCode(carModel.getCode());
         model.setCarModelName(carModel.getModel());
         fetchBikeDetailResponse.setYears(bike.getYears());
+        fetchBikeDetailResponse.setVolume(bike.getVolume());
         fetchBikeDetailResponse.setModel(model);
         fetchBikeDetailResponse.setBikeId(bike.getBikeId());
         fetchBikeDetailResponse.setColor(bike.getColor());
@@ -257,10 +258,43 @@ public class BikesService extends SessService {
               FetchBikeModelsResponse fetchBikeModelsResponse = new FetchBikeModelsResponse();
               fetchBikeModelsResponse.setModel(model.getModel());
               fetchBikeModelsResponse.setCode(model.getCode());
+              fetchBikeModelsResponse.setDiscontinue(model.getDiscontinue());
               fetchBikeModelsResponses.add(fetchBikeModelsResponse);
         }
         response.put("model", fetchBikeModelsResponses);
         request.setResponse(response);
+        return request;
+    }
+
+    @Transactional
+    public BikeSessionRequest addBikeModel(BikeSessionRequest request){
+        Map param = request.getParam();
+        BikeModelDto bikeModelDto = map(param, BikeModelDto.class);
+        CommonCodeBikes codeBike = new CommonCodeBikes();
+        String modelCode = autoKey.makeGetKey("model");
+        codeBike.setCode(modelCode);
+        codeBike.setModel(bikeModelDto.getModel());
+        codeBike.setDiscontinue(bikeModelDto.getDiscontinue());
+        bikeModelsRepository.save(codeBike);
+        return request;
+    }
+
+    @Transactional
+    public BikeSessionRequest updateBikeModel(BikeSessionRequest request){
+        Map param = request.getParam();
+        BikeModelDto bikeModelDto = map(param, BikeModelDto.class);
+        CommonCodeBikes codeBike = bikeModelsRepository.findByCode(bikeModelDto.getCode());
+        codeBike.setModel(bikeModelDto.getModel());
+        codeBike.setDiscontinue(bikeModelDto.getDiscontinue());
+        bikeModelsRepository.save(codeBike);
+        return request;
+    }
+
+    @Transactional
+    public BikeSessionRequest deleteBikeModel(BikeSessionRequest request){
+        Map param = request.getParam();
+
+
         return request;
     }
 
