@@ -257,10 +257,45 @@ public class BikesService extends SessService {
               FetchBikeModelsResponse fetchBikeModelsResponse = new FetchBikeModelsResponse();
               fetchBikeModelsResponse.setModel(model.getModel());
               fetchBikeModelsResponse.setCode(model.getCode());
+              fetchBikeModelsResponse.setVolume(model.getVolume());
+              fetchBikeModelsResponse.setDiscontinue(model.getDiscontinue());
               fetchBikeModelsResponses.add(fetchBikeModelsResponse);
         }
         response.put("model", fetchBikeModelsResponses);
         request.setResponse(response);
+        return request;
+    }
+
+    @Transactional
+    public BikeSessionRequest addBikeModel(BikeSessionRequest request){
+        Map param = request.getParam();
+        BikeModelDto bikeModelDto = map(param, BikeModelDto.class);
+        CommonCodeBikes codeBike = new CommonCodeBikes();
+        codeBike.setCode(bikeModelDto.getCode());
+        codeBike.setModel(bikeModelDto.getModel());
+        codeBike.setVolume(bikeModelDto.getVolume());
+        codeBike.setDiscontinue(bikeModelDto.getDiscontinue());
+        bikeModelsRepository.save(codeBike);
+        return request;
+    }
+
+    @Transactional
+    public BikeSessionRequest updateBikeModel(BikeSessionRequest request){
+        Map param = request.getParam();
+        BikeModelDto bikeModelDto = map(param, BikeModelDto.class);
+        CommonCodeBikes codeBike = bikeModelsRepository.findByCode(bikeModelDto.getCode());
+        codeBike.setModel(bikeModelDto.getModel());
+        codeBike.setVolume(bikeModelDto.getVolume());
+        codeBike.setDiscontinue(bikeModelDto.getDiscontinue());
+        bikeModelsRepository.save(codeBike);
+        return request;
+    }
+
+    @Transactional
+    public BikeSessionRequest deleteBikeModel(BikeSessionRequest request){
+        Map param = request.getParam();
+
+
         return request;
     }
 
