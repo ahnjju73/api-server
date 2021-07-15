@@ -18,15 +18,17 @@ import javax.persistence.*;
 @NoArgsConstructor
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class ClientAddresses {
+
     @Id
     @Column(name = "client_no", nullable = false)
     private Integer clientNo;
 
-    @OneToOne(fetch = FetchType.EAGER)
     @JsonIgnore
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "client_no", insertable = false, updatable = false)
     private Clients client;
 
     @Embedded
     private ModelAddress modelAddress = new ModelAddress();
+
 }

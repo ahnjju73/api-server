@@ -23,7 +23,7 @@ public class ClientPassword {
     @Column(name = "client_no")
     private Integer clientNo;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     @JoinColumn(name = "client_no", insertable = false, updatable = false)
     private Clients client;
 

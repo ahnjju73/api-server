@@ -7,11 +7,13 @@ import javax.persistence.Convert;
 import javax.persistence.Id;
 import java.io.Serializable;
 
-public class ClientSessionPK implements Serializable {
+public class ShopSessionPK implements Serializable {
 
-    @Column(name = "client_no")
-    private Integer clientNo;
+    @Id
+    @Column(name = "shop_no")
+    private Integer shopNo;
 
+    @Id
     @Column(name = "session_type", columnDefinition = "ENUM")
     @Convert(converter = UserSessionTypeConverter.class)
     private UserSessionTypes sessionTypes;
