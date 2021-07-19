@@ -45,8 +45,11 @@ public class Leases {
     @JoinColumn(name = "client_no", insertable = false, updatable = false, unique = true)
     private Clients clients;
 
-    @Column(name = "bike_no", unique = true)
+    @Column(name = "bike_no")
     private Integer bikeNo;
+
+    @Column(name = "bak_bike_no")
+    private Integer bakBikeNo;
 
     @OneToOne
     @JoinColumn(name = "bike_no", insertable = false, updatable = false)

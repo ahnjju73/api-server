@@ -18,6 +18,7 @@ import helmet.bikelab.apiserver.repositories.*;
 import helmet.bikelab.apiserver.services.BikeUserTodoService;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.utils.AutoKey;
+import helmet.bikelab.apiserver.utils.Utils;
 import helmet.bikelab.apiserver.workers.CommonWorker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -259,6 +260,7 @@ public class LeasesService extends SessService {
         lease.setLeaseId(leaseId);
         //bike
         Bikes bike = bikesRepository.findByBikeId(addUpdateLeaseRequest.getBikeId());
+        if(bike.getCarNum() == null) withException("850-011");
         if(bike!=null && bike.getLease()!=null) withException("850-001"); //이미 리스가 존재할때
         //clientÎ
         Clients client = clientsRepository.findByClientId(addUpdateLeaseRequest.getClientId());
@@ -343,143 +345,161 @@ public class LeasesService extends SessService {
         Map param = request.getParam();
         AddUpdateLeaseRequest addUpdateLeaseRequest = map(param, AddUpdateLeaseRequest.class);
         Leases lease = leaseRepository.findByLeaseId(addUpdateLeaseRequest.getLeaseId());
-        if(lease.getStatus() != LeaseStatusTypes.IN_PROGRESS && lease.getStatus() != LeaseStatusTypes.DECLINE) withException("850-004");
-        //bike
-        Bikes bike = bikesRepository.findByBikeId(addUpdateLeaseRequest.getBikeId());
-        if(bike!=null && bike.getLease() != null && !lease.equals(bike.getLease())) withException("850-003"); //이미 리스가 존재할때
-        //client
-        Clients client = clientsRepository.findByClientId(addUpdateLeaseRequest.getClientId());
-        //insurance
-        Insurances insurance = insurancesRepository.findByInsuranceId(addUpdateLeaseRequest.getInsuranceId());
-        //release
-        Releases release = releaseRepository.findByReleaseId(addUpdateLeaseRequest.getReleaseId());
-        LeaseInfoDto leaseInfoDto = addUpdateLeaseRequest.getLeaseInfo();
-        LeaseInfo leaseInfo = lease.getLeaseInfo();
-        PaymentTypes paymentType = leasePriceRepository.findByLease_LeaseId(lease.getLeaseId()).getType();
-        LeasePriceDto leasePriceDto = addUpdateLeaseRequest.getLeasePrice();
-        LeasePrice leasePrice = lease.getLeasePrice();
-        List<LeasePayments> leasePaymentsList = leasePaymentsRepository.findAllByLease_LeaseId(addUpdateLeaseRequest.getLeaseId());
-        List<LeasePaymentDto> dtosList = addUpdateLeaseRequest.getLeasePayments();
-        updateLeaseInfoLog(request.getSessionUser(), addUpdateLeaseRequest, client, insurance, bike, lease, leaseInfo, leasePrice, leasePaymentsList);
-
-        if(client!=null)
-            lease.setClientNo(client.getClientNo());
-        if(bike!=null)
+        if((lease.getStatus() != LeaseStatusTypes.IN_PROGRESS && lease.getStatus() != LeaseStatusTypes.DECLINE)||lease.getStatus() == LeaseStatusTypes.CONFIRM) withException("850-004");
+        if(lease.getStatus() == LeaseStatusTypes.CONFIRM){
+            Bikes bike = bikesRepository.findByBikeId(addUpdateLeaseRequest.getBikeId());
+            if (bike != null && bike.getLease() != null && !lease.equals(bike.getLease()))
+                withException("850-003"); //이미 리스가 존재할때
+            if(bike.getCarNum() == null) withException("850-024");
+            Insurances insurance = insurancesRepository.findByInsuranceId(addUpdateLeaseRequest.getInsuranceId());
+            LeaseInfo leaseInfo = lease.getLeaseInfo();
+            updateLeaseInfoLog(request.getSessionUser(), addUpdateLeaseRequest, lease.getClients(), insurance, bike, lease);
             lease.setBikeNo(bike.getBikeNo());
-        if(release!=null)
-            lease.setReleaseNo(release.getReleaseNo());
-        if(insurance!=null)
             lease.setInsuranceNo(insurance.getInsuranceNo());
-        if(addUpdateLeaseRequest.getManagementType() != null)
-            lease.setType(ManagementTypes.getManagementStatus(addUpdateLeaseRequest.getManagementType()));
-        if(addUpdateLeaseRequest.getTakeLoc() != null)
-            lease.setTakeLocation(addUpdateLeaseRequest.getTakeLoc());
-        if(addUpdateLeaseRequest.getTakeAt() != null)
-            lease.setTakeAt(addUpdateLeaseRequest.getTakeAt());
-        if(addUpdateLeaseRequest.getReleaseAt() != null)
-            lease.setReleaseAt(addUpdateLeaseRequest.getReleaseAt());
+            leaseInfo.setNote(addUpdateLeaseRequest.getLeaseInfo().getNote());
+            leaseRepository.save(lease);
+            leaseInfoRepository.save(leaseInfo);
+            bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_UPDATED, request.getSessionUser().getUserNo(), lease.getLeaseNo().toString(), ""));
+            bikeUserLogRepository.save(addLog(BikeUserLogTypes.COMM_BIKE_UPDATED, request.getSessionUser().getUserNo(), lease.getBikeNo().toString(), ""));
+        }
+        else {
+            //bike
+            Bikes bike = bikesRepository.findByBikeId(addUpdateLeaseRequest.getBikeId());
+            if (bike != null && bike.getLease() != null && !lease.equals(bike.getLease()))
+                withException("850-003"); //이미 리스가 존재할때
+            //client
+            Clients client = clientsRepository.findByClientId(addUpdateLeaseRequest.getClientId());
+            //insurance
+            Insurances insurance = insurancesRepository.findByInsuranceId(addUpdateLeaseRequest.getInsuranceId());
+            //release
+            Releases release = releaseRepository.findByReleaseId(addUpdateLeaseRequest.getReleaseId());
+            LeaseInfoDto leaseInfoDto = addUpdateLeaseRequest.getLeaseInfo();
+            LeaseInfo leaseInfo = lease.getLeaseInfo();
+            PaymentTypes paymentType = leasePriceRepository.findByLease_LeaseId(lease.getLeaseId()).getType();
+            LeasePriceDto leasePriceDto = addUpdateLeaseRequest.getLeasePrice();
+            LeasePrice leasePrice = lease.getLeasePrice();
+            List<LeasePayments> leasePaymentsList = leasePaymentsRepository.findAllByLease_LeaseId(addUpdateLeaseRequest.getLeaseId());
+            List<LeasePaymentDto> dtosList = addUpdateLeaseRequest.getLeasePayments();
+            updateLeaseInfoLog(request.getSessionUser(), addUpdateLeaseRequest, client, insurance, bike, lease);
+
+            if (client != null)
+                lease.setClientNo(client.getClientNo());
+            if (bike != null)
+                lease.setBikeNo(bike.getBikeNo());
+            if (release != null)
+                lease.setReleaseNo(release.getReleaseNo());
+            if (insurance != null)
+                lease.setInsuranceNo(insurance.getInsuranceNo());
+            if (addUpdateLeaseRequest.getManagementType() != null)
+                lease.setType(ManagementTypes.getManagementStatus(addUpdateLeaseRequest.getManagementType()));
+            if (addUpdateLeaseRequest.getTakeLoc() != null)
+                lease.setTakeLocation(addUpdateLeaseRequest.getTakeLoc());
+            if (addUpdateLeaseRequest.getTakeAt() != null)
+                lease.setTakeAt(addUpdateLeaseRequest.getTakeAt());
+            if (addUpdateLeaseRequest.getReleaseAt() != null)
+                lease.setReleaseAt(addUpdateLeaseRequest.getReleaseAt());
             lease.setUpLesase(addUpdateLeaseRequest.getUpLeaseNo());
-        leaseRepository.save(lease);
+            leaseRepository.save(lease);
 
-        //leaseInfo.setLeaseNo(lease.getLeaseNo());
-        if(leaseInfoDto.getStartDt()!=null) {
-            leaseInfo.setStart(LocalDate.parse(leaseInfoDto.getStartDt()));
-            leaseInfo.setEndDate(leaseInfo.getStart().plusMonths(addUpdateLeaseRequest.getLeasePayments().size()));
-        }
-        leaseInfo.setContractDate(LocalDate.parse(leaseInfoDto.getContractDt()));
-        leaseInfo.setNote(leaseInfoDto.getNote());
-        leaseInfoRepository.save(leaseInfo);
-
-        //lease price
-        leasePrice.setLeaseNo(lease.getLeaseNo());
-        leasePrice.setType(PaymentTypes.getPaymentType(leasePriceDto.getPaymentType()));
-        leasePrice.setDeposit(leasePriceDto.getDeposit());
-        if(leasePriceDto.getPrePayment()!= null)
-            leasePrice.setPrepayment(leasePriceDto.getPrePayment());
-        leasePrice.setProfit(leasePriceDto.getProfitFee());
-        leasePrice.setTakeFee(leasePriceDto.getTakeFee());
-        leasePrice.setRegisterFee(leasePriceDto.getRegisterFee());
-        leasePriceRepository.save(leasePrice);
-
-        BikeUser session = request.getSessionUser();
-        List<LeasePayments> newPaymentList = new ArrayList<>();
-        if(leasePrice.getType() != paymentType){
-            if(leasePrice.getType() == PaymentTypes.MONTHLY) {
-                for (int i = 0; i < addUpdateLeaseRequest.getLeaseInfo().getPeriod(); i++) {
-                    LeasePayments leasePayment = new LeasePayments();
-                    String paymentId = autoKey.makeGetKey("payment");
-                    leasePayment.setPaymentId(paymentId);
-                    leasePayment.setLeaseNo(lease.getLeaseNo());
-                    leasePayment.setIndex(i + 1);
-                    leasePayment.setPaymentDate(leaseInfo.getStart().plusMonths(i));
-                    leasePayment.setInsertedUserNo(session.getUserNo());
-                    leasePayment.setLeaseFee(addUpdateLeaseRequest.getLeasePrice().getLeaseFee());
-                    newPaymentList.add(leasePayment);
-                }
-            } else {
-                int days = (int)(ChronoUnit.DAYS.between(leaseInfo.getStart(), leaseInfo.getStart().plusMonths(addUpdateLeaseRequest.getLeaseInfo().getPeriod())));
-                for(int i = 0 ; i < days; i++){
-                    LeasePayments leasePayment = new LeasePayments();
-                    String paymentId = autoKey.makeGetKey("payment");
-                    leasePayment.setPaymentId(paymentId);
-                    leasePayment.setLeaseNo(lease.getLeaseNo());
-                    leasePayment.setIndex(i + 1);
-                    leasePayment.setPaymentDate(leaseInfo.getStart().plusDays(i));
-                    leasePayment.setInsertedUserNo(session.getUserNo());
-                    leasePayment.setLeaseFee(addUpdateLeaseRequest.getLeasePrice().getLeaseFee());
-                    newPaymentList.add(leasePayment);
-                }
+            //leaseInfo.setLeaseNo(lease.getLeaseNo());
+            if (leaseInfoDto.getStartDt() != null) {
+                leaseInfo.setStart(LocalDate.parse(leaseInfoDto.getStartDt()));
+                leaseInfo.setEndDate(leaseInfo.getStart().plusMonths(addUpdateLeaseRequest.getLeasePayments().size()));
             }
-            for (LeasePayments lp : leasePaymentsRepository.findAllByLease_LeaseId(lease.getLeaseId())) {
-                List<LeaseExtras> extrasList = leaseExtraRepository.findAllByPayment_PaymentId(lp.getPaymentId());
-                if (!extrasList.isEmpty()) {
-                    leaseExtraRepository.deleteAll(extrasList);
-                }
-            }
-            leasePaymentsRepository.deleteAll(leasePaymentsRepository.findAllByLease_LeaseId(lease.getLeaseId()));
+            leaseInfo.setContractDate(LocalDate.parse(leaseInfoDto.getContractDt()));
+            leaseInfo.setNote(leaseInfoDto.getNote());
+            leaseInfoRepository.save(leaseInfo);
 
-        }
-        else{
-            for (int i = 0; i < dtosList.size(); i++) {
-                LeasePayments payment = new LeasePayments();
-                String paymentId;
-                if (dtosList.get(i).getPaymentId() == null) {
-                    paymentId = autoKey.makeGetKey("payment");
-                    payment.setPaymentId(paymentId);
+            //lease price
+            leasePrice.setLeaseNo(lease.getLeaseNo());
+            leasePrice.setType(PaymentTypes.getPaymentType(leasePriceDto.getPaymentType()));
+            leasePrice.setDeposit(leasePriceDto.getDeposit());
+            if (leasePriceDto.getPrePayment() != null)
+                leasePrice.setPrepayment(leasePriceDto.getPrePayment());
+            leasePrice.setProfit(leasePriceDto.getProfitFee());
+            leasePrice.setTakeFee(leasePriceDto.getTakeFee());
+            leasePrice.setRegisterFee(leasePriceDto.getRegisterFee());
+            leasePriceRepository.save(leasePrice);
+
+            BikeUser session = request.getSessionUser();
+            List<LeasePayments> newPaymentList = new ArrayList<>();
+            if (leasePrice.getType() != paymentType) {
+                if (leasePrice.getType() == PaymentTypes.MONTHLY) {
+                    for (int i = 0; i < addUpdateLeaseRequest.getLeaseInfo().getPeriod(); i++) {
+                        LeasePayments leasePayment = new LeasePayments();
+                        String paymentId = autoKey.makeGetKey("payment");
+                        leasePayment.setPaymentId(paymentId);
+                        leasePayment.setLeaseNo(lease.getLeaseNo());
+                        leasePayment.setIndex(i + 1);
+                        leasePayment.setPaymentDate(leaseInfo.getStart().plusMonths(i));
+                        leasePayment.setInsertedUserNo(session.getUserNo());
+                        leasePayment.setLeaseFee(addUpdateLeaseRequest.getLeasePrice().getLeaseFee());
+                        newPaymentList.add(leasePayment);
+                    }
                 } else {
-                    paymentId = dtosList.get(i).getPaymentId();
-                    payment = leasePaymentsRepository.findByPaymentId(paymentId);
-                }
-                payment.setLeaseNo(lease.getLeaseNo());
-                payment.setIndex(i + 1);
-                payment.setLeaseFee(dtosList.get(i).getLeaseFee());
-
-                payment.setPaymentDate(leasePrice.getType() == PaymentTypes.MONTHLY ? leaseInfo.getStart().plusMonths(i): leaseInfo.getStart().plusDays(i));
-                payment.setInsertedUserNo(session.getUserNo());
-                newPaymentList.add(payment);
-            }
-
-            for (int i = 0; i < leasePaymentsList.size(); i++) {
-                LeasePayments leasePayment = leasePaymentsList.get(i);
-                boolean contains = false;
-                for (LeasePaymentDto dto : dtosList) {
-                    if (dto.equals(leasePayment)) {
-                        contains = true;
+                    int days = (int) (ChronoUnit.DAYS.between(leaseInfo.getStart(), leaseInfo.getStart().plusMonths(addUpdateLeaseRequest.getLeaseInfo().getPeriod())));
+                    for (int i = 0; i < days; i++) {
+                        LeasePayments leasePayment = new LeasePayments();
+                        String paymentId = autoKey.makeGetKey("payment");
+                        leasePayment.setPaymentId(paymentId);
+                        leasePayment.setLeaseNo(lease.getLeaseNo());
+                        leasePayment.setIndex(i + 1);
+                        leasePayment.setPaymentDate(leaseInfo.getStart().plusDays(i));
+                        leasePayment.setInsertedUserNo(session.getUserNo());
+                        leasePayment.setLeaseFee(addUpdateLeaseRequest.getLeasePrice().getLeaseFee());
+                        newPaymentList.add(leasePayment);
                     }
                 }
-                if (!contains) {
-                    leasePaymentsRepository.delete(leasePayment);
-                    leasePaymentsList.remove(i);
-                    i--;
+                for (LeasePayments lp : leasePaymentsRepository.findAllByLease_LeaseId(lease.getLeaseId())) {
+                    List<LeaseExtras> extrasList = leaseExtraRepository.findAllByPayment_PaymentId(lp.getPaymentId());
+                    if (!extrasList.isEmpty()) {
+                        leaseExtraRepository.deleteAll(extrasList);
+                    }
+                }
+                leasePaymentsRepository.deleteAll(leasePaymentsRepository.findAllByLease_LeaseId(lease.getLeaseId()));
+
+            } else {
+                for (int i = 0; i < dtosList.size(); i++) {
+                    LeasePayments payment = new LeasePayments();
+                    String paymentId;
+                    if (dtosList.get(i).getPaymentId() == null) {
+                        paymentId = autoKey.makeGetKey("payment");
+                        payment.setPaymentId(paymentId);
+                    } else {
+                        paymentId = dtosList.get(i).getPaymentId();
+                        payment = leasePaymentsRepository.findByPaymentId(paymentId);
+                    }
+                    payment.setLeaseNo(lease.getLeaseNo());
+                    payment.setIndex(i + 1);
+                    payment.setLeaseFee(dtosList.get(i).getLeaseFee());
+
+                    payment.setPaymentDate(leasePrice.getType() == PaymentTypes.MONTHLY ? leaseInfo.getStart().plusMonths(i) : leaseInfo.getStart().plusDays(i));
+                    payment.setInsertedUserNo(session.getUserNo());
+                    newPaymentList.add(payment);
+                }
+
+                for (int i = 0; i < leasePaymentsList.size(); i++) {
+                    LeasePayments leasePayment = leasePaymentsList.get(i);
+                    boolean contains = false;
+                    for (LeasePaymentDto dto : dtosList) {
+                        if (dto.equals(leasePayment)) {
+                            contains = true;
+                        }
+                    }
+                    if (!contains) {
+                        leasePaymentsRepository.delete(leasePayment);
+                        leasePaymentsList.remove(i);
+                        i--;
+                    }
                 }
             }
+            leasePaymentsRepository.saveAll(newPaymentList);
         }
-        leasePaymentsRepository.saveAll(newPaymentList);
         return request;
     }
 
     @Transactional
-    public void updateLeaseInfoLog(BikeUser session, AddUpdateLeaseRequest leaseRequest, Clients clientRequested, Insurances insurancesRequested, Bikes bikeRequested, Leases leases, LeaseInfo leaseInfo, LeasePrice leasePrice, List<LeasePayments> leasePaymentsList){
+    public void updateLeaseInfoLog(BikeUser session, AddUpdateLeaseRequest leaseRequest, Clients clientRequested, Insurances insurancesRequested, Bikes bikeRequested, Leases leases){
         List<String> stringList = new ArrayList<>();
         boolean isSet = true;
         if(bePresent(leaseRequest)){
@@ -633,6 +653,46 @@ public class LeasesService extends SessService {
             leaseExtraRepository.delete(le);
         }
         leaseRepository.delete(lease);
+        return request;
+    }
+
+    @Transactional
+    public BikeSessionRequest stopLease(BikeSessionRequest request){
+        Map param = request.getParam();
+        String log ="";
+        LeasesDto leasesDto = map(param, LeasesDto.class);
+        Leases lease = leaseRepository.findByLeaseId(leasesDto.getLeaseId());
+        Bikes emptyBike = bikesRepository.findByBikeId("BK000000");
+        lease.setBakBikeNo(lease.getBike().getBikeNo());
+        lease.setBikeNo(emptyBike.getBikeNo());
+        List<LeasePayments> payments = leasePaymentsRepository.findAllByLease_LeaseId(lease.getLeaseId());
+        log = "바이크 번호 " + lease.getBike().getCarNum() + "가 중도해지 되었습니다.\n";
+        int stopFee = 0;
+        LeaseExtras extra = new LeaseExtras();
+        for(LeasePayments pay : payments){
+            if(lease.getLeasePrice().getType() == PaymentTypes.MONTHLY)
+                if(pay.getPaymentDate().getMonthValue() == LocalDate.now().getMonthValue()){
+                    extra.setPaymentNo(pay.getPaymentNo());
+                    //todo 중도해지 위약금
+                    break;
+                }
+            else{
+                if(pay.getPaymentDate().isEqual(LocalDate.now())){
+                    extra.setPaymentNo(pay.getPaymentNo());
+                    //todo 중도해지 위약금
+                    break;
+                }
+            }
+        }
+        log += "위약금은 <>" + Utils.getCurrencyFormat(stopFee) + "</>원 발생하였습니다.";
+        extra.setExtraFee(stopFee);
+        extra.setExtraTypes(ExtraTypes.CANCELLATION);
+        extra.setDescription("중도해지 설명");
+        extra.setLeaseNo(lease.getLeaseNo());
+        extra.setExtraId(autoKey.makeGetKey("lease_extra"));
+        extra.setPaidFee(0);
+        leaseExtraRepository.save(extra);
+        bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_EXTRA_PAYMENT, request.getSessionUser().getUserNo(), lease.getLeaseNo().toString(), log));
         return request;
     }
 

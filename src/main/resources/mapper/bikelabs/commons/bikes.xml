@@ -120,6 +120,8 @@
           from (select *
                   from bikes b
                  where bike_no not in (select bike_no from leases)
+                   and bm.number != null
+                   and bm.number != ''
                 <if test="search_name != null and search_name != '' and search_name != 'undefined'">
                    and (
                         vim_num like concat('%', #{search_name}, '%')

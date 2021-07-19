@@ -106,4 +106,13 @@ public class LeasesHandler {
                         .map(bikeUserLogService::fetchBikeUserLogInLeaseContract)
                         .map(bikeUserLogService::returnData), LeaseBikeUserLogs.class);
     }
+
+    public Mono<ServerResponse> stopLease(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> leasesService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(leasesService::checkBikeSession)
+                        .map(leasesService::stopLease)
+                        .map(leasesService::returnData), Map.class);
+    }
 }

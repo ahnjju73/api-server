@@ -4,7 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum ExtraTypes {
-    ALTERATION("503-001"), INCREMENT("503-002"), ETC("503-100") ;
+    ALTERATION("503-001"), INCREMENT("503-002"), MIN_RESPONSE("503-003"), CANCELLATION("503-004"), ETC("503-100") ;
 
     private String extra;
 
@@ -30,6 +30,10 @@ public enum ExtraTypes {
                 return "보험료 변경";
             case INCREMENT:
                 return "보험료 인상";
+            case MIN_RESPONSE:
+                return "면책금";
+            case CANCELLATION:
+                return "중도 해지 위약금";
             default:
                 return "기타";
         }
