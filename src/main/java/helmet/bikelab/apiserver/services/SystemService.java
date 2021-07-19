@@ -1,12 +1,10 @@
 package helmet.bikelab.apiserver.services;
 
-import com.amazonaws.services.workdocs.model.UserStatusType;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.bikelab.Program;
 import helmet.bikelab.apiserver.domain.bikelab.ProgramUser;
 import helmet.bikelab.apiserver.domain.types.BikeUserStatusTypes;
 import helmet.bikelab.apiserver.domain.types.ReadWriteTypes;
-import helmet.bikelab.apiserver.domain.types.UserSessionTypes;
 import helmet.bikelab.apiserver.domain.types.YesNoTypes;
 import helmet.bikelab.apiserver.objects.AuthDto;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
