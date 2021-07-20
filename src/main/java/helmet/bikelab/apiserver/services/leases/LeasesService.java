@@ -345,15 +345,17 @@ public class LeasesService extends SessService {
         Map param = request.getParam();
         AddUpdateLeaseRequest addUpdateLeaseRequest = map(param, AddUpdateLeaseRequest.class);
         Leases lease = leaseRepository.findByLeaseId(addUpdateLeaseRequest.getLeaseId());
-        if((lease.getStatus() != LeaseStatusTypes.IN_PROGRESS && lease.getStatus() != LeaseStatusTypes.DECLINE)||lease.getStatus() == LeaseStatusTypes.CONFIRM) withException("850-004");
+        if(lease.getStatus() == LeaseStatusTypes.PENDING) withException("850-004");
         if(lease.getStatus() == LeaseStatusTypes.CONFIRM){
             Bikes bike = bikesRepository.findByBikeId(addUpdateLeaseRequest.getBikeId());
             if (bike != null && bike.getLease() != null && !lease.equals(bike.getLease()))
                 withException("850-003"); //이미 리스가 존재할때
             if(bike.getCarNum() == null) withException("850-024");
+            Clients client = clientsRepository.findByClientId(addUpdateLeaseRequest.getClientId());
             Insurances insurance = insurancesRepository.findByInsuranceId(addUpdateLeaseRequest.getInsuranceId());
             LeaseInfo leaseInfo = lease.getLeaseInfo();
             updateLeaseInfoLog(request.getSessionUser(), addUpdateLeaseRequest, lease.getClients(), insurance, bike, lease);
+            lease.setClientNo(client.getClientNo());
             lease.setBikeNo(bike.getBikeNo());
             lease.setInsuranceNo(insurance.getInsuranceNo());
             leaseInfo.setNote(addUpdateLeaseRequest.getLeaseInfo().getNote());
