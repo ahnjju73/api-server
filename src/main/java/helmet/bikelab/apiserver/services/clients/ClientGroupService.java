@@ -27,13 +27,9 @@ import org.apache.poi.xssf.usermodel.XSSFRow;
 import org.apache.poi.xssf.usermodel.XSSFSheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.http.codec.multipart.FilePart;
-import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.reactive.function.server.ServerRequest;
-import org.springframework.web.reactive.function.server.ServerResponse;
-import reactor.core.publisher.Mono;
+
 
 
 import java.io.File;
@@ -345,7 +341,7 @@ public class ClientGroupService extends SessService {
                              new DateTimeFormatterBuilder().parseCaseInsensitive()
                                      .appendPattern("dd-MMM-yyyy")
                                      .toFormatter();
-                     leaseInfo.setStart(LocalDate.parse(value, dTF));
+                     leaseInfo.setContractDate(LocalDate.parse(value, dTF));
                   }
                   if(colIdx == 13){
                      //바로고 테라 무빙 딜리체
@@ -363,13 +359,27 @@ public class ClientGroupService extends SessService {
 //                  if(colIdx == 15){
 //                     leaseInfo.setNote(value);
 //                  }
+//                  if(colIdx == 16){
+//                     DateTimeFormatter dTF =
+//                             new DateTimeFormatterBuilder().parseCaseInsensitive()
+//                                     .appendPattern("dd-MMM-yyyy")
+//                                     .toFormatter();
+//                     leaseInfo.setStart(LocalDate.parse(value, dTF));
+//                  }
                   //만나
                   if(colIdx == 15){
                      double price = cell.getNumericCellValue();
-                     leaseFee = (int) price;
+                     leaseFee = Math.round((float)price);
                   }
-                  if(colIdx == 116){
+                  if(colIdx == 16){
                      leaseInfo.setNote(value);
+                  }
+                  if(colIdx == 17){
+                     DateTimeFormatter dTF =
+                             new DateTimeFormatterBuilder().parseCaseInsensitive()
+                                     .appendPattern("dd-MMM-yyyy")
+                                     .toFormatter();
+                     leaseInfo.setStart(LocalDate.parse(value, dTF));
                   }
                }
             }
@@ -385,7 +395,6 @@ public class ClientGroupService extends SessService {
             leaseInfo.setPeriod(12);
             leaseInfo.setEndDate(leaseInfo.getStart().plusMonths(12));
             leaseInfo.setLeaseNo(lease.getLeaseNo());
-            leaseInfo.setContractDate(leaseInfo.getStart());
             leaseInfoRepository.save(leaseInfo);
             leasePrice.setLeaseNo(lease.getLeaseNo());
             leasePrice.setPrepayment(0);
@@ -397,28 +406,32 @@ public class ClientGroupService extends SessService {
 
             List<LeasePayments> leasePaymentsList = new ArrayList<>();
 
-//            for (int i = 0; i < leaseInfo.getPeriod(); i++) {
-//               LeasePayments leasePayment = new LeasePayments();
-//               String paymentId = autoKey.makeGetKey("payment");
-//               leasePayment.setPaymentId(paymentId);
-//               leasePayment.setLeaseNo(lease.getLeaseNo());
-//               leasePayment.setIndex(i + 1);
-//               leasePayment.setPaymentDate(leaseInfo.getStart().plusMonths(i));
-//               leasePayment.setInsertedUserNo(session.getUserNo());
-//               leasePayment.setLeaseFee(leaseFee);
-//               leasePaymentsList.add(leasePayment);
-//            }
-            int days = (int)(ChronoUnit.DAYS.between(leaseInfo.getStart(), leaseInfo.getStart().plusMonths(leaseInfo.getPeriod())));
-            for(int i = 0 ; i < days; i++){
-               LeasePayments leasePayment = new LeasePayments();
-               String paymentId = autoKey.makeGetKey("payment");
-               leasePayment.setPaymentId(paymentId);
-               leasePayment.setLeaseNo(lease.getLeaseNo());
-               leasePayment.setIndex(i + 1);
-               leasePayment.setPaymentDate(leaseInfo.getStart().plusDays(i));
-               leasePayment.setInsertedUserNo(session.getUserNo());
-               leasePayment.setLeaseFee(leaseFee);
-               leasePaymentsList.add(leasePayment);
+            if(leasePrice.getType()==PaymentTypes.MONTHLY) {
+               for (int i = 0; i < leaseInfo.getPeriod(); i++) {
+                  LeasePayments leasePayment = new LeasePayments();
+                  String paymentId = autoKey.makeGetKey("payment");
+                  leasePayment.setPaymentId(paymentId);
+                  leasePayment.setLeaseNo(lease.getLeaseNo());
+                  leasePayment.setIndex(i + 1);
+                  leasePayment.setPaymentDate(leaseInfo.getStart().plusMonths(i));
+                  leasePayment.setInsertedUserNo(session.getUserNo());
+                  leasePayment.setLeaseFee(leaseFee);
+                  leasePaymentsList.add(leasePayment);
+               }
+            }
+            else{
+               int days = (int) (ChronoUnit.DAYS.between(leaseInfo.getStart(), leaseInfo.getStart().plusMonths(leaseInfo.getPeriod())));
+               for (int i = 0; i < days; i++) {
+                  LeasePayments leasePayment = new LeasePayments();
+                  String paymentId = autoKey.makeGetKey("payment");
+                  leasePayment.setPaymentId(paymentId);
+                  leasePayment.setLeaseNo(lease.getLeaseNo());
+                  leasePayment.setIndex(i + 1);
+                  leasePayment.setPaymentDate(leaseInfo.getStart().plusDays(i));
+                  leasePayment.setInsertedUserNo(session.getUserNo());
+                  leasePayment.setLeaseFee(leaseFee);
+                  leasePaymentsList.add(leasePayment);
+               }
             }
             leasePaymentsRepository.saveAll(leasePaymentsList);
          }
