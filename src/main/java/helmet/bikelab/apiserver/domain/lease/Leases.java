@@ -16,6 +16,7 @@ import lombok.extern.apachecommons.CommonsLog;
 import org.hibernate.validator.constraints.br.CPF;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -129,4 +130,22 @@ public class Leases {
 
     @OneToMany(mappedBy = "lease", fetch = FetchType.LAZY)
     private List<LeaseExtras> extras = new ArrayList<>();
+
+    //stop_lease
+    @Column(name = "lease_stop_yn")
+    private Boolean leaseStopYn = false;
+
+    @Column(name = "stop_dt")
+    private LocalDate stopDt;
+
+    @Column(name = "stop_fee")
+    private Long stopFee;
+
+    @Column(name = "stop_paid_fee")
+    private Long stopPaidFee;
+
+    @Column(name = "stop_reason", columnDefinition = "MEDIUMTEXT")
+    private String stopReason;
+
+
 }
