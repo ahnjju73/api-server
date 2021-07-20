@@ -345,22 +345,40 @@ public class LeasesService extends SessService {
         Map param = request.getParam();
         AddUpdateLeaseRequest addUpdateLeaseRequest = map(param, AddUpdateLeaseRequest.class);
         Leases lease = leaseRepository.findByLeaseId(addUpdateLeaseRequest.getLeaseId());
-        if((lease.getStatus() != LeaseStatusTypes.IN_PROGRESS && lease.getStatus() != LeaseStatusTypes.DECLINE)||lease.getStatus() == LeaseStatusTypes.CONFIRM) withException("850-004");
+        if(lease.getStatus() == LeaseStatusTypes.PENDING) withException("850-004");
         if(lease.getStatus() == LeaseStatusTypes.CONFIRM){
+            String log = "";
             Bikes bike = bikesRepository.findByBikeId(addUpdateLeaseRequest.getBikeId());
             if (bike != null && bike.getLease() != null && !lease.equals(bike.getLease()))
                 withException("850-003"); //이미 리스가 존재할때
             if(bike.getCarNum() == null) withException("850-024");
+            Clients client = clientsRepository.findByClientId(addUpdateLeaseRequest.getClientId());
             Insurances insurance = insurancesRepository.findByInsuranceId(addUpdateLeaseRequest.getInsuranceId());
+            List<String> logList = new ArrayList<>();
+            if(insurance.getInsuranceNo() != lease.getInsuranceNo()){
+                logList.add("보험을 <>" + insurance.getCompanyName() + " " + insurance.getAge() + " [" + insurance.getInsuranceName() + " ]" + "</>에서 <>" + insurance.getCompanyName() + " " + insurance.getAge() + " [" +  insurance.getInsuranceName() + "] " + "</>으로 변경하였습니다.");
+            }
+            if(!lease.getLeaseInfo().getNote().equals(addUpdateLeaseRequest.getLeaseInfo().getNote())){
+                if(lease.getLeaseInfo().getNote() == null)
+                    logList.add("노트 내용을 <>" + addUpdateLeaseRequest.getLeaseInfo().getNote() + "</>로 설정하였습니다.");
+                else
+                    logList.add("노트 내용을 <>" +  lease.getLeaseInfo().getNote() + "</>에서 <>" + addUpdateLeaseRequest.getLeaseInfo().getNote() + "</>으로 변경하였습니다.");
+            }
+            if(!lease.getClientNo().equals(client.getClientNo())){
+                log = "바이크 번호 <>" + bike.getCarNum() + "</>을 <>" + lease.getClients().getClientInfo().getName() + "</>에서 <>"+ client.getClientInfo().getName() + "</>로 이전하였습니다.";
+                logList.add("바이크 번호 <>" + bike.getCarNum() + "</>을 <>" + lease.getClients().getClientInfo().getName() + "</>에서 <>"+ client.getClientInfo().getName() + "</>로 이전하였습니다.");
+            }
             LeaseInfo leaseInfo = lease.getLeaseInfo();
-            updateLeaseInfoLog(request.getSessionUser(), addUpdateLeaseRequest, lease.getClients(), insurance, bike, lease);
+            lease.setClientNo(client.getClientNo());
             lease.setBikeNo(bike.getBikeNo());
             lease.setInsuranceNo(insurance.getInsuranceNo());
             leaseInfo.setNote(addUpdateLeaseRequest.getLeaseInfo().getNote());
             leaseRepository.save(lease);
             leaseInfoRepository.save(leaseInfo);
-            bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_UPDATED, request.getSessionUser().getUserNo(), lease.getLeaseNo().toString(), ""));
-            bikeUserLogRepository.save(addLog(BikeUserLogTypes.COMM_BIKE_UPDATED, request.getSessionUser().getUserNo(), lease.getBikeNo().toString(), ""));
+            bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_UPDATED, request.getSessionUser().getUserNo(), lease.getLeaseNo().toString(), logList));
+            if(!log.equals(""))
+                bikeUserLogRepository.save(addLog(BikeUserLogTypes.COMM_BIKE_UPDATED, request.getSessionUser().getUserNo(), lease.getBikeNo().toString(), log));
+
         }
         else {
             //bike
