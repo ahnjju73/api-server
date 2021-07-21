@@ -21,7 +21,8 @@ public class LeasesRouters {
                 .andRoute(PUT("/leases/change_status/confirm"), handler::confirmApplication)
                 .andRoute(PUT("/leases/change_status/reject"), handler::rejectLease)
                 .andRoute(DELETE("/leases"), handler::deleteLease)
-                .andRoute(PUT("/stop_leases"), handler::stopLease);
+                .andRoute(PUT("/stop_leases"), handler::stopLease)
+                .andRoute(PUT("/stop_leases/update"), handler::updateStopLease);
     }
 
     @Bean

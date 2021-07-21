@@ -13,6 +13,7 @@ import helmet.bikelab.apiserver.objects.bikelabs.release.ReleaseDto;
 import helmet.bikelab.apiserver.objects.bikelabs.clients.ClientDto;
 import helmet.bikelab.apiserver.objects.bikelabs.insurance.InsuranceDto;
 import helmet.bikelab.apiserver.objects.requests.LeasesRequestListDto;
+import helmet.bikelab.apiserver.objects.requests.StopLeaseDto;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.repositories.*;
 import helmet.bikelab.apiserver.services.BikeUserTodoService;
@@ -26,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
 
@@ -162,6 +164,14 @@ public class LeasesService extends SessService {
         fetchLeasesResponse.setTakeAt(lease.getTakeAt());
         fetchLeasesResponse.setCreatedAt(lease.getCreatedAt());
         fetchLeasesResponse.setReleaseAt(lease.getReleaseAt());
+        StopLeaseDto stopLeaseDto = new StopLeaseDto();
+        stopLeaseDto.setStopDt(lease.getStopDt().toString());
+        stopLeaseDto.setLeaseId(lease.getLeaseId());
+        stopLeaseDto.setStopFee(lease.getStopFee());
+        stopLeaseDto.setStopReason(lease.getStopReason());
+        stopLeaseDto.setStopPaidFee(lease.getStopPaidFee());
+        fetchLeasesResponse.setStopLeaseInfo(stopLeaseDto);
+
         if(lease.getBike()!=null) {
             fetchLeasesResponse.setBikeId(lease.getBike().getBikeId());
             BikeDto bikeDto = new BikeDto();
@@ -678,39 +688,54 @@ public class LeasesService extends SessService {
     public BikeSessionRequest stopLease(BikeSessionRequest request){
         Map param = request.getParam();
         String log ="";
-        LeasesDto leasesDto = map(param, LeasesDto.class);
-        Leases lease = leaseRepository.findByLeaseId(leasesDto.getLeaseId());
+        StopLeaseDto stopLeaseDto = map(param, StopLeaseDto.class);
+        Leases lease = leaseRepository.findByLeaseId(stopLeaseDto.getLeaseId());
+        if(lease == null || lease.getStatus() != LeaseStatusTypes.CONFIRM) withException("");
         Bikes emptyBike = bikesRepository.findByBikeId("BK000000");
         lease.setBakBikeNo(lease.getBike().getBikeNo());
         lease.setBikeNo(emptyBike.getBikeNo());
-        List<LeasePayments> payments = leasePaymentsRepository.findAllByLease_LeaseId(lease.getLeaseId());
-        log = "바이크 번호 " + lease.getBike().getCarNum() + "가 중도해지 되었습니다.\n";
-        int stopFee = 0;
-        LeaseExtras extra = new LeaseExtras();
-        for(LeasePayments pay : payments){
-            if(lease.getLeasePrice().getType() == PaymentTypes.MONTHLY)
-                if(pay.getPaymentDate().getMonthValue() == LocalDate.now().getMonthValue()){
-                    extra.setPaymentNo(pay.getPaymentNo());
-                    //todo 중도해지 위약금
-                    break;
-                }
-            else{
-                if(pay.getPaymentDate().isEqual(LocalDate.now())){
-                    extra.setPaymentNo(pay.getPaymentNo());
-                    //todo 중도해지 위약금
-                    break;
-                }
-            }
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일");
+        String formattedString = LocalDate.parse(stopLeaseDto.getStopDt()).format(formatter);
+        log = "바이크 번호 <>" + lease.getBike().getCarNum() + "</>가 중도해지 되었습니다.\n";
+        log += "중도 해지 위약금은 <>" + stopLeaseDto.getStopFee() + "</>원으로 설정 되었습니다.\n"+"중도 해지 일자는 <>"
+                + formattedString + "</>로 설정 되었습니다.\n" + "중도 해지 이유는 <>" + stopLeaseDto.getStopReason() + "</>입니다.";
+        lease.setLeaseStopYn(true);
+        lease.setStopDt(LocalDate.parse(stopLeaseDto.getStopDt()));
+        lease.setStopFee(stopLeaseDto.getStopFee());
+        lease.setStopPaidFee(0L);
+        lease.setStopReason(stopLeaseDto.getStopReason());
+        leaseRepository.save(lease);
+        bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_UPDATED, request.getSessionUser().getUserNo(), lease.getLeaseNo().toString(), log));
+        return request;
+    }
+
+    @Transactional
+    public BikeSessionRequest updateStopLease(BikeSessionRequest request){
+        Map param = request.getParam();
+        String log ="";
+        StopLeaseDto stopLeaseDto = map(param, StopLeaseDto.class);
+        Leases lease = leaseRepository.findByLeaseId(stopLeaseDto.getLeaseId());
+        if(lease == null || lease.getLeaseStopYn()) withException("");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일");
+        String formattedString = LocalDate.parse(stopLeaseDto.getStopDt()).format(formatter);
+        if(!LocalDate.parse(stopLeaseDto.getStopDt()).isEqual(lease.getStopDt() )){
+            log += "중도 해지 일자가 <>" + lease.getStopDt().format(formatter) + "</>에서 <>" + formattedString + "</>로 수정 되었습니다.\n";
+            lease.setStopDt(LocalDate.parse(stopLeaseDto.getStopDt()));
         }
-        log += "위약금은 <>" + Utils.getCurrencyFormat(stopFee) + "</>원 발생하였습니다.";
-        extra.setExtraFee(stopFee);
-        extra.setExtraTypes(ExtraTypes.CANCELLATION);
-        extra.setDescription("중도해지 설명");
-        extra.setLeaseNo(lease.getLeaseNo());
-        extra.setExtraId(autoKey.makeGetKey("lease_extra"));
-        extra.setPaidFee(0);
-        leaseExtraRepository.save(extra);
-        bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_EXTRA_PAYMENT, request.getSessionUser().getUserNo(), lease.getLeaseNo().toString(), log));
+        if(stopLeaseDto.getStopFee() != lease.getStopFee()){
+            log += "중도 해지 위약금이 <>" + lease.getStopFee() + "</>원에서 <>" + stopLeaseDto.getStopFee() + "</>원으로 수정 되었습니다.\n";
+            lease.setStopFee(stopLeaseDto.getStopFee());
+        }
+        if(!stopLeaseDto.getStopReason().equals(lease.getStopReason())){
+            log += "중도 해지 이유가 <>" + lease.getStopReason() + "</>에서 <>" + stopLeaseDto.getStopReason() + "</>로 변경 되었습니다.";
+            lease.setStopReason(stopLeaseDto.getStopReason());
+        }
+        if(lease.getStopPaidFee() != stopLeaseDto.getStopPaidFee()){
+            log += "중도 해지 위약금 납부 금액이 <>" + lease.getStopFee() + "</>원에서 <>" + stopLeaseDto.getStopFee() + "</>원으로 수정 되었습니다.\n";
+            lease.setStopPaidFee(stopLeaseDto.getStopPaidFee());
+        }
+        leaseRepository.save(lease);
+        bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_UPDATED, request.getSessionUser().getUserNo(), lease.getLeaseNo().toString(), log));
         return request;
     }
 
