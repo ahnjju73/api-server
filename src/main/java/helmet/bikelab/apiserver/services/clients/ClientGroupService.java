@@ -89,9 +89,13 @@ public class ClientGroupService extends SessService {
       group.setRegNum(addGroupRequest.getRegNo());
       groupRepository.save(group);
 
-      GroupAddresses groupAddress = new GroupAddresses();
-      groupAddress.setModelAddress(addGroupRequest.getAddress());
-      groupAddress.setGroupNo(group.getGroupNo());
+      GroupAddresses groupAddresses = group.getGroupAddresses();
+      if(!bePresent(groupAddresses)) {
+         groupAddresses = new GroupAddresses();
+         groupAddresses.setGroupNo(group.getGroupNo());
+      }
+      groupAddresses.setModelAddress(addGroupRequest.getAddress());
+      clientGroupAddressRepository.save(groupAddresses);
 
       BikeUserLog userLog = new BikeUserLog();
       userLog.setLogType(BikeUserLogTypes.COMM_GROUP_ADDED);
