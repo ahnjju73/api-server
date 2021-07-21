@@ -52,7 +52,7 @@ public class Leases {
     @Column(name = "bak_bike_no")
     private Integer bakBikeNo;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "bike_no", insertable = false, updatable = false)
     private Bikes bike;
 

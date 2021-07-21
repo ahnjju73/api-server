@@ -242,8 +242,9 @@ public class BikesService extends SessService {
         DeleteBikeRequest deleteBikeRequest  = map(param, DeleteBikeRequest.class);
         deleteBikeRequest.checkValidation();
         Bikes bikes = bikesRepository.findByBikeId(deleteBikeRequest.getBikeId());
+        List<Leases> leases = leaseRepository.findAllByBike_BikeId(deleteBikeRequest.getBikeId());
         if(bikes == null) withException("");
-        if(bikes.getLease() != null) writeMessage("리스번호 " + bikes.getLease().getLeaseId() + "가 이미 연결되어 있습니다.");
+        if(leases.size() == 0) writeMessage("리스번호 " + leases.get(0).getLeaseId() + "가 이미 연결되어 있습니다.");
         else{
             bikesRepository.delete(bikes);
         }
