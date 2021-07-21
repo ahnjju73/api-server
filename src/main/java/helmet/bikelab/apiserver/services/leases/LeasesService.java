@@ -699,7 +699,7 @@ public class LeasesService extends SessService {
         log = "바이크 번호 <>" + lease.getBike().getCarNum() + "</>가 중도해지 되었습니다.<br>";
         log += "중도 해지 위약금은 <>" + stopLeaseDto.getStopFee() + "</>원으로 설정 되었습니다.<br>"+"중도 해지 일자는 <>"
                 + formattedString + "</>로 설정 되었습니다.<br>" + "중도 해지 이유는 <>" + stopLeaseDto.getStopReason() + "</>입니다.";
-        lease.setLeaseStopYn(true);
+        lease.setLeaseStopStatus(LeaseStopStatusTypes.STOP_CONTINUE);
         lease.setStopDt(LocalDate.parse(stopLeaseDto.getStopDt()));
         lease.setStopFee(stopLeaseDto.getStopFee());
         lease.setStopPaidFee(0L);
@@ -715,7 +715,7 @@ public class LeasesService extends SessService {
         String log ="";
         StopLeaseDto stopLeaseDto = map(param, StopLeaseDto.class);
         Leases lease = leaseRepository.findByLeaseId(stopLeaseDto.getLeaseId());
-        if(lease == null || lease.getLeaseStopYn()) withException("");
+        if(lease == null || !lease.getLeaseStopStatus().equals(LeaseStopStatusTypes.STOP_CONTINUE)) withException("");
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일");
         String formattedString = LocalDate.parse(stopLeaseDto.getStopDt()).format(formatter);
         if(!LocalDate.parse(stopLeaseDto.getStopDt()).isEqual(lease.getStopDt() )){
