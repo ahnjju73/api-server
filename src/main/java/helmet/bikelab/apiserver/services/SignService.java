@@ -91,10 +91,8 @@ public class SignService extends SessService {
                     ModelPassword mp = userPassword.getModelPassword();
                     String requestedPwd = Crypt.newCrypt().getPassword(password, mp.getSalt());
                     String crypedPwd = mp.getPassword();
-
                     if(!bePresent(requestedPwd) || !bePresent(crypedPwd) || !requestedPwd.equals(crypedPwd))
                         writeError(param, "800-007", HttpStatus.BAD_REQUEST);
-
                     String sessionKey = setSessionAuthKey(request, user, user.getUserStatusTypes());
                     sessionResponseDto.set(setResponseData(sessionKey, user, user.getBikeUserInfo()));
                 }, () -> writeError(param, "800-006"));
