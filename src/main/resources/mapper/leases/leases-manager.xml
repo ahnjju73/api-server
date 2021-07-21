@@ -76,7 +76,7 @@
         <result property="take_loc" column="take_loc"/>
         <result property="take_at" column="take_at"/>
         <result property="release_at" column="release_at"/>
-        <result property="lease_stop_yn" column="lease_stop_yn"/>
+        <result property="lease_stop_status" column="lease_stop_status"/>
         <result property="stop_dt" column="stop_dt"/>
         <result property="stop_fee" column="stop_fee"/>
         <result property="stop_paid_fee" column="stop_paid_fee"/>
@@ -117,7 +117,7 @@
                lm.up_lease_no,
                lm.contract_type,
                lm.management_type,
-               lm.lease_stop_yn,
+               lm.lease_stop_status,
                lm.stop_dt,
                lm.stop_fee,
                lm.stop_paid_fee,
