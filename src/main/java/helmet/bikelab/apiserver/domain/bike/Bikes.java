@@ -8,6 +8,8 @@ import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -49,8 +51,8 @@ public class Bikes {
     @Column(name = "register_dt")
     private LocalDateTime registerDate;
 
-    @OneToOne(mappedBy = "bike", fetch = FetchType.EAGER)
-    private Leases lease;
+    @OneToMany(mappedBy = "bike", fetch = FetchType.LAZY)
+    private List<Leases> lease = new ArrayList<>();
 
     @Column(name = "volume")
     private Integer volume;
