@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.services.leases;
 
+import helmet.bikelab.apiserver.domain.bikelab.BikeUserInfo;
 import helmet.bikelab.apiserver.domain.types.*;
 import helmet.bikelab.apiserver.objects.BikeDto;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
@@ -7,6 +8,7 @@ import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.client.Clients;
 import helmet.bikelab.apiserver.domain.lease.*;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
+import helmet.bikelab.apiserver.objects.PresignedURLVo;
 import helmet.bikelab.apiserver.objects.bikelabs.fine.FetchFinesResponse;
 import helmet.bikelab.apiserver.objects.bikelabs.leases.*;
 import helmet.bikelab.apiserver.objects.bikelabs.release.ReleaseDto;
@@ -20,6 +22,8 @@ import helmet.bikelab.apiserver.services.BikeUserTodoService;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.utils.AutoKey;
 import helmet.bikelab.apiserver.utils.Utils;
+import helmet.bikelab.apiserver.utils.amazon.AmazonUtils;
+import helmet.bikelab.apiserver.utils.keys.ENV;
 import helmet.bikelab.apiserver.workers.CommonWorker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -384,13 +388,17 @@ public class LeasesService extends SessService {
                 log = "바이크 번호 <>" + bike.getCarNum() + "</>을 <>" + lease.getClients().getClientInfo().getName() + "</>에서 <>"+ client.getClientInfo().getName() + "</>로 이전하였습니다.";
                 logList.add("바이크 번호 <>" + bike.getCarNum() + "</>을 <>" + lease.getClients().getClientInfo().getName() + "</>에서 <>"+ client.getClientInfo().getName() + "</>로 이전하였습니다.");
             }
-            LeaseInfo leaseInfo = lease.getLeaseInfo();
+
             lease.setClientNo(client.getClientNo());
             lease.setBikeNo(bike.getBikeNo());
             lease.setInsuranceNo(insurance.getInsuranceNo());
-            leaseInfo.setNote(addUpdateLeaseRequest.getLeaseInfo().getNote());
+            lease.setLeaseStopStatus(LeaseStopStatusTypes.getLeaseStopStatus(addUpdateLeaseRequest.getStopLeaseInfo().getLeaseStopStatus()));
             leaseRepository.save(lease);
+
+            LeaseInfo leaseInfo = lease.getLeaseInfo();
+            leaseInfo.setNote(addUpdateLeaseRequest.getLeaseInfo().getNote());
             leaseInfoRepository.save(leaseInfo);
+
             bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_UPDATED, request.getSessionUser().getUserNo(), lease.getLeaseNo().toString(), logList));
             if(!log.equals(""))
                 bikeUserLogRepository.save(addLog(BikeUserLogTypes.COMM_BIKE_UPDATED, request.getSessionUser().getUserNo(), lease.getBikeNo().toString(), log));
@@ -703,7 +711,7 @@ public class LeasesService extends SessService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일");
         String formattedString = LocalDate.parse(stopLeaseDto.getStopDt()).format(formatter);
         log = "바이크 번호 <>" + lease.getBike().getCarNum() + "</>가 중도해지 되었습니다.<br>";
-        log += "중도 해지 위약금은 <>" + stopLeaseDto.getStopFee() + "</>원으로 설정 되었습니다.<br>"+"중도 해지 일자는 <>"
+        log += "중도 해지 위약금은 <>" + Utils.getCurrencyFormat(stopLeaseDto.getStopFee()) + "원</>으로 설정 되었습니다.<br>"+"중도 해지 일자는 <>"
                 + formattedString + "</>로 설정 되었습니다.<br>" + "중도 해지 이유는 <>" + stopLeaseDto.getStopReason() + "</>입니다.";
         lease.setLeaseStopStatus(LeaseStopStatusTypes.STOP_CONTINUE);
         lease.setStopDt(LocalDate.parse(stopLeaseDto.getStopDt()));
@@ -729,7 +737,7 @@ public class LeasesService extends SessService {
             lease.setStopDt(LocalDate.parse(stopLeaseDto.getStopDt()));
         }
         if(stopLeaseDto.getStopFee() != lease.getStopFee()){
-            log += "중도 해지 위약금이 <>" + lease.getStopFee() + "</>원에서 <>" + stopLeaseDto.getStopFee() + "</>원으로 수정 되었습니다.<br>";
+            log += "중도 해지 위약금이 <>" + Utils.getCurrencyFormat(lease.getStopFee().intValue()) + "원</>에서 <>" + Utils.getCurrencyFormat(stopLeaseDto.getStopFee()) + "원</>으로 수정 되었습니다.<br>";
             lease.setStopFee(stopLeaseDto.getStopFee());
         }
         if(!stopLeaseDto.getStopReason().equals(lease.getStopReason())){
@@ -737,12 +745,11 @@ public class LeasesService extends SessService {
             lease.setStopReason(stopLeaseDto.getStopReason());
         }
         if(lease.getStopPaidFee() != stopLeaseDto.getStopPaidFee()){
-            log += "중도 해지 위약금 납부 금액이 <>" + lease.getStopFee() + "</>원에서 <>" + stopLeaseDto.getStopFee() + "</>원으로 수정 되었습니다.<br>";
+            log += "중도 해지 위약금 납부 금액이 <>" + Utils.getCurrencyFormat(lease.getStopFee()) + "원</>에서 <>" + Utils.getCurrencyFormat(stopLeaseDto.getStopFee()) + "원</>으로 수정 되었습니다.<br>";
             lease.setStopPaidFee(stopLeaseDto.getStopPaidFee());
         }
         leaseRepository.save(lease);
         bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_UPDATED, request.getSessionUser().getUserNo(), lease.getLeaseNo().toString(), log.endsWith("<br>")? log.substring(0, log.length()-4) : log));
         return request;
     }
-
 }

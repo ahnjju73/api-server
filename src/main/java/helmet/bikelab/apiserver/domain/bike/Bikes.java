@@ -54,6 +54,9 @@ public class Bikes {
     @OneToMany(mappedBy = "bike", fetch = FetchType.LAZY)
     private List<Leases> lease = new ArrayList<>();
 
+//    @OneToMany(mappedBy = "bike", fetch = FetchType.LAZY)
+//    private List<BikeFileInfo> files = new ArrayList<>();
+
     @Column(name = "volume")
     private Integer volume;
 }
