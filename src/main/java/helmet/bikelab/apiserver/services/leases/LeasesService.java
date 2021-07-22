@@ -165,7 +165,7 @@ public class LeasesService extends SessService {
         fetchLeasesResponse.setCreatedAt(lease.getCreatedAt());
         fetchLeasesResponse.setReleaseAt(lease.getReleaseAt());
         StopLeaseDto stopLeaseDto = new StopLeaseDto();
-        stopLeaseDto.setLeaseStopStatus(lease.getLeaseStopStatus()==null? LeaseStopStatusTypes.CONTINUE.toString(): lease.getLeaseStopStatus().toString());
+        stopLeaseDto.setLeaseStopStatus(lease.getLeaseStopStatus()==null? LeaseStopStatusTypes.CONTINUE.getStatus(): lease.getLeaseStopStatus().getStatus());
         stopLeaseDto.setStopDt(lease.getStopDt() == null ? "" : lease.getStopDt().toString());
         stopLeaseDto.setLeaseId(lease.getLeaseId());
         stopLeaseDto.setStopFee(lease.getStopFee() == null? 0 : lease.getStopFee());
