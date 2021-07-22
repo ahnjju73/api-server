@@ -1,13 +1,19 @@
 package helmet.bikelab.apiserver.services.bikes;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.CopyObjectRequest;
 import helmet.bikelab.apiserver.domain.CommonCodeBikes;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
+import helmet.bikelab.apiserver.domain.bikelab.BikeUserInfo;
 import helmet.bikelab.apiserver.domain.client.Clients;
 import helmet.bikelab.apiserver.domain.lease.Leases;
 import helmet.bikelab.apiserver.domain.types.BikeUserLogTypes;
+import helmet.bikelab.apiserver.objects.BikeDto;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.CarModel;
+import helmet.bikelab.apiserver.objects.PresignedURLVo;
 import helmet.bikelab.apiserver.objects.bikelabs.bikes.*;
 import helmet.bikelab.apiserver.objects.bikelabs.clients.ClientDto;
 import helmet.bikelab.apiserver.objects.bikelabs.leases.LeasesDto;
@@ -16,6 +22,8 @@ import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.repositories.*;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.utils.AutoKey;
+import helmet.bikelab.apiserver.utils.amazon.AmazonUtils;
+import helmet.bikelab.apiserver.utils.keys.ENV;
 import helmet.bikelab.apiserver.workers.CommonWorker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -299,5 +307,46 @@ public class BikesService extends SessService {
         return request;
     }
 
+    public BikeSessionRequest generatePreSignedURLToUploadBikeFile(BikeSessionRequest request){
+        Map param = request.getParam();
+        BikeDto bikeDto = map(param, BikeDto.class);
+        Bikes bike = bikesRepository.findByBikeId(bikeDto.getBikeId());
+        if(!bePresent(bikeDto.getFileName())) withException("");
+        String uuid = UUID.randomUUID().toString();
+        BikeUser session = request.getSessionUser();
+        PresignedURLVo presignedURLVo = new PresignedURLVo();
+        presignedURLVo.setBucket(ENV.AWS_S3_QUEUE_BUCKET);
+        presignedURLVo.setFileKey("users/" + bike.getBikeId() + "/file_" + bike.getBikeId() + "/" + uuid + "." + bikeDto.getFileName());
+        presignedURLVo.setUrl(AmazonUtils.AWSGeneratePresignedURL(presignedURLVo));
+        request.setResponse(presignedURLVo);
+
+        return request;
+    }
+
+    public BikeSessionRequest checkFileUploadComplete(BikeSessionRequest request){
+        Map param = request.getParam();
+        PresignedURLVo presignedURLVo = map(param, PresignedURLVo.class);
+        String bikeId = (String) param.get("bike_id");
+        return request;
+    }
+
+//    @Transactional
+//    public BikeSessionRequest editBikeFile(BikeSessionRequest request){
+//        Map param = request.getParam();
+//        PresignedURLVo presignedURLVo = map(param, PresignedURLVo.class);
+//        BikeUser session = request.getSessionUser();
+//        BikeUserInfo userInfo = session.getBikeUserInfo();
+//        userInfo.setThumbnail(ENV.AWS_S3_ORIGIN_DOMAIN + "/" + presignedURLVo.getFileKey()) ;
+//        userInfoRepository.save(userInfo);
+//        AmazonS3 amazonS3 = AmazonS3Client.builder()
+//                .withCredentials(AmazonUtils.awsCredentialsProvider())
+//                .build();
+//        CopyObjectRequest objectRequest = new CopyObjectRequest(presignedURLVo.getBucket(), presignedURLVo.getFileKey(), ENV.AWS_S3_ORIGIN_BUCKET, presignedURLVo.getFileKey());
+//        amazonS3.copyObject(objectRequest);
+//        Map response = new HashMap();
+//        response.put("thumbnail", userInfo.getThumbnail());
+//        request.setResponse(response);
+//        return request;
+//    }
 
 }

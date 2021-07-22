@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import helmet.bikelab.apiserver.domain.embeds.ModelAddress;
+import helmet.bikelab.apiserver.objects.requests.StopLeaseDto;
 import helmet.bikelab.apiserver.services.internal.OriginObject;
 import lombok.Getter;
 import lombok.Setter;
@@ -32,6 +33,7 @@ public class AddUpdateLeaseRequest extends OriginObject {
     private LocalDateTime takeAt;
     private LocalDateTime releaseAt;
     private List<LeasePaymentDto> leasePayments = new ArrayList<>();
+    private StopLeaseDto stopLeaseInfo;
 
     public void setTakeAt(String takeAt) {
         if(takeAt != null)
