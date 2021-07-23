@@ -318,18 +318,20 @@ public class BikesService extends SessService {
         presignedURLVo.setFileKey("bikes/" + bike.getBikeId() + "/" + uuid + "." + bikeDto.getFileName());
         presignedURLVo.setFilename(bikeDto.getFileName());
         presignedURLVo.setUrl(AmazonUtils.AWSGeneratePresignedURL(presignedURLVo));
-        request.setResponse(presignedURLVo);
+        Map response = new HashMap();
+        response.put("presign", presignedURLVo);
+        request.setResponse(response);
 
         return request;
     }
 
-    public BikeSessionRequest checkFileUploadComplete(BikeSessionRequest request){
-        Map param = request.getParam();
-        PresignedURLVo presignedURLVo = map(param, PresignedURLVo.class);
-        String bikeId = (String) param.get("bike_id");
-        return request;
-    }
-
+//    public BikeSessionRequest checkFileUploadComplete(BikeSessionRequest request){
+//        Map param = request.getParam();
+//        PresignedURLVo presignedURLVo = map(param, PresignedURLVo.class);
+//        String bikeId = (String) param.get("bike_id");
+//        return request;
+//    }
+//
 //    @Transactional
 //    public BikeSessionRequest editBikeFile(BikeSessionRequest request){
 //        Map param = request.getParam();
