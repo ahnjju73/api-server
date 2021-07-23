@@ -12,8 +12,8 @@
         <appender-ref ref="STDOUT" />
     </logger>
     <root level="INFO">
-        <springProfile name="!production">
+<!--        <springProfile name="!production">-->
             <appender-ref ref="STDOUT" />
-        </springProfile>
+<!--        </springProfile>-->
     </root>
 </configuration>

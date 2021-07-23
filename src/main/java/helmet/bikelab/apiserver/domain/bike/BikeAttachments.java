@@ -8,15 +8,15 @@ import lombok.Setter;
 
 import javax.persistence.*;
 
-//@Entity
-//@Getter
-//@Setter
-//@Table(name = "bike_file_info")
-//@NoArgsConstructor
-//@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
-public class BikeFileInfo {
+@Entity
+@Getter
+@Setter
+@Table(name = "bike_attachments")
+@NoArgsConstructor
+@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
+public class BikeAttachments {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "bike_file_info_no")
+    @Column(name = "bike_attachment_no")
     private Integer bikeFileInfoNo;
 
     @Column(name = "bike_no")
@@ -26,8 +26,8 @@ public class BikeFileInfo {
     @JoinColumn(name = "bike_no", insertable = false, updatable = false)
     private Bikes bike;
 
-    @Column(name = "bucket")
-    private String bucket;
+    @Column(name = "domain")
+    private String domain;
 
     @Column(name = "file_key")
     private String fileKey;

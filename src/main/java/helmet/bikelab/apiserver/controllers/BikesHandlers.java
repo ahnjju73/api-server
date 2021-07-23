@@ -123,4 +123,15 @@ public class BikesHandlers {
                         .map(bikesService::returnData), Map.class
         );
     }
+
+    public Mono<ServerResponse> generatePreSign(ServerRequest request){
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> bikesService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(row -> bikesService.getPathVariable(row, "bike_id"))
+                        .map(bikesService::checkBikeSession)
+                        .map(bikesService::generatePreSignedURLToUploadBikeFile)
+                        .map(bikesService::returnData), Map.class);
+    }
 }

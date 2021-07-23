@@ -1,6 +1,5 @@
 package helmet.bikelab.apiserver.services.leases;
 
-import helmet.bikelab.apiserver.domain.bikelab.BikeUserInfo;
 import helmet.bikelab.apiserver.domain.types.*;
 import helmet.bikelab.apiserver.objects.BikeDto;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
@@ -8,7 +7,6 @@ import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.client.Clients;
 import helmet.bikelab.apiserver.domain.lease.*;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
-import helmet.bikelab.apiserver.objects.PresignedURLVo;
 import helmet.bikelab.apiserver.objects.bikelabs.fine.FetchFinesResponse;
 import helmet.bikelab.apiserver.objects.bikelabs.leases.*;
 import helmet.bikelab.apiserver.objects.bikelabs.release.ReleaseDto;
@@ -22,8 +20,6 @@ import helmet.bikelab.apiserver.services.BikeUserTodoService;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.utils.AutoKey;
 import helmet.bikelab.apiserver.utils.Utils;
-import helmet.bikelab.apiserver.utils.amazon.AmazonUtils;
-import helmet.bikelab.apiserver.utils.keys.ENV;
 import helmet.bikelab.apiserver.workers.CommonWorker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -388,17 +384,13 @@ public class LeasesService extends SessService {
                 log = "바이크 번호 <>" + bike.getCarNum() + "</>을 <>" + lease.getClients().getClientInfo().getName() + "</>에서 <>"+ client.getClientInfo().getName() + "</>로 이전하였습니다.";
                 logList.add("바이크 번호 <>" + bike.getCarNum() + "</>을 <>" + lease.getClients().getClientInfo().getName() + "</>에서 <>"+ client.getClientInfo().getName() + "</>로 이전하였습니다.");
             }
-
+            LeaseInfo leaseInfo = lease.getLeaseInfo();
             lease.setClientNo(client.getClientNo());
             lease.setBikeNo(bike.getBikeNo());
             lease.setInsuranceNo(insurance.getInsuranceNo());
-            lease.setLeaseStopStatus(LeaseStopStatusTypes.getLeaseStopStatus(addUpdateLeaseRequest.getStopLeaseInfo().getLeaseStopStatus()));
-            leaseRepository.save(lease);
-
-            LeaseInfo leaseInfo = lease.getLeaseInfo();
             leaseInfo.setNote(addUpdateLeaseRequest.getLeaseInfo().getNote());
+            leaseRepository.save(lease);
             leaseInfoRepository.save(leaseInfo);
-
             bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_UPDATED, request.getSessionUser().getUserNo(), lease.getLeaseNo().toString(), logList));
             if(!log.equals(""))
                 bikeUserLogRepository.save(addLog(BikeUserLogTypes.COMM_BIKE_UPDATED, request.getSessionUser().getUserNo(), lease.getBikeNo().toString(), log));
@@ -752,4 +744,5 @@ public class LeasesService extends SessService {
         bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_UPDATED, request.getSessionUser().getUserNo(), lease.getLeaseNo().toString(), log.endsWith("<br>")? log.substring(0, log.length()-4) : log));
         return request;
     }
+
 }
