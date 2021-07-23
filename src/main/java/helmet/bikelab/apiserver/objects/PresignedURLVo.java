@@ -14,7 +14,7 @@ public class PresignedURLVo extends OriginObject {
     private String bucket;
     private String fileKey;
     private String url;
-
+    private String filename;
     public void checkValidation(){
         if (!bePresent(this.bucket)) withException("500-005");
         if (!bePresent(this.fileKey)) withException("500-005");
