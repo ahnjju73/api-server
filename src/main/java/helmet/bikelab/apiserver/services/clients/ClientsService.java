@@ -21,12 +21,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.security.SecureRandom;
+import java.util.*;
 
 import static helmet.bikelab.apiserver.domain.bikelab.BikeUserLog.addLog;
+import static helmet.bikelab.apiserver.utils.Utils.randomPassword;
 
 @RequiredArgsConstructor
 @Service
@@ -159,8 +158,9 @@ public class ClientsService extends SessService {
 
         clientAddressesRepository.save(clientAddresses);
 
+        String password = randomPassword(10);
         ClientPassword clientPassword = new ClientPassword();
-        clientPassword.newPassword(addClientRequest.getEmail());
+        clientPassword.newPassword(password);
         clientPassword.setClientNo(clients.getClientNo());
         clientPassword.setClient(clients);
         clientPasswordRepository.save(clientPassword);

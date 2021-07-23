@@ -1,4 +1,4 @@
-package helmet.bikelab.apiserver.domain.client;
+package helmet.bikelab.apiserver.domain.shops;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
@@ -12,23 +12,22 @@ import lombok.Setter;
 import javax.persistence.*;
 
 @Entity
-@Table(name = "client_addresses", catalog = SESSION.SCHEME_SERVICE)
+@Table(name = "shop_addresses", catalog = SESSION.SCHEME_SERVICE)
 @Getter
 @Setter
 @NoArgsConstructor
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
-public class ClientAddresses {
+public class ShopAddresses {
 
     @Id
-    @Column(name = "client_no", nullable = false)
-    private Integer clientNo;
+    @Column(name = "shop_no")
+    private Integer shopNo;
 
     @JsonIgnore
-    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinColumn(name = "client_no", insertable = false, updatable = false)
-    private Clients client;
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "shop_no", insertable = false, updatable = false)
+    private Shops shop;
 
     @Embedded
     private ModelAddress modelAddress = new ModelAddress();
-
 }

@@ -1,7 +1,8 @@
 package helmet.bikelab.apiserver.domain.types;
 
 public enum AccountTypes {
-    COMPLETE("101-001"), PENDING("101-002"), INPROGRESS("101-003"), DELETED("101-004");
+
+    EMAIL("001-001"), GOOGLE("001-002"), FACEBOOK("001-003"), KAKAO("001-004");
 
     private String type;
 

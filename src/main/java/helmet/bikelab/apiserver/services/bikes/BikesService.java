@@ -313,11 +313,10 @@ public class BikesService extends SessService {
         Bikes bike = bikesRepository.findByBikeId(bikeDto.getBikeId());
         if(!bePresent(bikeDto.getFileName())) withException("");
         String uuid = UUID.randomUUID().toString();
-        BikeUser session = request.getSessionUser();
         PresignedURLVo presignedURLVo = new PresignedURLVo();
         presignedURLVo.setBucket(ENV.AWS_S3_QUEUE_BUCKET);
-        String attachmentId = "";
-        presignedURLVo.setFileKey("bikes/" + bikeId + "/" + attachmentId + "." + extenstion);
+        presignedURLVo.setFileKey("bikes/" + bike.getBikeId() + "/" + uuid + "." + bikeDto.getFileName());
+        presignedURLVo.setFilename(bikeDto.getFileName());
         presignedURLVo.setUrl(AmazonUtils.AWSGeneratePresignedURL(presignedURLVo));
         request.setResponse(presignedURLVo);
 
@@ -331,26 +330,26 @@ public class BikesService extends SessService {
         return request;
     }
 
-    @Transactional
-    public BikeSessionRequest editBikeFile(BikeSessionRequest request){
-        Map param = request.getParam();
-        PresignedURLVo presignedURLVo = map(param, PresignedURLVo.class);
-        BikeUser session = request.getSessionUser();
-        BikeUserInfo userInfo = session.getBikeUserInfo();
-        userInfo.setDomain(ENV.AWS_S3_ORIGIN_DOMAIN);
-        userInfo.setUri(presignedURLVo.getFileKey());
-        userInfo.setFilename(presignedURLVo.getFilename());
-        userInfo.setThumbnail(ENV.AWS_S3_ORIGIN_DOMAIN + "/" + presignedURLVo.getFileKey()) ;
-        userInfoRepository.save(userInfo);
-        AmazonS3 amazonS3 = AmazonS3Client.builder()
-                .withCredentials(AmazonUtils.awsCredentialsProvider())
-                .build();
-        CopyObjectRequest objectRequest = new CopyObjectRequest(presignedURLVo.getBucket(), presignedURLVo.getFileKey(), ENV.AWS_S3_ORIGIN_BUCKET, presignedURLVo.getFileKey());
-        amazonS3.copyObject(objectRequest);
-        Map response = new HashMap();
-        response.put("thumbnail", userInfo.getThumbnail());
-        request.setResponse(response);
-        return request;
-    }
+//    @Transactional
+//    public BikeSessionRequest editBikeFile(BikeSessionRequest request){
+//        Map param = request.getParam();
+//        PresignedURLVo presignedURLVo = map(param, PresignedURLVo.class);
+//        BikeUser session = request.getSessionUser();
+//        BikeUserInfo userInfo = session.getBikeUserInfo();
+//        userInfo.setDomain(ENV.AWS_S3_ORIGIN_DOMAIN);
+//        userInfo.setUri(presignedURLVo.getFileKey());
+//        userInfo.setFilename(presignedURLVo.getFilename());
+//        userInfo.setThumbnail(ENV.AWS_S3_ORIGIN_DOMAIN + "/" + presignedURLVo.getFileKey()) ;
+//        userInfoRepository.save(userInfo);
+//        AmazonS3 amazonS3 = AmazonS3Client.builder()
+//                .withCredentials(AmazonUtils.awsCredentialsProvider())
+//                .build();
+//        CopyObjectRequest objectRequest = new CopyObjectRequest(presignedURLVo.getBucket(), presignedURLVo.getFileKey(), ENV.AWS_S3_ORIGIN_BUCKET, presignedURLVo.getFileKey());
+//        amazonS3.copyObject(objectRequest);
+//        Map response = new HashMap();
+//        response.put("thumbnail", userInfo.getThumbnail());
+//        request.setResponse(response);
+//        return request;
+//    }
 
 }

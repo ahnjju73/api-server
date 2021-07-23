@@ -26,4 +26,10 @@ public class BikesRouters {
                 .andRoute(PUT("/bikes_model"), handler::updateBikeModel)
                 .andRoute(GET("/bikes_no_lease"), handler::fetchBikesWithoutLease);
     }
+
+    @Bean
+    public RouterFunction<ServerResponse> bikeFileRouter(BikesHandlers handler){
+        return RouterFunctions
+                .route(GET("/bike_file/{bike_id}/generate_pre_sign"), handler::generatePreSign);
+    }
 }

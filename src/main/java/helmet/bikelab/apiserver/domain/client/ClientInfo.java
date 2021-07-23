@@ -24,9 +24,12 @@ public class ClientInfo {
     private Integer clientNo;
 
     @JsonIgnore
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "client_no", insertable = false, updatable = false)
     private Clients client;
+
+    @Column(name = "thumbnail")
+    private String thumbnail;
 
     // 고객명
     @Column(name = "name",  length =  100)

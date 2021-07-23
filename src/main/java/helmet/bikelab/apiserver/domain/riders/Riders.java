@@ -41,4 +41,12 @@ public class Riders {
     @Column(name = "created_at", columnDefinition = "CURRENT_TIMESTAMP")
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    @OneToOne(mappedBy = "rider", fetch = FetchType.EAGER)
+    private RiderInfo riderInfo;
+
+    @OneToOne(mappedBy = "rider", fetch = FetchType.EAGER)
+    private RiderPassword riderPassword;
+
 }
+
+

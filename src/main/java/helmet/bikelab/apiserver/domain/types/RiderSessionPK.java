@@ -4,13 +4,12 @@ import helmet.bikelab.apiserver.domain.types.converters.UserSessionTypeConverter
 
 import javax.persistence.Column;
 import javax.persistence.Convert;
-import javax.persistence.Id;
 import java.io.Serializable;
 
-public class ClientSessionPK implements Serializable {
+public class RiderSessionPK implements Serializable {
 
-    @Column(name = "client_no")
-    private Integer clientNo;
+    @Column(name = "rider_no")
+    private Integer riderNo;
 
     @Column(name = "session_type", columnDefinition = "ENUM")
     @Convert(converter = UserSessionTypeConverter.class)
