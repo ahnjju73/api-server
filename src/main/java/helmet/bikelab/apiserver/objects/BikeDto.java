@@ -13,4 +13,5 @@ public class BikeDto {
     private String bikeModel;
     private String bikeNum;
     private String vimNum;
+    private String fileName;
 }

@@ -5,9 +5,11 @@ import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.client.Clients;
 import helmet.bikelab.apiserver.domain.types.ContractTypes;
 import helmet.bikelab.apiserver.domain.types.LeaseStatusTypes;
+import helmet.bikelab.apiserver.domain.types.LeaseStopStatusTypes;
 import helmet.bikelab.apiserver.domain.types.ManagementTypes;
 import helmet.bikelab.apiserver.domain.types.converters.ContractTypeConverter;
 import helmet.bikelab.apiserver.domain.types.converters.LeaseStatusTypesConverter;
+import helmet.bikelab.apiserver.domain.types.converters.LeaseStopStatusConverter;
 import helmet.bikelab.apiserver.domain.types.converters.ManagementTypeConverter;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -132,8 +134,9 @@ public class Leases {
     private List<LeaseExtras> extras = new ArrayList<>();
 
     //stop_lease
-    @Column(name = "lease_stop_yn")
-    private Boolean leaseStopYn = false;
+    @Column(name = "lease_stop_status", columnDefinition = "ENUM")
+    @Convert(converter = LeaseStopStatusConverter.class)
+    private LeaseStopStatusTypes leaseStopStatus = LeaseStopStatusTypes.CONTINUE;
 
     @Column(name = "stop_dt")
     private LocalDate stopDt;

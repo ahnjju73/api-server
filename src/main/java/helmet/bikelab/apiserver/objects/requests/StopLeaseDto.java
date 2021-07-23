@@ -11,6 +11,7 @@ import java.time.LocalDate;
 @Setter
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class StopLeaseDto {
+    private String leaseStopStatus;
     private String leaseId;
     private String stopDt;
     private Long stopFee;
