@@ -124,8 +124,11 @@ public class Leases {
     @OneToOne(mappedBy = "lease", optional = false)
     private LeaseInfo leaseInfo;
 
-    @OneToOne(mappedBy = "lease", optional = false, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "lease", optional = false, fetch = FetchType.EAGER)
     private LeasePrice leasePrice;
+
+    @OneToOne(mappedBy = "lease", optional = false)
+    private LeaseInsurances leaseInsurance;
 
     @OneToMany(mappedBy = "lease", fetch = FetchType.LAZY)
     private List<LeasePayments> payments = new ArrayList<>();
@@ -149,6 +152,9 @@ public class Leases {
 
     @Column(name = "stop_reason", columnDefinition = "MEDIUMTEXT")
     private String stopReason;
+
+    @Column(name = "approval_dt")
+    private LocalDate approvalDt;
 
 
 }

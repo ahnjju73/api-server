@@ -1,9 +1,11 @@
 package helmet.bikelab.apiserver.services.bikes;
 
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CopyObjectRequest;
 import helmet.bikelab.apiserver.domain.CommonCodeBikes;
+import helmet.bikelab.apiserver.domain.bike.BikeAttachments;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUserInfo;
@@ -37,6 +39,7 @@ import static helmet.bikelab.apiserver.domain.bikelab.BikeUserLog.addLog;
 @Service
 public class BikesService extends SessService {
 
+    private final BikeAttachmentRepository bikeAttachmentRepository;
     private final BikesRepository bikesRepository;
     private final LeaseRepository leaseRepository;
     private final AutoKey autoKey;
@@ -325,33 +328,30 @@ public class BikesService extends SessService {
         return request;
     }
 
-//    public BikeSessionRequest checkFileUploadComplete(BikeSessionRequest request){
-//        Map param = request.getParam();
-//        PresignedURLVo presignedURLVo = map(param, PresignedURLVo.class);
-//        String bikeId = (String) param.get("bike_id");
-//        return request;
-//    }
-//
-//    @Transactional
-//    public BikeSessionRequest editBikeFile(BikeSessionRequest request){
-//        Map param = request.getParam();
-//        PresignedURLVo presignedURLVo = map(param, PresignedURLVo.class);
-//        BikeUser session = request.getSessionUser();
-//        BikeUserInfo userInfo = session.getBikeUserInfo();
-//        userInfo.setDomain(ENV.AWS_S3_ORIGIN_DOMAIN);
-//        userInfo.setUri(presignedURLVo.getFileKey());
-//        userInfo.setFilename(presignedURLVo.getFilename());
-//        userInfo.setThumbnail(ENV.AWS_S3_ORIGIN_DOMAIN + "/" + presignedURLVo.getFileKey()) ;
-//        userInfoRepository.save(userInfo);
-//        AmazonS3 amazonS3 = AmazonS3Client.builder()
-//                .withCredentials(AmazonUtils.awsCredentialsProvider())
-//                .build();
-//        CopyObjectRequest objectRequest = new CopyObjectRequest(presignedURLVo.getBucket(), presignedURLVo.getFileKey(), ENV.AWS_S3_ORIGIN_BUCKET, presignedURLVo.getFileKey());
-//        amazonS3.copyObject(objectRequest);
-//        Map response = new HashMap();
-//        response.put("thumbnail", userInfo.getThumbnail());
-//        request.setResponse(response);
-//        return request;
-//    }
+    @Transactional
+    public BikeSessionRequest checkFileUploadComplete(BikeSessionRequest request){
+        Map param = request.getParam();
+        PresignedURLVo presignedURLVo = map(param, PresignedURLVo.class);
+        String bikeId = (String) param.get("bike_id");
+        Bikes bike = bikesRepository.findByBikeId(bikeId);
+        BikeAttachments bikeAttachments = new BikeAttachments();
+        bikeAttachments.setBikeNo(bike.getBikeNo());
+        bikeAttachments.setFileName(presignedURLVo.getFilename());
+        bikeAttachments.setDomain(ENV.AWS_S3_ORIGIN_DOMAIN);
+        bikeAttachments.setUrl("/" + presignedURLVo.getFileKey());
+        // todo: filename required
+        bikeAttachmentRepository.save(bikeAttachments);
+        //
+        AmazonS3 amazonS3 = AmazonS3Client.builder()
+                .withRegion(Regions.AP_NORTHEAST_2)
+                .withCredentials(AmazonUtils.awsCredentialsProvider())
+                .build();
+        CopyObjectRequest objectRequest = new CopyObjectRequest(presignedURLVo.getBucket(), presignedURLVo.getFileKey(), ENV.AWS_S3_ORIGIN_BUCKET, presignedURLVo.getFileKey());
+        amazonS3.copyObject(objectRequest);
+        Map response = new HashMap();
+        response.put("url", bikeAttachments.getUrl());
+        request.setResponse(response);
+        return request;
+    }
 
 }

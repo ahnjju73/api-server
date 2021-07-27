@@ -26,12 +26,12 @@ public class BikeAttachments {
     @JoinColumn(name = "bike_no", insertable = false, updatable = false)
     private Bikes bike;
 
-    @Column(name = "domain")
+    @Column(name = "domain", columnDefinition = "MEDIUMTEXT")
     private String domain;
 
-    @Column(name = "file_key")
-    private String fileKey;
+    @Column(name = "file_name", columnDefinition = "MEDIUMTEXT")
+    private String fileName;
 
-    @Column(name = "url")
+    @Column(name = "url", columnDefinition = "MEDIUMTEXT")
     private String url;
 }
