@@ -29,8 +29,8 @@ public class BikeAttachments {
     @Column(name = "domain", columnDefinition = "MEDIUMTEXT")
     private String domain;
 
-    @Column(name = "file_key", columnDefinition = "MEDIUMTEXT")
-    private String fileKey;
+    @Column(name = "file_name", columnDefinition = "MEDIUMTEXT")
+    private String fileName;
 
     @Column(name = "url", columnDefinition = "MEDIUMTEXT")
     private String url;

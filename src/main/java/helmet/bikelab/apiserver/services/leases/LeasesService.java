@@ -457,7 +457,7 @@ public class LeasesService extends SessService {
 
             BikeUser session = request.getSessionUser();
             List<LeasePayments> newPaymentList = new ArrayList<>();
-            if (leasePrice.getType() != paymentType) {
+            if (leasePrice.getType() != paymentType || !lease.getPayments().get(0).getLeaseFee().equals(addUpdateLeaseRequest.getLeasePrice().getLeaseFee())|| !leaseInfo.getPeriod().equals(addUpdateLeaseRequest.getLeaseInfo().getPeriod())) {
                 if (leasePrice.getType() == PaymentTypes.MONTHLY) {
                     for (int i = 0; i < addUpdateLeaseRequest.getLeaseInfo().getPeriod(); i++) {
                         LeasePayments leasePayment = new LeasePayments();

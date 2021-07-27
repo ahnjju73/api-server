@@ -336,9 +336,10 @@ public class BikesService extends SessService {
         Bikes bike = bikesRepository.findByBikeId(bikeId);
         BikeAttachments bikeAttachments = new BikeAttachments();
         bikeAttachments.setBikeNo(bike.getBikeNo());
-        bikeAttachments.setFileKey(presignedURLVo.getFileKey());
+        bikeAttachments.setFileName(presignedURLVo.getFilename());
         bikeAttachments.setDomain(ENV.AWS_S3_ORIGIN_DOMAIN);
-        bikeAttachments.setUrl(ENV.AWS_S3_ORIGIN_DOMAIN+presignedURLVo.getFileKey());
+        bikeAttachments.setUrl("/" + presignedURLVo.getFileKey());
+        // todo: filename required
         bikeAttachmentRepository.save(bikeAttachments);
         //
         AmazonS3 amazonS3 = AmazonS3Client.builder()
