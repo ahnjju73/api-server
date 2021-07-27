@@ -40,6 +40,9 @@ public class Clients {
     @Column(name = "direct_yn", columnDefinition = "ENUM", nullable = false)
     @Convert(converter = YesNoTypeConverter.class)
     private YesNoTypes directType;
+//
+//    @Column(name = "reg_type")
+//    private Boolean regType = false;
 
     @Column(name = "status", columnDefinition = "ENUM", nullable = false)
     @Convert(converter = AccountStatusConverter.class)

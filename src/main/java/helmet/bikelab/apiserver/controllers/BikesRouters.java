@@ -30,6 +30,7 @@ public class BikesRouters {
     @Bean
     public RouterFunction<ServerResponse> bikeFileRouter(BikesHandlers handler){
         return RouterFunctions
-                .route(GET("/bike_file/{bike_id}/generate_pre_sign"), handler::generatePreSign);
+                .route(GET("/bike_file/{bike_id}/generate_pre_sign"), handler::generatePreSign)
+                .andRoute(POST("/bike_file/{bike_id}/check_upload"), handler::checkUpload);
     }
 }
