@@ -706,7 +706,7 @@ public class LeasesService extends SessService {
         log += "중도 해지 위약금은 <>" + Utils.getCurrencyFormat(stopLeaseDto.getStopFee()) + "원</>으로 설정 되었습니다.<br>"+"중도 해지 일자는 <>"
                 + formattedString + "</>로 설정 되었습니다.<br>" + "중도 해지 이유는 <>" + stopLeaseDto.getStopReason() + "</>입니다.";
         lease.setLeaseStopStatus(LeaseStopStatusTypes.STOP_CONTINUE);
-        lease.setStopDt(LocalDate.parse(stopLeaseDto.getStopDt()));
+        lease.setStopDt(LocalDateTime.parse(stopLeaseDto.getStopDt()));
         lease.setStopFee(stopLeaseDto.getStopFee());
         lease.setStopPaidFee(0L);
         lease.setStopReason(stopLeaseDto.getStopReason());
@@ -724,9 +724,9 @@ public class LeasesService extends SessService {
         if(lease == null || !lease.getLeaseStopStatus().equals(LeaseStopStatusTypes.STOP_CONTINUE)) withException("");
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일");
         String formattedString = LocalDate.parse(stopLeaseDto.getStopDt()).format(formatter);
-        if(!LocalDate.parse(stopLeaseDto.getStopDt()).isEqual(lease.getStopDt() )){
+        if(!LocalDateTime.parse(stopLeaseDto.getStopDt()).isEqual(lease.getStopDt() )){
             log += "중도 해지 일자가 <>" + lease.getStopDt().format(formatter) + "</>에서 <>" + formattedString + "</>로 수정 되었습니다.<br>";
-            lease.setStopDt(LocalDate.parse(stopLeaseDto.getStopDt()));
+            lease.setStopDt(LocalDateTime.parse(stopLeaseDto.getStopDt()));
         }
         if(stopLeaseDto.getStopFee() != lease.getStopFee()){
             log += "중도 해지 위약금이 <>" + Utils.getCurrencyFormat(lease.getStopFee().intValue()) + "원</>에서 <>" + Utils.getCurrencyFormat(stopLeaseDto.getStopFee()) + "원</>으로 수정 되었습니다.<br>";

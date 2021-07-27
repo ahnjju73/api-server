@@ -142,7 +142,7 @@ public class Leases {
     private LeaseStopStatusTypes leaseStopStatus = LeaseStopStatusTypes.CONTINUE;
 
     @Column(name = "stop_dt")
-    private LocalDate stopDt;
+    private LocalDateTime stopDt;
 
     @Column(name = "stop_fee")
     private Long stopFee;
@@ -154,7 +154,7 @@ public class Leases {
     private String stopReason;
 
     @Column(name = "approval_dt")
-    private LocalDate approvalDt;
+    private LocalDateTime approvalDt;
 
 
 }
