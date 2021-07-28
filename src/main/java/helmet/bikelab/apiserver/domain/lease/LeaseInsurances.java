@@ -67,4 +67,18 @@ public class LeaseInsurances extends OriginObject {
     @Column(name = "insurance_name", length = 40)
     private String insuranceName;
 
+    public void setInsurance(Insurances insurance){
+        this.insuranceTypeCode = insurance.getInsuranceTypeCode();
+        this.age = insurance.getAge();
+        this.companyName = insurance.getCompanyName();
+        this.bmCare = insurance.getBmCare();
+        this.liabilityMan = insurance.getLiabilityMan();
+        this.liabilityCar = insurance.getLiabilityCar();
+        this.liabilityMan2 = insurance.getLiabilityMan2();
+        this.selfCoverMan = insurance.getSelfCoverMan();
+        this.selfCoverCar = insurance.getSelfCoverCar();
+        this.noInsuranceCover = insurance.getNoInsuranceCover();
+        this.type = insurance.getType();
+    }
+
 }
