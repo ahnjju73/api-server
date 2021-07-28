@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.services.clients;
 
+import helmet.bikelab.apiserver.domain.CommonCodeBikes;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUserLog;
@@ -64,6 +65,7 @@ public class ClientGroupService extends SessService {
    private final InsurancesRepository insurancesRepository;
    private final AutoKey autoKey;
    private final BikeUserLogRepository bikeUserLogRepository;
+   private final BikeModelsRepository bikeModelsRepository;
 
    public BikeSessionRequest fetchListOfGroup(BikeSessionRequest request){
       Map response = new HashMap();
@@ -318,6 +320,11 @@ public class ClientGroupService extends SessService {
             LeasePrice leasePrice = new LeasePrice();
             String leaseId = autoKey.makeGetKey("lease");
             lease.setLeaseId(leaseId);
+            Bikes bike = new Bikes();
+            String bikeNum = "";
+            String vimNum = "";
+            String color = "";
+            String model = "";
             for (colIdx = 1; colIdx < row.getPhysicalNumberOfCells(); colIdx++) {
                XSSFCell cell = row.getCell(colIdx);
                if (cell != null && !"".equals(cell.getRawValue())) {
@@ -326,9 +333,20 @@ public class ClientGroupService extends SessService {
                      Clients client = clientsRepository.findByClientInfo_Name(value);
                      lease.setClientNo(client.getClientNo());
                   }
+                  if(colIdx == 3){
+                     vimNum = value;
+                  }
+                  if(colIdx == 5){
+                     model = value;
+                  }
+                  if(colIdx == 6){
+                     color = value;
+                  }
                   if(colIdx == 7){
-                     Bikes bike = bikesRepository.findByCarNum(value);
-                     lease.setBikeNo(bike.getBikeNo());
+                     bike = bikesRepository.findByCarNum(value);
+                     if(bike != null)
+                        lease.setBikeNo(bike.getBikeNo());
+                     bikeNum = value;
                   }
                   if(colIdx == 9){
                      int age = (int)Double.parseDouble(value);
@@ -387,6 +405,17 @@ public class ClientGroupService extends SessService {
                   }
                }
             }
+            if(bike == null){
+               bike = new Bikes();
+               bike.setBikeId(autoKey.makeGetKey("bike"));
+               bike.setCarModel(bikeModelsRepository.findByCode(model));
+               bike.setColor(color);
+               bike.setCarNum(bikeNum);
+               bike.setVimNum(vimNum);
+               bikesRepository.save(bike);
+               lease.setBikeNo(bike.getBikeNo());
+            }
+
             lease.setType(ManagementTypes.FINANCIAL);
             lease.setCreatedAt(LocalDateTime.now());
             lease.setReleaseNo(1);
