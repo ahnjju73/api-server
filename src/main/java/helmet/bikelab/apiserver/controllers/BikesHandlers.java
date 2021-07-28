@@ -1,6 +1,7 @@
 package helmet.bikelab.apiserver.controllers;
 
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
+import helmet.bikelab.apiserver.objects.PresignedURLVo;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.services.bikes.BikesService;
 import lombok.RequiredArgsConstructor;
@@ -132,7 +133,7 @@ public class BikesHandlers {
                         .map(row -> bikesService.getPathVariable(row, "bike_id"))
                         .map(bikesService::checkBikeSession)
                         .map(bikesService::generatePreSignedURLToUploadBikeFile)
-                        .map(bikesService::returnData), Map.class);
+                        .map(bikesService::returnData), PresignedURLVo.class);
     }
 
     public Mono<ServerResponse> checkUpload(ServerRequest request) {

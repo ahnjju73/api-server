@@ -390,7 +390,6 @@ public class LeasesService extends SessService {
             lease.setBikeNo(bike.getBikeNo());
             lease.setInsuranceNo(insurance.getInsuranceNo());
             leaseInfo.setNote(addUpdateLeaseRequest.getLeaseInfo().getNote());
-            leaseInfo.setPeriod(addUpdateLeaseRequest.getLeaseInfo().getPeriod());
             leaseRepository.save(lease);
             leaseInsurances.setLeaseNo(lease.getLeaseNo());
             leaseInsurancesRepository.save(leaseInsurances);
@@ -420,7 +419,7 @@ public class LeasesService extends SessService {
             List<LeasePaymentDto> dtosList = addUpdateLeaseRequest.getLeasePayments();
             updateLeaseInfoLog(request.getSessionUser(), addUpdateLeaseRequest, client, insurance, bike, lease);
             leaseInsurances.setInsurance(insurance);
-
+            leaseInfo.setPeriod(addUpdateLeaseRequest.getLeaseInfo().getPeriod());
             if (client != null)
                 lease.setClientNo(client.getClientNo());
             if (bike != null)
