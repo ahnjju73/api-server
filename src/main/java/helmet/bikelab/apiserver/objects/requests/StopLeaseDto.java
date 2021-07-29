@@ -14,7 +14,7 @@ public class StopLeaseDto {
     private String leaseStopStatus;
     private String leaseId;
     private String stopDt;
-    private Long stopFee;
     private String stopReason;
     private Long stopPaidFee;
+    private Long stopFee;
 }
