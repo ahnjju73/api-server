@@ -51,6 +51,7 @@ public class LeasesService extends SessService {
     private final BikeUserLogRepository bikeUserLogRepository;
     private final BikeUserTodoService bikeUserTodoService;
     private final CommonWorker commonWorker;
+    private final LeaseInsurancesRepository leaseInsurancesRepository;
 
     public BikeSessionRequest fetchLeases(BikeSessionRequest request){
         Map param = request.getParam();
@@ -345,8 +346,6 @@ public class LeasesService extends SessService {
 //        leasePrice.setTakeFee(addUpdateLeaseRequest.getLeasePrice().getTakeFee() != null ? addUpdateLeaseRequest.getLeasePrice().getTakeFee() : 0);
 //        leasePrice.setDeposit(addUpdateLeaseRequest.getLeasePrice().getDeposit() != null ? addUpdateLeaseRequest.getLeasePrice().getDeposit() : 0);
         leasePriceRepository.save(leasePrice);
-
-
         leasePaymentsRepository.saveAll(leasePaymentsList);
         bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_ADDED, session.getUserNo(), lease.getLeaseNo().toString()));
         Map response = new HashMap();
@@ -360,6 +359,7 @@ public class LeasesService extends SessService {
         Map param = request.getParam();
         AddUpdateLeaseRequest addUpdateLeaseRequest = map(param, AddUpdateLeaseRequest.class);
         Leases lease = leaseRepository.findByLeaseId(addUpdateLeaseRequest.getLeaseId());
+        LeaseInsurances leaseInsurances = new LeaseInsurances();
         List<Leases> leasesByBike = leaseRepository.findAllByBike_BikeId(addUpdateLeaseRequest.getBikeId());
         if(lease.getStatus() == LeaseStatusTypes.PENDING) withException("850-004");
         if(lease.getStatus() == LeaseStatusTypes.CONFIRM){
@@ -370,6 +370,7 @@ public class LeasesService extends SessService {
             if(bike.getCarNum() == null) withException("850-024");
             Clients client = clientsRepository.findByClientId(addUpdateLeaseRequest.getClientId());
             Insurances insurance = insurancesRepository.findByInsuranceId(addUpdateLeaseRequest.getInsuranceId());
+            leaseInsurances.setInsurance(insurance);
             List<String> logList = new ArrayList<>();
             if(insurance.getInsuranceNo() != lease.getInsuranceNo()){
                 logList.add("보험을 <>" + insurance.getCompanyName() + " " + insurance.getAge() + " [" + insurance.getInsuranceName() + " ]" + "</>에서 <>" + insurance.getCompanyName() + " " + insurance.getAge() + " [" +  insurance.getInsuranceName() + "] " + "</>으로 변경하였습니다.");
@@ -390,6 +391,8 @@ public class LeasesService extends SessService {
             lease.setInsuranceNo(insurance.getInsuranceNo());
             leaseInfo.setNote(addUpdateLeaseRequest.getLeaseInfo().getNote());
             leaseRepository.save(lease);
+            leaseInsurances.setLeaseNo(lease.getLeaseNo());
+            leaseInsurancesRepository.save(leaseInsurances);
             leaseInfoRepository.save(leaseInfo);
             bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_UPDATED, request.getSessionUser().getUserNo(), lease.getLeaseNo().toString(), logList));
             if(!log.equals(""))
@@ -415,7 +418,8 @@ public class LeasesService extends SessService {
             List<LeasePayments> leasePaymentsList = leasePaymentsRepository.findAllByLease_LeaseId(addUpdateLeaseRequest.getLeaseId());
             List<LeasePaymentDto> dtosList = addUpdateLeaseRequest.getLeasePayments();
             updateLeaseInfoLog(request.getSessionUser(), addUpdateLeaseRequest, client, insurance, bike, lease);
-
+            leaseInsurances.setInsurance(insurance);
+            leaseInfo.setPeriod(addUpdateLeaseRequest.getLeaseInfo().getPeriod());
             if (client != null)
                 lease.setClientNo(client.getClientNo());
             if (bike != null)
@@ -434,7 +438,8 @@ public class LeasesService extends SessService {
                 lease.setReleaseAt(addUpdateLeaseRequest.getReleaseAt());
             lease.setUpLesase(addUpdateLeaseRequest.getUpLeaseNo());
             leaseRepository.save(lease);
-
+            leaseInsurances.setLeaseNo(lease.getLeaseNo());
+            leaseInsurancesRepository.save(leaseInsurances);
             //leaseInfo.setLeaseNo(lease.getLeaseNo());
             if (leaseInfoDto.getStartDt() != null) {
                 leaseInfo.setStart(LocalDate.parse(leaseInfoDto.getStartDt()));
@@ -637,6 +642,8 @@ public class LeasesService extends SessService {
         LeasesDto leasesDto = map(param, LeasesDto.class);
         BikeUser session = request.getSessionUser();
         Leases lease = leaseRepository.findByLeaseId(leasesDto.getLeaseId());
+        LeaseInsurances leaseInsurances = new LeaseInsurances();
+        leaseInsurances.setInsurance(lease.getInsurances());
         lease.setSubmittedUserNo(session.getUserNo());
         if(!LeaseStatusTypes.IN_PROGRESS.equals(lease.getStatus()) && !LeaseStatusTypes.DECLINE.equals(lease.getStatus())) withException("850-008");
         BikeUser byUserId = bikeLabUserRepository.findByUserId(leasesDto.getApprovalUserId());
@@ -649,6 +656,8 @@ public class LeasesService extends SessService {
         if(leasesDto.getApprovalUserId()==null) withException("850-020");
         lease.setStatus(LeaseStatusTypes.PENDING);
         leaseRepository.save(lease);
+        leaseInsurances.setLeaseNo(lease.getLeaseNo());
+        leaseInsurancesRepository.save(leaseInsurances);
         bikeUserTodoService.addTodo(BikeUserTodoTypes.LEASE_APPROVAL, session.getUserNo(), byUserId.getUserNo(), lease.getLeaseNo().toString(), lease.getLeaseId());
         bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_APPROVE_REQUESTED, session.getUserNo(), lease.getLeaseNo().toString()));
         return request;

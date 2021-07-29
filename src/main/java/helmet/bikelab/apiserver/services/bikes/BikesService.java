@@ -314,17 +314,16 @@ public class BikesService extends SessService {
         Map param = request.getParam();
         BikeDto bikeDto = map(param, BikeDto.class);
         Bikes bike = bikesRepository.findByBikeId(bikeDto.getBikeId());
-        if(!bePresent(bikeDto.getFileName())) withException("");
+        if(!bePresent(bikeDto.getFilename())) withException("");
         String uuid = UUID.randomUUID().toString();
+        String filename = bikeDto.getFilename().substring(0, bikeDto.getFilename().lastIndexOf("."));
+        String extension =  bikeDto.getFilename().substring(bikeDto.getFilename().lastIndexOf(".")+1);
         PresignedURLVo presignedURLVo = new PresignedURLVo();
         presignedURLVo.setBucket(ENV.AWS_S3_QUEUE_BUCKET);
-        presignedURLVo.setFileKey("bikes/" + bike.getBikeId() + "/" + uuid + "." + bikeDto.getFileName());
-        presignedURLVo.setFilename(bikeDto.getFileName());
+        presignedURLVo.setFileKey("bikes/" + bike.getBikeId() + "/" + uuid + "." + filename + extension);
+        presignedURLVo.setFilename(filename);
         presignedURLVo.setUrl(AmazonUtils.AWSGeneratePresignedURL(presignedURLVo));
-        Map response = new HashMap();
-        response.put("presign", presignedURLVo);
-        request.setResponse(response);
-
+        request.setResponse(presignedURLVo);
         return request;
     }
 

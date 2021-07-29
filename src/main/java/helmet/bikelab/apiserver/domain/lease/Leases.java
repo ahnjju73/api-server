@@ -121,21 +121,6 @@ public class Leases {
     @JoinColumn(name = "approval_user_no", insertable = false, updatable = false)
     private BikeUser approvalUser;
 
-    @OneToOne(mappedBy = "lease", optional = false)
-    private LeaseInfo leaseInfo;
-
-    @OneToOne(mappedBy = "lease", optional = false, fetch = FetchType.EAGER)
-    private LeasePrice leasePrice;
-
-    @OneToOne(mappedBy = "lease", optional = false)
-    private LeaseInsurances leaseInsurance;
-
-    @OneToMany(mappedBy = "lease", fetch = FetchType.LAZY)
-    private List<LeasePayments> payments = new ArrayList<>();
-
-    @OneToMany(mappedBy = "lease", fetch = FetchType.LAZY)
-    private List<LeaseExtras> extras = new ArrayList<>();
-
     //stop_lease
     @Column(name = "lease_stop_status", columnDefinition = "ENUM")
     @Convert(converter = LeaseStopStatusConverter.class)
@@ -156,5 +141,19 @@ public class Leases {
     @Column(name = "approval_dt")
     private LocalDateTime approvalDt;
 
+    @OneToOne(mappedBy = "lease", optional = false)
+    private LeaseInfo leaseInfo;
+
+    @OneToOne(mappedBy = "lease", optional = false, fetch = FetchType.EAGER)
+    private LeasePrice leasePrice;
+
+    @OneToOne(mappedBy = "lease")
+    private LeaseInsurances leaseInsurance;
+
+    @OneToMany(mappedBy = "lease", fetch = FetchType.LAZY)
+    private List<LeasePayments> payments = new ArrayList<>();
+
+    @OneToMany(mappedBy = "lease", fetch = FetchType.LAZY)
+    private List<LeaseExtras> extras = new ArrayList<>();
 
 }
