@@ -19,7 +19,7 @@ public class ClientAccounts {
     @Column(name = "client_no")
     private Integer clientNo;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client_no", insertable = false, updatable = false)
     private Clients client;
 

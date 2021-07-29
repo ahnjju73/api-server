@@ -7,6 +7,7 @@ import helmet.bikelab.apiserver.objects.bikelabs.fine.FetchFinesResponse;
 import helmet.bikelab.apiserver.objects.bikelabs.release.ReleaseDto;
 import helmet.bikelab.apiserver.objects.bikelabs.clients.ClientDto;
 import helmet.bikelab.apiserver.objects.bikelabs.insurance.InsuranceDto;
+import helmet.bikelab.apiserver.objects.requests.StopLeaseDto;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -41,4 +42,5 @@ public class FetchLeasesResponse {
     private UserDto submittedUser;
     private UserDto approvalUser;
     private List<LeasePaymentDto> leasePayments = new ArrayList<>();
+    private StopLeaseDto stopLeaseInfo;
 }

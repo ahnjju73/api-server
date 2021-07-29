@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.services.clients;
 
+import helmet.bikelab.apiserver.domain.CommonCodeBikes;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUserLog;
@@ -7,10 +8,7 @@ import helmet.bikelab.apiserver.domain.client.ClientGroups;
 import helmet.bikelab.apiserver.domain.client.ClientInfo;
 import helmet.bikelab.apiserver.domain.client.Clients;
 import helmet.bikelab.apiserver.domain.client.GroupAddresses;
-import helmet.bikelab.apiserver.domain.lease.LeaseInfo;
-import helmet.bikelab.apiserver.domain.lease.LeasePayments;
-import helmet.bikelab.apiserver.domain.lease.LeasePrice;
-import helmet.bikelab.apiserver.domain.lease.Leases;
+import helmet.bikelab.apiserver.domain.lease.*;
 import helmet.bikelab.apiserver.domain.types.BikeUserLogTypes;
 import helmet.bikelab.apiserver.domain.types.LeaseStatusTypes;
 import helmet.bikelab.apiserver.domain.types.ManagementTypes;
@@ -64,6 +62,8 @@ public class ClientGroupService extends SessService {
    private final InsurancesRepository insurancesRepository;
    private final AutoKey autoKey;
    private final BikeUserLogRepository bikeUserLogRepository;
+   private final BikeModelsRepository bikeModelsRepository;
+   private final LeaseInsurancesRepository leaseInsurancesRepository;
 
    public BikeSessionRequest fetchListOfGroup(BikeSessionRequest request){
       Map response = new HashMap();
@@ -89,9 +89,13 @@ public class ClientGroupService extends SessService {
       group.setRegNum(addGroupRequest.getRegNo());
       groupRepository.save(group);
 
-      GroupAddresses groupAddress = new GroupAddresses();
-      groupAddress.setModelAddress(addGroupRequest.getAddress());
-      groupAddress.setGroupNo(group.getGroupNo());
+      GroupAddresses groupAddresses = group.getGroupAddresses();
+      if(!bePresent(groupAddresses)) {
+         groupAddresses = new GroupAddresses();
+         groupAddresses.setGroupNo(group.getGroupNo());
+      }
+      groupAddresses.setModelAddress(addGroupRequest.getAddress());
+      clientGroupAddressRepository.save(groupAddresses);
 
       BikeUserLog userLog = new BikeUserLog();
       userLog.setLogType(BikeUserLogTypes.COMM_GROUP_ADDED);
@@ -314,6 +318,12 @@ public class ClientGroupService extends SessService {
             LeasePrice leasePrice = new LeasePrice();
             String leaseId = autoKey.makeGetKey("lease");
             lease.setLeaseId(leaseId);
+            Bikes bike = new Bikes();
+            LeaseInsurances leaseInsurances = new LeaseInsurances();
+            String bikeNum = "";
+            String vimNum = "";
+            String color = "";
+            String model = "";
             for (colIdx = 1; colIdx < row.getPhysicalNumberOfCells(); colIdx++) {
                XSSFCell cell = row.getCell(colIdx);
                if (cell != null && !"".equals(cell.getRawValue())) {
@@ -322,19 +332,36 @@ public class ClientGroupService extends SessService {
                      Clients client = clientsRepository.findByClientInfo_Name(value);
                      lease.setClientNo(client.getClientNo());
                   }
+                  if(colIdx == 3){
+                     vimNum = value;
+                  }
+                  if(colIdx == 5){
+                     model = value;
+                  }
+                  if(colIdx == 6){
+                     color = value;
+                  }
                   if(colIdx == 7){
-                     Bikes bike = bikesRepository.findByCarNum(value);
-                     lease.setBikeNo(bike.getBikeNo());
+                     bike = bikesRepository.findByCarNum(value);
+                     if(bike != null)
+                        lease.setBikeNo(bike.getBikeNo());
+                     bikeNum = value;
                   }
                   if(colIdx == 9){
                      int age = (int)Double.parseDouble(value);
+                     int insNo = 0;
                      if(age == 21){
                         lease.setInsuranceNo(15);
+                        insNo = 15;
                      }else if(age == 24){
                         lease.setInsuranceNo(13);
+                        insNo = 13;
                      }else{
                         lease.setInsuranceNo(14);
+                        insNo = 14;
                      }
+                     Insurances insurance = insurancesRepository.findById(insNo).get();
+                     leaseInsurances.setInsurance(insurance);
                   }
                   if(colIdx == 11){
                      DateTimeFormatter dTF =
@@ -383,6 +410,17 @@ public class ClientGroupService extends SessService {
                   }
                }
             }
+            if(bike == null){
+               bike = new Bikes();
+               bike.setBikeId(autoKey.makeGetKey("bike"));
+               bike.setCarModel(bikeModelsRepository.findByCode(model));
+               bike.setColor(color);
+               bike.setCarNum(bikeNum);
+               bike.setVimNum(vimNum);
+               bikesRepository.save(bike);
+               lease.setBikeNo(bike.getBikeNo());
+            }
+
             lease.setType(ManagementTypes.FINANCIAL);
             lease.setCreatedAt(LocalDateTime.now());
             lease.setReleaseNo(1);
@@ -391,6 +429,8 @@ public class ClientGroupService extends SessService {
             lease.setSubmittedUserNo(25);
             lease.setApprovalUserNo(26);
             leaseRepository.save(lease);
+            leaseInsurances.setLeaseNo(lease.getLeaseNo());
+            leaseInsurancesRepository.save(leaseInsurances);
             bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_UPDATED, session.getUserNo(), lease.getLeaseNo().toString(), Arrays.asList("초기 데이터 셋팅에 의해 생성되였습니다.")));
             leaseInfo.setPeriod(12);
             leaseInfo.setEndDate(leaseInfo.getStart().plusMonths(12));

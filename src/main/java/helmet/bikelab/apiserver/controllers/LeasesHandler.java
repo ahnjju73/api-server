@@ -109,10 +109,21 @@ public class LeasesHandler {
 
     public Mono<ServerResponse> stopLease(ServerRequest request) {
         return ServerResponse.ok().body(
-                Mono.fromSupplier(() -> leasesService.makeSessionRequest(request, BikeSessionRequest.class))
+                request.bodyToMono(Map.class)
                         .subscribeOn(Schedulers.elastic())
+                        .map(row -> leasesService.makeSessionRequest(request, row , BikeSessionRequest.class))
                         .map(leasesService::checkBikeSession)
                         .map(leasesService::stopLease)
+                        .map(leasesService::returnData), Map.class);
+    }
+
+    public Mono<ServerResponse> updateStopLease(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> leasesService.makeSessionRequest(request, row , BikeSessionRequest.class))
+                        .map(leasesService::checkBikeSession)
+                        .map(leasesService::updateStopLease)
                         .map(leasesService::returnData), Map.class);
     }
 }

@@ -4,6 +4,7 @@ import com.amazonaws.HttpMethod;
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
+import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.Headers;
@@ -32,6 +33,7 @@ public class AmazonUtils {
 
         AmazonS3 amazonS3 = AmazonS3Client
                 .builder()
+                .withRegion(Regions.AP_NORTHEAST_2)
                 .withCredentials(awsStaticCredentialsProvider)
                 .build();
 

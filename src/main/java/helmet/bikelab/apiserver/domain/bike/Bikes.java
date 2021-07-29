@@ -4,10 +4,15 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import helmet.bikelab.apiserver.domain.CommonCodeBikes;
 import helmet.bikelab.apiserver.domain.lease.Leases;
+import helmet.bikelab.apiserver.domain.riders.Riders;
+import helmet.bikelab.apiserver.domain.types.BikeRiderStatusTypes;
+import helmet.bikelab.apiserver.domain.types.converters.BikeRiderStatusTypesConverter;
 import lombok.*;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -49,9 +54,32 @@ public class Bikes {
     @Column(name = "register_dt")
     private LocalDateTime registerDate;
 
-    @OneToOne(mappedBy = "bike", fetch = FetchType.EAGER)
-    private Leases lease;
+    @OneToMany(mappedBy = "bike", fetch = FetchType.LAZY)
+    private List<Leases> lease = new ArrayList<>();
+
+    @OneToMany(mappedBy = "bike", fetch = FetchType.LAZY)
+    private List<BikeAttachments> files = new ArrayList<>();
 
     @Column(name = "volume")
     private Integer volume;
+
+    @Column(name = "usable")
+    private Boolean usable = true;
+
+    @Column(name = "rider_no")
+    private Integer riderNo;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "rider_no", insertable = false, updatable = false)
+    private Riders riders;
+
+    @Column(name = "rider_request_at")
+    private LocalDateTime riderRequestAt;
+
+    @Column(name = "rider_approval_at")
+    private LocalDateTime riderApprovalAt;
+
+    @Column(name = "rider_status", columnDefinition = "ENUM", nullable = false)
+    @Convert(converter = BikeRiderStatusTypesConverter.class)
+    private BikeRiderStatusTypes riderStatus = BikeRiderStatusTypes.NONE;
 }

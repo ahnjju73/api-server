@@ -119,7 +119,7 @@ public class LeasePaymentService  extends SessService {
             int unpaidFee = 0;
             int unpaidExtraFee = 0;
             while (index < payments.size()) {
-                if (!LocalDate.now().isAfter(payments.get(index).getPaymentDate())) {
+                if (!LocalDate.now().plusDays(1).isAfter(payments.get(index).getPaymentDate())) {
                     break;
                 }
                 index++;

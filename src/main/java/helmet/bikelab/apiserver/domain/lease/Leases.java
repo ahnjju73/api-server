@@ -5,9 +5,11 @@ import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.client.Clients;
 import helmet.bikelab.apiserver.domain.types.ContractTypes;
 import helmet.bikelab.apiserver.domain.types.LeaseStatusTypes;
+import helmet.bikelab.apiserver.domain.types.LeaseStopStatusTypes;
 import helmet.bikelab.apiserver.domain.types.ManagementTypes;
 import helmet.bikelab.apiserver.domain.types.converters.ContractTypeConverter;
 import helmet.bikelab.apiserver.domain.types.converters.LeaseStatusTypesConverter;
+import helmet.bikelab.apiserver.domain.types.converters.LeaseStopStatusConverter;
 import helmet.bikelab.apiserver.domain.types.converters.ManagementTypeConverter;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,6 +18,7 @@ import lombok.extern.apachecommons.CommonsLog;
 import org.hibernate.validator.constraints.br.CPF;
 
 import javax.persistence.*;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +54,7 @@ public class Leases {
     @Column(name = "bak_bike_no")
     private Integer bakBikeNo;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "bike_no", insertable = false, updatable = false)
     private Bikes bike;
 
@@ -118,15 +121,39 @@ public class Leases {
     @JoinColumn(name = "approval_user_no", insertable = false, updatable = false)
     private BikeUser approvalUser;
 
+    //stop_lease
+    @Column(name = "lease_stop_status", columnDefinition = "ENUM")
+    @Convert(converter = LeaseStopStatusConverter.class)
+    private LeaseStopStatusTypes leaseStopStatus = LeaseStopStatusTypes.CONTINUE;
+
+    @Column(name = "stop_dt")
+    private LocalDateTime stopDt;
+
+    @Column(name = "stop_fee")
+    private Long stopFee;
+
+    @Column(name = "stop_paid_fee")
+    private Long stopPaidFee;
+
+    @Column(name = "stop_reason", columnDefinition = "MEDIUMTEXT")
+    private String stopReason;
+
+    @Column(name = "approval_dt")
+    private LocalDateTime approvalDt;
+
     @OneToOne(mappedBy = "lease", optional = false)
     private LeaseInfo leaseInfo;
 
-    @OneToOne(mappedBy = "lease", optional = false, fetch = FetchType.LAZY)
+    @OneToOne(mappedBy = "lease", optional = false, fetch = FetchType.EAGER)
     private LeasePrice leasePrice;
+
+    @OneToOne(mappedBy = "lease")
+    private LeaseInsurances leaseInsurance;
 
     @OneToMany(mappedBy = "lease", fetch = FetchType.LAZY)
     private List<LeasePayments> payments = new ArrayList<>();
 
     @OneToMany(mappedBy = "lease", fetch = FetchType.LAZY)
     private List<LeaseExtras> extras = new ArrayList<>();
+
 }

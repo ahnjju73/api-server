@@ -9,11 +9,9 @@ import java.io.Serializable;
 
 public class ShopSessionPK implements Serializable {
 
-    @Id
     @Column(name = "shop_no")
     private Integer shopNo;
 
-    @Id
     @Column(name = "session_type", columnDefinition = "ENUM")
     @Convert(converter = UserSessionTypeConverter.class)
     private UserSessionTypes sessionTypes;

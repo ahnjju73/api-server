@@ -10,7 +10,7 @@
             select count(*)
               from (select *
                       from bikes
-                     where 1 = 1
+                     where bike_id != (select val from system_parameters where parameter_no = 0)
                     <if test="search_name != null and search_name != '' and search_name != 'undefined'">
                        and (
                             vim_num like concat('%', #{search_name}, '%')
@@ -22,7 +22,9 @@
                                  and c.client_id = #{search_client_id}
         </if>
         <if test="search_client_id == null or search_client_id == '' or search_client_id == 'undefined'">
-            select count(*) from bikes
+            select count(*)
+              from bikes
+             where bike_id != (select val from system_parameters where parameter_no = 0)
         </if>
     </select>
 
@@ -41,6 +43,7 @@
         from (select *
               from bikes b
               where 1 = 1
+                and bike_id != (select val from system_parameters where parameter_no = 0)
                 <if test="search_name != null and search_name != '' and search_name != 'undefined'">
                 and (
                         vim_num like concat('%', #{search_name}, '%')
@@ -72,6 +75,7 @@
               from (select *
                       from bikes
                      where bike_no not in (select bike_no from leases)
+                       and bike_id != (select val from system_parameters where parameter_no = 0)
                     <if test="search_name != null and search_name != '' and search_name != 'undefined'">
                         and (
                         vim_num like concat('%', #{search_name}, '%')
@@ -120,8 +124,9 @@
           from (select *
                   from bikes b
                  where bike_no not in (select bike_no from leases)
-                   and bm.number != null
-                   and bm.number != ''
+                   and bike_id != (select val from system_parameters where parameter_no = 0)
+                   and `number` is not null
+                   and `number` != ''
                 <if test="search_name != null and search_name != '' and search_name != 'undefined'">
                    and (
                         vim_num like concat('%', #{search_name}, '%')
