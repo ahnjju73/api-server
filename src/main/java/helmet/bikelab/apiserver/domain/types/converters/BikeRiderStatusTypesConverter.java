@@ -8,6 +8,8 @@ public class BikeRiderStatusTypesConverter implements AttributeConverter<BikeRid
 
     @Override
     public String convertToDatabaseColumn(BikeRiderStatusTypes status) {
+        if(status == null)
+            return null;
         return status.getRiderStatus();
     }
 
