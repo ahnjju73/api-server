@@ -83,7 +83,7 @@ public class ErrorGlobalHandler<T extends BusinessException> extends AbstractErr
         Map logData = new HashMap();
         logData.put("status", httpStatus);
         logData.put("error_message", exception.getMessage());
-        logger.info(new Gson().toJson(logData));
+        logger.error(new Gson().toJson(logData));
     }
 
     private Mono<ServerResponse> responseTo(ServerRequest request, Response response){
