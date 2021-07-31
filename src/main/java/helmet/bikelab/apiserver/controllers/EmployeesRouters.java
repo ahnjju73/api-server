@@ -37,4 +37,12 @@ public class EmployeesRouters {
                 ;
     }
 
+    @Bean
+    public RouterFunction<ServerResponse> inquiryRouters(EmployeesHandlers handler){
+        return RouterFunctions
+                .route(GET("/inquiries"), handler::fetchInquiries)
+                .andRoute(PATCH("/inquiries/{inquiry_no}"), handler::confirmInquiryByInquiryNo)
+                ;
+    }
+
 }
