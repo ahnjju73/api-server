@@ -700,23 +700,54 @@ public class LeasesService extends SessService {
     }
 
     @Transactional
+    public BikeSessionRequest fetchStopLeaseFee(BikeSessionRequest request){
+        Map param = request.getParam();
+        StopLeaseDto stopLeaseDto = map(param, StopLeaseDto.class);
+        Leases lease = leaseRepository.findByLeaseId(stopLeaseDto.getLeaseId());
+        LocalDate stopDate = LocalDate.parse(stopLeaseDto.getStopDt());
+        double stopFee;
+        double totalFee = 0;
+        for(LeasePayments lp : leasePaymentsRepository.findAllByLease_LeaseId(lease.getLeaseId())){
+            totalFee += lp.getLeaseFee();
+        }
+
+        int days = (int) (ChronoUnit.DAYS.between(stopDate, lease.getLeaseInfo().getStart().plusMonths(lease.getLeaseInfo().getPeriod())));
+        if(days > 180){
+            stopFee = (double) days/365 * totalFee * 0.2;
+        }else if(days > 30){
+            stopFee = (double) days/365 * totalFee * 0.4;
+        }else{
+            stopFee = (double) days/365 * totalFee * 0.6;
+        }
+        stopFee = Math.round(stopFee);
+        Map response = new HashMap();
+        response.put("stop_fee", stopFee);
+        request.setResponse(response);
+        return request;
+    }
+
+    @Transactional
     public BikeSessionRequest stopLease(BikeSessionRequest request){
         Map param = request.getParam();
         String log ="";
         StopLeaseDto stopLeaseDto = map(param, StopLeaseDto.class);
+        double stopFee = 0;
         Leases lease = leaseRepository.findByLeaseId(stopLeaseDto.getLeaseId());
         if(lease == null || lease.getStatus() != LeaseStatusTypes.CONFIRM) withException("");
         Bikes emptyBike = bikesRepository.findByBikeId("BK000000");
         lease.setBakBikeNo(lease.getBike().getBikeNo());
         lease.setBikeNo(emptyBike.getBikeNo());
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일");
-        String formattedString = LocalDate.parse(stopLeaseDto.getStopDt()).format(formatter);
+        LocalDate stopDate = LocalDate.parse(stopLeaseDto.getStopDt());
+        String formattedString = stopDate.format(formatter);
+
+
         log = "바이크 번호 <>" + lease.getBike().getCarNum() + "</>가 중도해지 되었습니다.<br>";
-        log += "중도 해지 위약금은 <>" + Utils.getCurrencyFormat(stopLeaseDto.getStopFee()) + "원</>으로 설정 되었습니다.<br>"+"중도 해지 일자는 <>"
+        log += "중도 해지 위약금은 <>" + Utils.getCurrencyFormat(Math.round(stopFee)) + "원</>으로 설정 되었습니다.<br>" + "중도 해지 일자는 <>"
                 + formattedString + "</>로 설정 되었습니다.<br>" + "중도 해지 이유는 <>" + stopLeaseDto.getStopReason() + "</>입니다.";
         lease.setLeaseStopStatus(LeaseStopStatusTypes.STOP_CONTINUE);
         lease.setStopDt(LocalDateTime.parse(stopLeaseDto.getStopDt()));
-        lease.setStopFee(stopLeaseDto.getStopFee());
+        lease.setStopFee(Math.round(stopFee));
         lease.setStopPaidFee(0L);
         lease.setStopReason(stopLeaseDto.getStopReason());
         leaseRepository.save(lease);

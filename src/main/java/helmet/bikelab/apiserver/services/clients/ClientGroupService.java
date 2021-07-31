@@ -312,6 +312,8 @@ public class ClientGroupService extends SessService {
          XSSFRow row = sheet.getRow(rowIdx);
          String head = row.getCell(0).toString();
          if(head.matches("\\d+\\.\\d")) {
+            System.out.println(sheet.getSheetName());
+            boolean isDaily = sheet.getSheetName().contains("만나");
             int leaseFee = 0;
             Leases lease = new Leases();
             LeaseInfo leaseInfo = new LeaseInfo();
@@ -343,8 +345,10 @@ public class ClientGroupService extends SessService {
                   }
                   if(colIdx == 7){
                      bike = bikesRepository.findByCarNum(value);
-                     if(bike != null)
+                     if(bike != null) {
                         lease.setBikeNo(bike.getBikeNo());
+                        bike.setColor(color);
+                     }
                      bikeNum = value;
                   }
                   if(colIdx == 9){
@@ -360,8 +364,8 @@ public class ClientGroupService extends SessService {
                         lease.setInsuranceNo(14);
                         insNo = 14;
                      }
-                     Insurances insurance = insurancesRepository.findById(insNo).get();
-                     leaseInsurances.setInsurance(insurance);
+                     Optional<Insurances> temp = insurancesRepository.findById(insNo);
+                     leaseInsurances.setInsurance(temp.get());
                   }
                   if(colIdx == 11){
                      DateTimeFormatter dTF =
@@ -372,48 +376,56 @@ public class ClientGroupService extends SessService {
                   }
                   if(colIdx == 13){
                      //바로고 테라 무빙 딜리체
-//                     String price = value.replaceAll("," , "");
-//                     leasePrice.setDeposit((int)Double.parseDouble(price));
+                     if(!isDaily) {
+                        String price = value.replaceAll(",", "");
+                        leasePrice.setDeposit((int) Double.parseDouble(price));
+                     }
                      //만나
-                     double price = cell.getNumericCellValue();
-                     leasePrice.setDeposit((int) price);
+                     else {
+                        double price = cell.getNumericCellValue();
+                        leasePrice.setDeposit((int) price);
+                     }
                   }
 //                바로고 테라 무빙 딜리 정
-//                  if(colIdx == 14){
-//                     String price = value.replaceAll("," , "");
-//                     leaseFee = (int)Double.parseDouble(price);
-//                  }
-//                  if(colIdx == 15){
-//                     leaseInfo.setNote(value);
-//                  }
-//                  if(colIdx == 16){
-//                     DateTimeFormatter dTF =
-//                             new DateTimeFormatterBuilder().parseCaseInsensitive()
-//                                     .appendPattern("dd-MMM-yyyy")
-//                                     .toFormatter();
-//                     leaseInfo.setStart(LocalDate.parse(value, dTF));
-//                  }
+                  if(!isDaily) {
+                     if (colIdx == 14) {
+                        String price = value.replaceAll(",", "");
+                        leaseFee = (int) Double.parseDouble(price);
+                     }
+                     if (colIdx == 15) {
+                        leaseInfo.setNote(value);
+                     }
+                     if (colIdx == 16) {
+                        DateTimeFormatter dTF =
+                                new DateTimeFormatterBuilder().parseCaseInsensitive()
+                                        .appendPattern("dd-MMM-yyyy")
+                                        .toFormatter();
+                        leaseInfo.setStart(LocalDate.parse(value, dTF));
+                     }
+                  }
                   //만나
-                  if(colIdx == 15){
-                     double price = cell.getNumericCellValue();
-                     leaseFee = Math.round((float)price);
-                  }
-                  if(colIdx == 16){
-                     leaseInfo.setNote(value);
-                  }
-                  if(colIdx == 17){
-                     DateTimeFormatter dTF =
-                             new DateTimeFormatterBuilder().parseCaseInsensitive()
-                                     .appendPattern("dd-MMM-yyyy")
-                                     .toFormatter();
-                     leaseInfo.setStart(LocalDate.parse(value, dTF));
+                  else {
+                     if (colIdx == 15) {
+                        double price = cell.getNumericCellValue();
+                        leaseFee = Math.round((float) price);
+                     }
+                     if (colIdx == 16) {
+                        leaseInfo.setNote(value);
+                     }
+                     if (colIdx == 17) {
+                        DateTimeFormatter dTF =
+                                new DateTimeFormatterBuilder().parseCaseInsensitive()
+                                        .appendPattern("dd-MMM-yyyy")
+                                        .toFormatter();
+                        leaseInfo.setStart(LocalDate.parse(value, dTF));
+                     }
                   }
                }
             }
             if(bike == null){
                bike = new Bikes();
                bike.setBikeId(autoKey.makeGetKey("bike"));
-               bike.setCarModel(bikeModelsRepository.findByCode(model));
+               bike.setCarModel(bikeModelsRepository.findByModel(model));
                bike.setColor(color);
                bike.setCarNum(bikeNum);
                bike.setVimNum(vimNum);
@@ -441,7 +453,10 @@ public class ClientGroupService extends SessService {
             leasePrice.setProfit(0);
             leasePrice.setTakeFee(0);
             leasePrice.setRegisterFee(0);
-            leasePrice.setType(PaymentTypes.DAILY);
+            if(isDaily)
+               leasePrice.setType(PaymentTypes.DAILY);
+            else
+               leasePrice.setType(PaymentTypes.MONTHLY);
             leasePriceRepository.save(leasePrice);
 
             List<LeasePayments> leasePaymentsList = new ArrayList<>();
