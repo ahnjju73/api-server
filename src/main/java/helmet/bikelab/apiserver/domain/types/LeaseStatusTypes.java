@@ -16,13 +16,11 @@ public enum LeaseStatusTypes {
         if (status == null) {
             return null;
         }
-
         for (LeaseStatusTypes ls : LeaseStatusTypes.values()) {
             if (status.equals(ls.getStatus())) {
                 return ls;
             }
         }
-
         return null;
     }
 }

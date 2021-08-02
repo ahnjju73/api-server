@@ -1,9 +1,11 @@
 package helmet.bikelab.apiserver.controllers;
 
 import helmet.bikelab.apiserver.objects.bikelabs.todo.BikeUserTodoDto;
+import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.services.BikeUserTodoService;
 import helmet.bikelab.apiserver.services.employees.EmployeesService;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
+import helmet.bikelab.apiserver.services.employees.InquiryService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
@@ -18,6 +20,27 @@ public class EmployeesHandlers {
 
     private final EmployeesService adminEmployeeService;
     private final BikeUserTodoService bikeUserTodoService;
+    private final InquiryService inquiryService;
+
+    public Mono<ServerResponse> fetchInquiries(ServerRequest request){
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> inquiryService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(inquiryService::checkBikeSession)
+                        .map(inquiryService::fetchInquiries)
+                        .map(inquiryService::returnData), ResponseListDto.class);
+    }
+
+    public Mono<ServerResponse> confirmInquiryByInquiryNo(ServerRequest request){
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> inquiryService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(row -> inquiryService.getPathVariable(row, "inquiry_no"))
+                        .map(inquiryService::checkBikeSession)
+                        .map(inquiryService::confirmInquiryByInquiryNo)
+                        .map(inquiryService::returnData), Map.class);
+    }
 
     public Mono<ServerResponse> fetchTodoSummery(ServerRequest request){
         return ServerResponse.ok().body(

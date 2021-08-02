@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding= "UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="bikelabs.inquiries">
+
+    <select id="countAllInquiries" parameterType="hmap" resultType="int">
+        select count(*)
+          from inquiries
+         where 1 = 1
+        <if test="search_status != null and search_status != '' and search_status != 'undefined'">
+            and status = #{search_status}
+        </if>
+        <if test="search_company != null and search_company != '' and search_company != 'undefined'">
+            and company like concat('%', #{search_company}, '%')
+        </if>
+    </select>
+
+    <select id="fetchInquiries" parameterType="hmap" resultType="hmap">
+        select cast(inquiry_no as char) as inquiry_no,
+               iq.status,
+               iq.business_type,
+               iq.email as inquiry_email,
+               iq.phone as inquiry_phone,
+               iq.company as inquiry_company,
+               iq.content,
+               iq.created_at,
+               um.user_id,
+               um.email as user_email,
+               ui.name as username,
+               ui.phone as user_phone,
+               iq.confirmed_at
+        from (select *
+              from inquiries
+              where 1 = 1
+                <if test="next_token != null and next_token != '' and next_token != 'undefined'">
+                and inquiry_no <![CDATA[ < ]]> #{next_token}
+                </if>
+                <if test="search_status != null and search_status != '' and search_status != 'undefined'">
+                and status = #{search_status}
+                </if>
+                <if test="search_company != null and search_company != '' and search_company != 'undefined'">
+                and company like concat('%', #{search_company}, '%')
+                </if>
+              order by inquiry_no desc limit 50) iq
+                 left outer join bike_user_mst um on iq.confirmed_user_no = um.user_no
+                 left outer join bike_user_info ui on um.user_no = ui.user_no
+        order by inquiry_no desc
+    </select>
+
+</mapper>

@@ -16,7 +16,18 @@ import java.util.Map;
 @Component
 @RequiredArgsConstructor
 public class BikesHandlers {
+
     private final BikesService bikesService;
+
+    public Mono<ServerResponse> fetchHistoriesByBikeId(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> bikesService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(req -> bikesService.getPathVariable(req, "bike_id"))
+                        .map(bikesService::checkBikeSession)
+                        .map(bikesService::fetchHistoriesByBikeId)
+                        .map(bikesService::returnData), ResponseListDto.class);
+    }
 
     public Mono<ServerResponse> fetchListOfBikes(ServerRequest request){
         return ServerResponse.ok().body(

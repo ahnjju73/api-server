@@ -69,12 +69,10 @@ public class ErrorGlobalHandler<T extends BusinessException> extends AbstractErr
         }else if(error instanceof Exception){
             Exception exception = (Exception) getError(request);
             apiLogger(HttpStatus.BAD_REQUEST, exception);
-            exception.printStackTrace();
             return responseTo(request, new Response());
         }else {
             Throwable exception = getError(request);
             apiLogger(HttpStatus.BAD_REQUEST, exception);
-            exception.printStackTrace();
             return responseTo(request, new Response());
         }
     }
@@ -83,7 +81,7 @@ public class ErrorGlobalHandler<T extends BusinessException> extends AbstractErr
         Map logData = new HashMap();
         logData.put("status", httpStatus);
         logData.put("error_message", exception.getMessage());
-        logger.info(new Gson().toJson(logData));
+        logger.error(new Gson().toJson(logData));
     }
 
     private Mono<ServerResponse> responseTo(ServerRequest request, Response response){

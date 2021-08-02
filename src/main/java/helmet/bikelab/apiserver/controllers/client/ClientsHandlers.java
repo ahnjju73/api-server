@@ -15,6 +15,7 @@ import java.util.Map;
 @Component
 @RequiredArgsConstructor
 public class ClientsHandlers {
+
     private final ClientsService clientsService;
 
     public Mono<ServerResponse> fetchHistoryOfClient(ServerRequest request) {
