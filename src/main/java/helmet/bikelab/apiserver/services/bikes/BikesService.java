@@ -4,6 +4,7 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CopyObjectRequest;
+import com.amazonaws.services.s3.model.DeleteObjectsRequest;
 import helmet.bikelab.apiserver.domain.CommonCodeBikes;
 import helmet.bikelab.apiserver.domain.bike.BikeAttachments;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
@@ -328,7 +329,7 @@ public class BikesService extends SessService {
         String extension =  bikeDto.getFilename().substring(bikeDto.getFilename().lastIndexOf(".")+1);
         PresignedURLVo presignedURLVo = new PresignedURLVo();
         presignedURLVo.setBucket(ENV.AWS_S3_QUEUE_BUCKET);
-        presignedURLVo.setFileKey("bikes/" + bike.getBikeId() + "/" + uuid + "." + filename + extension);
+        presignedURLVo.setFileKey("bikes/" + bike.getBikeId() + "/" + uuid + "." + filename + "." + extension);
         presignedURLVo.setFilename(filename + "." + extension);
         presignedURLVo.setUrl(AmazonUtils.AWSGeneratePresignedURL(presignedURLVo));
         request.setResponse(presignedURLVo);
@@ -344,8 +345,7 @@ public class BikesService extends SessService {
         BikeAttachments bikeAttachments = new BikeAttachments();
         bikeAttachments.setBikeNo(bike.getBikeNo());
         bikeAttachments.setFileName(presignedURLVo.getFilename());
-        bikeAttachments.setDomain(ENV.AWS_S3_ORIGIN_DOMAIN);
-        bikeAttachments.setUrl("/" + presignedURLVo.getFileKey());
+        bikeAttachments.setFileKey("/" + presignedURLVo.getFileKey());
         // todo: filename required
         bikeAttachmentRepository.save(bikeAttachments);
         //
@@ -356,7 +356,7 @@ public class BikesService extends SessService {
         CopyObjectRequest objectRequest = new CopyObjectRequest(presignedURLVo.getBucket(), presignedURLVo.getFileKey(), ENV.AWS_S3_ORIGIN_BUCKET, presignedURLVo.getFileKey());
         amazonS3.copyObject(objectRequest);
         Map response = new HashMap();
-        response.put("url", bikeAttachments.getUrl());
+        response.put("url", bikeAttachments.getFileKey());
         request.setResponse(response);
         return request;
     }
@@ -366,16 +366,22 @@ public class BikesService extends SessService {
     public BikeSessionRequest fetchFilesByBike(BikeSessionRequest request){
         Map param = request.getParam();
         List<BikeAttachments> attachments = bikeAttachmentRepository.findAllByBike_BikeId((String) param.get("bike_id"));
-        Map response = new HashMap();
-//        response.put("attachments", attachments);
         request.setResponse(attachments);
         return request;
     }
 
     @Transactional
     public BikeSessionRequest deleteFile(BikeSessionRequest request){
-
-
+        Map param = request.getParam();
+        Integer bikeFileInfoNo = (Integer) param.get("bikeFileInfoNo");
+        BikeAttachments byBikeFileInfoNo = bikeAttachmentRepository.findByBikeFileInfoNo(bikeFileInfoNo);
+        String url = byBikeFileInfoNo.getDomain() + byBikeFileInfoNo.getFileKey();
+        bikeAttachmentRepository.deleteById(byBikeFileInfoNo.getBikeFileInfoNo());
+        AmazonS3 amazonS3 = AmazonS3Client.builder()
+                .withRegion(Regions.AP_NORTHEAST_2)
+                .withCredentials(AmazonUtils.awsCredentialsProvider())
+                .build();
+        amazonS3.deleteObject(ENV.AWS_S3_ORIGIN_BUCKET, url);
         return request;
     }
 

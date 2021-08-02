@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface BikeAttachmentRepository extends JpaRepository<BikeAttachments, Integer> {
     List<BikeAttachments> findAllByBike_BikeId(String bikeId);
+    BikeAttachments findByBikeFileInfoNo(Integer bileFileInfoNo);
+
 }

@@ -4,8 +4,6 @@
 
 .gitignore
 
-logback.xml
-
 ### STS ###
 .apt_generated
 .classpath
@@ -34,6 +32,7 @@ nbdist/
 
 out/
 src/main/resources/application*.properties
+src/main/resources/logback.xml
 
 #.DS_Store
 .DS_Store

@@ -170,4 +170,8 @@ public class BikesHandlers {
                         .map(bikesService::fetchFilesByBike)
                         .map(bikesService::returnData), List.class);
     }
+
+    public Mono<ServerResponse> deleteBikeFile(ServerRequest request) {
+        return null;
+    }
 }
