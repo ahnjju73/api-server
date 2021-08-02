@@ -59,7 +59,6 @@ public class BikesService extends SessService {
 
     public BikeSessionRequest fetchGroupDetailsByGroupId(BikeSessionRequest request){
         Map param = request.getParam();
-        String groupId = (String)param.get("group_id");
         Map details = (Map)getItem("bikelabs.commons.clients.fetchGroupDetailsByGroupId", param);
         request.setResponse(details);
         return request;
