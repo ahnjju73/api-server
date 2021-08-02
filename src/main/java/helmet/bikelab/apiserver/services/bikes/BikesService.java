@@ -321,7 +321,7 @@ public class BikesService extends SessService {
         PresignedURLVo presignedURLVo = new PresignedURLVo();
         presignedURLVo.setBucket(ENV.AWS_S3_QUEUE_BUCKET);
         presignedURLVo.setFileKey("bikes/" + bike.getBikeId() + "/" + uuid + "." + filename + extension);
-        presignedURLVo.setFilename(filename);
+        presignedURLVo.setFilename(filename+extension);
         presignedURLVo.setUrl(AmazonUtils.AWSGeneratePresignedURL(presignedURLVo));
         request.setResponse(presignedURLVo);
         return request;
