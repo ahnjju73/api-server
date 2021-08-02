@@ -4,7 +4,6 @@
 
 .gitignore
 
-*.properties
 logback.xml
 
 ### STS ###
@@ -34,7 +33,7 @@ nbdist/
 .nb-gradle/
 
 out/
-src/main/resources/application-production.properties
+src/main/resources/application*.properties
 
 #.DS_Store
 .DS_Store
