@@ -249,7 +249,7 @@ public class BikesService extends SessService {
                 stringList.add("바이크 등록일을 <>" + bike.getRegisterDate().toLocalDate() + "</>에서 <>" + updateBikeRequest.getRegisterDt().toLocalDate() + "</>으로 변경하였습니다.");
             }
             if(bePresent(stringList) && stringList.size() > 0){
-                bikeUserLogRepository.save(addLog(BikeUserLogTypes.COMM_BIKE_ADDED, session.getUserNo(), bike.getBikeNo().toString(), stringList));
+                bikeUserLogRepository.save(addLog(BikeUserLogTypes.COMM_BIKE_UPDATED, session.getUserNo(), bike.getBikeNo().toString(), stringList));
             }
         }
 
