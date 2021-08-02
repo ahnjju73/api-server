@@ -4,6 +4,7 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CopyObjectRequest;
+import com.amazonaws.services.s3.model.DeleteObjectsRequest;
 import helmet.bikelab.apiserver.domain.CommonCodeBikes;
 import helmet.bikelab.apiserver.domain.bike.BikeAttachments;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
@@ -366,15 +367,21 @@ public class BikesService extends SessService {
     public BikeSessionRequest fetchFilesByBike(BikeSessionRequest request){
         Map param = request.getParam();
         List<BikeAttachments> attachments = bikeAttachmentRepository.findAllByBike_BikeId((String) param.get("bike_id"));
-        Map response = new HashMap();
-//        response.put("attachments", attachments);
         request.setResponse(attachments);
         return request;
     }
 
     @Transactional
     public BikeSessionRequest deleteFile(BikeSessionRequest request){
-
+        Map param = request.getParam();
+        String fileKey = (String) param.get("file_key");
+        AmazonS3 amazonS3 = AmazonS3Client.builder()
+                .withRegion(Regions.AP_NORTHEAST_2)
+                .withCredentials(AmazonUtils.awsCredentialsProvider())
+                .build();
+        //DeleteObjectsRequest deleteObjectsRequest = new DeleteObjectsRequest(ENV.AWS_S3_ORIGIN_BUCKET, fileKey);
+//        DeleteObjectsRequest deleteObjectsRequest = new DeleteObjectsRequest(ENV.AWS_S3_ORIGIN_BUCKET, fileKey);
+//        amazonS3.deleteObjects()
 
         return request;
     }
