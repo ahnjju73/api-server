@@ -69,12 +69,10 @@ public class ErrorGlobalHandler<T extends BusinessException> extends AbstractErr
         }else if(error instanceof Exception){
             Exception exception = (Exception) getError(request);
             apiLogger(HttpStatus.BAD_REQUEST, exception);
-            exception.printStackTrace();
             return responseTo(request, new Response());
         }else {
             Throwable exception = getError(request);
             apiLogger(HttpStatus.BAD_REQUEST, exception);
-            exception.printStackTrace();
             return responseTo(request, new Response());
         }
     }
