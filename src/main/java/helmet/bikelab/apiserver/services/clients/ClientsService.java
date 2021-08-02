@@ -10,6 +10,7 @@ import helmet.bikelab.apiserver.domain.types.BusinessTypes;
 import helmet.bikelab.apiserver.domain.types.YesNoTypes;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.bikelabs.clients.*;
+import helmet.bikelab.apiserver.objects.requests.BikeListDto;
 import helmet.bikelab.apiserver.objects.requests.ClientListDto;
 import helmet.bikelab.apiserver.objects.requests.RequestListDto;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;

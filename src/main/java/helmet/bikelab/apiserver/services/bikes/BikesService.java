@@ -19,6 +19,7 @@ import helmet.bikelab.apiserver.objects.PresignedURLVo;
 import helmet.bikelab.apiserver.objects.bikelabs.bikes.*;
 import helmet.bikelab.apiserver.objects.bikelabs.clients.ClientDto;
 import helmet.bikelab.apiserver.objects.bikelabs.leases.LeasesDto;
+import helmet.bikelab.apiserver.objects.requests.BikeListDto;
 import helmet.bikelab.apiserver.objects.requests.BikeRequestListDto;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.repositories.*;
@@ -47,6 +48,14 @@ public class BikesService extends SessService {
     private final BikeUserLogRepository bikeUserLogRepository;
     private final ClientsRepository clientsRepository;
     private final CommonWorker commonWorker;
+
+
+    public BikeSessionRequest fetchHistoriesByBikeId(BikeSessionRequest request){
+        BikeListDto bikeListDto = map(request.getParam(), BikeListDto.class);
+        ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(bikeListDto, "bikelabs.clients_log.fetchClientHistoriesByClientId", "bikelabs.clients_log.countAllClientHistoriesByClientId", "log_no");
+        request.setResponse(responseListDto);
+        return request;
+    }
 
     public BikeSessionRequest fetchGroupDetailsByGroupId(BikeSessionRequest request){
         Map param = request.getParam();
