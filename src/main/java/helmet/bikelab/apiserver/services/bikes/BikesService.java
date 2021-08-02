@@ -321,7 +321,7 @@ public class BikesService extends SessService {
         PresignedURLVo presignedURLVo = new PresignedURLVo();
         presignedURLVo.setBucket(ENV.AWS_S3_QUEUE_BUCKET);
         presignedURLVo.setFileKey("bikes/" + bike.getBikeId() + "/" + uuid + "." + filename + extension);
-        presignedURLVo.setFilename(filename+extension);
+        presignedURLVo.setFilename(filename + "." + extension);
         presignedURLVo.setUrl(AmazonUtils.AWSGeneratePresignedURL(presignedURLVo));
         request.setResponse(presignedURLVo);
         return request;
@@ -350,6 +350,22 @@ public class BikesService extends SessService {
         Map response = new HashMap();
         response.put("url", bikeAttachments.getUrl());
         request.setResponse(response);
+        return request;
+    }
+
+
+    @Transactional
+    public BikeSessionRequest fetchFilesByBike(BikeSessionRequest request){
+        Map param = request.getParam();
+        List<BikeAttachments> attachments = bikeAttachmentRepository.findAllByBike_BikeId((String) param.get("bike_id"));
+        request.setResponse(attachments);
+        return request;
+    }
+
+    @Transactional
+    public BikeSessionRequest deleteFile(BikeSessionRequest request){
+
+
         return request;
     }
 

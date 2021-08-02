@@ -146,4 +146,14 @@ public class BikesHandlers {
                         .map(bikesService::checkFileUploadComplete)
                         .map(bikesService::returnData), Map.class);
     }
+
+    public Mono<ServerResponse> fetchBikeFiles(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> bikesService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(req -> bikesService.getPathVariable(req, "bike_id"))
+                        .map(bikesService::checkBikeSession)
+                        .map(bikesService::fetchFilesByBike)
+                        .map(bikesService::returnData), Map.class);
+    }
 }
