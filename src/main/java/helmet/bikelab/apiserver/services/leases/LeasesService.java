@@ -731,7 +731,7 @@ public class LeasesService extends SessService {
         Map param = request.getParam();
         String log ="";
         StopLeaseDto stopLeaseDto = map(param, StopLeaseDto.class);
-        double stopFee = 0;
+        double stopFee = stopLeaseDto.getStopFee();
         Leases lease = leaseRepository.findByLeaseId(stopLeaseDto.getLeaseId());
         if(lease == null || lease.getStatus() != LeaseStatusTypes.CONFIRM) withException("");
         Bikes emptyBike = bikesRepository.findByBikeId("BK000000");
@@ -740,8 +740,6 @@ public class LeasesService extends SessService {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일");
         LocalDate stopDate = LocalDate.parse(stopLeaseDto.getStopDt());
         String formattedString = stopDate.format(formatter);
-
-
         log = "바이크 번호 <>" + lease.getBike().getCarNum() + "</>가 중도해지 되었습니다.<br>";
         log += "중도 해지 위약금은 <>" + Utils.getCurrencyFormat(Math.round(stopFee)) + "원</>으로 설정 되었습니다.<br>" + "중도 해지 일자는 <>"
                 + formattedString + "</>로 설정 되었습니다.<br>" + "중도 해지 이유는 <>" + stopLeaseDto.getStopReason() + "</>입니다.";

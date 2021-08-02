@@ -34,6 +34,7 @@ public class BikesRouters {
         return RouterFunctions
                 .route(POST("/bike_file/{bike_id}/generate_pre_sign"), handler::generatePreSign)
                 .andRoute(POST("/bike_file/{bike_id}/check_upload"), handler::checkUpload)
-                .andRoute(GET("/bike-file/{bike_id}"), handler::fetchBikeFiles);
+                .andRoute(GET("/bike-file/{bike_id}"), handler::fetchBikeFiles)
+                .andRoute(DELETE("/bike-file"), handler::deleteBikeFile);
     }
 }
