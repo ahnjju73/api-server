@@ -3,21 +3,22 @@ package helmet.bikelab.apiserver.domain.types;
 import lombok.Getter;
 
 @Getter
-public enum ManagementTypes {
-    // 금융, 운용
-    FINANCIAL("501-001"), PRACTICAL("501-002"), INSURANCE("501-003");
+public enum ExpireTypes {
+    TAKE_OVER("505-001", "인수"), RETURN("505-002", "반납");
 
     private String status;
+    private String statusName;
 
-    ManagementTypes(String status) {
+    ExpireTypes(String status, String statusName) {
         this.status = status;
+        this.statusName = statusName;
     }
 
-    public static ManagementTypes getManagementStatus(String status){
+    public static ExpireTypes getExpireTypes(String status){
         if(status == null){
             return null;
         }
-        for(ManagementTypes mt : ManagementTypes.values()){
+        for(ExpireTypes mt : ExpireTypes.values()){
             if(status.equals(mt.getStatus())){
                 return mt;
             }
