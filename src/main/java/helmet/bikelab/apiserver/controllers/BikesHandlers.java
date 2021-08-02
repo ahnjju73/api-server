@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.controllers;
 
+import helmet.bikelab.apiserver.domain.bike.BikeAttachments;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.PresignedURLVo;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
@@ -11,6 +12,8 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -165,6 +168,6 @@ public class BikesHandlers {
                         .map(req -> bikesService.getPathVariable(req, "bike_id"))
                         .map(bikesService::checkBikeSession)
                         .map(bikesService::fetchFilesByBike)
-                        .map(bikesService::returnData), Map.class);
+                        .map(bikesService::returnData), List.class);
     }
 }

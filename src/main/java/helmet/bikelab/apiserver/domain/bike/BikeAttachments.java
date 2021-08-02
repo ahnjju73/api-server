@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.domain.bike;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Getter;
@@ -15,13 +16,16 @@ import javax.persistence.*;
 @NoArgsConstructor
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class BikeAttachments {
+    @JsonIgnore
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "bike_attachment_no")
     private Integer bikeFileInfoNo;
 
+    @JsonIgnore
     @Column(name = "bike_no")
     private Integer bikeNo;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "bike_no", insertable = false, updatable = false)
     private Bikes bike;

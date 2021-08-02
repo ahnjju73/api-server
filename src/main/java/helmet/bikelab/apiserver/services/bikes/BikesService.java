@@ -367,6 +367,8 @@ public class BikesService extends SessService {
     public BikeSessionRequest fetchFilesByBike(BikeSessionRequest request){
         Map param = request.getParam();
         List<BikeAttachments> attachments = bikeAttachmentRepository.findAllByBike_BikeId((String) param.get("bike_id"));
+        Map response = new HashMap();
+//        response.put("attachments", attachments);
         request.setResponse(attachments);
         return request;
     }
