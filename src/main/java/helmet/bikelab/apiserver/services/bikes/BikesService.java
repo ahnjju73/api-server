@@ -346,6 +346,7 @@ public class BikesService extends SessService {
         bikeAttachments.setBikeNo(bike.getBikeNo());
         bikeAttachments.setFileName(presignedURLVo.getFilename());
         bikeAttachments.setFileKey("/" + presignedURLVo.getFileKey());
+        bikeAttachments.setDomain(ENV.AWS_S3_ORIGIN_DOMAIN);
         // todo: filename required
         bikeAttachmentRepository.save(bikeAttachments);
         //
@@ -373,8 +374,8 @@ public class BikesService extends SessService {
     @Transactional
     public BikeSessionRequest deleteFile(BikeSessionRequest request){
         Map param = request.getParam();
-        Integer bikeFileInfoNo = (Integer) param.get("bikeFileInfoNo");
-        BikeAttachments byBikeFileInfoNo = bikeAttachmentRepository.findByBikeFileInfoNo(bikeFileInfoNo);
+        Integer attachmentNo = Integer.parseInt((String)param.get("bike_attachment_no"));
+        BikeAttachments byBikeFileInfoNo = bikeAttachmentRepository.findByBikeFileInfoNo(attachmentNo);
         String url = byBikeFileInfoNo.getDomain() + byBikeFileInfoNo.getFileKey();
         bikeAttachmentRepository.deleteById(byBikeFileInfoNo.getBikeFileInfoNo());
         AmazonS3 amazonS3 = AmazonS3Client.builder()

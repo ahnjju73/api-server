@@ -172,6 +172,12 @@ public class BikesHandlers {
     }
 
     public Mono<ServerResponse> deleteBikeFile(ServerRequest request) {
-        return null;
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(()-> bikesService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(req -> bikesService.getPathVariable(req, "bike_attachment_no"))
+                        .map(bikesService::checkBikeSession)
+                        .map(bikesService::deleteFile)
+                        .map(bikesService::returnData), Map.class);
     }
 }

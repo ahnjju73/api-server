@@ -16,7 +16,6 @@ import javax.persistence.*;
 @NoArgsConstructor
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class BikeAttachments {
-    @JsonIgnore
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "bike_attachment_no")
     private Integer bikeFileInfoNo;
