@@ -5,6 +5,50 @@
 
 <mapper namespace="bikelabs.inquiries">
 
+    <select id="countAllDemandLeases" parameterType="hmap" resultType="int">
+        select count(*)
+          from demand_leases
+    </select>
+
+    <select id="fetchDemandLeases" parameterType="hmap" resultType="hmap">
+        select dl.demand_lease_id,
+               dl.demand_lease_status,
+               dl.car_model as car_model_code,
+               cb.comm_nm as car_model,
+               dl.color,
+               dl.management_type,
+               dl.period,
+               dl.expire_type,
+               dl.pre_payment,
+               dl.payment_type,
+               dl.fee,
+               dl.is_maintenance,
+               dl.extra_service,
+               dl.extra_info,
+               dl.created_at,
+               dl.pending_at,
+               dl.rejected_at,
+               dl.completed_at,
+               c.client_id,
+               c.business_type as client_business_type,
+               c.email as client_email,
+               c.reg_no as client_reg_no,
+               ci.name as client_name,
+               ci.phone as client_phone
+          from (select *
+                  from demand_leases
+                 where 1 = 1
+                 <if test="next_token != null and next_token != '' and next_token != 'undefined'">
+                   and demand_lease_id <![CDATA[ < ]]> #{next_token}
+                 </if>
+                 order by demand_lease_no desc) dl
+               join clients c on dl.client_no = c.client_no
+               join client_info ci on c.client_no = ci.client_no
+               join insurances ins on dl.insurance_no = ins.insurance_no
+               join com_comm_bikes cb on dl.car_model = cb.comm_cd
+         order by demand_lease_id desc
+    </select>
+
     <select id="countAllInquiries" parameterType="hmap" resultType="int">
         select count(*)
           from inquiries

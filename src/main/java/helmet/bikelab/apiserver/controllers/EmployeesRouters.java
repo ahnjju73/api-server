@@ -42,6 +42,7 @@ public class EmployeesRouters {
         return RouterFunctions
                 .route(GET("/inquiries"), handler::fetchInquiries)
                 .andRoute(PATCH("/inquiries/{inquiry_no}"), handler::confirmInquiryByInquiryNo)
+                .andRoute(GET("/demand-leases"), handler::fetchDemandLeases)
                 ;
     }
 
