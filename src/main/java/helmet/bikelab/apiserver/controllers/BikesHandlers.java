@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.controllers;
 
+import helmet.bikelab.apiserver.domain.bike.BikeAttachments;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.PresignedURLVo;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
@@ -11,12 +12,25 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
 public class BikesHandlers {
+
     private final BikesService bikesService;
+
+    public Mono<ServerResponse> fetchHistoriesByBikeId(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> bikesService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(req -> bikesService.getPathVariable(req, "bike_id"))
+                        .map(bikesService::checkBikeSession)
+                        .map(bikesService::fetchHistoriesByBikeId)
+                        .map(bikesService::returnData), ResponseListDto.class);
+    }
 
     public Mono<ServerResponse> fetchListOfBikes(ServerRequest request){
         return ServerResponse.ok().body(
@@ -144,6 +158,26 @@ public class BikesHandlers {
                         .map(row -> bikesService.getPathVariable(row, "bike_id"))
                         .map(bikesService::checkBikeSession)
                         .map(bikesService::checkFileUploadComplete)
+                        .map(bikesService::returnData), Map.class);
+    }
+
+    public Mono<ServerResponse> fetchBikeFiles(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> bikesService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(req -> bikesService.getPathVariable(req, "bike_id"))
+                        .map(bikesService::checkBikeSession)
+                        .map(bikesService::fetchFilesByBike)
+                        .map(bikesService::returnData), List.class);
+    }
+
+    public Mono<ServerResponse> deleteBikeFile(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(()-> bikesService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(req -> bikesService.getPathVariable(req, "bike_attachment_no"))
+                        .map(bikesService::checkBikeSession)
+                        .map(bikesService::deleteFile)
                         .map(bikesService::returnData), Map.class);
     }
 }

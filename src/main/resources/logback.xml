@@ -11,9 +11,11 @@
     <logger name="helmet.bikelab.apiserver.services.internal.SessService" level="INFO">
         <appender-ref ref="STDOUT" />
     </logger>
-    <root level="INFO">
-<!--        <springProfile name="!production">-->
+
+    <springProfile name="localhost">
+        <root level="INFO">
             <appender-ref ref="STDOUT" />
-<!--        </springProfile>-->
-    </root>
+        </root>
+    </springProfile>
+
 </configuration>

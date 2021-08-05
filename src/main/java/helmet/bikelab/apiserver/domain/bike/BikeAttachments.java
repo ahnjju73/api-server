@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.domain.bike;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Getter;
@@ -19,9 +20,11 @@ public class BikeAttachments {
     @Column(name = "bike_attachment_no")
     private Integer bikeFileInfoNo;
 
+    @JsonIgnore
     @Column(name = "bike_no")
     private Integer bikeNo;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "bike_no", insertable = false, updatable = false)
     private Bikes bike;
@@ -32,6 +35,6 @@ public class BikeAttachments {
     @Column(name = "file_name", columnDefinition = "MEDIUMTEXT")
     private String fileName;
 
-    @Column(name = "url", columnDefinition = "MEDIUMTEXT")
-    private String url;
+    @Column(name = "file_key", columnDefinition = "MEDIUMTEXT")
+    private String fileKey;
 }

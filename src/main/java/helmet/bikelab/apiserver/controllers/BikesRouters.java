@@ -24,13 +24,17 @@ public class BikesRouters {
                 .andRoute(GET("/bikes_model"), handler::fetchBikeModels)
                 .andRoute(POST("/bikes_model"), handler::addBikeModel)
                 .andRoute(PUT("/bikes_model"), handler::updateBikeModel)
-                .andRoute(GET("/bikes_no_lease"), handler::fetchBikesWithoutLease);
+                .andRoute(GET("/bikes_no_lease"), handler::fetchBikesWithoutLease)
+                .andRoute(GET("/bikes/{bike_id}/histories"), handler::fetchHistoriesByBikeId)
+                ;
     }
 
     @Bean
     public RouterFunction<ServerResponse> bikeFileRouter(BikesHandlers handler){
         return RouterFunctions
                 .route(POST("/bike_file/{bike_id}/generate_pre_sign"), handler::generatePreSign)
-                .andRoute(POST("/bike_file/{bike_id}/check_upload"), handler::checkUpload);
+                .andRoute(POST("/bike_file/{bike_id}/check_upload"), handler::checkUpload)
+                .andRoute(GET("/bike-file/{bike_id}"), handler::fetchBikeFiles)
+                .andRoute(DELETE("/bike-file/{bike_attachment_no}"), handler::deleteBikeFile);
     }
 }

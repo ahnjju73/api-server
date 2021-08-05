@@ -8,10 +8,13 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyExtractors;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.Map;
+
+import static reactor.core.scheduler.Schedulers.parallel;
 
 @Component
 @RequiredArgsConstructor
@@ -85,7 +88,7 @@ public class ClientGroupHandlers {
                 .flatMap(sessionRequest ->
                         ServerResponse.ok().body(
                                 Mono.just(groupService.uploadExcel(sessionRequest))
-                                        .map(groupService::returnData), Map.class)
+                                        .map(groupService::returnData), Map.class).subscribeOn(parallel())
                 );
     }
 

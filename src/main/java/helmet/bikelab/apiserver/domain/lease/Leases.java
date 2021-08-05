@@ -3,14 +3,8 @@ package helmet.bikelab.apiserver.domain.lease;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.client.Clients;
-import helmet.bikelab.apiserver.domain.types.ContractTypes;
-import helmet.bikelab.apiserver.domain.types.LeaseStatusTypes;
-import helmet.bikelab.apiserver.domain.types.LeaseStopStatusTypes;
-import helmet.bikelab.apiserver.domain.types.ManagementTypes;
-import helmet.bikelab.apiserver.domain.types.converters.ContractTypeConverter;
-import helmet.bikelab.apiserver.domain.types.converters.LeaseStatusTypesConverter;
-import helmet.bikelab.apiserver.domain.types.converters.LeaseStopStatusConverter;
-import helmet.bikelab.apiserver.domain.types.converters.ManagementTypeConverter;
+import helmet.bikelab.apiserver.domain.types.*;
+import helmet.bikelab.apiserver.domain.types.converters.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -80,9 +74,9 @@ public class Leases {
     @Convert(converter = ManagementTypeConverter.class)
     private ManagementTypes type = ManagementTypes.FINANCIAL;
 
-    //505-001(인수), 002(반납)
-    @Column(name = "expire_type")
-    private String expireType;
+    @Column(name = "expire_type", columnDefinition = "ENUM")
+    @Convert(converter = ExpireTypesConverter.class)
+    private ExpireTypes expireTypes = ExpireTypes.TAKE_OVER;
 
     @Column(name = "take_loc")
     private String takeLocation;

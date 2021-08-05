@@ -2,7 +2,7 @@
 /build/
 !gradle/wrapper/gradle-wrapper.jar
 
-*.properties
+.gitignore
 
 ### STS ###
 .apt_generated
@@ -31,7 +31,8 @@ nbdist/
 .nb-gradle/
 
 out/
-src/main/resources/application-production.properties
+src/main/resources/application*.properties
+src/main/resources/logback.xml
 
 #.DS_Store
 .DS_Store
