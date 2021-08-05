@@ -69,6 +69,7 @@
                iq.phone as inquiry_phone,
                iq.company as inquiry_company,
                iq.content,
+               iq.name,
                iq.created_at,
                um.user_id,
                um.email as user_email,
