@@ -6,7 +6,7 @@ import lombok.Getter;
 public enum LeaseStopStatusTypes {
     CONTINUE("506-001"), STOP_CONTINUE("506-002"), FINSISH("506-003"), ETC("506-004");
 
-    String status;
+    private String status;
 
     LeaseStopStatusTypes(String status){
         this.status = status;
