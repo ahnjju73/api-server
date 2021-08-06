@@ -5,6 +5,7 @@ import helmet.bikelab.apiserver.domain.types.InquiryStatusTypes;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.requests.ClientListDto;
 import helmet.bikelab.apiserver.objects.requests.InquiriesDto;
+import helmet.bikelab.apiserver.objects.requests.RequestListDto;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.repositories.InquiriesRepository;
 import helmet.bikelab.apiserver.services.internal.SessService;
@@ -42,6 +43,13 @@ public class InquiryService extends SessService {
         byInquiryNo.setConfirmedUserNo(request.getSessionUser().getUserNo());
         byInquiryNo.setConfirmedAt(LocalDateTime.now());
         inquiriesRepository.save(byInquiryNo);
+        return request;
+    }
+
+    public BikeSessionRequest fetchDemandLeases(BikeSessionRequest request){
+        RequestListDto requestListDto = map(request.getParam(), RequestListDto.class);
+        ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "bikelabs.inquiries.fetchDemandLeases", "bikelabs.inquiries.countAllDemandLeases", "demand_lease_id");
+        request.setResponse(responseListDto);
         return request;
     }
 
