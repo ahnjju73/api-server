@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Getter;
@@ -25,6 +26,7 @@ public class CommonCodeBikes {
     @Column(name = "comm_nm")
     private String model;
 
+    @JsonIgnore
     @Column(name = "discontinue")
     private Boolean discontinue;
 

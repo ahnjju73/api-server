@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.controllers;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.RouterFunction;
@@ -9,7 +10,11 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import static org.springframework.web.reactive.function.server.RequestPredicates.*;
 
 @Component
+@RequiredArgsConstructor
 public class LeasesRouters {
+
+    private final DemandLeaseHandler demandLeaseHandler;
+
     @Bean
     public RouterFunction<ServerResponse> leasesRouter(LeasesHandler handler){
         return RouterFunctions
@@ -30,5 +35,14 @@ public class LeasesRouters {
     public RouterFunction<ServerResponse> leasesHistoryRouter(LeasesHandler handler){
         return RouterFunctions
                 .route(GET("/leases/{lease_id}/histories"), handler::fetchBikeUserLogInLeaseContract);
+    }
+
+    @Bean
+    public RouterFunction<ServerResponse> demandLeaseRouters(){
+        return RouterFunctions
+                .route(GET("/demand-leases/{demand_lease_id}"), demandLeaseHandler::fetchDemandLeaseById)
+                .andRoute(PATCH("/demand-leases/{demand_lease_id}/complete"), demandLeaseHandler::completedDemandLeaseById)
+                .andRoute(PATCH("/demand-leases/{demand_lease_id}/deny"), demandLeaseHandler::denyDemandLeaseById)
+                ;
     }
 }

@@ -5,7 +5,7 @@ import lombok.Getter;
 @Getter
 public enum DemandLeaseStatusTypes {
 
-    IN_PROGRESS("0", "작성중"), PENDING("1", "대기중"), REJECTED("2", "반려"), COMPLETED("3", "리스신청 완료");
+    IN_PROGRESS("0", "작성중"), PENDING("1", "대기중"), DENIED("2", "반려"), COMPLETED("3", "리스신청 완료");
 
     private String status;
     private String statusName;
