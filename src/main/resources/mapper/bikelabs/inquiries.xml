@@ -8,6 +8,7 @@
     <select id="countAllDemandLeases" parameterType="hmap" resultType="int">
         select count(*)
           from demand_leases
+         where demand_lease_status != '0'
     </select>
 
     <select id="fetchDemandLeases" parameterType="hmap" resultType="hmap">
@@ -21,9 +22,7 @@
                dl.expire_type,
                dl.pre_payment,
                dl.payment_type,
-               dl.fee,
                dl.is_maintenance,
-               dl.extra_service,
                dl.extra_info,
                dl.created_at,
                dl.pending_at,
@@ -34,18 +33,20 @@
                c.email as client_email,
                c.reg_no as client_reg_no,
                ci.name as client_name,
-               ci.phone as client_phone
+               ci.phone as client_phone,
+               ci.manager_name as client_manager_name,
+               l.lease_id
           from (select *
                   from demand_leases
-                 where 1 = 1
+                 where demand_lease_status != '0'
                  <if test="next_token != null and next_token != '' and next_token != 'undefined'">
                    and demand_lease_id <![CDATA[ < ]]> #{next_token}
                  </if>
-                 order by demand_lease_no desc) dl
+                 order by demand_lease_no desc limit 40) dl
                join clients c on dl.client_no = c.client_no
                join client_info ci on c.client_no = ci.client_no
-               join insurances ins on dl.insurance_no = ins.insurance_no
                join com_comm_bikes cb on dl.car_model = cb.comm_cd
+               left outer join leases l on dl.lease_no = l.lease_no
          order by demand_lease_id desc
     </select>
 
@@ -69,6 +70,7 @@
                iq.phone as inquiry_phone,
                iq.company as inquiry_company,
                iq.content,
+               iq.name,
                iq.created_at,
                um.user_id,
                um.email as user_email,

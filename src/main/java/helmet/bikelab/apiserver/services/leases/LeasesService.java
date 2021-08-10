@@ -267,6 +267,7 @@ public class LeasesService extends SessService {
         if(addUpdateLeaseRequest.getLeasePrice().getPaymentType() == null)withException("850-014");
         if(addUpdateLeaseRequest.getLeaseInfo().getContractDt() == null)withException("850-016");
         if(addUpdateLeaseRequest.getLeaseInfo().getStartDt() == null)withException("850-017");
+        if(addUpdateLeaseRequest.getLeaseInfo().getPeriod() == null) withException("850-019");
         Leases lease = new Leases();
         String leaseId = autoKey.makeGetKey("lease");
         lease.setLeaseId(leaseId);

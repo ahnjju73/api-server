@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.domain.lease;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.client.Clients;
@@ -29,6 +30,7 @@ public class Leases {
     @Column(name = "lease_no", nullable = false)
     private Integer leaseNo;
 
+    @JsonIgnore
     @Column(name = "up_lease_no")
     private Integer upLesase;
 
@@ -48,6 +50,7 @@ public class Leases {
     @Column(name = "bak_bike_no")
     private Integer bakBikeNo;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "bike_no", insertable = false, updatable = false)
     private Bikes bike;
@@ -55,6 +58,7 @@ public class Leases {
     @Column(name = "release_no")
     private Integer releaseNo;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "release_no", insertable = false, updatable = false)
     private Releases releases;
@@ -135,6 +139,7 @@ public class Leases {
     @Column(name = "approval_dt")
     private LocalDateTime approvalDt;
 
+
     @OneToOne(mappedBy = "lease", optional = false)
     private LeaseInfo leaseInfo;
 
@@ -144,9 +149,11 @@ public class Leases {
     @OneToOne(mappedBy = "lease")
     private LeaseInsurances leaseInsurance;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "lease", fetch = FetchType.LAZY)
     private List<LeasePayments> payments = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "lease", fetch = FetchType.LAZY)
     private List<LeaseExtras> extras = new ArrayList<>();
 

@@ -21,6 +21,8 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Getter
@@ -52,7 +54,7 @@ public class DemandLeases extends OriginObject {
     private Integer leaseNo;
 
     @JsonIgnore
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "lease_no", insertable = false, updatable = false)
     private Leases lease;
 
@@ -65,7 +67,10 @@ public class DemandLeases extends OriginObject {
 
     @Column(name = "demand_lease_status", columnDefinition = "ENUM")
     @Convert(converter = DemandLeaseStatusTypesConverter.class)
-    private DemandLeaseStatusTypes demandLeaseStatusTypes = DemandLeaseStatusTypes.PENDING;
+    private DemandLeaseStatusTypes demandLeaseStatusTypes = DemandLeaseStatusTypes.IN_PROGRESS;
+
+    @Column(name = "demand_lease_status", columnDefinition = "ENUM", insertable = false, updatable = false)
+    private String demandLeaseStatusTypeCode;
 
     @Column(name = "color", length = 45)
     private String color;
@@ -74,12 +79,18 @@ public class DemandLeases extends OriginObject {
     @Convert(converter = ManagementTypeConverter.class)
     private ManagementTypes managementType = ManagementTypes.FINANCIAL;
 
+    @Column(name = "management_type", columnDefinition = "ENUM", insertable = false, updatable = false)
+    private String managementTypeCode;
+
     @Column(name = "period")
     private Integer period;
 
     @Column(name = "expire_type", columnDefinition = "ENUM")
     @Convert(converter = ExpireTypesConverter.class)
     private ExpireTypes expireTypes = ExpireTypes.TAKE_OVER;
+
+    @Column(name = "expire_type", columnDefinition = "ENUM", insertable = false, updatable = false)
+    private String expireTypeCode;
 
     @Column(name = "pre_payment")
     private Integer prepayment = 0;
@@ -88,22 +99,11 @@ public class DemandLeases extends OriginObject {
     @Convert(converter = PaymentTypeConverter.class)
     private PaymentTypes paymentType = PaymentTypes.MONTHLY;
 
-    @Column(name = "fee")
-    private Integer fee = 0;
-
-    @JsonIgnore
-    @Column(name = "insurance_no", nullable = false)
-    private Integer insuranceNo;
-
-    @ManyToOne
-    @JoinColumn(name = "insurance_no", insertable = false, updatable = false)
-    private Insurances insurance;
+    @Column(name = "payment_type", columnDefinition = "ENUM", insertable = false, updatable = false)
+    private String paymentTypeCode;
 
     @Column(name = "is_maintenance")
     private Boolean isMaintenance = true;
-
-    @Column(name = "extra_service", columnDefinition = "MEDIUMTEXT")
-    private String extraService;
 
     @Column(name = "extra_info", columnDefinition = "MEDIUMTEXT")
     private String extraInfo;
@@ -117,7 +117,27 @@ public class DemandLeases extends OriginObject {
     @Column(name = "rejected_at")
     private LocalDateTime rejectedAt;
 
+    @Column(name = "reject_message", columnDefinition = "MEDIUMTEXT")
+    private String rejectMessage;
+
     @Column(name = "completed_at")
     private LocalDateTime completedAt;
+
+    @OneToMany(mappedBy = "demandLeases", fetch = FetchType.EAGER)
+    private List<DemandLeaseAttachments> attachments = new ArrayList<>();
+
+    public Boolean isOneOfDemandLeaseStatusType(DemandLeaseStatusTypes ...demandLeaseStatusTypes){
+        Boolean flag = false;
+        if(bePresent(demandLeaseStatusTypes)){
+            for(DemandLeaseStatusTypes status : demandLeaseStatusTypes){
+                if(status.equals(this.demandLeaseStatusTypes)) {
+                    flag = true;
+                    break;
+                }
+            }
+        }
+        return flag;
+
+    }
 
 }

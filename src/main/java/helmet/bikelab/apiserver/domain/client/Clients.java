@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.domain.client;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import helmet.bikelab.apiserver.domain.lease.Leases;
 import helmet.bikelab.apiserver.domain.types.AccountStatusTypes;
 import helmet.bikelab.apiserver.domain.types.BusinessTypes;
@@ -42,13 +43,22 @@ public class Clients {
     @Convert(converter = YesNoTypeConverter.class)
     private YesNoTypes directType;
 
+    @Column(name = "direct_yn", columnDefinition = "ENUM", nullable = false, insertable = false, updatable = false)
+    private String directTypeCode;
+
     @Column(name = "status", columnDefinition = "ENUM", nullable = false)
     @Convert(converter = AccountStatusConverter.class)
     private AccountStatusTypes status = AccountStatusTypes.PENDING;
 
+    @Column(name = "status", columnDefinition = "ENUM", nullable = false, insertable = false, updatable = false)
+    private String statusCode;
+
     @Column(name = "business_type", columnDefinition = "ENUM", nullable = false)
     @Convert(converter = BusinessTypesConverter.class)
     private BusinessTypes businessType = BusinessTypes.CORPORATE;
+
+    @Column(name = "business_type", columnDefinition = "ENUM", nullable = false, insertable = false, updatable = false)
+    private String businessTypeCode;
 
     @Column(name = "email")
     private String email;
@@ -72,9 +82,11 @@ public class Clients {
     @OneToOne(mappedBy = "client", optional = false, fetch = FetchType.EAGER)
     private ClientAddresses clientAddresses;
 
+    @JsonIgnore
     @OneToOne(mappedBy = "client", optional = false, fetch = FetchType.EAGER)
     private ClientPassword clientPassword;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "clients", fetch = FetchType.LAZY)
     private List<Leases> lease;
 
