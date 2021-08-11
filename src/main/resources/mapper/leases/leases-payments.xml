@@ -226,7 +226,11 @@
         select count(*)
           from (select *
                   from leases
-                 where status = '550-003') l
+                 where status = '550-003'
+                  <if test="search_client_no != null">
+                   and client_no = #{search_client_no}
+                  </if>
+                   and lease_stop_status in ('506-001')) l
                 join (select *
                         from lease_payments
                        where date_format(payment_date, '%Y-%m-%d') <![CDATA[ <= ]]> #{now}
@@ -236,7 +240,7 @@
                         <if test="start_at != null and start_at != '' and start_at != 'undefined' and end_at != null and end_at != '' and end_at != 'undefined'">
                          and payment_date between #{end_at} and #{start_at}
                         </if>
-                         and lease_fee != paid_fee) lp on l.lease_no = lp.lease_no
+                         and lease_fee <![CDATA[ > ]]> paid_fee) lp on l.lease_no = lp.lease_no
     </select>
 
     <select id="fetchLeasePaymentsByIndex" parameterType="hmap" resultType="hmap">
@@ -275,7 +279,11 @@
                                      lp.read_user_no
                                 from (select *
                                         from leases
-                                       where status = '550-003') l
+                                       where status = '550-003'
+                                         <if test="search_client_no != null">
+                                         and client_no = #{search_client_no}
+                                         </if>
+                                         and lease_stop_status in ('506-001')) l
                                      join (select *
                                              from lease_payments
                                             where date_format(payment_date, '%Y-%m-%d') <![CDATA[ <= ]]> #{now}
@@ -285,7 +293,7 @@
                                             <if test="start_at != null and start_at != '' and start_at != 'undefined' and end_at != null and end_at != '' and end_at != 'undefined'">
                                               and payment_date between #{end_at} and #{start_at}
                                             </if>
-                                              and lease_fee != paid_fee) lp on l.lease_no = lp.lease_no
+                                              and lease_fee <![CDATA[ > ]]> paid_fee) lp on l.lease_no = lp.lease_no
                                order by lp.payment_date desc, lp.payment_id desc) main,
                                (SELECT @rownum :=0) AS R) dmy
                 where 1 = 1

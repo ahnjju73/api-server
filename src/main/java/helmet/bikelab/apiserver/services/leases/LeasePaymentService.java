@@ -102,6 +102,12 @@ public class LeasePaymentService  extends SessService {
     public BikeSessionRequest fetchLeasePaymentsByIndex(BikeSessionRequest request){
         Map param = request.getParam();
         LeasePaymentsRequestListDto requestListDto = map(param, LeasePaymentsRequestListDto.class);
+        if(bePresent(requestListDto.getSearchClientId())){
+            Clients searchClient = clientsRepository.findByClientId(requestListDto.getSearchClientId());
+            if(bePresent(searchClient)) requestListDto.setSearchClientNo(searchClient.getClientNo());
+        }else {
+            requestListDto.setSearchClientNo(null);
+        }
         ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "leases.leases-payments.fetchLeasePaymentsByIndex", "leases.leases-payments.countAllPaymentsByIndex", "rownum");
         request.setResponse(responseListDto);
         return request;
