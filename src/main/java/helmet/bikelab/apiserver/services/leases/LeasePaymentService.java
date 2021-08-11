@@ -607,7 +607,7 @@ public class LeasePaymentService  extends SessService {
         clientOverpay.setOverpayFee(overpayFee);
         clientOverpay.setDate(LocalDateTime.now());
         clientOverpayRepository.save(clientOverpay);
-        String log = "리스료 <>" + overpayFee + "</>원 과납입 되었습니다.";
+        String log = "리스료 <>" + Utils.getCurrencyFormat(overpayFee) + "원</> 과납입 되었습니다.";
         bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_OVERPAY, session.getUserNo(), lease.getLeaseNo().toString(), log));
         bikeUserLogRepository.save(addLog(BikeUserLogTypes.COMM_CLIENT_OVERPAY, session.getUserNo(), lease.getClientNo().toString(), log));
     }
