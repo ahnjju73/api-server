@@ -81,9 +81,20 @@ public class LeasePaymentService  extends SessService {
         return request;
     }
 
+    private LeasePaymentsRequestListDto setSearchConditions(LeasePaymentsRequestListDto leasePaymentsRequestListDto){
+        if(bePresent(leasePaymentsRequestListDto.getSearchClientId())){
+            Clients searchClient = clientsRepository.findByClientId(leasePaymentsRequestListDto.getSearchClientId());
+            if(bePresent(searchClient)) leasePaymentsRequestListDto.setSearchClientNo(searchClient.getClientNo());
+        }else {
+            leasePaymentsRequestListDto.setSearchClientNo(null);
+        }
+        return leasePaymentsRequestListDto;
+    }
+
     public BikeSessionRequest fetchLeasePaymentExtraByIndex(BikeSessionRequest request){
         Map param = request.getParam();
         LeasePaymentsRequestListDto requestListDto = map(param, LeasePaymentsRequestListDto.class);
+        setSearchConditions(requestListDto);
         ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "leases.leases-payments.fetchLeasePaymentExtraByIndex", "leases.leases-payments.countAllPaymentExtraByIndex", "rownum");
         request.setResponse(responseListDto);
         return request;
@@ -102,12 +113,7 @@ public class LeasePaymentService  extends SessService {
     public BikeSessionRequest fetchLeasePaymentsByIndex(BikeSessionRequest request){
         Map param = request.getParam();
         LeasePaymentsRequestListDto requestListDto = map(param, LeasePaymentsRequestListDto.class);
-        if(bePresent(requestListDto.getSearchClientId())){
-            Clients searchClient = clientsRepository.findByClientId(requestListDto.getSearchClientId());
-            if(bePresent(searchClient)) requestListDto.setSearchClientNo(searchClient.getClientNo());
-        }else {
-            requestListDto.setSearchClientNo(null);
-        }
+        setSearchConditions(requestListDto);
         ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "leases.leases-payments.fetchLeasePaymentsByIndex", "leases.leases-payments.countAllPaymentsByIndex", "rownum");
         request.setResponse(responseListDto);
         return request;
