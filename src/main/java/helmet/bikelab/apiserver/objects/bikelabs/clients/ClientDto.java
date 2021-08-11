@@ -11,4 +11,5 @@ import lombok.Setter;
 public class ClientDto {
     private String clientId;
     private String clientName;
+    private String filename;
 }

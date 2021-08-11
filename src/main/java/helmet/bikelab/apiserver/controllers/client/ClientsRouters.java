@@ -27,4 +27,13 @@ public class ClientsRouters {
         return RouterFunctions
                 .route(GET("/clients/overpay/{client_id}"), handler::fetchClientOverpay);
     }
+
+    @Bean
+    public RouterFunction<ServerResponse> clientAttachmentRouters(ClientsHandlers handler){
+        return RouterFunctions
+                .route(POST("/client-file/{client_id}"), handler::generatePreSign)
+                .andRoute(POST("/client-file/{client_id}/check_upload"), handler::checkUpload)
+                .andRoute(GET("/client-file/{client_id}"), handler::fetchClientFiles)
+                .andRoute(DELETE("/client-file/{client_attachment_no}"), handler::deleteBikeFile);
+    }
 }

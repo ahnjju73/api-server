@@ -441,7 +441,7 @@ public class LeasePaymentService  extends SessService {
                 break;
         }
         if (paidFee > 0) {
-            saveOverpayLog(request.getSessionUser(), leaseList.get(leaseList.size()-1), paidFee);
+            saveOverpayLog(request.getSessionUser(), leaseList.get(leaseList.size() - 1), paidFee);
         }
         return request;
     }

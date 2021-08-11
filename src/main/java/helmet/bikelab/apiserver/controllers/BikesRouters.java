@@ -1,6 +1,5 @@
 package helmet.bikelab.apiserver.controllers;
 
-import helmet.bikelab.apiserver.controllers.client.ClientsHandlers;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.RouterFunction;
@@ -21,12 +20,13 @@ public class BikesRouters {
                 .andRoute(POST("/bikes"), handler::addBike)
                 .andRoute(PUT("/bikes"), handler::updateBike)
                 .andRoute(DELETE("/bikes"), handler::deleteBike)
+                .andRoute(GET("/bikes_volume"), handler::fetchBikeVolumes)
                 .andRoute(GET("/bikes_model"), handler::fetchBikeModels)
+                .andRoute(GET("/bikes_model/{volume}"), handler::fetchBikeModelsByVolume)
                 .andRoute(POST("/bikes_model"), handler::addBikeModel)
                 .andRoute(PUT("/bikes_model"), handler::updateBikeModel)
                 .andRoute(GET("/bikes_no_lease"), handler::fetchBikesWithoutLease)
-                .andRoute(GET("/bikes/{bike_id}/histories"), handler::fetchHistoriesByBikeId)
-                ;
+                .andRoute(GET("/bikes/{bike_id}/histories"), handler::fetchHistoriesByBikeId);
     }
 
     @Bean
