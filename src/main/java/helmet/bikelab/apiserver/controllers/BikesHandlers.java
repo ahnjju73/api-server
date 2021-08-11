@@ -80,12 +80,32 @@ public class BikesHandlers {
                         .map(bikesService ::returnData), Map.class);
     }
 
+    public Mono<ServerResponse> fetchBikeVolumes(ServerRequest request){
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> bikesService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(bikesService::checkBikeSession)
+                        .map(bikesService::fetchBikeVolumes)
+                        .map(bikesService::returnData), List.class);
+    }
+
+
     public Mono<ServerResponse> fetchBikeModels(ServerRequest request){
         return ServerResponse.ok().body(
                 Mono.fromSupplier(() -> bikesService.makeSessionRequest(request, BikeSessionRequest.class))
                         .subscribeOn(Schedulers.elastic())
                         .map(bikesService::checkBikeSession)
                         .map(bikesService::fetchBikeModels)
+                        .map(bikesService::returnData), Map.class);
+    }
+
+    public Mono<ServerResponse> fetchBikeModelsByVolume(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> bikesService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(req -> bikesService.getPathVariable(req, "volume"))
+                        .map(bikesService::checkBikeSession)
+                        .map(bikesService::fetchBikeModelsByVolume)
                         .map(bikesService::returnData), Map.class);
     }
 
@@ -180,4 +200,6 @@ public class BikesHandlers {
                         .map(bikesService::deleteFile)
                         .map(bikesService::returnData), Map.class);
     }
+
+
 }

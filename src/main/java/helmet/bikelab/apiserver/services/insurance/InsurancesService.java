@@ -36,7 +36,6 @@ public class InsurancesService extends SessService {
         List<Insurances> insurancesList = insurancesRepository.findAll();
         response.put("insurances", insurancesList);
         request.setResponse(response);
-
         return request;
     }
 

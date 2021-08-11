@@ -12,6 +12,7 @@ import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUserInfo;
 import helmet.bikelab.apiserver.domain.client.Clients;
 import helmet.bikelab.apiserver.domain.lease.Leases;
+import helmet.bikelab.apiserver.domain.types.BikeTypes;
 import helmet.bikelab.apiserver.domain.types.BikeUserLogTypes;
 import helmet.bikelab.apiserver.objects.BikeDto;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
@@ -158,6 +159,9 @@ public class BikesService extends SessService {
         CarModel model = new CarModel();
         model.setCarModelCode(carModel.getCode());
         model.setCarModelName(carModel.getModel());
+        model.setBikeType(carModel.getBikeType());
+        model.setMake(carModel.getMake());
+        model.setVolume(carModel.getVolume());
         fetchBikeDetailResponse.setYears(bike.getYears());
         fetchBikeDetailResponse.setVolume(bike.getVolume());
         fetchBikeDetailResponse.setModel(model);
@@ -188,7 +192,7 @@ public class BikesService extends SessService {
         BikeUser session = request.getSessionUser();
         AddBikeRequest addBikeRequest = map(param, AddBikeRequest.class);
         addBikeRequest.checkValidation();
-        if(bePresent(bikesRepository.findByVimNum(addBikeRequest.getVimNumber()))) withException("500-007");
+        if(bePresent(bikesRepository.findByVimNum(addBikeRequest.getVimNumber()))) withException("500-009");
         String bikeId = autoKey.makeGetKey("bike");
         Bikes bike = new Bikes();
         bike.setBikeId(bikeId);
@@ -210,8 +214,8 @@ public class BikesService extends SessService {
         Map param = request.getParam();
         UpdateBikeRequest updateBikeRequest = map(param, UpdateBikeRequest.class);
         Bikes bike = bikesRepository.findByBikeId(updateBikeRequest.getBikeId());
-        if(updateBikeRequest.getVimNumber().equals(bike.getVimNum())&&!bike.equals(bikesRepository.findByVimNum(updateBikeRequest.getVimNumber()))) withException("");
-        if(updateBikeRequest.getNumber().equals(bike.getCarNum())&&!bike.equals(bikesRepository.findByCarNum(updateBikeRequest.getNumber()))) withException("");
+        updateBikeRequest.checkValidation();
+        if(updateBikeRequest.getVimNumber().equals(bike.getVimNum())&&!bike.equals(bikesRepository.findByVimNum(updateBikeRequest.getVimNumber()))) withException("500-009");
         updateBikeInfoWithLog(updateBikeRequest, request.getSessionUser(), bike);
         bike.setYears(updateBikeRequest.getYears());
         bike.setVimNum(updateBikeRequest.getVimNumber());
@@ -228,17 +232,19 @@ public class BikesService extends SessService {
     private void updateBikeInfoWithLog(UpdateBikeRequest updateBikeRequest, BikeUser session, Bikes bike){
         List<String> stringList = new ArrayList<>();
         if(bePresent(updateBikeRequest)){
-            if(bePresent(updateBikeRequest.getYears()) && !updateBikeRequest.getYears().equals(bike.getYears())){
-                stringList.add("바이크 연식정보를 <>" + bike.getYears() + "</>에서 <>" + updateBikeRequest.getYears() + "</>으로 변경하였습니다.");
-            }
+
             if(bePresent(updateBikeRequest.getVimNumber()) && !updateBikeRequest.getVimNumber().equals(bike.getVimNum())){
                 stringList.add("바이크 vim Number를 <>" + bike.getVimNum() + "</>에서 <>" + updateBikeRequest.getVimNumber() + "</>으로 변경하였습니다.");
             }
             if(bePresent(updateBikeRequest.getNumber()) && !updateBikeRequest.getNumber().equals(bike.getCarNum())){
-                stringList.add("바이크 차량번호를 <>" + bike.getCarNum() + "</>에서 <>" + updateBikeRequest.getNumber() + "</>으로 변경하였습니다.");
+                String log = bike.getCarNum() == null ? "바이크 차량번호가 <>" + updateBikeRequest.getNumber() + "</>로/으로 설정했습니다." : "바이크 차량번호를 <>" + bike.getCarNum() + "</>에서 <>" + updateBikeRequest.getNumber() + "</>으로 변경하였습니다.";
+                stringList.add(log);
             }
             if(bePresent(updateBikeRequest.getCarModel()) && !updateBikeRequest.getCarModel().equals(bike.getCarModelCode())){
-                stringList.add("바이크 차량종류를 변경하였습니다.");
+                CommonCodeBikes change = bikeModelsRepository.findByCode(updateBikeRequest.getCarModel());
+                String exModel = bike.getCarModel().getBikeType().equals(BikeTypes.GAS)? bike.getCarModel().getModel() + " / " + bike.getCarModel().getVolume() + " cc" : bike.getCarModel().getModel() + " / " + bike.getCarModel().getVolume() + " KW";
+                String nowModel = change.getBikeType().equals(BikeTypes.GAS)? change.getModel() + " / " + change.getVolume() + " cc" : change.getModel() + " / " + change.getVolume() + " KW";
+                stringList.add("바이크 차량종류를 <>" + exModel + "</>에서 <>" + nowModel +"</>로 변경하였습니다.");
             }
             if(bePresent(updateBikeRequest.getColor()) && !updateBikeRequest.getColor().equals(bike.getColor())){
                 stringList.add("바이크 차량 색상을 <>" + bike.getColor() + "</>에서 <>" + updateBikeRequest.getColor() + "</>으로 변경하였습니다.");
@@ -248,6 +254,9 @@ public class BikesService extends SessService {
             }
             if(bePresent(updateBikeRequest.getRegisterDt()) && !updateBikeRequest.getRegisterDt().equals(bike.getRegisterDate())){
                 stringList.add("바이크 등록일을 <>" + bike.getRegisterDate().toLocalDate() + "</>에서 <>" + updateBikeRequest.getRegisterDt().toLocalDate() + "</>으로 변경하였습니다.");
+            }
+            if(bePresent(updateBikeRequest.getYears()) && !updateBikeRequest.getYears().equals(bike.getYears())){
+                stringList.add("바이크 연식을 <>" + bike.getYears() + "</>에서 <>" + updateBikeRequest.getYears() + "</>으로 변경하였습니다.");
             }
             if(bePresent(stringList) && stringList.size() > 0){
                 bikeUserLogRepository.save(addLog(BikeUserLogTypes.COMM_BIKE_UPDATED, session.getUserNo(), bike.getBikeNo().toString(), stringList));
@@ -271,16 +280,56 @@ public class BikesService extends SessService {
         return request;
     }
 
+    public BikeSessionRequest fetchBikeVolumes(BikeSessionRequest request){
+        List<CommonCodeBikes> commonCodeBikes = bikeModelsRepository.findAll();
+        List<String> volumeList = new ArrayList<>();
+        for(CommonCodeBikes ccb : commonCodeBikes){
+            if(ccb.getBikeType().equals(BikeTypes.GAS))
+                volumeList.add(ccb.getVolume() + "cc");
+            else
+                volumeList.add(ccb.getVolume() + "KW");
+        }
+        request.setResponse(volumeList);
+        return request;
+    }
+
     public BikeSessionRequest fetchBikeModels(BikeSessionRequest request){
         Map response = new HashMap();
         List<CommonCodeBikes> commonCodeBikes = bikeModelsRepository.findAll();
         List<FetchBikeModelsResponse> fetchBikeModelsResponses = new ArrayList<>();
         for(CommonCodeBikes model: commonCodeBikes){
-              FetchBikeModelsResponse fetchBikeModelsResponse = new FetchBikeModelsResponse();
-              fetchBikeModelsResponse.setModel(model.getModel());
-              fetchBikeModelsResponse.setCode(model.getCode());
-              fetchBikeModelsResponse.setDiscontinue(model.getDiscontinue());
-              fetchBikeModelsResponses.add(fetchBikeModelsResponse);
+            if(model.getDiscontinue())
+                continue;
+            FetchBikeModelsResponse fetchBikeModelsResponse = new FetchBikeModelsResponse();
+            fetchBikeModelsResponse.setModel(model.getModel());
+            fetchBikeModelsResponse.setMake(model.getMake());
+            fetchBikeModelsResponse.setCode(model.getCode());
+            fetchBikeModelsResponse.setDiscontinue(model.getDiscontinue());
+            fetchBikeModelsResponse.setBikeType(model.getBikeType());
+            fetchBikeModelsResponse.setVolume(model.getVolume());
+            fetchBikeModelsResponses.add(fetchBikeModelsResponse);
+        }
+        response.put("model", fetchBikeModelsResponses);
+        request.setResponse(response);
+        return request;
+    }
+
+    public BikeSessionRequest fetchBikeModelsByVolume(BikeSessionRequest request){
+        Double volume = Double.parseDouble((String) request.getParam().get("volume"));
+        Map response = new HashMap();
+        List<CommonCodeBikes> commonCodeBikes = bikeModelsRepository.findAllByVolume(volume);
+        List<FetchBikeModelsResponse> fetchBikeModelsResponses = new ArrayList<>();
+        for(CommonCodeBikes model: commonCodeBikes){
+            if(model.getDiscontinue())
+                continue;
+            FetchBikeModelsResponse fetchBikeModelsResponse = new FetchBikeModelsResponse();
+            fetchBikeModelsResponse.setModel(model.getModel());
+            fetchBikeModelsResponse.setMake(model.getMake());
+            fetchBikeModelsResponse.setCode(model.getCode());
+            fetchBikeModelsResponse.setDiscontinue(model.getDiscontinue());
+            fetchBikeModelsResponse.setBikeType(model.getBikeType());
+            fetchBikeModelsResponse.setVolume(model.getVolume());
+            fetchBikeModelsResponses.add(fetchBikeModelsResponse);
         }
         response.put("model", fetchBikeModelsResponses);
         request.setResponse(response);
@@ -290,12 +339,16 @@ public class BikesService extends SessService {
     @Transactional
     public BikeSessionRequest addBikeModel(BikeSessionRequest request){
         Map param = request.getParam();
+        List<CommonCodeBikes> models = bikeModelsRepository.findAll();
+        int lastNum = Integer.parseInt(models.get(models.size() - 1).getCode().split("-")[1]);
         BikeModelDto bikeModelDto = map(param, BikeModelDto.class);
         CommonCodeBikes codeBike = new CommonCodeBikes();
-        String modelCode = autoKey.makeGetKey("model");
-        codeBike.setCode(modelCode);
+        codeBike.setCode("001-" + String.format("%03d", lastNum));
+        codeBike.setMake(bikeModelDto.getMake());
         codeBike.setModel(bikeModelDto.getModel());
         codeBike.setDiscontinue(bikeModelDto.getDiscontinue());
+        codeBike.setBikeType(bikeModelDto.getBikeType());
+        codeBike.setVolume(bikeModelDto.getVolume());
         bikeModelsRepository.save(codeBike);
         return request;
     }
@@ -307,6 +360,9 @@ public class BikesService extends SessService {
         CommonCodeBikes codeBike = bikeModelsRepository.findByCode(bikeModelDto.getCode());
         codeBike.setModel(bikeModelDto.getModel());
         codeBike.setDiscontinue(bikeModelDto.getDiscontinue());
+        codeBike.setBikeType(bikeModelDto.getBikeType());
+        codeBike.setVolume(bikeModelDto.getVolume());
+        codeBike.setMake(bikeModelDto.getMake());
         bikeModelsRepository.save(codeBike);
         return request;
     }
