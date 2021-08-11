@@ -277,6 +277,7 @@ public class BikesService extends SessService {
         else{
             bikesRepository.delete(bikes);
         }
+        bikeAttachmentRepository.deleteAll(bikeAttachmentRepository.findAllByBike_BikeId(bikes.getBikeId()));
         return request;
     }
 
