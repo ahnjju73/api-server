@@ -277,6 +277,7 @@ public class BikesService extends SessService {
         else{
             bikesRepository.delete(bikes);
         }
+        bikeAttachmentRepository.deleteAll(bikeAttachmentRepository.findAllByBike_BikeId(bikes.getBikeId()));
         return request;
     }
 
@@ -285,10 +286,11 @@ public class BikesService extends SessService {
         List<String> volumeList = new ArrayList<>();
         for(CommonCodeBikes ccb : commonCodeBikes){
             if(ccb.getBikeType().equals(BikeTypes.GAS))
-                volumeList.add(ccb.getVolume() + "cc");
+                volumeList.add(ccb.getVolume() + " cc");
             else
-                volumeList.add(ccb.getVolume() + "KW");
+                volumeList.add(ccb.getVolume() + " KW");
         }
+        volumeList = List.copyOf(Set.copyOf(volumeList));
         request.setResponse(volumeList);
         return request;
     }
@@ -339,15 +341,14 @@ public class BikesService extends SessService {
     @Transactional
     public BikeSessionRequest addBikeModel(BikeSessionRequest request){
         Map param = request.getParam();
+        BikeModelDto bikeModelDto = map(param, BikeModelDto.class);
         List<CommonCodeBikes> models = bikeModelsRepository.findAll();
         int lastNum = Integer.parseInt(models.get(models.size() - 1).getCode().split("-")[1]);
-        BikeModelDto bikeModelDto = map(param, BikeModelDto.class);
         CommonCodeBikes codeBike = new CommonCodeBikes();
-        codeBike.setCode("001-" + String.format("%03d", lastNum));
+        codeBike.setCode("001-" + String.format("%03d", lastNum + 1));
         codeBike.setMake(bikeModelDto.getMake());
         codeBike.setModel(bikeModelDto.getModel());
-        codeBike.setDiscontinue(bikeModelDto.getDiscontinue());
-        codeBike.setBikeType(bikeModelDto.getBikeType());
+        codeBike.setBikeType(BikeTypes.getType(bikeModelDto.getBikeType()));
         codeBike.setVolume(bikeModelDto.getVolume());
         bikeModelsRepository.save(codeBike);
         return request;
@@ -360,7 +361,7 @@ public class BikesService extends SessService {
         CommonCodeBikes codeBike = bikeModelsRepository.findByCode(bikeModelDto.getCode());
         codeBike.setModel(bikeModelDto.getModel());
         codeBike.setDiscontinue(bikeModelDto.getDiscontinue());
-        codeBike.setBikeType(bikeModelDto.getBikeType());
+        codeBike.setBikeType(BikeTypes.getType(bikeModelDto.getBikeType()));
         codeBike.setVolume(bikeModelDto.getVolume());
         codeBike.setMake(bikeModelDto.getMake());
         bikeModelsRepository.save(codeBike);
