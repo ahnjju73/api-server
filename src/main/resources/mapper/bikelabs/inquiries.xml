@@ -8,6 +8,7 @@
     <select id="countAllDemandLeases" parameterType="hmap" resultType="int">
         select count(*)
           from demand_leases
+         where demand_lease_status != '0'
     </select>
 
     <select id="fetchDemandLeases" parameterType="hmap" resultType="hmap">
@@ -33,14 +34,15 @@
                c.reg_no as client_reg_no,
                ci.name as client_name,
                ci.phone as client_phone,
+               ci.manager_name as client_manager_name,
                l.lease_id
           from (select *
                   from demand_leases
-                 where 1 = 1
+                 where demand_lease_status != '0'
                  <if test="next_token != null and next_token != '' and next_token != 'undefined'">
                    and demand_lease_id <![CDATA[ < ]]> #{next_token}
                  </if>
-                 order by demand_lease_no desc) dl
+                 order by demand_lease_no desc limit 40) dl
                join clients c on dl.client_no = c.client_no
                join client_info ci on c.client_no = ci.client_no
                join com_comm_bikes cb on dl.car_model = cb.comm_cd
