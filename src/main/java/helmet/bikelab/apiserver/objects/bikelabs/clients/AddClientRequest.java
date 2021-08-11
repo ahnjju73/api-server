@@ -23,7 +23,6 @@ public class AddClientRequest extends OriginObject {
 
     private String businessNo;
     private BusinessTypes businessType;
-
     private String email;
     private String groupId;
     private String direct;
@@ -39,9 +38,18 @@ public class AddClientRequest extends OriginObject {
 
     @JsonIgnore
     public void checkValidation(){
+        if(!bePresent(clientInfo.getName())) withException("400-011");
+        if(!bePresent(uuid)) withException("400-012");
+        if(!bePresent(clientInfo.getPhone())) withException("400-013");
+        if(!bePresent(email)) withException("400-014");
         if(BusinessTypes.CORPORATE.equals(this.businessType)){
             if(!bePresent(this.businessNo)) withException("400-010");
         }
+        if(!bePresent(regNo)) withException("400-015");
+        if(!bePresent(clientInfo.getRegDate())) withException("400-016");
+        if(!bePresent(clientInfo.getRegSectorType())) withException("400-017");
+        if(!bePresent(clientInfo.getRegBusinessType())) withException("400-018");
+        if(!bePresent(address)) withException("400-019");
     }
 
 }

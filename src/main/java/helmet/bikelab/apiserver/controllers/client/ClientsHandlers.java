@@ -1,6 +1,7 @@
 package helmet.bikelab.apiserver.controllers.client;
 
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
+import helmet.bikelab.apiserver.objects.PresignedURLVo;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.services.clients.ClientsService;
 import lombok.RequiredArgsConstructor;
@@ -10,6 +11,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -92,6 +94,48 @@ public class ClientsHandlers {
                         .map(req -> clientsService.getPathVariable(req, "client_id"))
                         .map(clientsService::checkBikeSession)
                         .map(clientsService::fetchClientOverpays)
+                        .map(clientsService::returnData), Map.class);
+    }
+
+    public Mono<ServerResponse> generatePreSign(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                            .subscribeOn(Schedulers.elastic())
+                            .map(row -> clientsService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                            .map(req -> clientsService.getPathVariable(req, "client_id"))
+                            .map(clientsService::checkBikeSession)
+                            .map(clientsService::generatePreSignedURLToUploadClientFile)
+                            .map(clientsService::returnData), PresignedURLVo.class);
+    }
+
+    public Mono<ServerResponse> checkUpload(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                            .subscribeOn(Schedulers.elastic())
+                            .map(row -> clientsService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                            .map(req -> clientsService.getPathVariable(req, "client_id"))
+                            .map(clientsService::checkBikeSession)
+                            .map(clientsService::checkFileUploadComplete)
+                            .map(clientsService::returnData), Map.class);
+    }
+
+    public Mono<ServerResponse> fetchClientFiles(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(()-> clientsService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(req -> clientsService.getPathVariable(req, "client_id"))
+                        .map(clientsService::checkBikeSession)
+                        .map(clientsService::fetchFilesByClient)
+                        .map(clientsService::returnData), List.class);
+    }
+
+    public Mono<ServerResponse> deleteBikeFile(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(()-> clientsService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(req -> clientsService.getPathVariable(req, "client_attachment_no"))
+                        .map(clientsService::checkBikeSession)
+                        .map(clientsService::deleteFile)
                         .map(clientsService::returnData), Map.class);
     }
 }
