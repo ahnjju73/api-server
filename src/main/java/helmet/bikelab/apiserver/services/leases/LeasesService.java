@@ -463,7 +463,7 @@ public class LeasesService extends SessService {
 
             BikeUser session = request.getSessionUser();
             List<LeasePayments> newPaymentList = new ArrayList<>();
-            if (leasePrice.getType() != paymentType || !lease.getPayments().get(0).getLeaseFee().equals(addUpdateLeaseRequest.getLeasePrice().getLeaseFee())|| !leaseInfo.getPeriod().equals(addUpdateLeaseRequest.getLeaseInfo().getPeriod())) {
+            if (leasePrice.getType() != paymentType) {
                 if (leasePrice.getType() == PaymentTypes.MONTHLY) {
                     for (int i = 0; i < addUpdateLeaseRequest.getLeaseInfo().getPeriod(); i++) {
                         LeasePayments leasePayment = new LeasePayments();
@@ -498,40 +498,6 @@ public class LeasesService extends SessService {
                 }
                 leasePaymentsRepository.deleteAll(leasePaymentsRepository.findAllByLease_LeaseId(lease.getLeaseId()));
 
-            } else {
-                for (int i = 0; i < dtosList.size(); i++) {
-                    LeasePayments payment = new LeasePayments();
-                    String paymentId;
-                    if (dtosList.get(i).getPaymentId() == null) {
-                        paymentId = autoKey.makeGetKey("payment");
-                        payment.setPaymentId(paymentId);
-                    } else {
-                        paymentId = dtosList.get(i).getPaymentId();
-                        payment = leasePaymentsRepository.findByPaymentId(paymentId);
-                    }
-                    payment.setLeaseNo(lease.getLeaseNo());
-                    payment.setIndex(i + 1);
-                    payment.setLeaseFee(dtosList.get(i).getLeaseFee());
-
-                    payment.setPaymentDate(leasePrice.getType() == PaymentTypes.MONTHLY ? leaseInfo.getStart().plusMonths(i) : leaseInfo.getStart().plusDays(i));
-                    payment.setInsertedUserNo(session.getUserNo());
-                    newPaymentList.add(payment);
-                }
-
-                for (int i = 0; i < leasePaymentsList.size(); i++) {
-                    LeasePayments leasePayment = leasePaymentsList.get(i);
-                    boolean contains = false;
-                    for (LeasePaymentDto dto : dtosList) {
-                        if (dto.equals(leasePayment)) {
-                            contains = true;
-                        }
-                    }
-                    if (!contains) {
-                        leasePaymentsRepository.delete(leasePayment);
-                        leasePaymentsList.remove(i);
-                        i--;
-                    }
-                }
             }
             leasePaymentsRepository.saveAll(newPaymentList);
         }
@@ -600,17 +566,21 @@ public class LeasesService extends SessService {
 
                 }
             }
+            if(bePresent(leaseRequest.getLeasePrice().getPrePayment()) && !leaseRequest.getLeasePrice().getPrePayment().equals(leases.getLeasePrice().getPrepayment())){
+                stringList.add("리스 보증금을 <>" + Utils.getCurrencyFormat(leases.getLeasePrice().getDeposit()) + "원</>에서 <>" + Utils.getCurrencyFormat(leaseRequest.getLeasePrice().getDeposit()) + "원</>으로 변경하였습니다.");
+
+            }
             if(bePresent(leaseRequest.getLeasePrice().getDeposit()) && !leaseRequest.getLeasePrice().getDeposit().equals(leases.getLeasePrice().getDeposit())){
-                stringList.add("리스 담보금을 <>" + leases.getLeasePrice().getDeposit() + "</>에서 <>" + leaseRequest.getLeasePrice().getDeposit() + "</>으로 변경하였습니다.");
+                stringList.add("리스 보증금을 <>" + Utils.getCurrencyFormat(leases.getLeasePrice().getDeposit()) + "원</>에서 <>" + Utils.getCurrencyFormat(leaseRequest.getLeasePrice().getDeposit()) + "원</>으로 변경하였습니다.");
             }
             if(bePresent(leaseRequest.getLeasePrice().getProfitFee()) && !leaseRequest.getLeasePrice().getProfitFee().equals(leases.getLeasePrice().getProfit())){
-                stringList.add("리스 이익금을 <>" + leases.getLeasePrice().getProfit() + "</>에서 <>" + leaseRequest.getLeasePrice().getProfitFee() + "</>으로 변경하였습니다.");
+                stringList.add("리스 수익금을 <>" + Utils.getCurrencyFormat(leases.getLeasePrice().getProfit()) + "원</>에서 <>" + Utils.getCurrencyFormat(leaseRequest.getLeasePrice().getProfitFee()) + "원</>으로 변경하였습니다.");
             }
             if(bePresent(leaseRequest.getLeasePrice().getTakeFee()) && !leaseRequest.getLeasePrice().getTakeFee().equals(leases.getLeasePrice().getTakeFee())){
-                stringList.add("리스 인수비를 <>" + leases.getLeasePrice().getTakeFee() + "</>에서 <>" + leaseRequest.getLeasePrice().getTakeFee() + "</>으로 변경하였습니다.");
+                stringList.add("리스 인수비를 <>" + Utils.getCurrencyFormat(leases.getLeasePrice().getTakeFee()) + "원</>에서 <>" + Utils.getCurrencyFormat(leaseRequest.getLeasePrice().getTakeFee()) + "원</>으로 변경하였습니다.");
             }
             if(bePresent(leaseRequest.getLeasePrice().getRegisterFee()) && !leaseRequest.getLeasePrice().getRegisterFee().equals(leases.getLeasePrice().getRegisterFee())){
-                stringList.add("리스 등록비를 <>" + leases.getLeasePrice().getRegisterFee() + "</>에서 <>" + leaseRequest.getLeasePrice().getRegisterFee() + "</>으로 변경하였습니다.");
+                stringList.add("리스 등록비를 <>" + Utils.getCurrencyFormat(leases.getLeasePrice().getRegisterFee()) + "원</>에서 <>" + Utils.getCurrencyFormat(leaseRequest.getLeasePrice().getRegisterFee()) + "</>으로 변경하였습니다.");
             }
             bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_UPDATED, session.getUserNo(), leases.getLeaseNo().toString(), stringList));
         }
