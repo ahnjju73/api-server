@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.controllers;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.RouterFunction;
@@ -10,7 +11,11 @@ import static org.springframework.web.reactive.function.server.RequestPredicates
 import static org.springframework.web.reactive.function.server.RequestPredicates.DELETE;
 
 @Component
+@RequiredArgsConstructor
 public class BikesRouters {
+
+    private final BikesModelHandlers bikesModelHandlers;
+
     @Bean
     public RouterFunction<ServerResponse> bikeRouter(BikesHandlers handler){
         return RouterFunctions
@@ -21,8 +26,9 @@ public class BikesRouters {
                 .andRoute(PUT("/bikes"), handler::updateBike)
                 .andRoute(DELETE("/bikes"), handler::deleteBike)
                 .andRoute(GET("/bikes_volume"), handler::fetchBikeVolumes)
+                .andRoute(GET("/bikes_model/codes/{code}"), bikesModelHandlers::fetchModelManufacturerByCode)
+                .andRoute(GET("/bikes_model/volumes/{volume}"), handler::fetchBikeModelsByVolume)
                 .andRoute(GET("/bikes_model"), handler::fetchBikeModels)
-                .andRoute(GET("/bikes_model/{volume}"), handler::fetchBikeModelsByVolume)
                 .andRoute(POST("/bikes_model"), handler::addBikeModel)
                 .andRoute(PUT("/bikes_model"), handler::updateBikeModel)
                 .andRoute(GET("/bikes_no_lease"), handler::fetchBikesWithoutLease)
@@ -36,5 +42,12 @@ public class BikesRouters {
                 .andRoute(POST("/bike_file/{bike_id}/check_upload"), handler::checkUpload)
                 .andRoute(GET("/bike-file/{bike_id}"), handler::fetchBikeFiles)
                 .andRoute(DELETE("/bike-file/{bike_attachment_no}"), handler::deleteBikeFile);
+    }
+
+    @Bean
+    public RouterFunction<ServerResponse> bikeModelRouters(){
+        return RouterFunctions
+                .route(GET("/manufacturers"), bikesModelHandlers::fetchModelManufacturer)
+                ;
     }
 }

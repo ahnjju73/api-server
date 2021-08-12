@@ -96,7 +96,7 @@ public class BikesHandlers {
                         .subscribeOn(Schedulers.elastic())
                         .map(bikesService::checkBikeSession)
                         .map(bikesService::fetchBikeModels)
-                        .map(bikesService::returnData), Map.class);
+                        .map(bikesService::returnData), List.class);
     }
 
     public Mono<ServerResponse> fetchBikeModelsByVolume(ServerRequest request) {

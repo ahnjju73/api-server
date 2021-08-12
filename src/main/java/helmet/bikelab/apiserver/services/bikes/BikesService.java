@@ -6,6 +6,7 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CopyObjectRequest;
 import com.amazonaws.services.s3.model.DeleteObjectsRequest;
 import helmet.bikelab.apiserver.domain.CommonCodeBikes;
+import helmet.bikelab.apiserver.domain.Manufacturers;
 import helmet.bikelab.apiserver.domain.bike.BikeAttachments;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
@@ -29,6 +30,7 @@ import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.utils.AutoKey;
 import helmet.bikelab.apiserver.utils.amazon.AmazonUtils;
 import helmet.bikelab.apiserver.utils.keys.ENV;
+import helmet.bikelab.apiserver.workers.BikeWorker;
 import helmet.bikelab.apiserver.workers.CommonWorker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -50,7 +52,7 @@ public class BikesService extends SessService {
     private final BikeUserLogRepository bikeUserLogRepository;
     private final ClientsRepository clientsRepository;
     private final CommonWorker commonWorker;
-
+    private final BikeWorker bikeWorker;
 
     public BikeSessionRequest fetchHistoriesByBikeId(BikeSessionRequest request){
         BikeListDto bikeListDto = map(request.getParam(), BikeListDto.class);
@@ -296,23 +298,8 @@ public class BikesService extends SessService {
     }
 
     public BikeSessionRequest fetchBikeModels(BikeSessionRequest request){
-        Map response = new HashMap();
         List<CommonCodeBikes> commonCodeBikes = bikeModelsRepository.findAll();
-        List<FetchBikeModelsResponse> fetchBikeModelsResponses = new ArrayList<>();
-        for(CommonCodeBikes model: commonCodeBikes){
-            if(model.getDiscontinue())
-                continue;
-            FetchBikeModelsResponse fetchBikeModelsResponse = new FetchBikeModelsResponse();
-            fetchBikeModelsResponse.setModel(model.getModel());
-            fetchBikeModelsResponse.setMake(model.getMake());
-            fetchBikeModelsResponse.setCode(model.getCode());
-            fetchBikeModelsResponse.setDiscontinue(model.getDiscontinue());
-            fetchBikeModelsResponse.setBikeType(model.getBikeType());
-            fetchBikeModelsResponse.setVolume(model.getVolume());
-            fetchBikeModelsResponses.add(fetchBikeModelsResponse);
-        }
-        response.put("model", fetchBikeModelsResponses);
-        request.setResponse(response);
+        request.setResponse(commonCodeBikes);
         return request;
     }
 
@@ -342,14 +329,14 @@ public class BikesService extends SessService {
     public BikeSessionRequest addBikeModel(BikeSessionRequest request){
         Map param = request.getParam();
         BikeModelDto bikeModelDto = map(param, BikeModelDto.class);
+        bikeModelDto.checkValidation();
+        Manufacturers manufacturerById = bikeWorker.getManufacturerById(bikeModelDto.getManufacturerNo());
+        bikeModelDto.setManufacturers(manufacturerById);
         List<CommonCodeBikes> models = bikeModelsRepository.findAll();
         int lastNum = Integer.parseInt(models.get(models.size() - 1).getCode().split("-")[1]);
         CommonCodeBikes codeBike = new CommonCodeBikes();
         codeBike.setCode("001-" + String.format("%03d", lastNum + 1));
-        codeBike.setMake(bikeModelDto.getMake());
-        codeBike.setModel(bikeModelDto.getModel());
-        codeBike.setBikeType(BikeTypes.getType(bikeModelDto.getBikeType()));
-        codeBike.setVolume(bikeModelDto.getVolume());
+        codeBike.updateData(bikeModelDto);
         bikeModelsRepository.save(codeBike);
         return request;
     }
@@ -358,12 +345,11 @@ public class BikesService extends SessService {
     public BikeSessionRequest updateBikeModel(BikeSessionRequest request){
         Map param = request.getParam();
         BikeModelDto bikeModelDto = map(param, BikeModelDto.class);
+        bikeModelDto.checkValidation();
+        Manufacturers manufacturerById = bikeWorker.getManufacturerById(bikeModelDto.getManufacturerNo());
+        bikeModelDto.setManufacturers(manufacturerById);
         CommonCodeBikes codeBike = bikeModelsRepository.findByCode(bikeModelDto.getCode());
-        codeBike.setModel(bikeModelDto.getModel());
-        codeBike.setDiscontinue(bikeModelDto.getDiscontinue());
-        codeBike.setBikeType(BikeTypes.getType(bikeModelDto.getBikeType()));
-        codeBike.setVolume(bikeModelDto.getVolume());
-        codeBike.setMake(bikeModelDto.getMake());
+        codeBike.updateData(bikeModelDto);
         bikeModelsRepository.save(codeBike);
         return request;
     }
@@ -371,7 +357,6 @@ public class BikesService extends SessService {
     @Transactional
     public BikeSessionRequest deleteBikeModel(BikeSessionRequest request){
         Map param = request.getParam();
-
 
         return request;
     }
