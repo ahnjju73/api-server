@@ -215,7 +215,7 @@ public class BikesService extends SessService {
         UpdateBikeRequest updateBikeRequest = map(param, UpdateBikeRequest.class);
         Bikes bike = bikesRepository.findByBikeId(updateBikeRequest.getBikeId());
         updateBikeRequest.checkValidation();
-        if(updateBikeRequest.getVimNumber().equals(bike.getVimNum())&&!bike.equals(bikesRepository.findByVimNum(updateBikeRequest.getVimNumber()))) withException("500-009");
+        if(updateBikeRequest.getVimNumber().equals(bike.getVimNum()) && !bike.equals(bikesRepository.findByVimNum(updateBikeRequest.getVimNumber()))) withException("500-009");
         updateBikeInfoWithLog(updateBikeRequest, request.getSessionUser(), bike);
         bike.setYears(updateBikeRequest.getYears());
         bike.setVimNum(updateBikeRequest.getVimNumber());
@@ -273,11 +273,12 @@ public class BikesService extends SessService {
         Bikes bikes = bikesRepository.findByBikeId(deleteBikeRequest.getBikeId());
         List<Leases> leases = leaseRepository.findAllByBike_BikeId(deleteBikeRequest.getBikeId());
         if(bikes == null) withException("");
-        if(leases.size() == 0) writeMessage("리스번호 " + leases.get(0).getLeaseId() + "가 이미 연결되어 있습니다.");
+        if(leases.size() > 0) writeMessage("리스번호 " + leases.get(0).getLeaseId() + "가 이미 연결되어 있습니다.");
         else{
             bikesRepository.delete(bikes);
         }
-        bikeAttachmentRepository.deleteAll(bikeAttachmentRepository.findAllByBike_BikeId(bikes.getBikeId()));
+        List<BikeAttachments> allByBike_bikeId = bikeAttachmentRepository.findAllByBike_BikeId(bikes.getBikeId());
+        bikeAttachmentRepository.deleteAll(allByBike_bikeId);
         return request;
     }
 
