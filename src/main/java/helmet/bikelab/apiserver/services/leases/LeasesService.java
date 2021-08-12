@@ -260,14 +260,7 @@ public class LeasesService extends SessService {
         Map param = request.getParam();
         AddUpdateLeaseRequest addUpdateLeaseRequest = map(param, AddUpdateLeaseRequest.class);
         BikeUser session = request.getSessionUser();
-        //exception
-        if(addUpdateLeaseRequest.getBikeId() == null)withException("850-010");
-        if(addUpdateLeaseRequest.getClientId() == null)withException("850-012");
-        if(addUpdateLeaseRequest.getInsuranceId() == null)withException("850-013");
-        if(addUpdateLeaseRequest.getLeasePrice().getPaymentType() == null)withException("850-014");
-        if(addUpdateLeaseRequest.getLeaseInfo().getContractDt() == null)withException("850-016");
-        if(addUpdateLeaseRequest.getLeaseInfo().getStartDt() == null)withException("850-017");
-        if(addUpdateLeaseRequest.getLeaseInfo().getPeriod() == null) withException("850-019");
+        addUpdateLeaseRequest.validationCheck();
         Leases lease = new Leases();
         String leaseId = autoKey.makeGetKey("lease");
         lease.setLeaseId(leaseId);
@@ -362,6 +355,12 @@ public class LeasesService extends SessService {
         Leases lease = leaseRepository.findByLeaseId(addUpdateLeaseRequest.getLeaseId());
         LeaseInsurances leaseInsurances = new LeaseInsurances();
         List<Leases> leasesByBike = leaseRepository.findAllByBike_BikeId(addUpdateLeaseRequest.getBikeId());
+        addUpdateLeaseRequest.validationCheck();
+        if(addUpdateLeaseRequest.getLeasePrice().getPrePayment() == null) withException("850-025");
+        if(addUpdateLeaseRequest.getLeasePrice().getDeposit() == null) withException("850-026");
+        if(addUpdateLeaseRequest.getLeasePrice().getProfitFee() == null) withException("850-027");
+        if(addUpdateLeaseRequest.getLeasePrice().getTakeFee() == null) withException("850-028");
+        if(addUpdateLeaseRequest.getLeasePrice().getRegisterFee() == null) withException("850-029");
         if(lease.getStatus() == LeaseStatusTypes.PENDING) withException("850-004");
         if(lease.getStatus() == LeaseStatusTypes.CONFIRM){
             String log = "";
@@ -497,9 +496,18 @@ public class LeasesService extends SessService {
                     }
                 }
                 leasePaymentsRepository.deleteAll(leasePaymentsRepository.findAllByLease_LeaseId(lease.getLeaseId()));
-
+                leasePaymentsRepository.saveAll(newPaymentList);
+            }else{
+                for(int i = 0; i < leasePaymentsList.size(); i++){
+                    if(!leasePaymentsList.get(i).getLeaseFee().equals(dtosList.get(i).getLeaseFee())){
+                        leasePaymentsList.get(i).setLeaseFee(dtosList.get(i).getLeaseFee());
+                    }
+                    if(!leasePaymentsList.get(i).getPaidFee().equals(dtosList.get(i).getPaidFee())){
+                        leasePaymentsList.get(i).setPaidFee(dtosList.get(i).getPaidFee());
+                    }
+                }
+                leasePaymentsRepository.saveAll(leasePaymentsList);
             }
-            leasePaymentsRepository.saveAll(newPaymentList);
         }
         return request;
     }

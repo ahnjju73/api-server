@@ -205,8 +205,11 @@ public class BikesService extends SessService {
         bike.setColor(addBikeRequest.getColor());
         bike.setReceiveDate(addBikeRequest.getReceiveDt());
         bikesRepository.save(bike);
-
-        bikeUserLogRepository.save(addLog(BikeUserLogTypes.COMM_BIKE_ADDED, session.getUserNo(), bike.getBikeNo().toString()));
+        CommonCodeBikes model = bikeModelsRepository.findByCode(addBikeRequest.getCarModel());
+        String log = "<>" + addBikeRequest.getYears() + "</>년식 <>" + model.getMake() + "</>에서 만든 <>" + model.getModel() + "</>모델 배기량은 <>"
+                + (model.getBikeType().equals(BikeTypes.GAS)? model.getVolume() + " cc" : model.getVolume() + " KW") +
+                "</> 색상은 <>" + addBikeRequest.getColor() + "</> 차대번호가 <>" + addBikeRequest.getVimNumber() + "</> 인 바이크가 생성되었습니다";
+        bikeUserLogRepository.save(addLog(BikeUserLogTypes.COMM_BIKE_ADDED, session.getUserNo(), bike.getBikeNo().toString(), log));
 
         return request;
     }
@@ -217,7 +220,7 @@ public class BikesService extends SessService {
         UpdateBikeRequest updateBikeRequest = map(param, UpdateBikeRequest.class);
         Bikes bike = bikesRepository.findByBikeId(updateBikeRequest.getBikeId());
         updateBikeRequest.checkValidation();
-        if(updateBikeRequest.getVimNumber().equals(bike.getVimNum())&&!bike.equals(bikesRepository.findByVimNum(updateBikeRequest.getVimNumber()))) withException("500-009");
+        if(updateBikeRequest.getVimNumber().equals(bike.getVimNum()) && !bike.equals(bikesRepository.findByVimNum(updateBikeRequest.getVimNumber()))) withException("500-009");
         updateBikeInfoWithLog(updateBikeRequest, request.getSessionUser(), bike);
         bike.setYears(updateBikeRequest.getYears());
         bike.setVimNum(updateBikeRequest.getVimNumber());
@@ -236,7 +239,7 @@ public class BikesService extends SessService {
         if(bePresent(updateBikeRequest)){
 
             if(bePresent(updateBikeRequest.getVimNumber()) && !updateBikeRequest.getVimNumber().equals(bike.getVimNum())){
-                stringList.add("바이크 vim Number를 <>" + bike.getVimNum() + "</>에서 <>" + updateBikeRequest.getVimNumber() + "</>으로 변경하였습니다.");
+                stringList.add("바이크 차대 번호를 <>" + bike.getVimNum() + "</>에서 <>" + updateBikeRequest.getVimNumber() + "</>으로 변경하였습니다.");
             }
             if(bePresent(updateBikeRequest.getNumber()) && !updateBikeRequest.getNumber().equals(bike.getCarNum())){
                 String log = bike.getCarNum() == null ? "바이크 차량번호가 <>" + updateBikeRequest.getNumber() + "</>로/으로 설정했습니다." : "바이크 차량번호를 <>" + bike.getCarNum() + "</>에서 <>" + updateBikeRequest.getNumber() + "</>으로 변경하였습니다.";
@@ -275,11 +278,14 @@ public class BikesService extends SessService {
         Bikes bikes = bikesRepository.findByBikeId(deleteBikeRequest.getBikeId());
         List<Leases> leases = leaseRepository.findAllByBike_BikeId(deleteBikeRequest.getBikeId());
         if(bikes == null) withException("");
-        if(leases.size() == 0) writeMessage("리스번호 " + leases.get(0).getLeaseId() + "가 이미 연결되어 있습니다.");
+        if(leases.size() > 0) writeMessage("리스번호 " + leases.get(0).getLeaseId() + "가 이미 연결되어 있습니다.");
         else{
             bikesRepository.delete(bikes);
         }
-        bikeAttachmentRepository.deleteAll(bikeAttachmentRepository.findAllByBike_BikeId(bikes.getBikeId()));
+        bikeUserLogRepository.deleteAllByLogTypeAndReferenceId(BikeUserLogTypes.COMM_BIKE_ADDED, bikes.getBikeNo().toString());
+        bikeUserLogRepository.deleteAllByLogTypeAndReferenceId(BikeUserLogTypes.COMM_BIKE_UPDATED, bikes.getBikeNo().toString());
+        List<BikeAttachments> allByBike_bikeId = bikeAttachmentRepository.findAllByBike_BikeId(bikes.getBikeId());
+        bikeAttachmentRepository.deleteAll(allByBike_bikeId);
         return request;
     }
 
@@ -389,7 +395,6 @@ public class BikesService extends SessService {
         bikeAttachments.setFileName(presignedURLVo.getFilename());
         bikeAttachments.setFileKey("/" + presignedURLVo.getFileKey());
         bikeAttachments.setDomain(ENV.AWS_S3_ORIGIN_DOMAIN);
-        // todo: filename required
         bikeAttachmentRepository.save(bikeAttachments);
         //
         AmazonS3 amazonS3 = AmazonS3Client.builder()
@@ -398,6 +403,8 @@ public class BikesService extends SessService {
                 .build();
         CopyObjectRequest objectRequest = new CopyObjectRequest(presignedURLVo.getBucket(), presignedURLVo.getFileKey(), ENV.AWS_S3_ORIGIN_BUCKET, presignedURLVo.getFileKey());
         amazonS3.copyObject(objectRequest);
+        String log = "바이크에 <>" + presignedURLVo.getFilename() +"</> 파일명의 파일이 추가 되었습니다.";
+        bikeUserLogRepository.save(addLog(BikeUserLogTypes.COMM_BIKE_UPDATED, request.getSessionUser().getUserNo(), bike.getBikeNo().toString(), log));
         Map response = new HashMap();
         response.put("url", bikeAttachments.getFileKey());
         request.setResponse(response);
@@ -417,6 +424,8 @@ public class BikesService extends SessService {
         Map param = request.getParam();
         Integer attachmentNo = Integer.parseInt((String)param.get("bike_attachment_no"));
         BikeAttachments byBikeFileInfoNo = bikeAttachmentRepository.findByBikeFileInfoNo(attachmentNo);
+        String log = "바이크에 <>" + byBikeFileInfoNo.getFileName() +"</> 파일명의 파일이 삭제 되었습니다.";
+        bikeUserLogRepository.save(addLog(BikeUserLogTypes.COMM_BIKE_UPDATED, request.getSessionUser().getUserNo(), byBikeFileInfoNo.getBike().getBikeNo().toString(), log));
         String url = byBikeFileInfoNo.getDomain() + byBikeFileInfoNo.getFileKey();
         bikeAttachmentRepository.deleteById(byBikeFileInfoNo.getBikeFileInfoNo());
         AmazonS3 amazonS3 = AmazonS3Client.builder()
