@@ -10,4 +10,5 @@ public interface LeasePaymentsRepository extends JpaRepository<LeasePayments, In
     LeasePayments findFirstByLease_LeaseId(String leaseId);
     List<LeasePayments> findAllByLease_LeaseId(String leaseId);
     List<LeasePayments> findAllByLeaseNo(Integer leaseNo);
+    void deleteAllByLease_LeaseId(String leaseId);
 }

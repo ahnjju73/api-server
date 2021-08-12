@@ -11,4 +11,5 @@ public interface LeaseExtraRepository extends JpaRepository<LeaseExtras, Integer
     LeaseExtras findByExtraId(String extraId);
     List<LeaseExtras> findAllByPayment_PaymentId(String paymentId);
     List<LeaseExtras> findAllByPayment_Lease_Clients_ClientIdOrderByPaymentNo(String clientId);
+    void deleteAllByLease_LeaseId(String leaseId);
 }

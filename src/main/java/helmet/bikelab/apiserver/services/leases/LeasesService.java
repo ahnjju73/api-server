@@ -665,19 +665,12 @@ public class LeasesService extends SessService {
         Map param = request.getParam();
         LeasesDto leasesDto = map(param, LeasesDto.class);
         Leases lease = leaseRepository.findByLeaseId(leasesDto.getLeaseId());
-        if(lease.getStatus() != LeaseStatusTypes.IN_PROGRESS) withException("850-023");
-        LeaseInfo leaseInfo = lease.getLeaseInfo();
-        List<LeasePayments> payments = leasePaymentsRepository.findAllByLease_LeaseId(lease.getLeaseId());
-        LeasePrice leasePrice = lease.getLeasePrice();
-        List<LeaseExtras> extras = leaseExtraRepository.findAllByLease_LeaseId(lease.getLeaseId());
-        leaseInfoRepository.delete(leaseInfo);
-        leasePriceRepository.delete(leasePrice);
-        for(LeasePayments lp : payments){
-            leasePaymentsRepository.delete(lp);
-        }
-        for(LeaseExtras le : extras){
-            leaseExtraRepository.delete(le);
-        }
+        if(lease.getStatus() != LeaseStatusTypes.IN_PROGRESS) withException("850-022");
+        leaseExtraRepository.deleteAllByLease_LeaseId(lease.getLeaseId());
+        leaseInfoRepository.deleteAllByLease_LeaseId(lease.getLeaseId());
+        leasePaymentsRepository.deleteAllByLease_LeaseId(lease.getLeaseId());
+        leasePriceRepository.deleteAllByLease_LeaseId(lease.getLeaseId());
+        leaseInsurancesRepository.deleteAllByLease_LeaseId(lease.getLeaseId());
         leaseRepository.delete(lease);
         return request;
     }
