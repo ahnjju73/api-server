@@ -60,7 +60,7 @@ public class AddUpdateLeaseRequest extends OriginObject {
         if(bikeId == null) withException("850-010");
         if(insuranceId == null) withException("850-013");
         if(leasePrice.getPaymentType() == null) withException("850-014");
-        if(leasePrice.getLeaseFee() == null) withException("850-019");
+        if(leasePrice.getLeaseFee() == null || leasePrice.getLeaseFee() == 0) withException("850-019");
         if(leaseInfo.getPeriod() == null) withException("850-019");
         if(leaseInfo.getContractDt() == null) withException("850-016");
         if(leaseInfo.getStartDt() == null) withException("850-017");
