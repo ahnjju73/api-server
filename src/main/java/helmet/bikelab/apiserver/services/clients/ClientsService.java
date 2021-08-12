@@ -141,10 +141,8 @@ public class ClientsService extends SessService {
         ClientGroups group = groupRepository.findByGroupId(addClientRequest.getGroupId());
         if(!bePresent(group)) withException("400-002");
         addClientRequest.checkValidation();
-        if(addClientRequest.getUuid() != null && clientsRepository.countAllByUuid(addClientRequest.getUuid()) > 0)
-            withException("");
-        if(addClientRequest.getRegNo() != null && clientsRepository.countAllByRegNum(addClientRequest.getRegNo()) > 0)
-            withException("");
+        if(addClientRequest.getUuid() != null && clientsRepository.countAllByUuid(addClientRequest.getUuid()) > 0) withException("400-020");
+        if(addClientRequest.getRegNo() != null && clientsRepository.countAllByRegNum(addClientRequest.getRegNo()) > 0) withException("400-021");
 
         Clients clients = new Clients();
         clients.setBusinessNo(addClientRequest.getBusinessNo());
