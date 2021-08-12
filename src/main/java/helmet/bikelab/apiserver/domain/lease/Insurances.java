@@ -69,7 +69,7 @@ public class Insurances extends OriginObject {
 
     @Column(name = "type", columnDefinition = "ENUM")
     @Convert(converter = InsuranceTypesConverter.class)
-    private InsuranceTypes type = InsuranceTypes.PERSONAL;
+    private InsuranceTypes type;
 
     public void setType (String type){
         this.type = InsuranceTypes.getInsuranceType(type);
