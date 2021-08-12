@@ -71,11 +71,16 @@ public class Insurances extends OriginObject {
     @Convert(converter = InsuranceTypesConverter.class)
     private InsuranceTypes type = InsuranceTypes.PERSONAL;
 
-
+    public void setType (String type){
+        this.type = InsuranceTypes.getInsuranceType(type);
+    }
+    public void setType (InsuranceTypes type){
+        this.type = type;
+    }
 
     public void checkValidation(){
         if(!bePresent(insuranceName)) withException("800-007");
-        if(!bePresent(insuranceType)) withException("800-008");
+        if(!bePresent(insuranceTypeCode)) withException("800-008");
         if(!bePresent(type)) withException("800-009");
         if(!bePresent(companyName)) withException("800-011");
         if(!bePresent(age)) withException("800-010");
