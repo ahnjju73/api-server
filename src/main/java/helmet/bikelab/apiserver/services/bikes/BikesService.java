@@ -203,8 +203,9 @@ public class BikesService extends SessService {
         bike.setColor(addBikeRequest.getColor());
         bike.setReceiveDate(addBikeRequest.getReceiveDt());
         bikesRepository.save(bike);
-        String log = "<>" + addBikeRequest.getYears() + "</>년식 <>" + bike.getCarModel().getMake() + "</>에서 만든 <>" + bike.getCarModel().getModel() + "</>모델 배기량은 <>"
-                + (bike.getCarModel().getBikeType().equals(BikeTypes.GAS)? bike.getCarModel().getVolume() + " cc" : bike.getCarModel().getVolume() + " KW") +
+        CommonCodeBikes model = bikeModelsRepository.findByCode(addBikeRequest.getCarModel());
+        String log = "<>" + addBikeRequest.getYears() + "</>년식 <>" + model.getMake() + "</>에서 만든 <>" + model.getModel() + "</>모델 배기량은 <>"
+                + (model.getBikeType().equals(BikeTypes.GAS)? model.getVolume() + " cc" : model.getVolume() + " KW") +
                 "</> 색상은 <>" + addBikeRequest.getColor() + "</> 차대번호가 <>" + addBikeRequest.getVimNumber() + "</> 인 바이크가 생성되었습니다";
         bikeUserLogRepository.save(addLog(BikeUserLogTypes.COMM_BIKE_ADDED, session.getUserNo(), bike.getBikeNo().toString(), log));
 
