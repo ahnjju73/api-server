@@ -194,6 +194,8 @@ public class BikesService extends SessService {
         AddBikeRequest addBikeRequest = map(param, AddBikeRequest.class);
         addBikeRequest.checkValidation();
         if(bePresent(bikesRepository.findByVimNum(addBikeRequest.getVimNumber()))) withException("500-009");
+        if(bePresent(addBikeRequest.getNumber()) && bePresent(bikesRepository.findByCarNum(addBikeRequest.getNumber()))) withException("500-011");
+
         String bikeId = autoKey.makeGetKey("bike");
         Bikes bike = new Bikes();
         bike.setBikeId(bikeId);
@@ -219,7 +221,8 @@ public class BikesService extends SessService {
         UpdateBikeRequest updateBikeRequest = map(param, UpdateBikeRequest.class);
         Bikes bike = bikesRepository.findByBikeId(updateBikeRequest.getBikeId());
         updateBikeRequest.checkValidation();
-        if(updateBikeRequest.getVimNumber().equals(bike.getVimNum()) && !bike.equals(bikesRepository.findByVimNum(updateBikeRequest.getVimNumber()))) withException("500-009");
+        if(!updateBikeRequest.getVimNumber().equals(bike.getVimNum()) && bikesRepository.countAllByVimNum(updateBikeRequest.getVimNumber()) > 0) withException("500-009");
+        if(bePresent(updateBikeRequest.getNumber()) && (!updateBikeRequest.getNumber().equals(bike.getCarNum()) && bikesRepository.countAllByCarNum(updateBikeRequest.getNumber()) > 0)) withException("500-011");
         updateBikeInfoWithLog(updateBikeRequest, request.getSessionUser(), bike);
         bike.setYears(updateBikeRequest.getYears());
         bike.setVimNum(updateBikeRequest.getVimNumber());
