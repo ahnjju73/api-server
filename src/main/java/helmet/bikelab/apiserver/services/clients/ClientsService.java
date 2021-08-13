@@ -1,5 +1,11 @@
 package helmet.bikelab.apiserver.services.clients;
 
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.CopyObjectRequest;
+import helmet.bikelab.apiserver.domain.bike.BikeAttachments;
+import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.client.*;
 import helmet.bikelab.apiserver.domain.embeds.ModelAddress;
@@ -8,7 +14,9 @@ import helmet.bikelab.apiserver.domain.types.AccountStatusTypes;
 import helmet.bikelab.apiserver.domain.types.BikeUserLogTypes;
 import helmet.bikelab.apiserver.domain.types.BusinessTypes;
 import helmet.bikelab.apiserver.domain.types.YesNoTypes;
+import helmet.bikelab.apiserver.objects.BikeDto;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
+import helmet.bikelab.apiserver.objects.PresignedURLVo;
 import helmet.bikelab.apiserver.objects.bikelabs.clients.*;
 import helmet.bikelab.apiserver.objects.requests.BikeListDto;
 import helmet.bikelab.apiserver.objects.requests.ClientListDto;
@@ -17,6 +25,8 @@ import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.repositories.*;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.utils.AutoKey;
+import helmet.bikelab.apiserver.utils.amazon.AmazonUtils;
+import helmet.bikelab.apiserver.utils.keys.ENV;
 import helmet.bikelab.apiserver.workers.ClientWorker;
 import helmet.bikelab.apiserver.workers.CommonWorker;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +51,7 @@ public class ClientsService extends SessService {
     private final ClientAddressesRepository clientAddressesRepository;
     private final ClientOverpayRepository clientOverpayRepository;
     private final BikeUserLogRepository bikeUserLogRepository;
+    private final ClientAttachmentRepository clientAttachmentRepository;
     private final CommonWorker commonWorker;
     private final LeaseRepository leaseRepository;
     private final ClientWorker clientWorker;
@@ -128,12 +139,10 @@ public class ClientsService extends SessService {
         AddClientRequest addClientRequest = map(param, AddClientRequest.class);
         String clientId = autoKey.makeGetKey("client");
         ClientGroups group = groupRepository.findByGroupId(addClientRequest.getGroupId());
-        addClientRequest.checkValidation();
         if(!bePresent(group)) withException("400-002");
-        if(addClientRequest.getUuid() != null && clientsRepository.countAllByUuid(addClientRequest.getUuid()) > 0)
-            withException("");
-        if(addClientRequest.getRegNo() != null && clientsRepository.countAllByRegNum(addClientRequest.getRegNo()) > 0)
-            withException("");
+        addClientRequest.checkValidation();
+        if(addClientRequest.getUuid() != null && clientsRepository.countAllByUuid(addClientRequest.getUuid()) > 0) withException("400-020");
+        if(addClientRequest.getRegNo() != null && clientsRepository.countAllByRegNum(addClientRequest.getRegNo()) > 0) withException("400-021");
 
         Clients clients = new Clients();
         clients.setBusinessNo(addClientRequest.getBusinessNo());
@@ -380,4 +389,73 @@ public class ClientsService extends SessService {
         }
         return new String(tmp);
     }
+
+    public BikeSessionRequest generatePreSignedURLToUploadClientFile(BikeSessionRequest request){
+        Map param = request.getParam();
+        ClientDto clientDto = map(param, ClientDto.class);
+        Clients client = clientsRepository.findByClientId(clientDto.getClientId());
+        if(!bePresent(clientDto.getFilename())) withException("");
+        String uuid = UUID.randomUUID().toString();
+        String filename = clientDto.getFilename().substring(0, clientDto.getFilename().lastIndexOf("."));
+        String extension =  clientDto.getFilename().substring(clientDto.getFilename().lastIndexOf(".")+1);
+        PresignedURLVo presignedURLVo = new PresignedURLVo();
+        presignedURLVo.setBucket(ENV.AWS_S3_QUEUE_BUCKET);
+        presignedURLVo.setFileKey("bikes/" + client.getClientId() + "/" + uuid + "/" + filename + "." + extension);
+        presignedURLVo.setFilename(filename + "." + extension);
+        presignedURLVo.setUrl(AmazonUtils.AWSGeneratePresignedURL(presignedURLVo));
+        request.setResponse(presignedURLVo);
+        return request;
+    }
+
+    @Transactional
+    public BikeSessionRequest checkFileUploadComplete(BikeSessionRequest request){
+        Map param = request.getParam();
+        PresignedURLVo presignedURLVo = map(param, PresignedURLVo.class);
+        String clientId = (String) param.get("client_id");
+        Clients client = clientsRepository.findByClientId(clientId);
+        ClientAttachments clientAttachments = new ClientAttachments();
+        clientAttachments.setClientNo(client.getClientNo());
+        clientAttachments.setFileName(presignedURLVo.getFilename());
+        clientAttachments.setFileKey("/" + presignedURLVo.getFileKey());
+        clientAttachments.setDomain(ENV.AWS_S3_ORIGIN_DOMAIN);
+        clientAttachmentRepository.save(clientAttachments);
+        // todo: filename required
+        AmazonS3 amazonS3 = AmazonS3Client.builder()
+                .withRegion(Regions.AP_NORTHEAST_2)
+                .withCredentials(AmazonUtils.awsCredentialsProvider())
+                .build();
+        CopyObjectRequest objectRequest = new CopyObjectRequest(presignedURLVo.getBucket(), presignedURLVo.getFileKey(), ENV.AWS_S3_ORIGIN_BUCKET, presignedURLVo.getFileKey());
+        amazonS3.copyObject(objectRequest);
+        Map response = new HashMap();
+        response.put("url", clientAttachments.getFileKey());
+        request.setResponse(response);
+        return request;
+    }
+
+
+    public BikeSessionRequest fetchFilesByClient(BikeSessionRequest request){
+        Map param = request.getParam();
+        List<ClientAttachments> attachments = clientAttachmentRepository.findAllByClient_ClientId((String) param.get("client_id"));
+        request.setResponse(attachments);
+        return request;
+    }
+
+    @Transactional
+    public BikeSessionRequest deleteFile(BikeSessionRequest request){
+        Map param = request.getParam();
+        Integer attachmentNo = Integer.parseInt((String)param.get("client_attachment_no"));
+        ClientAttachments byAttachNo = clientAttachmentRepository.findByAttachNo(attachmentNo);
+        String url = byAttachNo.getDomain() + byAttachNo.getFileKey();
+        clientAttachmentRepository.deleteById(byAttachNo.getAttachNo());
+        AmazonS3 amazonS3 = AmazonS3Client.builder()
+                .withRegion(Regions.AP_NORTHEAST_2)
+                .withCredentials(AmazonUtils.awsCredentialsProvider())
+                .build();
+        amazonS3.deleteObject(ENV.AWS_S3_ORIGIN_BUCKET, url);
+        return request;
+    }
+
+
+
+
 }

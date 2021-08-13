@@ -7,6 +7,7 @@ import helmet.bikelab.apiserver.domain.client.Clients;
 import helmet.bikelab.apiserver.domain.lease.*;
 import helmet.bikelab.apiserver.domain.types.BikeUserLogTypes;
 import helmet.bikelab.apiserver.domain.types.LeaseStatusTypes;
+import helmet.bikelab.apiserver.domain.types.LeaseStopStatusTypes;
 import helmet.bikelab.apiserver.objects.BikeDto;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.UnpaidExcelDto;
@@ -81,9 +82,20 @@ public class LeasePaymentService  extends SessService {
         return request;
     }
 
+    private LeasePaymentsRequestListDto setSearchConditions(LeasePaymentsRequestListDto leasePaymentsRequestListDto){
+        if(bePresent(leasePaymentsRequestListDto.getSearchClientId())){
+            Clients searchClient = clientsRepository.findByClientId(leasePaymentsRequestListDto.getSearchClientId());
+            if(bePresent(searchClient)) leasePaymentsRequestListDto.setSearchClientNo(searchClient.getClientNo());
+        }else {
+            leasePaymentsRequestListDto.setSearchClientNo(null);
+        }
+        return leasePaymentsRequestListDto;
+    }
+
     public BikeSessionRequest fetchLeasePaymentExtraByIndex(BikeSessionRequest request){
         Map param = request.getParam();
         LeasePaymentsRequestListDto requestListDto = map(param, LeasePaymentsRequestListDto.class);
+        setSearchConditions(requestListDto);
         ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "leases.leases-payments.fetchLeasePaymentExtraByIndex", "leases.leases-payments.countAllPaymentExtraByIndex", "rownum");
         request.setResponse(responseListDto);
         return request;
@@ -102,6 +114,7 @@ public class LeasePaymentService  extends SessService {
     public BikeSessionRequest fetchLeasePaymentsByIndex(BikeSessionRequest request){
         Map param = request.getParam();
         LeasePaymentsRequestListDto requestListDto = map(param, LeasePaymentsRequestListDto.class);
+        setSearchConditions(requestListDto);
         ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "leases.leases-payments.fetchLeasePaymentsByIndex", "leases.leases-payments.countAllPaymentsByIndex", "rownum");
         request.setResponse(responseListDto);
         return request;
@@ -162,8 +175,8 @@ public class LeasePaymentService  extends SessService {
         Map param = request.getParam();
         PayLeaseRequest payLeaseRequest = map(param, PayLeaseRequest.class);
         Leases lease = leaseRepository.findByLeaseId(payLeaseRequest.getLeaseId());
-        if (lease.getStatus() != LeaseStatusTypes.CONFIRM)
-            withException("900-001");
+        if (lease.getStatus() != LeaseStatusTypes.CONFIRM) withException("900-001");
+        if(!lease.getLeaseStopStatus().equals(LeaseStopStatusTypes.CONTINUE)) withException("900-002");
         int paidFee = payLeaseRequest.getPaidFee();
         List<LeasePayments> payments = leasePaymentsRepository.findAllByLease_LeaseId(payLeaseRequest.getLeaseId());
         for (int i = 0; i < payments.size() && paidFee > 0 && payments.get(i).getPaymentDate().isBefore(LocalDate.now().plusDays(1)); i++) {
@@ -210,12 +223,10 @@ public class LeasePaymentService  extends SessService {
     }
 
     public File unpaidExcelDownload(BikeSessionRequest request) {
-        List<Leases> leases = leaseRepository.findAll();
+        List<Leases> leases = leaseRepository.findAllByStatusAndLeaseStopStatus(LeaseStatusTypes.CONFIRM, LeaseStopStatusTypes.CONTINUE);
         List<UnpaidExcelDto> unpaidExcelDtos = new ArrayList<>();
 
         for (Leases lease : leases) {
-            if (lease.getStatus() != LeaseStatusTypes.CONFIRM)
-                continue;
             List<LeasePayments> payments = leasePaymentsRepository.findAllByLease_LeaseId(lease.getLeaseId());
             int index = 0;
             int unpaidFee = 0;
@@ -333,6 +344,8 @@ public class LeasePaymentService  extends SessService {
         for (PayLeaseRequest payLeaseRequest : uploadExcelDto.getPayments()) {
             ArrayList<String> logList = new ArrayList<>();
             Leases lease = leaseRepository.findByLeaseId(payLeaseRequest.getLeaseId());
+            if(lease.getStatus() != LeaseStatusTypes.CONFIRM || lease.getLeaseStopStatus() != LeaseStopStatusTypes.CONTINUE)
+                continue;
             int paidFee = payLeaseRequest.getPaidFee();
             List<LeasePayments> payments = leasePaymentsRepository.findAllByLease_LeaseId(payLeaseRequest.getLeaseId());
             for (int i = 0; i < payments.size() && payments.get(i).getPaymentDate().isBefore(LocalDate.now().plusDays(1)); i++) {
@@ -387,6 +400,8 @@ public class LeasePaymentService  extends SessService {
         List<Leases> leaseList = leaseRepository.findAllByClients_ClientIdAndStatusOrderByLeaseInfo_ContractDate(payLeaseRequest.getClientId(), LeaseStatusTypes.CONFIRM);
         int paidFee = payLeaseRequest.getPaidFee();
         for(Leases lease : leaseList){
+            if(lease.getStatus() != LeaseStatusTypes.CONFIRM || lease.getLeaseStopStatus() != LeaseStopStatusTypes.CONTINUE)
+                continue;
             List<LeasePayments> payments = leasePaymentsRepository.findAllByLeaseNo(lease.getLeaseNo());
             ArrayList<String> logList = new ArrayList<>();
             if(payLeaseRequest.getPayType().equals("lease")) {
@@ -441,7 +456,7 @@ public class LeasePaymentService  extends SessService {
                 break;
         }
         if (paidFee > 0) {
-            saveOverpayLog(request.getSessionUser(), leaseList.get(leaseList.size()-1), paidFee);
+            saveOverpayLog(request.getSessionUser(), leaseList.get(leaseList.size() - 1), paidFee);
         }
         return request;
     }
@@ -457,7 +472,7 @@ public class LeasePaymentService  extends SessService {
                 Bikes bike = bikesRepository.findByCarNum(payLeaseRequest.getBikeNum());
                 ArrayList<String> logList = new ArrayList<>();
                 Leases lease = leaseRepository.findByBikeNo(bike.getBikeNo());
-                if (lease.getStatus() != LeaseStatusTypes.CONFIRM)
+                if(lease.getStatus() != LeaseStatusTypes.CONFIRM || lease.getLeaseStopStatus() != LeaseStopStatusTypes.CONTINUE)
                     continue;
                 int paidFee = payLeaseRequest.getPaidFee();
                 List<LeasePayments> payments = leasePaymentsRepository.findAllByLease_LeaseId(lease.getLeaseId());
@@ -518,6 +533,8 @@ public class LeasePaymentService  extends SessService {
             List<Leases> leases = leaseRepository.findAllByClients_ClientIdOrderByLeaseInfo_ContractDate(client.getClientId());
             int paidFee = payLeaseRequest.getPaidFee();
             for(Leases lease : leases){
+                if(lease.getStatus() != LeaseStatusTypes.CONFIRM || lease.getLeaseStopStatus() != LeaseStopStatusTypes.CONTINUE)
+                    continue;
                 List<String> logList = new ArrayList<>();
                 if (lease.getStatus() != LeaseStatusTypes.CONFIRM)
                     continue;
@@ -591,11 +608,12 @@ public class LeasePaymentService  extends SessService {
 
     private void saveOverpayLog(BikeUser session, Leases lease, Integer overpayFee){
         ClientOverpay clientOverpay = new ClientOverpay();
+        clientOverpay.setLeaseNo(lease.getLeaseNo());
         clientOverpay.setClientNo(lease.getClientNo());
         clientOverpay.setOverpayFee(overpayFee);
         clientOverpay.setDate(LocalDateTime.now());
         clientOverpayRepository.save(clientOverpay);
-        String log = "리스료 <>" + overpayFee + "</>원 과납입 되었습니다.";
+        String log = "리스료 <>" + Utils.getCurrencyFormat(overpayFee) + "원</> 과납입 되었습니다.";
         bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_OVERPAY, session.getUserNo(), lease.getLeaseNo().toString(), log));
         bikeUserLogRepository.save(addLog(BikeUserLogTypes.COMM_CLIENT_OVERPAY, session.getUserNo(), lease.getClientNo().toString(), log));
     }

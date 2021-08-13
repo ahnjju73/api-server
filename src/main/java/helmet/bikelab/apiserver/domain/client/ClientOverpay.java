@@ -26,6 +26,9 @@ public class ClientOverpay extends OriginObject {
     @Column(name = "overpay_no")
     private Long overpayNo;
 
+    @Column(name = "lease_no")
+    private Integer LeaseNo;
+
     @Column(name = "client_no")
     private Integer clientNo;
 

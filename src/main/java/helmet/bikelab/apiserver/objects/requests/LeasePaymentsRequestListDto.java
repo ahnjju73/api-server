@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.objects.requests;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Getter;
@@ -16,6 +17,8 @@ public class LeasePaymentsRequestListDto extends RequestListDto{
     private String startAt;
     private String endAt;
     private String searchRead;
+    private String searchClientId;
+    private Integer searchClientNo;
 
     public void setStartAt(String startAt) {
         this.startAt = LocalDateTime.parse(startAt.replace("Z", "")).toLocalDate().toString();

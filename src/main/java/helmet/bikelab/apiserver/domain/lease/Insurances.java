@@ -30,6 +30,9 @@ public class Insurances extends OriginObject {
     @Column(name = "insurance_id", nullable = false)
     private String insuranceId;
 
+    @Column(name = "insurance_name", length = 40)
+    private String insuranceName;
+
     @Column(name = "insurance_type", nullable = false)
     private String insuranceTypeCode;
 
@@ -66,18 +69,26 @@ public class Insurances extends OriginObject {
 
     @Column(name = "type", columnDefinition = "ENUM")
     @Convert(converter = InsuranceTypesConverter.class)
-    private InsuranceTypes type = InsuranceTypes.PERSONAL;
+    private InsuranceTypes type;
 
-    @Column(name = "insurance_name", length = 40)
-    private String insuranceName;
-
+    public void setType (String type){
+        this.type = InsuranceTypes.getInsuranceType(type);
+    }
+    public void setType (InsuranceTypes type){
+        this.type = type;
+    }
 
     public void checkValidation(){
-        if(!bePresent(liabilityCar)) withException("800-002");
+        if(!bePresent(insuranceName)) withException("800-007");
+        if(!bePresent(insuranceTypeCode)) withException("800-008");
+        if(!bePresent(type)) withException("800-009");
+        if(!bePresent(companyName)) withException("800-011");
+        if(!bePresent(age)) withException("800-010");
         if(!bePresent(liabilityMan)) withException("800-001");
+        if(!bePresent(liabilityCar)) withException("800-002");
         if(!bePresent(liabilityMan2)) withException("800-006");
-        if(!bePresent(selfCoverCar)) withException("800-003");
-        if(!bePresent(selfCoverMan)) withException("800-004");
         if(!bePresent(noInsuranceCover)) withException("800-005");
+        if(!bePresent(selfCoverMan)) withException("800-004");
+        if(!bePresent(selfCoverCar)) withException("800-003");
     }
 }
