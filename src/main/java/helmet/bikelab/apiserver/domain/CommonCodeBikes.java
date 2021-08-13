@@ -24,9 +24,6 @@ public class CommonCodeBikes {
     @Column(name = "comm_cd", nullable = false, length = 21)
     private String code;
 
-    @Column(name = "make")
-    private String make;
-
     @Column(name = "manuf_no")
     private Integer manufacturerNo;
 

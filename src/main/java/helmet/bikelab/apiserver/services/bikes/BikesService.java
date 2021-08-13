@@ -162,7 +162,6 @@ public class BikesService extends SessService {
         model.setCarModelCode(carModel.getCode());
         model.setCarModelName(carModel.getModel());
         model.setBikeType(carModel.getBikeType());
-        model.setMake(carModel.getMake());
         model.setVolume(carModel.getVolume());
         fetchBikeDetailResponse.setYears(bike.getYears());
         fetchBikeDetailResponse.setVolume(bike.getVolume());
@@ -206,7 +205,7 @@ public class BikesService extends SessService {
         bike.setReceiveDate(addBikeRequest.getReceiveDt());
         bikesRepository.save(bike);
         CommonCodeBikes model = bikeModelsRepository.findByCode(addBikeRequest.getCarModel());
-        String log = "<>" + addBikeRequest.getYears() + "</>년식 <>" + model.getMake() + "</>에서 만든 <>" + model.getModel() + "</>모델 배기량은 <>"
+        String log = "<>" + addBikeRequest.getYears() + "</>년식 차량모델 배기량은 <>"
                 + (model.getBikeType().equals(BikeTypes.GAS)? model.getVolume() + " cc" : model.getVolume() + " KW") +
                 "</> 색상은 <>" + addBikeRequest.getColor() + "</> 차대번호가 <>" + addBikeRequest.getVimNumber() + "</> 인 바이크가 생성되었습니다";
         bikeUserLogRepository.save(addLog(BikeUserLogTypes.COMM_BIKE_ADDED, session.getUserNo(), bike.getBikeNo().toString(), log));
@@ -319,7 +318,6 @@ public class BikesService extends SessService {
                 continue;
             FetchBikeModelsResponse fetchBikeModelsResponse = new FetchBikeModelsResponse();
             fetchBikeModelsResponse.setModel(model.getModel());
-            fetchBikeModelsResponse.setMake(model.getMake());
             fetchBikeModelsResponse.setCode(model.getCode());
             fetchBikeModelsResponse.setDiscontinue(model.getDiscontinue());
             fetchBikeModelsResponse.setBikeType(model.getBikeType());
