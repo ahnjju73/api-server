@@ -47,8 +47,8 @@ public class AddClientRequest extends OriginObject {
         }
         if(!bePresent(regNo)) withException("400-015");
         if(!bePresent(clientInfo.getRegDate())) withException("400-016");
-        if(!bePresent(clientInfo.getRegSectorType())) withException("400-017");
         if(!bePresent(clientInfo.getRegBusinessType())) withException("400-018");
+        if(!bePresent(clientInfo.getRegSectorType())) withException("400-017");
         if(!bePresent(address)) withException("400-019");
     }
 
