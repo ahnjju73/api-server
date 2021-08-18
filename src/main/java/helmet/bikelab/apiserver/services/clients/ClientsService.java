@@ -170,7 +170,7 @@ public class ClientsService extends SessService {
 
         String password = randomPassword(10);
         ClientPassword clientPassword = new ClientPassword();
-        clientPassword.newPassword(password);
+        clientPassword.updatePasswordWithoutSHA256(password);
         clientPassword.setClientNo(clients.getClientNo());
         clientPassword.setClient(clients);
         clientPasswordRepository.save(clientPassword);
@@ -179,6 +179,9 @@ public class ClientsService extends SessService {
         clients.setClientInfo(clientInfo);
         clients.setClientPassword(clientPassword);
         bikeUserLogRepository.save(addLog(BikeUserLogTypes.COMM_CLIENT_ADDED, session.getUserNo(), clients.getClientNo().toString()));
+
+        Map response = new HashMap();
+        response.put("password", password);
 
         return request;
     }
@@ -358,7 +361,7 @@ public class ClientsService extends SessService {
         Clients client = clientsRepository.findByClientId(resetPasswordRequest.getClientId());
         String newPassword = getRandomString();
         ClientPassword clientPassword = clientPasswordRepository.findByClientNo(client.getClientNo());
-        clientPassword.updatePassword(newPassword);
+        clientPassword.updatePasswordWithoutSHA256(newPassword);
         clientPasswordRepository.save(clientPassword);
         response.put("password", newPassword);
         request.setResponse(response);

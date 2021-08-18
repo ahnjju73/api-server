@@ -114,18 +114,6 @@ public class BikesService extends SessService {
         return request;
     }
 
-//    public BikeSessionRequest fetchBikeByBikeNum(BikeSessionRequest request){
-//        Map param = request.getParam();
-//        FetchBikeRequest fetchBikeRequest = map(param, FetchBikeRequest.class);
-//
-//    }
-//
-//    public BikeSessionRequest fetchBikesByClientName(BikeSessionRequest request){
-//
-//    }
-
-
-
     public BikeSessionRequest fetchBikesByClient(BikeSessionRequest request){
         Map param = request.getParam();
         FetchBikeRequest fetchBikeRequest = map(param, FetchBikeRequest.class);
