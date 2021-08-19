@@ -182,6 +182,7 @@ public class ClientsService extends SessService {
 
         Map response = new HashMap();
         response.put("password", password);
+        request.setResponse(response);
 
         return request;
     }
