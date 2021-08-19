@@ -367,7 +367,7 @@ public class LeasePaymentService  extends SessService {
             responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "leases.leases-payments.fetchUnpaidLeaseExcel", "leases.leases-payments.countUnpaidLeaseExcel", "client_id");
         else
             responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "leases.leases-payments.fetchUnpaidExtraExcel", "leases.leases-payments.countUnpaidExtraExcel", "client_id");
-        request.setResponse(responseListDto);
+        request.setResponse(responseListDto.getItems());
         return request;
     }
 
