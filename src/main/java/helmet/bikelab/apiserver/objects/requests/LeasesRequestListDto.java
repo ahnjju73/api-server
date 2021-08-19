@@ -11,7 +11,7 @@ import lombok.Setter;
 public class LeasesRequestListDto extends RequestListDto{
 
     private String clientId;
-
     private Integer searchClientNo;
+    private String searchBike;
 
 }

@@ -56,11 +56,17 @@ public class LeasesService extends SessService {
     public BikeSessionRequest fetchLeases(BikeSessionRequest request){
         Map param = request.getParam();
         LeasesRequestListDto requestListDto = map(param, LeasesRequestListDto.class);
+        ResponseListDto responseListDto;
         if(bePresent(requestListDto.getClientId())){
             Clients byClientId = clientsRepository.findByClientId(requestListDto.getClientId());
             requestListDto.setSearchClientNo(byClientId.getClientNo());
         }
-        ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "leases.leases-manager.fetchLeases", "leases.leases-manager.countAllLeases", "lease_id");
+        if(!bePresent(requestListDto.getSearchBike())){
+            responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "leases.leases-manager.fetchLeases", "leases.leases-manager.countAllLeases", "lease_id");
+        }else {
+            responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "leases.leases-manager.fetchLeasesByBike", "leases.leases-manager.countAllLeasesByBike", "lease_id");
+        }
+
         request.setResponse(responseListDto);
         return request;
     }
