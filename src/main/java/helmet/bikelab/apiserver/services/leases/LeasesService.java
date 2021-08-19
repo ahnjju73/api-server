@@ -180,6 +180,7 @@ public class LeasesService extends SessService {
             bikeDto.setBikeId(lease.getBike().getBikeId());
             bikeDto.setBikeModel(lease.getBike().getCarModel().getModel());
             bikeDto.setBikeNum(lease.getBike().getCarNum());
+            bikeDto.setVimNum(lease.getBike().getVimNum());
             fetchLeasesResponse.setBike(bikeDto);
         }
         if(lease.getClients()!=null) {
@@ -198,6 +199,7 @@ public class LeasesService extends SessService {
             LeaseInfoDto leaseInfoDto = new LeaseInfoDto();
             leaseInfoDto.setLeaseInfo(lease.getLeaseInfo());
             leaseInfoDto.setPeriod(lease.getLeaseInfo().getPeriod());
+            leaseInfoDto.setEndDt(lease.getLeaseInfo().getEndDate().toString());
             fetchLeasesResponse.setLeaseInfo(leaseInfoDto);
         }
         if(lease.getInsurances()!=null){
@@ -612,6 +614,7 @@ public class LeasesService extends SessService {
         if(!lease.getApprovalUser().getUserId().equals(session.getUserId())) withException("850-021");
         if(!lease.getStatus().getStatus().equals("550-002")) withException("850-009");
         lease.setStatus(LeaseStatusTypes.CONFIRM);
+        lease.setApprovalDt(LocalDateTime.now());
         leaseRepository.save(lease);
         bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_APPROVE_COMPLETED, session.getUserNo(), lease.getLeaseNo().toString()));
         bikeUserTodoService.addTodo(BikeUserTodoTypes.LEASE_CONFIRM, session.getUserNo(), lease.getSubmittedUserNo(), lease.getLeaseNo().toString(), lease.getLeaseId());
@@ -652,7 +655,8 @@ public class LeasesService extends SessService {
         BikeUser session = request.getSessionUser();
         LeasesDto leasesDto = map(param, LeasesDto.class);
         Leases lease = leaseRepository.findByLeaseId(leasesDto.getLeaseId());
-        if(lease.getStatus() != LeaseStatusTypes.PENDING) withException("850-022");
+        if(!lease.getApprovalUser().getUserId().equals(session.getUserId())) withException("850-032");
+        if(lease.getStatus() != LeaseStatusTypes.PENDING) withException("850-023");
         lease.setStatus(LeaseStatusTypes.DECLINE);
         leaseRepository.save(lease);
         bikeUserTodoService.addTodo(BikeUserTodoTypes.LEASE_REJECT, session.getUserNo(), lease.getSubmittedUserNo(), lease.getLeaseNo().toString(), lease.getLeaseId());
@@ -661,11 +665,26 @@ public class LeasesService extends SessService {
     }
 
     @Transactional
+    public BikeSessionRequest cancelLease(BikeSessionRequest request){
+        Map param = request.getParam();
+        BikeUser session = request.getSessionUser();
+        LeasesDto leasesDto = map(param, LeasesDto.class);
+        Leases lease = leaseRepository.findByLeaseId(leasesDto.getLeaseId());
+        if(!lease.getSubmittedUser().getUserId().equals(session.getUserId())) withException("850-032");
+        if(lease.getStatus() != LeaseStatusTypes.PENDING) withException("850-031");
+        lease.setStatus(LeaseStatusTypes.IN_PROGRESS);
+        String log = "<>" + session.getBikeUserInfo().getName() + "님</>께서 해당 리스 신청을 취소하였습니다.";
+        leaseRepository.save(lease);
+        bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_UPDATED, session.getUserNo(), lease.getLeaseNo().toString(), log));
+        return request;
+    }
+
+    @Transactional
     public BikeSessionRequest deleteLease(BikeSessionRequest request){
         Map param = request.getParam();
         LeasesDto leasesDto = map(param, LeasesDto.class);
         Leases lease = leaseRepository.findByLeaseId(leasesDto.getLeaseId());
-        if(lease.getStatus() != LeaseStatusTypes.IN_PROGRESS) withException("850-022");
+        if(lease.getStatus() != LeaseStatusTypes.IN_PROGRESS && lease.getStatus() != LeaseStatusTypes.DECLINE) withException("850-022");
         leaseExtraRepository.deleteAllByLease_LeaseId(lease.getLeaseId());
         leaseInfoRepository.deleteAllByLease_LeaseId(lease.getLeaseId());
         leasePaymentsRepository.deleteAllByLease_LeaseId(lease.getLeaseId());

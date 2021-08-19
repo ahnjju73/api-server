@@ -13,8 +13,6 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.io.File;
-import java.net.http.HttpHeaders;
-import java.util.HashMap;
 import java.util.Map;
 
 import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
@@ -86,8 +84,8 @@ public class LeasePaymentHandlers {
                 Mono.fromSupplier(() -> leasePaymentService.makeSessionRequest(request, BikeSessionRequest.class))
                         .subscribeOn(Schedulers.elastic())
                         .map(leasePaymentService::checkBikeSession)
-                        .map(leasePaymentService::fetchUnpaidLeases)
-                        .map(leasePaymentService::returnData), Map.class);
+                        .map(leasePaymentService::fetchUnpaidLeaseList)
+                        .map(leasePaymentService::returnData), ResponseListDto.class);
     }
 
     public Mono<ServerResponse> payLease(ServerRequest request) {
