@@ -14,6 +14,21 @@
         </if>
     </select>
 
+    <select id="countAllLeasesByBike" parameterType="hmap" resultType="int">
+        select count(*)
+          from leases l
+               join bikes b on l.bike_no = b.bike_no
+         where 1 = 1
+         <if test="search_client_no != null">
+           and client_no = #{search_client_no}
+         </if>
+        <if test="search_bike != null">
+           and (
+            `number` like concat('%', #{search_bike}, '%') or `vim_num` like concat('%', #{search_bike}, '%')
+           )
+        </if>
+    </select>
+
     <resultMap id="bikeMap" type="hmap">
         <result property="bike_id" column="bike_id"/>
         <result property="bike_model" column="bike_model"/>
@@ -159,6 +174,85 @@
              left outer join bike_user_info sui on sum.user_no = sui.user_no
              left outer join bike_user_mst aum on aum.user_no = lm.approval_user_no
              left outer join bike_user_info aui on aum.user_no = aui.user_no
+        order by lease_id desc
+    </select>
+
+    <select id="fetchLeasesByBike" parameterType="hmap" resultMap="fetchLeasesMap">
+        select lm.lease_id,
+               lm.status,
+               lm.bike_id,
+               lm.number as bike_num,
+               lm.car_model as bike_model,
+               cm.client_id,
+               if(ci.name is null, '', ci.name) as client_name,
+               ins.insurance_id,
+               ins.insurance_age,
+               if(ins.company_name is null, '', ins.company_name) as company_name,
+               rls.release_id,
+               if(rls.release_name is null, '', rls.release_name) as release_name,
+               li.period,
+               if(li.start_dt is null, '', li.start_dt) as start_dt,
+               if(li.end_dt is null, '', li.end_dt) as end_dt,
+               if(li.note is null, '', li.note) as note,
+               lp.payment_type,
+               if(lp.deposit is null, 0, lp.deposit) as deposit,
+               if(lp.pre_payment is null, 0, lp.pre_payment) as pre_payment,
+               if(lp.profit_fee is null, 0, lp.profit_fee) as profit_fee,
+               if(lp.take_fee is null, 0, lp.take_fee) as take_fee,
+               if(lp.register_fee is null, 0, lp.register_fee) as register_fee,
+               lm.up_lease_no,
+               lm.contract_type,
+               lm.management_type,
+               lm.lease_stop_status,
+               lm.stop_dt,
+               lm.stop_fee,
+               lm.stop_paid_fee,
+               lm.stop_reason,
+               if(lm.take_loc is null, '', lm.take_loc) as take_loc,
+               if(lm.take_at is null, '', lm.take_at) as take_at,
+               if(lm.release_at is null, '', lm.release_at) as release_at,
+               if(lm.created_at is null, '', date_format(lm.created_at, '%Y-%m-%d %H:%i')) as created_at,
+               if(li.contract_dt is null, '', date_format(li.contract_dt, '%Y-%m-%d %H:%i')) as contract_dt,
+               cum.user_id as created_user_id,
+               cum.email as created_email,
+               cui.name as created_name,
+               sum.user_id as submitted_user_id,
+               sum.email as submitted_email,
+               sui.name as submitted_name,
+               aum.user_id as approval_user_id,
+               aum.email as approval_email,
+               aui.name as approval_name
+        from (select l.*,
+                     bike_id,
+                     `number`,
+                     `car_model`
+                from leases l
+                     join bikes b on l.bike_no = b.bike_no
+               where 1 = 1
+                <if test="next_token != null and next_token != '' and next_token != 'undefined'">
+                 and lease_id <![CDATA[ < ]]> #{next_token}
+                </if>
+                <if test="search_client_no != null">
+                 and client_no = #{search_client_no}
+                </if>
+                <if test="search_bike != null">
+                 and (
+                    `number` like concat('%', #{search_bike}, '%') or `vim_num` like concat('%', #{search_bike}, '%')
+                 )
+                </if>
+              order by lease_id desc limit 30) lm
+                 join lease_info li on lm.lease_no = li.lease_no
+                 join lease_price lp on lm.lease_no = lp.lease_no
+                 join clients cm on lm.client_no = cm.client_no
+                 join client_info ci on cm.client_no = ci.client_no
+                 join insurances ins on lm.insurance_no = ins.insurance_no
+                 join releases rls on lm.release_no = rls.release_no
+                 join bike_user_mst cum on cum.user_no = lm.created_user_no
+                 join bike_user_info cui on cum.user_no = cui.user_no
+                 left outer join bike_user_mst sum on sum.user_no = lm.submitted_user_no
+            left outer join bike_user_info sui on sum.user_no = sui.user_no
+            left outer join bike_user_mst aum on aum.user_no = lm.approval_user_no
+            left outer join bike_user_info aui on aum.user_no = aui.user_no
         order by lease_id desc
     </select>
 
