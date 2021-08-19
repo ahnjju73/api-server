@@ -248,16 +248,20 @@ public class BikesService extends SessService {
                 stringList.add("바이크 차량종류를 <>" + exModel + "</>에서 <>" + nowModel +"</>로 변경하였습니다.");
             }
             if(bePresent(updateBikeRequest.getColor()) && !updateBikeRequest.getColor().equals(bike.getColor())){
-                stringList.add("바이크 차량 색상을 <>" + bike.getColor() + "</>에서 <>" + updateBikeRequest.getColor() + "</>으로 변경하였습니다.");
+                String log = bike.getColor() == null ? "바이크 색상을 <>" + updateBikeRequest.getColor() + "</>로/으로 설정했습니다." : "바이크 색상을 <>" + bike.getColor() + "</>에서 <>" + updateBikeRequest.getColor() + "</>으로 변경하였습니다.";
+                stringList.add(log);
             }
             if(bePresent(updateBikeRequest.getReceiveDt()) && !updateBikeRequest.getReceiveDt().equals(bike.getReceiveDate())){
-                stringList.add("바이크 수령일을 <>" + bike.getReceiveDate().toLocalDate() + "</>에서 <>" + updateBikeRequest.getReceiveDt().toLocalDate() + "</>으로 변경하였습니다.");
+                String log = bike.getReceiveDate() == null ? "바이크 수령일자를 <>" + updateBikeRequest.getReceiveDt() + "</>로/으로 설정했습니다." : "바이크 수령일자를 <>" + bike.getReceiveDate() + "</>에서 <>" + updateBikeRequest.getReceiveDt() + "</>으로 변경하였습니다.";
+                stringList.add(log);
             }
             if(bePresent(updateBikeRequest.getRegisterDt()) && !updateBikeRequest.getRegisterDt().equals(bike.getRegisterDate())){
-                stringList.add("바이크 등록일을 <>" + bike.getRegisterDate().toLocalDate() + "</>에서 <>" + updateBikeRequest.getRegisterDt().toLocalDate() + "</>으로 변경하였습니다.");
+                String log = bike.getRegisterDate() == null ? "바이크 등록일을 <>" + updateBikeRequest.getRegisterDt() + "</>로/으로 설정했습니다." : "바이크 등록일을 <>" + bike.getRegisterDate() + "</>에서 <>" + updateBikeRequest.getRegisterDt() + "</>으로 변경하였습니다.";
+                stringList.add(log);
             }
             if(bePresent(updateBikeRequest.getYears()) && !updateBikeRequest.getYears().equals(bike.getYears())){
-                stringList.add("바이크 연식을 <>" + bike.getYears() + "</>에서 <>" + updateBikeRequest.getYears() + "</>으로 변경하였습니다.");
+                String log = bike.getYears() == null ? "바이크 연식을 <>" + updateBikeRequest.getYears() + "</>로/으로 설정했습니다." : "바이크 연식을 <>" + bike.getYears() + "</>에서 <>" + updateBikeRequest.getYears() + "</>으로 변경하였습니다.";
+                stringList.add(log);
             }
             if(bePresent(stringList) && stringList.size() > 0){
                 bikeUserLogRepository.save(addLog(BikeUserLogTypes.COMM_BIKE_UPDATED, session.getUserNo(), bike.getBikeNo().toString(), stringList));

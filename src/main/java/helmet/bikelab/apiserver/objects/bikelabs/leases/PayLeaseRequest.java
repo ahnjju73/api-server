@@ -18,6 +18,7 @@ public class PayLeaseRequest implements Comparable {
     private String bikeNum;
     private String payType;
     private String endDt;
+    private String type;
 
     @Override
     public int compareTo(Object o) {
