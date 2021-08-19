@@ -13,6 +13,7 @@ import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 
 import static org.springframework.http.HttpHeaders.CONTENT_DISPOSITION;
@@ -125,7 +126,7 @@ public class LeasePaymentHandlers {
                         .map(row -> leasePaymentService.getPathVariable(row, "type"))
                         .map(leasePaymentService::checkBikeSession)
                         .map(leasePaymentService::unpaidLeasesExcel)
-                        .map(leasePaymentService::returnData), ResponseListDto.class);
+                        .map(leasePaymentService::returnData), List.class);
     }
 
 
