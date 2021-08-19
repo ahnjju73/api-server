@@ -79,7 +79,13 @@ public class BikesService extends SessService {
     public BikeSessionRequest fetchBikes(BikeSessionRequest request){
         Map param = request.getParam();
         BikeRequestListDto requestListDto = map(param, BikeRequestListDto.class);
-        ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "bikelabs.commons.bikes.fetchBikesList", "bikelabs.commons.bikes.countAllBikeList", "bike_id");
+        ResponseListDto responseListDto;
+        if(!bePresent(requestListDto.getSearchClientId())){
+            responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "bikelabs.commons.bikes.fetchBikesList", "bikelabs.commons.bikes.countAllBikeList", "bike_id");
+        }else {
+            responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "bikelabs.commons.bikes.fetchBikesListByClientId", "bikelabs.commons.bikes.countAllBikeList", "bike_id");
+        }
+
         request.setResponse(responseListDto);
         return request;
     }
@@ -107,18 +113,6 @@ public class BikesService extends SessService {
         request.setResponse(response);
         return request;
     }
-
-//    public BikeSessionRequest fetchBikeByBikeNum(BikeSessionRequest request){
-//        Map param = request.getParam();
-//        FetchBikeRequest fetchBikeRequest = map(param, FetchBikeRequest.class);
-//
-//    }
-//
-//    public BikeSessionRequest fetchBikesByClientName(BikeSessionRequest request){
-//
-//    }
-
-
 
     public BikeSessionRequest fetchBikesByClient(BikeSessionRequest request){
         Map param = request.getParam();

@@ -268,7 +268,7 @@
                    and lease_stop_status in ('506-001')) l
                 join (select *
                         from lease_payments
-                       where date_format(payment_date, '%Y-%m-%d') <![CDATA[ <= ]]> #{now}
+                       where date_format(payment_date, '%Y-%m-%d') <![CDATA[ <= ]]> now()
                         <if test='search_read == "N"'>
                          and `read_yn` = false
                         </if>
@@ -276,73 +276,91 @@
                          and payment_date between #{end_at} and #{start_at}
                         </if>
                          and lease_fee <![CDATA[ > ]]> paid_fee) lp on l.lease_no = lp.lease_no
+                <if test="search_bike != null and search_bike != '' and search_bike != 'undefined'">
+                join (select *
+                        from bikes
+                       where 1 = 1
+                         and ( `number` like concat('%', #{search_bike}, '%') or `vim_num` like concat('%', #{search_bike}, '%') )
+                      ) b on l.bike_no = b.bike_no
+                </if>
+
     </select>
 
     <select id="fetchLeasePaymentsByIndex" parameterType="hmap" resultType="hmap">
         select cast(dummy.rownum as char) as rownum,
-               dummy.lease_id,
-               dummy.payment_id,
-               date_format(dummy.payment_date, '%Y년%m월%d일') as payment_date,
-               dummy.idx,
-               dummy.lease_fee,
-               dummy.paid_fee,
-               c.client_id,
-               c.email as client_email,
-               c.uuid as cleint_uuid,
-               c.reg_no as client_reg_no,
-               if(ci.name is null, '', ci.name) as client_name,
-               if(ci.phone is null, '', ci.phone) as client_phone,
-               b.bike_id,
-               b.vim_num,
-               b.number,
-               cb.comm_nm as car_model,
-               lp.payment_type,
-               dummy.read_yn as `read`,
-               bum.user_id as read_user_id,
-               bui.name as read_user_name,
-               bum.email as read_user_email
-          from (select *
-                  from (select @rownum:=@rownum+1 as rownum,
-				  	           main.*
-                          from (select l.*,
-                                     lp.payment_date,
-                                     lp.payment_id,
-                                     lp.idx,
-                                     lp.lease_fee,
-                                     lp.paid_fee,
-                                     lp.read_yn,
-                                     lp.read_user_no
-                                from (select *
-                                        from leases
-                                       where status = '550-003'
-                                         <if test="search_client_no != null">
-                                         and client_no = #{search_client_no}
-                                         </if>
-                                         and lease_stop_status in ('506-001')) l
-                                     join (select *
-                                             from lease_payments
-                                            where date_format(payment_date, '%Y-%m-%d') <![CDATA[ <= ]]> #{now}
-                                                <if test='search_read == "N"'>
-                                                    and `read_yn` = false
-                                                </if>
-                                            <if test="start_at != null and start_at != '' and start_at != 'undefined' and end_at != null and end_at != '' and end_at != 'undefined'">
-                                              and payment_date between #{end_at} and #{start_at}
-                                            </if>
-                                              and lease_fee <![CDATA[ > ]]> paid_fee) lp on l.lease_no = lp.lease_no
-                               order by lp.payment_date desc, lp.payment_id desc) main,
-                               (SELECT @rownum :=0) AS R) dmy
-                where 1 = 1
-                <if test="next_token != null and next_token != '' and next_token != 'undefined'">
-                  and rownum <![CDATA[ > ]]> #{next_token}
-                </if>
-                order by rownum limit 30) dummy
-                join lease_price lp on dummy.lease_no = lp.lease_no
-                join clients c on dummy.client_no = c.client_no
-                join client_info ci on c.client_no = ci.client_no
-                join bikes b on dummy.bike_no = b.bike_no
-                join com_comm_bikes cb on b.car_model = cb.comm_cd
-                left outer join bike_user_mst bum on dummy.read_user_no = bum.user_no
-                left outer join bike_user_info bui on bum.user_no = bui.user_no
+        dummy.lease_id,
+        dummy.payment_id,
+        date_format(dummy.payment_date, '%Y년%m월%d일') as payment_date,
+        dummy.idx,
+        dummy.lease_fee,
+        dummy.paid_fee,
+        c.client_id,
+        c.email as client_email,
+        c.uuid as cleint_uuid,
+        c.reg_no as client_reg_no,
+        if(ci.name is null, '', ci.name) as client_name,
+        if(ci.phone is null, '', ci.phone) as client_phone,
+        dummy.bike_id,
+        dummy.vim_num,
+        dummy.number,
+        cb.comm_nm as car_model,
+        lp.payment_type,
+        dummy.read_yn as `read`,
+        bum.user_id as read_user_id,
+        bui.name as read_user_name,
+        bum.email as read_user_email
+        from (select *
+        from (select @rownum:=@rownum+1 as rownum,
+        main.*
+        from (select l.*,
+        lp.payment_date,
+        lp.payment_id,
+        lp.idx,
+        lp.lease_fee,
+        lp.paid_fee,
+        lp.read_yn,
+        lp.read_user_no,
+        b.bike_id,
+        b.vim_num,
+        b.number,
+        b.car_model
+        from (select *
+        from leases
+        where status = '550-003'
+        <if test="search_client_no != null">
+            and client_no = #{search_client_no}
+        </if>
+        and lease_stop_status in ('506-001')) l
+        join (select *
+        from bikes
+        where 1 = 1
+        <if test="search_bike != null and search_bike != '' and search_bike != 'undefined'">
+            and ( `number` like concat('%', #{search_bike}, '%') or `vim_num` like concat('%', #{search_bike}, '%') )
+        </if>
+        ) b on l.bike_no = b.bike_no
+        join (select *
+        from lease_payments
+        where date_format(payment_date, '%Y-%m-%d') <![CDATA[ <= ]]> now()
+        <if test='search_read == "N"'>
+            and `read_yn` = false
+        </if>
+        <if test="start_at != null and start_at != '' and start_at != 'undefined' and end_at != null and end_at != '' and end_at != 'undefined'">
+            and payment_date between #{end_at} and #{start_at}
+        </if>
+        and lease_fee <![CDATA[ > ]]> paid_fee) lp on l.lease_no = lp.lease_no
+        order by lp.payment_date desc, lp.payment_id desc) main,
+        (SELECT @rownum :=0) AS R) dmy
+        where 1 = 1
+        <if test="next_token != null and next_token != '' and next_token != 'undefined'">
+            and rownum <![CDATA[ > ]]> #{next_token}
+        </if>
+        order by rownum limit 30) dummy
+        join lease_price lp on dummy.lease_no = lp.lease_no
+        join clients c on dummy.client_no = c.client_no
+        join client_info ci on c.client_no = ci.client_no
+        join com_comm_bikes cb on dummy.car_model = cb.comm_cd
+        left outer join bike_user_mst bum on dummy.read_user_no = bum.user_no
+        left outer join bike_user_info bui on bum.user_no = bui.user_no
         order by dummy.rownum
     </select>
 
