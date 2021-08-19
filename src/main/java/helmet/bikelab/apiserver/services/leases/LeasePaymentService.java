@@ -357,6 +357,22 @@ public class LeasePaymentService  extends SessService {
         }
     }
 
+
+    public BikeSessionRequest unpaidLeasesExcel(BikeSessionRequest request){
+        Map param = request.getParam();
+        LeasePaymentsRequestListDto requestListDto = map(param, LeasePaymentsRequestListDto.class);
+        String type = (String) param.get("type");
+        ResponseListDto responseListDto;
+        if(type.equals("lease"))
+            responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "leases.leases-payments.fetchUnpaidLeaseExcel", "leases.leases-payments.countUnpaidLeaseExcel", "client_id");
+        else
+            responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "leases.leases-payments.fetchUnpaidExtraExcel", "leases.leases-payments.countUnpaidExtraExcel", "client_id");
+        request.setResponse(responseListDto);
+        return request;
+    }
+
+
+
     @Transactional
     public BikeSessionRequest payWithExcel(BikeSessionRequest request) {
         Map param = request.getParam();

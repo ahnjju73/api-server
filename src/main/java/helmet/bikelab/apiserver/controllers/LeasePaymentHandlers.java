@@ -110,16 +110,24 @@ public class LeasePaymentHandlers {
     }
 
     public Mono<ServerResponse> unpaidExcelDownload(ServerRequest request) {
-        BikeSessionRequest bikeSessionRequest = leasePaymentService.makeSessionRequest(request, BikeSessionRequest.class);
-        File excel = leasePaymentService.unpaidExcelDownload(bikeSessionRequest);
-        return ServerResponse.ok()
-                .header(CONTENT_DISPOSITION, "attachment;filename=test.xlsx")
-                .header(CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE)
-                .body((p, a) -> {
-                    ZeroCopyHttpOutputMessage resp = (ZeroCopyHttpOutputMessage) p;
-                    return resp.writeWith(excel, 0, excel.length());
-                }).doFinally(a -> excel.deleteOnExit());
+//        BikeSessionRequest bikeSessionRequest = leasePaymentService.makeSessionRequest(request, BikeSessionRequest.class);
+//        File excel = leasePaymentService.unpaidExcelDownload(bikeSessionRequest);
+//        return ServerResponse.ok()
+//                .header(CONTENT_DISPOSITION, "attachment;filename=test.xlsx")
+//                .header(CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE)
+//                .body((p, a) -> {
+//                    ZeroCopyHttpOutputMessage resp = (ZeroCopyHttpOutputMessage) p;
+//                    return resp.writeWith(excel, 0, excel.length());
+//                }).doFinally(a -> excel.deleteOnExit());
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> leasePaymentService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> leasePaymentService.getPathVariable(row, "type"))
+                        .map(leasePaymentService::checkBikeSession)
+                        .map(leasePaymentService::unpaidLeasesExcel)
+                        .map(leasePaymentService::returnData), ResponseListDto.class);
     }
+
 
     public Mono<ServerResponse> payLeaseWithExcel(ServerRequest request) {
         return ServerResponse.ok().body(

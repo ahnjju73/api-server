@@ -27,7 +27,6 @@ public class CommonWorker extends SessService {
             if(!bePresent(items)){
                 responseListDto.setNextToken(ENV.LIST_COUNT_DONE);
             }else {
-
                 String nextToken = (String)items.get(items.size() - 1).get(id);
                 responseListDto.setNextToken(nextToken);
                 responseListDto.setItems(items);
