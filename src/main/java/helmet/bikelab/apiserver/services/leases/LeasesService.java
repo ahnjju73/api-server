@@ -676,7 +676,7 @@ public class LeasesService extends SessService {
         BikeUser session = request.getSessionUser();
         LeasesDto leasesDto = map(param, LeasesDto.class);
         Leases lease = leaseRepository.findByLeaseId(leasesDto.getLeaseId());
-        if(!lease.getSubmittedUser().getUserId().equals(session.getUserId())) withException("850-032");
+        if(!lease.getSubmittedUser().getUserId().equals(session.getUserId())) withException("850-033");
         if(lease.getStatus() != LeaseStatusTypes.PENDING) withException("850-031");
         lease.setStatus(LeaseStatusTypes.IN_PROGRESS);
         String log = "<>" + session.getBikeUserInfo().getName() + "님</>께서 해당 리스 신청을 취소하였습니다.";
