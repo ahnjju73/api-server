@@ -460,6 +460,16 @@
           join com_comm_bikes bm on b.car_model = bm.comm_cd
     </select>
 
+    <select id="countUnpaidLeaseExcel" parameterType="hmap" resultType="int">
+        select count(*) from (select count(*)
+                              from (select * from leases
+                                    where `status` = '550-003'
+                                      and lease_stop_status in ('506-001'))l
+                                       join (select *
+                                               from lease_payments) lp on lp.lease_no = l.lease_no and lease_fee <![CDATA[ > ]]> paid_fee and payment_date <![CDATA[ <= ]]> #{now}
+                              group by lease_id) lm
+    </select>
+
     <select id="fetchUnpaidLeaseExcel" parameterType="hmap" resultType="hmap">
         select lm.*,
                b.bike_id,
