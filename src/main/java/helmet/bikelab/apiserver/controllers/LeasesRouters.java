@@ -25,6 +25,7 @@ public class LeasesRouters {
                 .andRoute(PUT("/leases/change_status/submit"), handler::submitApplication)
                 .andRoute(PUT("/leases/change_status/confirm"), handler::confirmApplication)
                 .andRoute(PUT("/leases/change_status/reject"), handler::rejectLease)
+                .andRoute(PUT("/cancel-lease"), handler::cancelLease)
                 .andRoute(DELETE("/leases"), handler::deleteLease)
                 .andRoute(POST("/stop-leases/stop-fee"), handler::fetchStopLeaseFee)
                 .andRoute(PUT("/stop_leases"), handler::stopLease)
