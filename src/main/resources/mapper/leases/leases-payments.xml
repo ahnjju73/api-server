@@ -17,7 +17,7 @@
     </resultMap>
 
     <resultMap id="fetchUnpaidLeases" type="hmap">
-        <result property="rownum" column="row_num"/>
+        <result property="row_num" column="row_num"/>
         <result property="lease_id" column="lease_id"/>
         <result property="bike_id" column="bike_id"/>
         <result property="client_id" column="client_id"/>
@@ -400,17 +400,22 @@
                                            from leases
                                           where `status` = '550-003'
                                             and lease_stop_status in ('506-001')) l
-                                    join lease_payments lp on lp.lease_no = l.lease_no and payment_date <![CDATA[ <= ]]> #{now} and lease_fee <![CDATA[ > ]]> paid_fee
-                          group by lease_id)m , (select @rownum:=0) as r order by (unpaid_lease_fee - unpaid_paid_fee) desc limit 30)ma
-                          where 1 = 1
-                          <if test="next_token != null and next_token != '' and next_token != 'undefined'">
-                            and rownum <![CDATA[ > ]]> #{next_token}
-                          </if>
-                          limit 30)main
-                   join clients c on main.client_no = c.client_no
-                   join client_info ci on c.client_no = ci.client_no
-                   join bikes b on main.bike_no = b.bike_no and b.bike_id not in (SELECT val FROM system_parameters where parameter_no = 0)
-                   join com_comm_bikes bm on b.car_model = bm.comm_cd
+                                        join lease_payments lp on lp.lease_no = l.lease_no
+                                                          and payment_date <![CDATA[ <= ]]> #{now}
+                                                          and lease_fee <![CDATA[ > ]]> paid_fee
+                                  group by lease_id) m ,
+                                (select @rownum:=0) as r
+                          order by (unpaid_lease_fee - unpaid_paid_fee) desc) ma
+                  where 1 = 1
+                  <if test="next_token != null and next_token != '' and next_token != 'undefined'">
+                    and rownum <![CDATA[ > ]]> #{next_token}
+                  </if>
+                  order by rownum limit 30) main
+                join clients c on main.client_no = c.client_no
+                join client_info ci on c.client_no = ci.client_no
+                join bikes b on main.bike_no = b.bike_no and b.bike_id not in (SELECT val FROM system_parameters where parameter_no = 0)
+                join com_comm_bikes bm on b.car_model = bm.comm_cd
+         order by main.rownum
     </select>
 
     <select id="countAllLeasesUnpaidExtras" parameterType="hmap" resultType="int">
@@ -418,12 +423,13 @@
           from (select *
                   from leases
                  where status = '550-003'
-                   and lease_stop_status in ('506-001')
-               ) l
-          join (select * from lease_payments where date_format(payment_date, '%Y-%m-%d') <![CDATA[ <= ]]> #{now}) lp on l.lease_no = lp.lease_no
-          join (select *
-                  from lease_extra
-                 where extra_fee > paid_fee ) le on le.payment_no = lp.payment_no
+                   and lease_stop_status in ('506-001')) l
+               join (select *
+                       from lease_payments
+                      where date_format(payment_date, '%Y-%m-%d') <![CDATA[ <= ]]> #{now}) lp on l.lease_no = lp.lease_no
+               join (select *
+                       from lease_extra
+                      where extra_fee > paid_fee ) le on le.payment_no = lp.payment_no
     </select>
 
     <select id="fetchLeasesUnpaidExtras" parameterType="hmap" resultMap="fetchUnpaidLeases">
@@ -446,28 +452,39 @@
                                            from leases
                                           where `status` = '550-003'
                                             and lease_stop_status in ('506-001')) l
-                                   join lease_payments lp on lp.lease_no = l.lease_no and payment_date <![CDATA[ <= ]]> #{now}
-                                   join lease_extra le on le.payment_no = lp.payment_no and extra_fee <![CDATA[ > ]]> le.paid_fee
-                                  group by lease_id)m , (select @rownum:=0) as r order by (unpaid_extra_fee - unpaid_paid_fee) desc limit 30)ma
-                where 1 = 1
-                <if test="next_token != null and next_token != '' and next_token != 'undefined'">
-                  and rownum <![CDATA[ > ]]> #{next_token}
-                </if>
-                limit 30)main
-          join clients c on main.client_no = c.client_no
-          join client_info ci on c.client_no = ci.client_no
-          join bikes b on main.bike_no = b.bike_no and b.bike_id not in (SELECT val FROM system_parameters where parameter_no = 0)
-          join com_comm_bikes bm on b.car_model = bm.comm_cd
+                                join lease_payments lp on lp.lease_no = l.lease_no and payment_date <![CDATA[ <= ]]> #{now}
+                                join lease_extra le on le.payment_no = lp.payment_no and extra_fee <![CDATA[ > ]]> le.paid_fee
+                          group by lease_id) m ,
+                        (select @rownum:=0) as r
+                          order by (unpaid_extra_fee - unpaid_paid_fee) desc limit 30) ma
+                       where 1 = 1
+                       <if test="next_token != null and next_token != '' and next_token != 'undefined'">
+                         and rownum <![CDATA[ > ]]> #{next_token}
+                       </if>
+                       group by rownum limit 30) main
+
+              join clients c on main.client_no = c.client_no
+              join client_info ci on c.client_no = ci.client_no
+              join bikes b on main.bike_no = b.bike_no
+                          and b.bike_id not in (SELECT val
+                                                  FROM system_parameters
+                                                 where parameter_no = 0)
+              join com_comm_bikes bm on b.car_model = bm.comm_cd
+        group by main.rownum
     </select>
 
     <select id="countUnpaidLeaseExcel" parameterType="hmap" resultType="int">
-        select count(*) from (select count(*)
-                              from (select * from leases
-                                    where `status` = '550-003'
-                                      and lease_stop_status in ('506-001'))l
-                                       join (select *
-                                               from lease_payments) lp on lp.lease_no = l.lease_no and lease_fee <![CDATA[ > ]]> paid_fee and payment_date <![CDATA[ <= ]]> #{now}
-                              group by lease_id) lm
+        select count(*)
+          from (select count(*)
+                  from (select *
+                          from leases
+                         where `status` = '550-003'
+                           and lease_stop_status in ('506-001'))l
+                       join (select *
+                               from lease_payments) lp on lp.lease_no = l.lease_no
+                                                      and lease_fee <![CDATA[ > ]]> paid_fee
+                                                      and payment_date <![CDATA[ <= ]]> #{now}
+                       group by lease_id) lm
     </select>
 
     <select id="fetchUnpaidLeaseExcel" parameterType="hmap" resultType="hmap">
@@ -476,37 +493,47 @@
                c.client_id,
                b.bike_id,
                b.number,
-               ci.name from (select l.lease_no,
-                                    lease_id,
-                                    l.client_no,
-                                    l.bike_no,
-                                    sum(lease_fee) as leasefee,
-                                    sum(paid_fee) as paidfee,
-                                    sum(lease_fee - paid_fee) as unpaidfee
-                               from (select * from  leases
-                              where `status` = '550-003'
-                                and lease_stop_status in ('506-001'))l
-                        join lease_payments lp on l.lease_no = lp.lease_no and lease_fee <![CDATA[ > ]]> paid_fee and payment_date <![CDATA[ <= ]]> #{now}
-                       group by lease_no
-                       order by unpaidfee desc)lm
-          join clients c on c.client_no = lm.client_no
-          join client_info ci on ci.client_no = c.client_no
-          join bikes b on lm.bike_no = b.bike_no
+               ci.name
+          from (select l.lease_no,
+                       lease_id,
+                       l.client_no,
+                       l.bike_no,
+                       sum(lease_fee) as leasefee,
+                       sum(paid_fee) as paidfee,
+                       sum(lease_fee - paid_fee) as unpaidfee
+                  from (select *
+                          from leases
+                         where `status` = '550-003'
+                           and lease_stop_status in ('506-001'))l
+                       join lease_payments lp on l.lease_no = lp.lease_no
+                                             and lease_fee <![CDATA[ > ]]> paid_fee
+                                             and payment_date <![CDATA[ <= ]]> #{now}
+                group by lease_no
+                order by unpaidfee desc) lm
+              join clients c on c.client_no = lm.client_no
+              join client_info ci on ci.client_no = c.client_no
+              join bikes b on lm.bike_no = b.bike_no
     </select>
 
     <select id="countUnpaidExtraExcel" parameterType="hmap" resultType="int">
-        select count(*) from (select count(*)
-                                from (select * from leases
-                                       where `status` = '550-003'
-                                         and lease_stop_status in ('506-001'))l
+        select count(*)
+          from (select count(*)
+                  from (select *
+                          from leases
+                         where `status` = '550-003'
+                           and lease_stop_status in ('506-001'))l
                         join (select payment_no,
                                      payment_id,
                                      lease_no,
-                                     payment_date from lease_payments) lp on lp.lease_no = l.lease_no and payment_date <![CDATA[ <= ]]> #{now}
+                                     payment_date
+                                from lease_payments) lp on lp.lease_no = l.lease_no
+                                                       and payment_date <![CDATA[ <= ]]> #{now}
                         join (select extra_fee,
                                      payment_no,
-                                     paid_fee from lease_extra)le on le.payment_no = lp.payment_no and extra_fee <![CDATA[ > ]]> paid_fee
-                               group by lease_id) lm
+                                     paid_fee
+                                from lease_extra)le on le.payment_no = lp.payment_no
+                                                   and extra_fee <![CDATA[ > ]]> paid_fee
+                 group by lease_id) lm
     </select>
 
     <select id="fetchUnpaidExtraExcel" parameterType="hmap" resultType="hmap">
@@ -515,19 +542,27 @@
                c.client_id,
                b.bike_id,
                b.number,
-               ci.name from (select l.lease_no, lease_id, l.client_no, l.bike_no,
-                                    sum(le.extra_fee) as extrafee,
-                                    sum(le.paid_fee) as paidfee,
-                                    sum(le.extra_fee - le.paid_fee) as unpaidfee
-                               from (select * from  leases
-                              where `status` = '550-003'
-                                and lease_stop_status in ('506-001'))l
-                        join lease_extra le on l.lease_no = le.lease_no and le.extra_fee <![CDATA[ > ]]> le.paid_fee
-                        join lease_payments lp on l.lease_no = lp.lease_no and payment_date <![CDATA[ <= ]]> #{now} and lp.payment_no = le.payment_no
-                       group by lease_no
-                       order by unpaidfee desc)lm
-          join clients c on c.client_no = lm.client_no
-          join client_info ci on ci.client_no = c.client_no
-          join bikes b on lm.bike_no = b.bike_no
+               ci.name
+          from (select l.lease_no,
+                       lease_id,
+                       l.client_no,
+                       l.bike_no,
+                       sum(le.extra_fee) as extrafee,
+                       sum(le.paid_fee) as paidfee,
+                       sum(le.extra_fee - le.paid_fee) as unpaidfee
+                  from (select *
+                 from  leases
+                 where `status` = '550-003'
+                   and lease_stop_status in ('506-001'))l
+                 join lease_extra le on l.lease_no = le.lease_no
+                                    and le.extra_fee <![CDATA[ > ]]> le.paid_fee
+                 join lease_payments lp on l.lease_no = lp.lease_no
+                                       and payment_date <![CDATA[ <= ]]> #{now}
+                                       and lp.payment_no = le.payment_no
+                 group by lease_no
+                 order by unpaidfee desc) lm
+               join clients c on c.client_no = lm.client_no
+               join client_info ci on ci.client_no = c.client_no
+               join bikes b on lm.bike_no = b.bike_no
     </select>
 </mapper>
