@@ -377,32 +377,51 @@ public class LeasePaymentService  extends SessService {
     public BikeSessionRequest payWithExcel(BikeSessionRequest request) {
         Map param = request.getParam();
         UploadExcelDto uploadExcelDto = map(param, UploadExcelDto.class);
-        for (PayLeaseRequest payLeaseRequest : uploadExcelDto.getPayments()) {
-            ArrayList<String> logList = new ArrayList<>();
-            Leases lease = leaseRepository.findByLeaseId(payLeaseRequest.getLeaseId());
-            if(lease.getStatus() != LeaseStatusTypes.CONFIRM || lease.getLeaseStopStatus() != LeaseStopStatusTypes.CONTINUE)
-                continue;
-            int paidFee = payLeaseRequest.getPaidFee();
-            List<LeasePayments> payments = leasePaymentsRepository.findAllByLease_LeaseId(payLeaseRequest.getLeaseId());
-            for (int i = 0; i < payments.size() && payments.get(i).getPaymentDate().isBefore(LocalDate.now().plusDays(1)); i++) {
-                int unpaidFee = payments.get(i).getLeaseFee() - payments.get(i).getPaidFee();
-                if (unpaidFee > 0) {
-                    if (paidFee > unpaidFee) {
-                        logList.add(paymentLog(payments.get(i), unpaidFee, true));
-                        payments.get(i).setPaidFee(payments.get(i).getLeaseFee());
-                        paidFee -= unpaidFee;
-                        leasePaymentsRepository.save(payments.get(i));
-                    } else {
-                        logList.add(paymentLog(payments.get(i), paidFee, false));
-                        payments.get(i).setPaidFee(payments.get(i).getPaidFee() + paidFee);
-                        leasePaymentsRepository.save(payments.get(i));
-                        paidFee = 0;
-                        break;
+        String type = (String) param.get("type");
+        if(type.equals("lease")) {
+            for (PayLeaseRequest payLeaseRequest : uploadExcelDto.getPayments()) {
+                ArrayList<String> logList = new ArrayList<>();
+                Leases lease = leaseRepository.findByLeaseId(payLeaseRequest.getLeaseId());
+                if (lease.getStatus() != LeaseStatusTypes.CONFIRM || lease.getLeaseStopStatus() != LeaseStopStatusTypes.CONTINUE)
+                    continue;
+                int paidFee = payLeaseRequest.getPaidFee();
+                List<LeasePayments> payments = leasePaymentsRepository.findAllByLease_LeaseIdAndPaymentDateLessThanEqual(payLeaseRequest.getLeaseId(), LocalDate.now());
+                for (int i = 0; i < payments.size(); i++) {
+                    int unpaidFee = payments.get(i).getLeaseFee() - payments.get(i).getPaidFee();
+                    if (unpaidFee > 0) {
+                        if (paidFee > unpaidFee) {
+                            logList.add(paymentLog(payments.get(i), unpaidFee, true));
+                            payments.get(i).setPaidFee(payments.get(i).getLeaseFee());
+                            paidFee -= unpaidFee;
+                            leasePaymentsRepository.save(payments.get(i));
+                        } else {
+                            logList.add(paymentLog(payments.get(i), paidFee, false));
+                            payments.get(i).setPaidFee(payments.get(i).getPaidFee() + paidFee);
+                            leasePaymentsRepository.save(payments.get(i));
+                            paidFee = 0;
+                            break;
+                        }
                     }
                 }
-
-                List<LeaseExtras> extras = leaseExtraRepository.findAllByPayment_PaymentId(payments.get(i).getPaymentId());
+                if (paidFee > 0) {
+                    saveOverpayLog(request.getSessionUser(), lease, paidFee);
+                }
+                bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_PAYMENT, request.getSessionUser().getUserNo(), lease.getLeaseNo().toString(), logList));
+            }
+        }
+        else{
+            for (PayLeaseRequest payLeaseRequest : uploadExcelDto.getPayments()) {
+                ArrayList<String> logList = new ArrayList<>();
+                Leases lease = leaseRepository.findByLeaseId(payLeaseRequest.getLeaseId());
+                if(lease.getStatus() != LeaseStatusTypes.CONFIRM || lease.getLeaseStopStatus() != LeaseStopStatusTypes.CONTINUE)
+                    continue;
+                int paidFee = payLeaseRequest.getPaidFee();
+                List<LeasePayments> payments = leasePaymentsRepository.findAllByLease_LeaseIdAndPaymentDateLessThanEqual(payLeaseRequest.getLeaseId(), LocalDate.now());
+                List<LeaseExtras> extras = leaseExtraRepository.findAllByLease_LeaseId(payLeaseRequest.getLeaseId());
                 for (LeaseExtras le : extras) {
+                    if(payments.indexOf(le.getPayment()) < 0){
+                        continue;
+                    }
                     int unpaidExtra = le.getExtraFee() - le.getPaidFee();
                     if (unpaidExtra > 0) {
                         if (unpaidExtra < paidFee) {
@@ -419,11 +438,11 @@ public class LeasePaymentService  extends SessService {
                         }
                     }
                 }
+                if (paidFee > 0) {
+                    saveOverpayLog(request.getSessionUser(), lease, paidFee);
+                }
+                bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_EXTRA_PAYMENT, request.getSessionUser().getUserNo(), lease.getLeaseNo().toString(), logList));
             }
-            if (paidFee > 0) {
-                saveOverpayLog(request.getSessionUser(), lease, paidFee);
-            }
-            bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_PAYMENT, request.getSessionUser().getUserNo(), lease.getLeaseNo().toString(), logList));
         }
         return request;
     }
