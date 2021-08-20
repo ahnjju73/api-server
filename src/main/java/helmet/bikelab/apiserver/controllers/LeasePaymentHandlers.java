@@ -135,6 +135,7 @@ public class LeasePaymentHandlers {
                 request.bodyToMono(Map.class)
                         .subscribeOn(Schedulers.elastic())
                         .map(row -> leasePaymentService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(row -> leasePaymentService.getPathVariable(row, "type"))
                         .map(leasePaymentService::checkBikeSession)
                         .map(leasePaymentService::payWithExcel)
                         .map(leasePaymentService::returnData), Map.class);

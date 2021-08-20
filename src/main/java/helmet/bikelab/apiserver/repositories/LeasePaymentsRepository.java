@@ -9,6 +9,7 @@ import java.util.List;
 public interface LeasePaymentsRepository extends JpaRepository<LeasePayments, Integer> {
     LeasePayments findByPaymentId(String paymentId);
     LeasePayments findFirstByLease_LeaseId(String leaseId);
+    List<LeasePayments> findAllByLease_LeaseIdAndPaymentDateLessThanEqual(String leaseId, LocalDate ld);
     List<LeasePayments> findAllByLease_LeaseId(String leaseId);
     List<LeasePayments> findAllByLeaseNo(Integer leaseNo);
     void deleteAllByLease_LeaseId(String leaseId);
