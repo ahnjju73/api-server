@@ -22,6 +22,11 @@ public class DemandLeaseWorker extends Workspace {
     }
 
     public void updateDemandLeaseStatusByDemandLease(DemandLeases demandLeases, DemandLeaseStatusTypes demandLeaseStatusTypes){
+        if(DemandLeaseStatusTypes.DENIED.equals(demandLeaseStatusTypes)){
+            demandLeases.setRejectedAt(LocalDateTime.now());
+        }else if(DemandLeaseStatusTypes.COMPLETED.equals(demandLeaseStatusTypes)){
+            demandLeases.setCompletedAt(LocalDateTime.now());
+        }
         demandLeases.setDemandLeaseStatusTypes(demandLeaseStatusTypes);
         demandLeasesRepository.save(demandLeases);
     }

@@ -39,6 +39,16 @@ public class ModelPassword {
         this.setSalt(salt);
     }
 
+    public void modifyPasswordWithoutSHA256(String password){
+        password = Crypt.newCrypt().SHA256(password);
+        String salt = Crypt.newCrypt().getSalt(128);
+        String cryptedPassword = Crypt.newCrypt().getPassword(password, salt);
+        this.bakPassword = this.password;
+        this.bakSalt = this.salt;
+        this.setPassword(cryptedPassword);
+        this.setSalt(salt);
+    }
+
     public void newPassword(String email){
         makePassword(email);
     }

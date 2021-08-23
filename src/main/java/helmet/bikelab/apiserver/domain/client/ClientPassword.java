@@ -39,11 +39,10 @@ public class ClientPassword {
         modelPassword.setSalt(salt);
     }
 
-
     public void newPassword(String email){
         modelPassword.newPassword(email);
     }
 
-    public void updatePassword(String pass){ modelPassword.modifyPassword(pass); }
+    public void updatePasswordWithoutSHA256(String pass){ modelPassword.modifyPasswordWithoutSHA256(pass); }
 
 }

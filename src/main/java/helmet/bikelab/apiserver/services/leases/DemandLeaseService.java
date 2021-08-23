@@ -26,11 +26,14 @@ public class DemandLeaseService extends SessService {
     public BikeSessionRequest fetchDemandLeaseById(BikeSessionRequest request){
         DemandLeaseByIdRequest demandLeaseByIdRequest = map(request.getParam(), DemandLeaseByIdRequest.class);
         DemandLeases demandLeases = demandLeaseWorker.getDemandLeaseById(demandLeaseByIdRequest.getDemandLeaseId());
-        Leases leases = leasesWorker.getLeaseByLeaseNo(demandLeases.getLeaseNo());
+
         DemandLeaseDetailsByIdResponse demandLeaseDetailsByIdResponse = new DemandLeaseDetailsByIdResponse();
         demandLeaseDetailsByIdResponse.setDemandLease(demandLeases);
         demandLeaseDetailsByIdResponse.setClient(demandLeases.getClient());
-        if(bePresent(leases)) demandLeaseDetailsByIdResponse.setLeaseId(leases.getLeaseId());
+        try {
+            Leases leases = leasesWorker.getLeaseByLeaseNo(demandLeases.getLeaseNo());
+            if(bePresent(leases)) demandLeaseDetailsByIdResponse.setLeaseId(leases.getLeaseId());
+        }catch (Exception e){ }
         request.setResponse(demandLeaseDetailsByIdResponse);
         return request;
     }
@@ -43,6 +46,7 @@ public class DemandLeaseService extends SessService {
         demandLeaseById.setRejectMessage(null);
         demandLeaseById.setCompletedAt(LocalDateTime.now());
         demandLeaseWorker.updateDemandLeaseStatusByDemandLease(demandLeaseById, DemandLeaseStatusTypes.COMPLETED);
+        // todo: Leases 데이터를 생성해야함.
         return request;
     }
 

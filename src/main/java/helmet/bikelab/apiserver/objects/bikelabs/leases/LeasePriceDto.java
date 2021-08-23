@@ -23,7 +23,7 @@ public class LeasePriceDto {
         paymentType = leasePrice.getType().getPaymentType();
         deposit = leasePrice.getDeposit();
         prePayment = leasePrice.getPrepayment();
-        profitFee = leasePrice.getRegisterFee();
+        profitFee = leasePrice.getProfit();
         takeFee = leasePrice.getTakeFee();
         registerFee = leasePrice.getRegisterFee();
     }

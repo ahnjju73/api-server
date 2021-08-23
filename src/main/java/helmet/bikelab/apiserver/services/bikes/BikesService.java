@@ -79,7 +79,13 @@ public class BikesService extends SessService {
     public BikeSessionRequest fetchBikes(BikeSessionRequest request){
         Map param = request.getParam();
         BikeRequestListDto requestListDto = map(param, BikeRequestListDto.class);
-        ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "bikelabs.commons.bikes.fetchBikesList", "bikelabs.commons.bikes.countAllBikeList", "bike_id");
+        ResponseListDto responseListDto;
+        if(!bePresent(requestListDto.getSearchClientId())){
+            responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "bikelabs.commons.bikes.fetchBikesList", "bikelabs.commons.bikes.countAllBikeList", "bike_id");
+        }else {
+            responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "bikelabs.commons.bikes.fetchBikesListByClientId", "bikelabs.commons.bikes.countAllBikeList", "bike_id");
+        }
+
         request.setResponse(responseListDto);
         return request;
     }
@@ -107,18 +113,6 @@ public class BikesService extends SessService {
         request.setResponse(response);
         return request;
     }
-
-//    public BikeSessionRequest fetchBikeByBikeNum(BikeSessionRequest request){
-//        Map param = request.getParam();
-//        FetchBikeRequest fetchBikeRequest = map(param, FetchBikeRequest.class);
-//
-//    }
-//
-//    public BikeSessionRequest fetchBikesByClientName(BikeSessionRequest request){
-//
-//    }
-
-
 
     public BikeSessionRequest fetchBikesByClient(BikeSessionRequest request){
         Map param = request.getParam();
@@ -194,6 +188,8 @@ public class BikesService extends SessService {
         AddBikeRequest addBikeRequest = map(param, AddBikeRequest.class);
         addBikeRequest.checkValidation();
         if(bePresent(bikesRepository.findByVimNum(addBikeRequest.getVimNumber()))) withException("500-009");
+        if(bePresent(addBikeRequest.getNumber()) && bePresent(bikesRepository.findByCarNum(addBikeRequest.getNumber()))) withException("500-011");
+
         String bikeId = autoKey.makeGetKey("bike");
         Bikes bike = new Bikes();
         bike.setBikeId(bikeId);
@@ -219,7 +215,8 @@ public class BikesService extends SessService {
         UpdateBikeRequest updateBikeRequest = map(param, UpdateBikeRequest.class);
         Bikes bike = bikesRepository.findByBikeId(updateBikeRequest.getBikeId());
         updateBikeRequest.checkValidation();
-        if(updateBikeRequest.getVimNumber().equals(bike.getVimNum()) && !bike.equals(bikesRepository.findByVimNum(updateBikeRequest.getVimNumber()))) withException("500-009");
+        if(!updateBikeRequest.getVimNumber().equals(bike.getVimNum()) && bikesRepository.countAllByVimNum(updateBikeRequest.getVimNumber()) > 0) withException("500-009");
+        if(bePresent(updateBikeRequest.getNumber()) && (!updateBikeRequest.getNumber().equals(bike.getCarNum()) && bikesRepository.countAllByCarNum(updateBikeRequest.getNumber()) > 0)) withException("500-011");
         updateBikeInfoWithLog(updateBikeRequest, request.getSessionUser(), bike);
         bike.setYears(updateBikeRequest.getYears());
         bike.setVimNum(updateBikeRequest.getVimNumber());
@@ -251,16 +248,20 @@ public class BikesService extends SessService {
                 stringList.add("바이크 차량종류를 <>" + exModel + "</>에서 <>" + nowModel +"</>로 변경하였습니다.");
             }
             if(bePresent(updateBikeRequest.getColor()) && !updateBikeRequest.getColor().equals(bike.getColor())){
-                stringList.add("바이크 차량 색상을 <>" + bike.getColor() + "</>에서 <>" + updateBikeRequest.getColor() + "</>으로 변경하였습니다.");
+                String log = bike.getColor() == null ? "바이크 색상을 <>" + updateBikeRequest.getColor() + "</>로/으로 설정했습니다." : "바이크 색상을 <>" + bike.getColor() + "</>에서 <>" + updateBikeRequest.getColor() + "</>으로 변경하였습니다.";
+                stringList.add(log);
             }
             if(bePresent(updateBikeRequest.getReceiveDt()) && !updateBikeRequest.getReceiveDt().equals(bike.getReceiveDate())){
-                stringList.add("바이크 수령일을 <>" + bike.getReceiveDate().toLocalDate() + "</>에서 <>" + updateBikeRequest.getReceiveDt().toLocalDate() + "</>으로 변경하였습니다.");
+                String log = bike.getReceiveDate() == null ? "바이크 수령일자를 <>" + updateBikeRequest.getReceiveDt() + "</>로/으로 설정했습니다." : "바이크 수령일자를 <>" + bike.getReceiveDate() + "</>에서 <>" + updateBikeRequest.getReceiveDt() + "</>으로 변경하였습니다.";
+                stringList.add(log);
             }
             if(bePresent(updateBikeRequest.getRegisterDt()) && !updateBikeRequest.getRegisterDt().equals(bike.getRegisterDate())){
-                stringList.add("바이크 등록일을 <>" + bike.getRegisterDate().toLocalDate() + "</>에서 <>" + updateBikeRequest.getRegisterDt().toLocalDate() + "</>으로 변경하였습니다.");
+                String log = bike.getRegisterDate() == null ? "바이크 등록일을 <>" + updateBikeRequest.getRegisterDt() + "</>로/으로 설정했습니다." : "바이크 등록일을 <>" + bike.getRegisterDate() + "</>에서 <>" + updateBikeRequest.getRegisterDt() + "</>으로 변경하였습니다.";
+                stringList.add(log);
             }
             if(bePresent(updateBikeRequest.getYears()) && !updateBikeRequest.getYears().equals(bike.getYears())){
-                stringList.add("바이크 연식을 <>" + bike.getYears() + "</>에서 <>" + updateBikeRequest.getYears() + "</>으로 변경하였습니다.");
+                String log = bike.getYears() == null ? "바이크 연식을 <>" + updateBikeRequest.getYears() + "</>로/으로 설정했습니다." : "바이크 연식을 <>" + bike.getYears() + "</>에서 <>" + updateBikeRequest.getYears() + "</>으로 변경하였습니다.";
+                stringList.add(log);
             }
             if(bePresent(stringList) && stringList.size() > 0){
                 bikeUserLogRepository.save(addLog(BikeUserLogTypes.COMM_BIKE_UPDATED, session.getUserNo(), bike.getBikeNo().toString(), stringList));

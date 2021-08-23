@@ -42,7 +42,7 @@
                  <if test="next_token != null and next_token != '' and next_token != 'undefined'">
                    and demand_lease_id <![CDATA[ < ]]> #{next_token}
                  </if>
-                 order by demand_lease_no desc limit 40) dl
+                 order by demand_lease_id desc limit 40) dl
                join clients c on dl.client_no = c.client_no
                join client_info ci on c.client_no = ci.client_no
                join com_comm_bikes cb on dl.car_model = cb.comm_cd

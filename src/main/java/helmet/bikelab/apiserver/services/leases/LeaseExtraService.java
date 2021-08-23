@@ -48,6 +48,7 @@ public class LeaseExtraService extends SessService {
         String extraId = autoKey.makeGetKey("lease_extra");
         Leases lease = leaseRepository.findByLeaseId(addUpdateExtraRequest.getLeaseId());
         if(!lease.getLeaseStopStatus().equals(LeaseStopStatusTypes.CONTINUE)) withException("860-001");
+        addUpdateExtraRequest.checkValidation();
         LeasePayments leasePayment = leasePaymentsRepository.findByPaymentId(addUpdateExtraRequest.getPaymentId());
         leaseExtras.setExtraId(extraId);
         leaseExtras.setLeaseNo(lease.getLeaseNo());
@@ -195,6 +196,7 @@ public class LeaseExtraService extends SessService {
         LeasePayments payment = leasePaymentsRepository.findByPaymentId(addUpdateExtraRequest.getPaymentId());
         Leases lease = payment.getLease();
         if(!lease.getLeaseStopStatus().equals(LeaseStopStatusTypes.CONTINUE)) withException("860-001");
+        addUpdateExtraRequest.checkValidation();
         extra.setPaymentNo(payment.getPaymentNo());
         extra.setLeaseNo(payment.getLeaseNo());
         extra.setExtraFee(addUpdateExtraRequest.getExtraFee());

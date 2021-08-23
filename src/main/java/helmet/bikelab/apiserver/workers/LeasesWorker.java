@@ -18,4 +18,10 @@ public class LeasesWorker extends Workspace {
         return byLeaseNo;
     }
 
+    public Leases getLeaseByLeaseId(String demandLeaseId){
+        Leases byLeaseNo = leaseRepository.findByLeaseId(demandLeaseId);
+        if(!bePresent(byLeaseNo)) withException("803-001");
+        return byLeaseNo;
+    }
+
 }
