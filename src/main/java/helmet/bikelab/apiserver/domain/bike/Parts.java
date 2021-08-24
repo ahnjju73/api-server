@@ -3,11 +3,14 @@ package helmet.bikelab.apiserver.domain.bike;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import helmet.bikelab.apiserver.domain.types.UnitTypes;
+import helmet.bikelab.apiserver.domain.types.converters.PartsBackUpConverter;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Getter
@@ -17,7 +20,7 @@ import javax.persistence.*;
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class Parts {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "part_no")
+    @Column(name = "parts_no")
     private Long partNo;
 
     @Column(name = "parts_code_no")
@@ -38,6 +41,7 @@ public class Parts {
     @Column(name = "bike_model_cd")
     private String bikeModelCode;
 
-    @Column(name = "bakup")
-    private String bakup;
+    @Column(name = "bakup", columnDefinition = "json")
+    @Convert(converter = PartsBackUpConverter.class)
+    private List<Parts> bakup;
 }
