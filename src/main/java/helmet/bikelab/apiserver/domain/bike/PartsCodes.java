@@ -15,22 +15,23 @@ import javax.persistence.*;
 @NoArgsConstructor
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class PartsCodes {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "parts_code_no", nullable = false)
     private Integer partsCodeNo;
 
-
-    @Column(name = "parts_type_no", nullable = false)
+    @Column(name = "parts_type_no", nullable = false, insertable = false, updatable = false)
     private Integer partsTypeNo;
+
+    @ManyToOne
+    @JoinColumn(name = "parts_type_no")
+    private PartsTypes partsType;
 
     @Column(name = "parts_name", nullable = false)
     private String partsName;
 
     @Column(name = "usable", nullable = false)
-    private Boolean usable;
-
-
-
-
+    private Boolean usable = true;
 
 }
