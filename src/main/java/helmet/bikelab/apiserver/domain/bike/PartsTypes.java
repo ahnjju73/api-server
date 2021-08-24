@@ -15,16 +15,19 @@ import javax.persistence.*;
 @NoArgsConstructor
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class PartsTypes {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "parts_type_no", nullable = false)
     private Integer partsTypeNo;
 
     @Column(name = "parts_type")
     private String partsType;
 
-    @Column(name = "order_no")
+    @Column(name = "order_no", columnDefinition = "TINYINT")
     private Integer orderNo;
 
     @Column(name = "usable")
-    private String usable = "1";
+    private Boolean usable = true;
+
 }
