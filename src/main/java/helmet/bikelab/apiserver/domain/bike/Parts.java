@@ -2,6 +2,7 @@ package helmet.bikelab.apiserver.domain.bike;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import helmet.bikelab.apiserver.domain.CommonCodeBikes;
 import helmet.bikelab.apiserver.domain.types.UnitTypes;
 import helmet.bikelab.apiserver.domain.types.converters.PartsBackUpConverter;
 import lombok.Getter;
@@ -19,12 +20,18 @@ import java.util.List;
 @NoArgsConstructor
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class Parts {
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "parts_no")
     private Long partNo;
 
-    @Column(name = "parts_code_no")
+    @Column(name = "parts_code_no", insertable = false, updatable = false)
     private Integer partsCodeNo;
+
+    @ManyToOne
+    @JoinColumn(name = "parts_code_no")
+    private PartsCodes partsCode;
 
     @Column(name = "parts_prices")
     private Integer partsPrices;
@@ -38,10 +45,15 @@ public class Parts {
     @Column(name = "units", columnDefinition = "ENUM")
     private UnitTypes units = UnitTypes.EA;
 
-    @Column(name = "bike_model_cd")
+    @Column(name = "bike_model_cd", insertable = false, updatable = false)
     private String bikeModelCode;
+
+    @ManyToOne
+    @JoinColumn(name = "bike_model_cd")
+    private CommonCodeBikes bikeModel;
 
     @Column(name = "bakup", columnDefinition = "json")
     @Convert(converter = PartsBackUpConverter.class)
     private List<Parts> bakup;
+
 }
