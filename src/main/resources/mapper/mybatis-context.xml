@@ -28,6 +28,8 @@
         <mapper resource="mapper/comm/common.xml"/>
         <mapper resource="mapper/comm/menu.xml"/>
 
+        <mapper resource="mapper/comm/parts.xml"/>
+
         <!-- bikelabs -->
         <mapper resource="mapper/bikelabs/employees.xml"/>
         <mapper resource="mapper/bikelabs/todo.xml"/>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding= "UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="comm.parts">
+
+    <select id="fetchPartsCodes" parameterType="hmap" resultType="hmap">
+        select pc.parts_code_no,
+               pc.parts_type_no,
+               pc.parts_name,
+               pt.parts_type
+        from (select parts_code_no,
+                     parts_type_no,
+                     parts_name
+              from parts_codes
+              where usable = true) pc
+                 join parts_types pt on pc.parts_type_no = pt.parts_type_no
+        where pt.usable = true
+    </select>
+
+    <select id="fetchPartsByAllOrClientOrBikeModel" parameterType="hmap" resultType="hmap">
+        select parts_no,
+               pc.parts_type_no,
+               pt.parts_type,
+               p.parts_code_no,
+               pc.parts_name,
+               parts_prices,
+               working_prices,
+               working_hours,
+               units
+          from parts p
+               join parts_codes pc on p.parts_code_no = pc.parts_code_no
+               join parts_types pt on pc.parts_type_no = pt.parts_type_no
+         where pc.usable = true
+    </select>
+
+</mapper>
