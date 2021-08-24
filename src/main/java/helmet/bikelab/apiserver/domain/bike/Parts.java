@@ -38,6 +38,4 @@ public class Parts {
     @Column(name = "bike_model_cd")
     private String bikeModelCode;
 
-    @Column(name = "bakup")
-    private String bakup;
 }
