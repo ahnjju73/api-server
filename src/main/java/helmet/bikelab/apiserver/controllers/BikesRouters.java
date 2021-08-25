@@ -57,6 +57,7 @@ public class BikesRouters {
         return RouterFunctions
                 .route(GET("/clients/commons/parts"), partsHandler::fetchParts)
                 .andRoute(GET("/commons/bikes/parts-codes"), partsHandler::fetchPartsCodes)
+                .andRoute(POST("/clients/commons/parts"), partsHandler::addPartsByModel)
                 ;
     }
 

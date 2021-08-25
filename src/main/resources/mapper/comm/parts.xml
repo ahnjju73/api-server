@@ -35,4 +35,39 @@
          where pc.usable = true
     </select>
 
+    <select id="countAllParts" parameterType="hmap" resultType="int">
+        select count(*)
+          from parts p
+               join parts_codes pc on p.parts_code_no = pc.parts_code_no
+               join parts_types pt on pt.parts_type_no = pc.parts_type_no
+         where pc.usable = "1"
+           and pt.usable = "1"
+         order by parts_no
+    </select>
+
+    <select id="fetchAllParts" parameterType="hmap" resultType="hmap">
+        select cast(p.parts_no as char) parts_no,
+               pt.parts_type_no,
+               pt.parts_type,
+               pc.parts_code_no,
+               pc.parts_name,
+               p.parts_prices,
+               p.working_prices,
+               p.working_hours,
+               p.units
+          from parts p
+               join parts_codes pc on p.parts_code_no = pc.parts_code_no
+               join parts_types pt on pt.parts_type_no = pc.parts_type_no
+         where pc.usable = "1"
+           and pt.usable = "1"
+         <if test="car_model != null and car_model != '' and car_model != 'undefined'">
+           and bike_model_cd = #{car_model}
+         </if>
+         <if test="next_token != null and next_token != '' and next_token != 'undefined'">
+           and parts_no <![CDATA[ > ]]> #{next_token}
+         </if>
+         order by parts_no limit 30
+    </select>
+
+
 </mapper>
