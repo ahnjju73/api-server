@@ -3,6 +3,7 @@ package helmet.bikelab.apiserver.domain.bike;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import helmet.bikelab.apiserver.domain.CommonCodeBikes;
+import helmet.bikelab.apiserver.domain.embeds.ModelTransaction;
 import helmet.bikelab.apiserver.domain.lease.Leases;
 import helmet.bikelab.apiserver.domain.riders.Riders;
 import helmet.bikelab.apiserver.domain.types.BikeRiderStatusTypes;
@@ -65,6 +66,9 @@ public class Bikes {
 
     @Column(name = "usable")
     private Boolean usable = true;
+
+    @Embedded
+    private ModelTransaction transaction = new ModelTransaction();
 
     @Column(name = "rider_no")
     private Integer riderNo;
