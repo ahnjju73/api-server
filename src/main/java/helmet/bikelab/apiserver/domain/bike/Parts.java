@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import helmet.bikelab.apiserver.domain.CommonCodeBikes;
 import helmet.bikelab.apiserver.domain.types.UnitTypes;
 import helmet.bikelab.apiserver.domain.types.converters.PartsBackUpConverter;
+import helmet.bikelab.apiserver.domain.types.converters.UnitTypesConverter;
+import helmet.bikelab.apiserver.objects.bikelabs.bikes.PartsBackUpDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -43,7 +45,11 @@ public class Parts {
     private Double workingHours;
 
     @Column(name = "units", columnDefinition = "ENUM")
+    @Convert(converter = UnitTypesConverter.class)
     private UnitTypes units = UnitTypes.EA;
+
+    @Column(name = "units", columnDefinition = "ENUM", insertable = false, updatable = false)
+    private String unitsCode;
 
     @Column(name = "bike_model_cd", insertable = false, updatable = false)
     private String bikeModelCode;
@@ -54,6 +60,6 @@ public class Parts {
 
     @Column(name = "bakup", columnDefinition = "json")
     @Convert(converter = PartsBackUpConverter.class)
-    private List<Parts> bakup;
+    private List<PartsBackUpDto> backUpList;
 
 }

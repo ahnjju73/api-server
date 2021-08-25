@@ -55,7 +55,9 @@ public class BikesRouters {
     @Bean
     public RouterFunction<ServerResponse> bikePartRouters(){
         return RouterFunctions
-                .route(GET("/clients/commons/parts"), partsHandler::fetchParts);
+                .route(GET("/clients/commons/parts"), partsHandler::fetchParts)
+                .andRoute(GET("/commons/bikes/parts-codes"), partsHandler::fetchPartsCodes)
+                ;
     }
 
 }

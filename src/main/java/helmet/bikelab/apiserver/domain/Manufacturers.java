@@ -2,7 +2,11 @@ package helmet.bikelab.apiserver.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.datatype.jsr310.deser.LocalDateTimeDeserializer;
+import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 import helmet.bikelab.apiserver.domain.types.BikeTypes;
 import helmet.bikelab.apiserver.domain.types.converters.BikeTypesConverter;
 import lombok.Getter;
@@ -16,7 +20,6 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Table(name = "com_comm_manuf")
-@NoArgsConstructor
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class Manufacturers {
 
@@ -28,6 +31,8 @@ public class Manufacturers {
     @Column(name = "manuf")
     private String manufacturer;
 
+    @JsonDeserialize(using = LocalDateTimeDeserializer.class)
+    @JsonSerialize(using = LocalDateTimeSerializer.class)
     @Column(name = "created_at", columnDefinition = "CURRENT_TIMESTAMP")
     private LocalDateTime createdAt = LocalDateTime.now();
 

@@ -4,6 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum UnitTypes {
+
     EA("EA");
 
     private String status;
