@@ -15,6 +15,7 @@ import static org.springframework.web.reactive.function.server.RequestPredicates
 public class BikesRouters {
 
     private final BikesModelHandlers bikesModelHandlers;
+    private final BikePartsHandlers partsHandler;
 
     @Bean
     public RouterFunction<ServerResponse> bikeRouter(BikesHandlers handler){
@@ -50,4 +51,14 @@ public class BikesRouters {
                 .route(GET("/manufacturers"), bikesModelHandlers::fetchModelManufacturer)
                 ;
     }
+
+    @Bean
+    public RouterFunction<ServerResponse> bikePartRouters(){
+        return RouterFunctions
+                .route(GET("/clients/commons/parts"), partsHandler::fetchParts)
+                .andRoute(GET("/commons/bikes/parts-codes"), partsHandler::fetchPartsCodes)
+                .andRoute(POST("/clients/commons/parts"), partsHandler::addPartsByModel)
+                ;
+    }
+
 }
