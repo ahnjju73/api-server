@@ -63,7 +63,6 @@ public class Workspace extends OriginObject{
             List list = (List)this.sm.selectList(path, param);
             return list == null ? new ArrayList() : list;
         }catch (Exception e){
-            e.printStackTrace();
             throw getErrString(e, param);
         }
     }
@@ -148,7 +147,6 @@ public class Workspace extends OriginObject{
             try {
                 return cls.getConstructor().newInstance();
             } catch (Exception e) {
-                e.printStackTrace();
             }
         }
         try{
@@ -157,7 +155,6 @@ public class Workspace extends OriginObject{
             objectMapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
             return objectMapper.convertValue(o, cls);
         }catch (Exception e){
-            e.printStackTrace();
             return null;
         }
     }
@@ -170,7 +167,7 @@ public class Workspace extends OriginObject{
             try {
                 Class.forName(genericSuperclass).getConstructor().newInstance();
             } catch (Exception e) {
-                e.printStackTrace();
+
             }
             return null;
         }

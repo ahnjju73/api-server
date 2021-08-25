@@ -112,7 +112,6 @@ public abstract class SessService extends Workspace {
                     .ifPresentOrElse(session -> {
                         BikeUser user = session.getUser();
                         String _sessAuthKey = session.getSessionKey();
-
                         if(!sessAuthKey.equals(_sessAuthKey) && throwError)
                             // todo: 세션키 오류
                             writeError(bikeSessionService.getParam(), "001-002", HttpStatus.UNAUTHORIZED);
