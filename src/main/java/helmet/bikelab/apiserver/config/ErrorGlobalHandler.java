@@ -47,7 +47,6 @@ public class ErrorGlobalHandler<T extends BusinessException> extends AbstractErr
         Throwable error = getError(request);
         if(error instanceof BusinessException){
             BusinessException businessException = (BusinessException) getError(request);
-            businessException.printStackTrace();
             Response response = new Response();
             response.setErrCode(businessException.getErr_code());
             response.setMessage(businessException.getMsg());
@@ -78,7 +77,6 @@ public class ErrorGlobalHandler<T extends BusinessException> extends AbstractErr
     }
 
     private void apiLogger(HttpStatus httpStatus, Throwable exception){
-        exception.printStackTrace();
         Map logData = new HashMap();
         logData.put("status", httpStatus);
         logData.put("error_message", exception.getMessage());
