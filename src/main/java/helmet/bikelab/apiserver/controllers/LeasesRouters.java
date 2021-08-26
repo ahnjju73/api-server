@@ -14,6 +14,7 @@ import static org.springframework.web.reactive.function.server.RequestPredicates
 public class LeasesRouters {
 
     private final DemandLeaseHandler demandLeaseHandler;
+    private final LeaseExpenseHandler expenseHandler;
 
     @Bean
     public RouterFunction<ServerResponse> leasesRouter(LeasesHandler handler){
@@ -45,5 +46,14 @@ public class LeasesRouters {
                 .andRoute(PATCH("/demand-leases/{demand_lease_id}/complete"), demandLeaseHandler::completedDemandLeaseById)
                 .andRoute(PATCH("/demand-leases/{demand_lease_id}/deny"), demandLeaseHandler::denyDemandLeaseById)
                 ;
+    }
+
+    @Bean
+    public RouterFunction<ServerResponse> leaseExpenseRouters(){
+        return RouterFunctions
+                .route(GET("/lease-expense"), expenseHandler::fetchExpenses)
+                .andRoute(POST("/lease-expense"), expenseHandler::addExpense)
+                .andRoute(PUT("/lease-expense"), expenseHandler::updateExpense)
+                .andRoute(DELETE("/lease-expense"), expenseHandler::deleteExpense);
     }
 }

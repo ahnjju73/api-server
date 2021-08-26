@@ -19,6 +19,9 @@ public class UpdateBikeRequest extends OriginObject {
     private String carModel;
     private String color;
     private Integer years;
+    private String regNum;
+    private String companyName;
+    private Integer price;
     private LocalDateTime receiveDt;
     private LocalDateTime registerDt;
 
@@ -43,3 +46,4 @@ public class UpdateBikeRequest extends OriginObject {
     }
 
 }
+

@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.services.leases;
 
+import helmet.bikelab.apiserver.domain.embeds.ModelTransaction;
 import helmet.bikelab.apiserver.domain.types.*;
 import helmet.bikelab.apiserver.objects.BikeDto;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
@@ -47,6 +48,7 @@ public class LeasesService extends SessService {
     private final ReleaseRepository releaseRepository;
     private final InsurancesRepository insurancesRepository;
     private final LeaseExtraRepository leaseExtraRepository;
+    private final LeaseExpenseRepository expenseRepository;
     private final AutoKey autoKey;
     private final BikeUserLogRepository bikeUserLogRepository;
     private final BikeUserTodoService bikeUserTodoService;
@@ -159,6 +161,8 @@ public class LeasesService extends SessService {
         LeasesDto leasesDto = map(param, LeasesDto.class);
         Leases lease = leaseRepository.findByLeaseId(leasesDto.getLeaseId());
         List<LeasePayments> payments = leasePaymentsRepository.findAllByLease_LeaseId(lease.getLeaseId());
+        List<LeaseExpense> leaseExpenses = expenseRepository.findAllByLease_LeaseId(lease.getLeaseId());
+
         if(lease == null) withException("850-002");
         List<FetchFinesResponse> fines = new ArrayList<>();
         FetchLeasesResponse fetchLeasesResponse = new FetchLeasesResponse();
@@ -180,6 +184,23 @@ public class LeasesService extends SessService {
         stopLeaseDto.setStopPaidFee(lease.getStopPaidFee() == null ? 0 : lease.getStopPaidFee());
         fetchLeasesResponse.setStopLeaseInfo(stopLeaseDto);
 
+
+        if(leaseExpenses != null && leaseExpenses.size() > 0){
+            List<ExpenseDto> expenseDtos = new ArrayList<>();
+            for(LeaseExpense le:leaseExpenses){
+                ExpenseDto expenseDto = new ExpenseDto();
+                expenseDto.setExpenseType(le.getExpenseTypes().getType());
+                expenseDto.setNumber(le.getNumber());
+                expenseDto.setDescription(le.getDescription());
+                if(le.getTransaction() != null){
+                    expenseDto.setRegNum(le.getTransaction().getRegNum());
+                    expenseDto.setCompanyName(le.getTransaction().getCompanyName());
+                    expenseDto.setPrice(le.getTransaction().getPrice());
+                }
+                expenseDtos.add(expenseDto);
+            }
+            fetchLeasesResponse.setExpense(expenseDtos);
+        }
         if(lease.getBike()!=null) {
             fetchLeasesResponse.setBikeId(lease.getBike().getBikeId());
             BikeDto bikeDto = new BikeDto();
@@ -277,6 +298,7 @@ public class LeasesService extends SessService {
         Bikes bike = bikesRepository.findByBikeId(addUpdateLeaseRequest.getBikeId());
         if(bike.getCarNum() == null) withException("850-011");
         if(bike!=null && leasesByBike.size() > 0) withException("850-001"); //이미 리스가 존재할때
+        if(bike.getTransaction() == null) withException("850-034");
         //clientÎ
         Clients client = clientsRepository.findByClientId(addUpdateLeaseRequest.getClientId());
         //insurance
@@ -337,6 +359,28 @@ public class LeasesService extends SessService {
         leaseInfo.setNote(leaseInfoDto.getNote());
         leaseInfoRepository.save(leaseInfo);
 
+        //lease expense-bike
+        LeaseExpense expenseBike = new LeaseExpense();
+        expenseBike.setTransaction(bike.getTransaction());
+        expenseBike.setExpenseTypes(ExpenseTypes.BIKE);
+        expenseBike.setLeaseNo(lease.getLeaseNo());
+        expenseBike.setNumber(1);
+        expenseBike.setDescription("");
+        //lease expense -bike registration
+        LeaseExpense expenseReg = new LeaseExpense();
+        ModelTransaction modelTransaction = new ModelTransaction();
+        //todo 취등록세 공식 적용
+        modelTransaction.setPrice(bike.getTransaction().getPrice() / 100);
+        modelTransaction.setRegNum("-");
+        modelTransaction.setCompanyName("-");
+        expenseReg.setTransaction(modelTransaction);
+        expenseReg.setExpenseTypes(ExpenseTypes.REGISTER);
+        expenseReg.setLeaseNo(lease.getLeaseNo());
+        expenseReg.setNumber(1);
+        expenseReg.setDescription("");
+        expenseRepository.save(expenseBike);
+        expenseRepository.save(expenseReg);
+
         LeasePrice leasePrice = new LeasePrice();
         leasePrice.setLeaseNo(lease.getLeaseNo());
 //        leasePrice.setProfit(addUpdateLeaseRequest.getLeasePrice().getProfitFee());
@@ -376,6 +420,45 @@ public class LeasesService extends SessService {
             if (bike != null && leasesByBike.size() > 0 && !lease.equals(leasesByBike.get(0)))
                 withException("850-003"); //이미 리스가 존재할때
             if(bike.getCarNum() == null) withException("850-024");
+            if(bike.getTransaction() == null) withException("850-034");
+            ModelTransaction modelTransaction = bike.getTransaction();
+            List<LeaseExpense> expenses = expenseRepository.findAllByLease_LeaseIdAndExpenseTypes(lease.getLeaseId(), ExpenseTypes.BIKE);
+            LeaseExpense leaseExpense;
+            if (expenses.size() > 0) {
+                leaseExpense = expenses.get(0);
+                leaseExpense.setTransaction(modelTransaction);
+                expenseRepository.save(leaseExpense);
+            } else {
+                leaseExpense = new LeaseExpense();
+                leaseExpense.setLeaseNo(lease.getLeaseNo());
+                leaseExpense.setExpenseTypes(ExpenseTypes.BIKE);
+                leaseExpense.setTransaction(modelTransaction);
+                leaseExpense.setNumber(1);
+                expenseRepository.save(leaseExpense);
+            }
+            List<LeaseExpense> expenseList = expenseRepository.findAllByLease_LeaseIdAndExpenseTypes(lease.getLeaseId(), ExpenseTypes.REGISTER);
+            if (expenseList.size() > 0) {
+                leaseExpense = expenseList.get(0);
+                ModelTransaction transaction = new ModelTransaction();
+                //todo 취등록세 공식 적용
+                transaction.setPrice(bike.getTransaction().getPrice() == null ? null : getRegistrationFee(modelTransaction.getPrice()));
+                transaction.setRegNum("-");
+                transaction.setCompanyName("-");
+                leaseExpense.setTransaction(transaction);
+                expenseRepository.save(leaseExpense);
+            } else {
+                LeaseExpense expenseReg = new LeaseExpense();
+                expenseReg.setLeaseNo(lease.getLeaseNo());
+                expenseReg.setExpenseTypes(ExpenseTypes.REGISTER);
+                ModelTransaction transaction = new ModelTransaction();
+                //todo 취등록세 공식 적용
+                transaction.setPrice(bike.getTransaction().getPrice() == null ? null : getRegistrationFee(modelTransaction.getPrice()));
+                transaction.setRegNum("-");
+                transaction.setCompanyName("-");
+                expenseReg.setTransaction(transaction);
+                expenseReg.setNumber(1);
+                expenseRepository.save(expenseReg);
+            }
             Clients client = clientsRepository.findByClientId(addUpdateLeaseRequest.getClientId());
             Insurances insurance = insurancesRepository.findByInsuranceId(addUpdateLeaseRequest.getInsuranceId());
             leaseInsurances.setInsurance(insurance);
@@ -410,8 +493,47 @@ public class LeasesService extends SessService {
         else {
             //bike
             Bikes bike = bikesRepository.findByBikeId(addUpdateLeaseRequest.getBikeId());
-            if (bike != null && leasesByBike.size() > 0 && !lease.equals(leasesByBike.get(0)))
-                withException("850-003"); //이미 리스가 존재할때
+            if (bike != null && leasesByBike.size() > 0 && !lease.equals(leasesByBike.get(0))) withException("850-003"); //이미 리스가 존재할때
+            if(bike.getTransaction() == null) withException("850-034");
+            ModelTransaction modelTransaction = bike.getTransaction();
+            List<LeaseExpense> expenses = expenseRepository.findAllByLease_LeaseIdAndExpenseTypes(lease.getLeaseId(), ExpenseTypes.BIKE);
+            LeaseExpense leaseExpense;
+            if (expenses.size() > 0) {
+                leaseExpense = expenses.get(0);
+                leaseExpense.setTransaction(modelTransaction);
+                expenseRepository.save(leaseExpense);
+            } else {
+                leaseExpense = new LeaseExpense();
+                leaseExpense.setLeaseNo(lease.getLeaseNo());
+                leaseExpense.setExpenseTypes(ExpenseTypes.BIKE);
+                leaseExpense.setTransaction(modelTransaction);
+                leaseExpense.setNumber(1);
+                expenseRepository.save(leaseExpense);
+            }
+            List<LeaseExpense> expenseList = expenseRepository.findAllByLease_LeaseIdAndExpenseTypes(lease.getLeaseId(), ExpenseTypes.REGISTER);
+            if (expenseList.size() > 0) {
+                leaseExpense = expenseList.get(0);
+                ModelTransaction transaction = new ModelTransaction();
+                //todo 취등록세 공식 적용
+                transaction.setPrice(bike.getTransaction().getPrice() == null ? null : getRegistrationFee(modelTransaction.getPrice()));
+                transaction.setRegNum("-");
+                transaction.setCompanyName("-");
+                leaseExpense.setTransaction(transaction);
+                expenseRepository.save(leaseExpense);
+            } else {
+                LeaseExpense expenseReg = new LeaseExpense();
+                expenseReg.setLeaseNo(lease.getLeaseNo());
+                expenseReg.setExpenseTypes(ExpenseTypes.REGISTER);
+                ModelTransaction transaction = new ModelTransaction();
+                //todo 취등록세 공식 적용
+                transaction.setPrice(bike.getTransaction().getPrice() == null ? null : getRegistrationFee(modelTransaction.getPrice()));
+                transaction.setRegNum("-");
+                transaction.setCompanyName("-");
+                expenseReg.setTransaction(transaction);
+                expenseReg.setNumber(1);
+                expenseRepository.save(expenseReg);
+            }
+
             //client
             Clients client = clientsRepository.findByClientId(addUpdateLeaseRequest.getClientId());
             //insurance
@@ -696,6 +818,7 @@ public class LeasesService extends SessService {
         leasePaymentsRepository.deleteAllByLease_LeaseId(lease.getLeaseId());
         leasePriceRepository.deleteAllByLease_LeaseId(lease.getLeaseId());
         leaseInsurancesRepository.deleteAllByLease_LeaseId(lease.getLeaseId());
+        expenseRepository.deleteAllByLease_LeaseId(lease.getLeaseId());
         leaseRepository.delete(lease);
         return request;
     }
@@ -782,6 +905,10 @@ public class LeasesService extends SessService {
         leaseRepository.save(lease);
         bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_UPDATED, request.getSessionUser().getUserNo(), lease.getLeaseNo().toString(), log.endsWith("<br>")? log.substring(0, log.length()-4) : log));
         return request;
+    }
+
+    private Integer getRegistrationFee(Integer bikePrice){
+        return bikePrice/100;
     }
 
 }
