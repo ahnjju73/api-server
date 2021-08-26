@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.domain.lease;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import helmet.bikelab.apiserver.domain.embeds.ModelTransaction;
 import helmet.bikelab.apiserver.domain.types.ExpenseTypes;
 import helmet.bikelab.apiserver.domain.types.converters.ExpenseTypesConverter;
@@ -19,9 +20,11 @@ public class LeaseExpense {
     @Column(name = "expense_no")
     private Long expenseNo;
 
+    @JsonIgnore
     @Column(name = "lease_no")
     private Integer leaseNo;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "lease_no", updatable = false, insertable = false)
     private Leases lease;

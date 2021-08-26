@@ -12,9 +12,12 @@ import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUserInfo;
 import helmet.bikelab.apiserver.domain.client.Clients;
+import helmet.bikelab.apiserver.domain.embeds.ModelTransaction;
+import helmet.bikelab.apiserver.domain.lease.LeaseExpense;
 import helmet.bikelab.apiserver.domain.lease.Leases;
 import helmet.bikelab.apiserver.domain.types.BikeTypes;
 import helmet.bikelab.apiserver.domain.types.BikeUserLogTypes;
+import helmet.bikelab.apiserver.domain.types.ExpenseTypes;
 import helmet.bikelab.apiserver.objects.BikeDto;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.CarModel;
@@ -28,6 +31,7 @@ import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.repositories.*;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.utils.AutoKey;
+import helmet.bikelab.apiserver.utils.Utils;
 import helmet.bikelab.apiserver.utils.amazon.AmazonUtils;
 import helmet.bikelab.apiserver.utils.keys.ENV;
 import helmet.bikelab.apiserver.workers.BikeWorker;
@@ -43,14 +47,14 @@ import static helmet.bikelab.apiserver.domain.bikelab.BikeUserLog.addLog;
 @RequiredArgsConstructor
 @Service
 public class BikesService extends SessService {
-
+    private final AutoKey autoKey;
     private final BikeAttachmentRepository bikeAttachmentRepository;
     private final BikesRepository bikesRepository;
     private final LeaseRepository leaseRepository;
-    private final AutoKey autoKey;
     private final BikeModelsRepository bikeModelsRepository;
     private final BikeUserLogRepository bikeUserLogRepository;
     private final ClientsRepository clientsRepository;
+    private final LeaseExpenseRepository expenseRepository;
     private final CommonWorker commonWorker;
     private final BikeWorker bikeWorker;
 
@@ -166,6 +170,7 @@ public class BikesService extends SessService {
         fetchBikeDetailResponse.setCarNum(bike.getCarNum());
         fetchBikeDetailResponse.setReceiveDt(bike.getReceiveDate());
         fetchBikeDetailResponse.setRegisterDt(bike.getRegisterDate());
+        fetchBikeDetailResponse.setTransaction(bike.getTransaction());
         if(leases != null) {
             ClientDto client = new ClientDto();
             client.setClientName(clients.getClientInfo().getName());
@@ -215,6 +220,45 @@ public class BikesService extends SessService {
         UpdateBikeRequest updateBikeRequest = map(param, UpdateBikeRequest.class);
         Bikes bike = bikesRepository.findByBikeId(updateBikeRequest.getBikeId());
         updateBikeRequest.checkValidation();
+        ModelTransaction modelTransaction = new ModelTransaction();
+        modelTransaction.setRegNum(updateBikeRequest.getRegNum());
+        modelTransaction.setPrice(updateBikeRequest.getPrice());
+        modelTransaction.setCompanyName(updateBikeRequest.getCompanyName());
+        Leases leases = leaseRepository.findByBikeNo(bike.getBikeNo());
+        if(leases != null) {
+            List<LeaseExpense> expenses = expenseRepository.findAllByLease_LeaseIdAndExpenseTypes(leases.getLeaseId(), ExpenseTypes.BIKE);
+            LeaseExpense leaseExpense;
+            if (expenses.size() > 0) {
+                leaseExpense = expenses.get(0);
+                leaseExpense.setTransaction(modelTransaction);
+                expenseRepository.save(leaseExpense);
+            } else {
+                leaseExpense = new LeaseExpense();
+                leaseExpense.setLeaseNo(leases.getLeaseNo());
+                leaseExpense.setExpenseTypes(ExpenseTypes.BIKE);
+                leaseExpense.setTransaction(modelTransaction);
+                leaseExpense.setNumber(1);
+                expenseRepository.save(leaseExpense);
+            }
+            List<LeaseExpense> expenseList = expenseRepository.findAllByLease_LeaseIdAndExpenseTypes(leases.getLeaseId(), ExpenseTypes.REGISTER);
+            if (expenseList.size() > 0) {
+                leaseExpense = expenseList.get(0);
+                leaseExpense.setTransaction(modelTransaction);
+                expenseRepository.save(leaseExpense);
+            } else {
+                LeaseExpense expenseReg = new LeaseExpense();
+                expenseReg.setLeaseNo(leases.getLeaseNo());
+                expenseReg.setExpenseTypes(ExpenseTypes.REGISTER);
+                ModelTransaction transaction = new ModelTransaction();
+                //todo 취등록세 공식 적용
+                transaction.setPrice(bike.getTransaction().getPrice() == null ? null : bike.getTransaction().getPrice() / 100);
+                transaction.setRegNum("-");
+                transaction.setCompanyName("-");
+                expenseReg.setTransaction(transaction);
+                expenseReg.setNumber(1);
+                expenseRepository.save(expenseReg);
+            }
+        }
         if(!updateBikeRequest.getVimNumber().equals(bike.getVimNum()) && bikesRepository.countAllByVimNum(updateBikeRequest.getVimNumber()) > 0) withException("500-009");
         if(bePresent(updateBikeRequest.getNumber()) && (!updateBikeRequest.getNumber().equals(bike.getCarNum()) && bikesRepository.countAllByCarNum(updateBikeRequest.getNumber()) > 0)) withException("500-011");
         updateBikeInfoWithLog(updateBikeRequest, request.getSessionUser(), bike);
@@ -225,6 +269,7 @@ public class BikesService extends SessService {
         bike.setColor(updateBikeRequest.getColor());
         bike.setReceiveDate(updateBikeRequest.getReceiveDt());
         bike.setRegisterDate(updateBikeRequest.getRegisterDt());
+        bike.setTransaction(modelTransaction);
         bikesRepository.save(bike);
 
         return request;
@@ -261,6 +306,18 @@ public class BikesService extends SessService {
             }
             if(bePresent(updateBikeRequest.getYears()) && !updateBikeRequest.getYears().equals(bike.getYears())){
                 String log = bike.getYears() == null ? "바이크 연식을 <>" + updateBikeRequest.getYears() + "</>로/으로 설정했습니다." : "바이크 연식을 <>" + bike.getYears() + "</>에서 <>" + updateBikeRequest.getYears() + "</>으로 변경하였습니다.";
+                stringList.add(log);
+            }
+            if(bePresent(updateBikeRequest.getCompanyName()) && (bike.getTransaction() == null || !updateBikeRequest.getCompanyName().equals(bike.getTransaction().getCompanyName()))){
+                String log = bike.getTransaction() == null || bike.getTransaction().getCompanyName() == null ? "바이크의 구입처를 <>" + updateBikeRequest.getCompanyName() + "</>로/으로 설정했습니다." : "바이크의 구입처를 <>" + bike.getTransaction().getCompanyName() + "</>에서 <>" + updateBikeRequest.getCompanyName() + "</>로/으로 변경하였습니다.";
+                stringList.add(log);
+            }
+            if(bePresent(updateBikeRequest.getRegNum()) && (bike.getTransaction() == null || !updateBikeRequest.getRegNum().equals(bike.getTransaction().getRegNum()))){
+                String log = bike.getTransaction() == null || bike.getTransaction().getRegNum() == null ? "바이크 구입처 사업자 번호를 \"<>" + updateBikeRequest.getRegNum() + "</>\"로/으로 설정했습니다." : "바이크 구입처 사업자 번호를 \"<>" + bike.getTransaction().getRegNum() + "</>\"에서 \"<>" + updateBikeRequest.getRegNum() + "</>\"로/으로 변경하였습니다.";
+                stringList.add(log);
+            }
+            if(bePresent(updateBikeRequest.getPrice()) && (bike.getTransaction() == null || !updateBikeRequest.getPrice().equals(bike.getTransaction().getPrice()))){
+                String log = bike.getTransaction() == null || bike.getTransaction().getPrice() == null ? "바이크의 구매가격을 <>" + Utils.getCurrencyFormat(updateBikeRequest.getPrice()) + "원</>로/으로 설정했습니다." : "바이크의 구매가격을 <>" + Utils.getCurrencyFormat(bike.getTransaction().getPrice()) + "원</>에서 <>" + Utils.getCurrencyFormat(updateBikeRequest.getPrice()) + "원</>로/으로 변경하였습니다.";
                 stringList.add(log);
             }
             if(bePresent(stringList) && stringList.size() > 0){
