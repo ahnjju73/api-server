@@ -21,6 +21,15 @@ public class BikePartsHandlers {
 
     private final BikePartsService partsService;
 
+    public Mono<ServerResponse> fetchPartsByID(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> partsService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(partsService::checkBikeSession)
+                        .map(partsService::fetchPartsByID)
+                        .map(partsService::returnData), Parts.class);
+    }
+
     public Mono<ServerResponse> fetchParts(ServerRequest request) {
         return ServerResponse.ok().body(
                 Mono.fromSupplier(() -> partsService.makeSessionRequest(request, BikeSessionRequest.class))
@@ -45,6 +54,16 @@ public class BikePartsHandlers {
                         .map(row -> partsService.makeSessionRequest(request, row, BikeSessionRequest.class))
                         .map(partsService::checkBikeSession)
                         .map(partsService::addPartsByModel)
+                        .map(partsService::returnData), Map.class);
+    }
+
+    public Mono<ServerResponse> updatePartsByIdAndCarModel(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> partsService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(partsService::checkBikeSession)
+                        .map(partsService::updatePartsByIdAndCarModel)
                         .map(partsService::returnData), Map.class);
     }
 }

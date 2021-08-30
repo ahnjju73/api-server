@@ -10,13 +10,14 @@
                pc.parts_type_no,
                pc.parts_name,
                pt.parts_type
-        from (select parts_code_no,
-                     parts_type_no,
-                     parts_name
-              from parts_codes
-              where usable = true) pc
-                 join parts_types pt on pc.parts_type_no = pt.parts_type_no
-        where pt.usable = true
+          from (select parts_code_no,
+                       parts_type_no,
+                       parts_name
+                  from parts_codes
+                 where usable = true) pc
+               join parts_types pt on pc.parts_type_no = pt.parts_type_no
+         where pt.usable = true
+         order by pc.parts_code_no, pt.order_no
     </select>
 
     <select id="fetchPartsByAllOrClientOrBikeModel" parameterType="hmap" resultType="hmap">
@@ -32,7 +33,16 @@
           from parts p
                join parts_codes pc on p.parts_code_no = pc.parts_code_no
                join parts_types pt on pc.parts_type_no = pt.parts_type_no
+               join (select *
+                      from com_comm_bikes
+                     where 1 = 1
+                     <if test="car_model != null and car_model != '' and car_model != 'undefined'">
+                       and comm_cd = #{car_model}
+                     </if>) ccb on p.bike_model_cd = ccb.comm_cd
          where pc.usable = true
+         <if test="car_model != null and car_model != '' and car_model != 'undefined'">
+           and bike_model_cd = #{car_model}
+         </if>
     </select>
 
     <select id="countAllParts" parameterType="hmap" resultType="int">
@@ -54,10 +64,20 @@
                p.parts_prices,
                p.working_prices,
                p.working_hours,
-               p.units
+               p.units,
+               p.bike_model_cd,
+               ccb.comm_nm as bike_model,
+               ccm.manuf as manufacturer
           from parts p
                join parts_codes pc on p.parts_code_no = pc.parts_code_no
                join parts_types pt on pt.parts_type_no = pc.parts_type_no
+               join (select *
+                       from com_comm_bikes
+                      where 1 = 1
+                        <if test="car_model != null and car_model != '' and car_model != 'undefined'">
+                        and comm_cd = #{car_model}
+                        </if>) ccb on p.bike_model_cd = ccb.comm_cd
+               join com_comm_manuf ccm on ccb.manuf_no = ccm.manuf_no
          where pc.usable = "1"
            and pt.usable = "1"
          <if test="car_model != null and car_model != '' and car_model != 'undefined'">
@@ -66,7 +86,8 @@
          <if test="next_token != null and next_token != '' and next_token != 'undefined'">
            and parts_no <![CDATA[ > ]]> #{next_token}
          </if>
-         order by parts_no limit 30
+         order by parts_no, pt.parts_type_no
+--          order by parts_no limit 30
     </select>
 
 
