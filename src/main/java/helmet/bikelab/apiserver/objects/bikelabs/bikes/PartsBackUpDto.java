@@ -3,21 +3,20 @@ package helmet.bikelab.apiserver.objects.bikelabs.bikes;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import helmet.bikelab.apiserver.domain.CommonCodeBikes;
-import helmet.bikelab.apiserver.domain.bike.Parts;
 import helmet.bikelab.apiserver.domain.bike.PartsCodes;
 import helmet.bikelab.apiserver.domain.types.UnitTypes;
-import helmet.bikelab.apiserver.domain.types.converters.PartsBackUpConverter;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.*;
-import java.util.List;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class PartsBackUpDto {
+
     private Long partNo;
+    private String partsId;
     private Integer partsCodeNo;
     private PartsCodes partsCode;
     private Integer partsPrices;
@@ -26,4 +25,6 @@ public class PartsBackUpDto {
     private UnitTypes units = UnitTypes.EA;
     private String bikeModelCode;
     private CommonCodeBikes bikeModel;
+    private LocalDateTime updatedAt = LocalDateTime.now();
+
 }

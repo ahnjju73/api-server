@@ -5,4 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface PartsRepository extends JpaRepository<Parts, Long> {
     Parts findByPartNo(Long partsNo);
+    Parts findByPartNoAndBikeModelCode(Long partsNo, String carModel);
 }

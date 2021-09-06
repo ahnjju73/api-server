@@ -22,7 +22,8 @@ public class PartsBackUpConverter extends Workspace implements AttributeConverte
     @Override
     public List<PartsBackUpDto> convertToEntityAttribute(String dbData) {
         Type type = new TypeToken<List<PartsBackUpDto>>() {}.getType();
-        return getGsonInstance().fromJson(dbData, type);
+        Object o = getGsonInstance().fromJson(dbData, type);
+        return !bePresent(o) ? null : (List<PartsBackUpDto>)o;
     }
 
 }

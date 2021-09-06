@@ -56,8 +56,13 @@ public class BikesRouters {
     public RouterFunction<ServerResponse> bikePartRouters(){
         return RouterFunctions
                 .route(GET("/clients/commons/parts"), partsHandler::fetchParts)
+                .andRoute(GET("/commons/bikes/parts/details"), partsHandler::fetchPartsByID)
                 .andRoute(GET("/commons/bikes/parts-codes"), partsHandler::fetchPartsCodes)
-                .andRoute(POST("/clients/commons/parts"), partsHandler::addPartsByModel)
+                .andRoute(POST("/commons/bikes/parts"), partsHandler::addPartsByModel)
+                .andRoute(PUT("/commons/bikes/parts"), partsHandler::updatePartsByIdAndCarModel)
+                .andRoute(POST("/commons/bikes/images/pre-signed-url"), partsHandler::generatePresignedUrl)
+                .andRoute(POST("/commons/bikes/images"), partsHandler::addNewPartsImage)
+                .andRoute(DELETE("/commons/bikes/images"), partsHandler::deletePartsImage)
                 ;
     }
 

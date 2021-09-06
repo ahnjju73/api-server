@@ -2,8 +2,12 @@ package helmet.bikelab.apiserver.workers;
 
 import helmet.bikelab.apiserver.domain.CommonCodeBikes;
 import helmet.bikelab.apiserver.domain.Manufacturers;
+import helmet.bikelab.apiserver.domain.bike.Parts;
+import helmet.bikelab.apiserver.domain.bike.PartsCodes;
 import helmet.bikelab.apiserver.repositories.BikeModelsRepository;
 import helmet.bikelab.apiserver.repositories.ManufacturersRepository;
+import helmet.bikelab.apiserver.repositories.PartsCodesRepository;
+import helmet.bikelab.apiserver.repositories.PartsRepository;
 import helmet.bikelab.apiserver.services.internal.Workspace;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -16,6 +20,8 @@ public class BikeWorker extends Workspace {
 
     private final ManufacturersRepository manufacturersRepository;
     private final BikeModelsRepository bikeModelsRepository;
+    private final PartsCodesRepository partsCodesRepository;
+    private final PartsRepository partsRepository;
 
     public List<Manufacturers> getManufacturers(){
         return manufacturersRepository.findAllBy();
@@ -33,7 +39,23 @@ public class BikeWorker extends Workspace {
         return byCode;
     }
 
+    public PartsCodes getPartsCodeById(Integer partsCodeNo){
+        PartsCodes byPartsCodeNo = partsCodesRepository.findByPartsCodeNo(partsCodeNo);
+        if(!bePresent(byPartsCodeNo)) withException("503-001");
+        return byPartsCodeNo;
+    }
 
+    public Parts getPartsByIdAndCarModel(Long partsNo, String carModelCode){
+        Parts byPartNoAndBikeModelCode = partsRepository.findByPartNoAndBikeModelCode(partsNo, carModelCode);
+        if(!bePresent(byPartNoAndBikeModelCode)) withException("503-007");
+        return byPartNoAndBikeModelCode;
+    }
+
+    public Parts getPartsById(Long partsNo){
+        Parts byPartNoAndBikeModelCode = partsRepository.findByPartNo(partsNo);
+        if(!bePresent(byPartNoAndBikeModelCode)) withException("503-007");
+        return byPartNoAndBikeModelCode;
+    }
 
 }
 

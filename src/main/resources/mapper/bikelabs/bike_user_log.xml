@@ -103,6 +103,7 @@
                  order by bul.log_no desc limit 30) bul
                join bike_user_mst bum on bul.from_user_no = bum.user_no
                join bike_user_info bui on bum.user_no = bui.user_no
+         order by bul.log_no desc
     </select>
 
     <select id="countMyTodo" parameterType="hmap" resultType="int">

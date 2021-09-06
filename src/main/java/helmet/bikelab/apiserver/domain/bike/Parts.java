@@ -28,11 +28,14 @@ public class Parts {
     @Column(name = "parts_no")
     private Long partNo;
 
-    @Column(name = "parts_code_no", insertable = false, updatable = false)
+    @Column(name = "parts_id", unique = true)
+    private String partsId;
+
+    @Column(name = "parts_code_no")
     private Integer partsCodeNo;
 
     @ManyToOne
-    @JoinColumn(name = "parts_code_no")
+    @JoinColumn(name = "parts_code_no", insertable = false, updatable = false)
     private PartsCodes partsCode;
 
     @Column(name = "parts_prices")
@@ -51,15 +54,19 @@ public class Parts {
     @Column(name = "units", columnDefinition = "ENUM", insertable = false, updatable = false)
     private String unitsCode;
 
-    @Column(name = "bike_model_cd", insertable = false, updatable = false)
+    @Column(name = "bike_model_cd")
     private String bikeModelCode;
 
     @ManyToOne
-    @JoinColumn(name = "bike_model_cd")
+    @JoinColumn(name = "bike_model_cd", insertable = false, updatable = false)
     private CommonCodeBikes bikeModel;
 
     @Column(name = "bakup", columnDefinition = "json")
     @Convert(converter = PartsBackUpConverter.class)
     private List<PartsBackUpDto> backUpList;
+
+    @Column(name = "images", columnDefinition = "json")
+    @Convert(converter = PartsBackUpConverter.class)
+    private List<PartsImages> images;
 
 }
