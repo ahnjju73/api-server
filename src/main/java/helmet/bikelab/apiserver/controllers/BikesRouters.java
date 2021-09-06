@@ -60,6 +60,9 @@ public class BikesRouters {
                 .andRoute(GET("/commons/bikes/parts-codes"), partsHandler::fetchPartsCodes)
                 .andRoute(POST("/commons/bikes/parts"), partsHandler::addPartsByModel)
                 .andRoute(PUT("/commons/bikes/parts"), partsHandler::updatePartsByIdAndCarModel)
+                .andRoute(POST("/commons/bikes/images/pre-signed-url"), partsHandler::generatePresignedUrl)
+                .andRoute(POST("/commons/bikes/images"), partsHandler::addNewPartsImage)
+                .andRoute(DELETE("/commons/bikes/images"), partsHandler::deletePartsImage)
                 ;
     }
 

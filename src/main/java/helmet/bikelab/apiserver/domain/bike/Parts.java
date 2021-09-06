@@ -28,6 +28,9 @@ public class Parts {
     @Column(name = "parts_no")
     private Long partNo;
 
+    @Column(name = "parts_id", unique = true)
+    private String partsId;
+
     @Column(name = "parts_code_no")
     private Integer partsCodeNo;
 
@@ -61,5 +64,9 @@ public class Parts {
     @Column(name = "bakup", columnDefinition = "json")
     @Convert(converter = PartsBackUpConverter.class)
     private List<PartsBackUpDto> backUpList;
+
+    @Column(name = "images", columnDefinition = "json")
+    @Convert(converter = PartsBackUpConverter.class)
+    private List<PartsImages> images;
 
 }

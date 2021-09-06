@@ -13,6 +13,8 @@ import java.time.LocalDateTime;
 @Setter
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class PartsNewRequest extends OriginObject {
+
+    private String partsId;
     private String carModel;
     private Integer partsCodeNo;
     private Integer partsPrices;
@@ -21,6 +23,7 @@ public class PartsNewRequest extends OriginObject {
     private UnitTypes units;
 
     public void checkValidation(){
+        if(!bePresent(this.partsId)) withException("503-008");
         if(!bePresent(this.carModel)) withException("500-004");
         if(!bePresent(this.partsCodeNo)) withException("");
         if(!bePresent(this.partsPrices)) withException("");

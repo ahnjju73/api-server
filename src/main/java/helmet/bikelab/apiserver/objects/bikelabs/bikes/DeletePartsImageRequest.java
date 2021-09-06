@@ -11,10 +11,8 @@ import java.util.List;
 @Getter
 @Setter
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
-public class AddPartsImageRequest {
+public class DeletePartsImageRequest extends PartsByIdRequest{
 
-    private Long partsNo;
-
-    private List<PresignedURLVo> images;
+    private String id;
 
 }

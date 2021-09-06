@@ -16,6 +16,7 @@ import java.time.LocalDateTime;
 public class PartsBackUpDto {
 
     private Long partNo;
+    private String partsId;
     private Integer partsCodeNo;
     private PartsCodes partsCode;
     private Integer partsPrices;

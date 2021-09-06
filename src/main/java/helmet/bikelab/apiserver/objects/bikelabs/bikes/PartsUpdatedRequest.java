@@ -11,6 +11,8 @@ import lombok.Setter;
 @Setter
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class PartsUpdatedRequest extends OriginObject {
+
+    private String partsId;
     private Long partsNo;
     private Integer partsPrices;
     private Integer workingPrices;
@@ -18,6 +20,7 @@ public class PartsUpdatedRequest extends OriginObject {
     private UnitTypes units;
 
     public void checkValidation(){
+        if(!bePresent(this.partsId)) withException("503-008");
         if(!bePresent(this.partsPrices)) withException("503-003");
         if(!bePresent(this.workingPrices)) withException("503-004");
         if(!bePresent(this.workingHours)) withException("503-005");

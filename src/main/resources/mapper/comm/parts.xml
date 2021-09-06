@@ -29,7 +29,8 @@
                parts_prices,
                working_prices,
                working_hours,
-               units
+               units,
+               p.parts_id
           from parts p
                join parts_codes pc on p.parts_code_no = pc.parts_code_no
                join parts_types pt on pc.parts_type_no = pt.parts_type_no
@@ -66,6 +67,7 @@
                p.working_hours,
                p.units,
                p.bike_model_cd,
+               p.parts_id,
                ccb.comm_nm as bike_model,
                ccm.manuf as manufacturer
           from parts p
