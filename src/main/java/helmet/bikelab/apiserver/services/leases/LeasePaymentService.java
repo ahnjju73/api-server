@@ -102,7 +102,7 @@ public class LeasePaymentService  extends SessService {
     }
 
     @Transactional
-    public BikeSessionRequest payLeaseFeeByPaymentId(BikeSessionRequest request){
+    public BikeSessionRequest readLeaseFeeByPaymentId(BikeSessionRequest request){
         Map param = request.getParam();
         BikeUser session = request.getSessionUser();
         String paymentId = (String)param.get("payment_id");
@@ -110,6 +110,18 @@ public class LeasePaymentService  extends SessService {
         leasePaymentWorker.readLeaseFeeByPaymentId(paymentId, session);
         return request;
     }
+
+    @Transactional
+    public BikeSessionRequest payLeaseFeeByPaymentId(BikeSessionRequest request){
+        Map param = request.getParam();
+        BikeUser session = request.getSessionUser();
+        String paymentId = (String)param.get("payment_id");
+        Integer payFee = (Integer) param.get("pay_fee");
+        leasePaymentWorker.payLeaseFeeByPaymentId(paymentId, session, payFee);
+//        leasePaymentWorker.readLeaseFeeByPaymentId(paymentId, session);
+        return request;
+    }
+
 
     public BikeSessionRequest fetchLeasePaymentsByIndex(BikeSessionRequest request){
         Map param = request.getParam();
