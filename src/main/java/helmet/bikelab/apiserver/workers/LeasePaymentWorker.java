@@ -82,12 +82,12 @@ public class LeasePaymentWorker extends SessService {
         if(payFee <= byPaymentId.getLeaseFee() - byPaymentId.getPaidFee()) {
             byPaymentId.setPaidFee(payFee);
             leasePaymentsRepository.save(byPaymentId);
-            content = "<>" + byPaymentId.getIndex() + "회차 (" + byPaymentId.getPaymentDate().format(dateTimeFormatter) + ")</> 납부료 미납금 중 <>" + Utils.getCurrencyFormat(payFee) + "원</>을 납부하였습니다. (<>" + Utils.getCurrencyFormat(prevPaidFee) + "원</> -> <>" + Utils.getCurrencyFormat(byPaymentId.getLeaseFee()) + "원</>)";
+            content = "<>" + byPaymentId.getIndex() + "회차 (" + byPaymentId.getPaymentDate().format(dateTimeFormatter) + ")</> 납부료 미납금 중 <>" + Utils.getCurrencyFormat(payFee) + "원</>을 납부하였습니다. (<>" + Utils.getCurrencyFormat(prevPaidFee) + "원</> -> <>" + Utils.getCurrencyFormat(byPaymentId.getPaidFee()) + "원</>)";
         }
         else{
             byPaymentId.setPaidFee(byPaymentId.getLeaseFee());
             leasePaymentsRepository.save(byPaymentId);
-            content = "<>" + byPaymentId.getIndex() + "회차 (" + byPaymentId.getPaymentDate().format(dateTimeFormatter) + ")</> 납부료 미납금 중 <>" + Utils.getCurrencyFormat(payFee) + "원</>을 납부하였습니다. (<>" + Utils.getCurrencyFormat(prevPaidFee) + "원</> -> <>" + Utils.getCurrencyFormat(byPaymentId.getLeaseFee()) + "원</>)";
+            content = "<>" + byPaymentId.getIndex() + "회차 (" + byPaymentId.getPaymentDate().format(dateTimeFormatter) + ")</> 납부료 미납금을 완납하였습니다. (<>" + Utils.getCurrencyFormat(prevPaidFee) + "원</> -> <>" + Utils.getCurrencyFormat(byPaymentId.getPaidFee()) + "원</>)";
         }
         strings.add(content);
         bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_PAYMENT, session.getUserNo(), leases.getLeaseNo().toString(), strings));
