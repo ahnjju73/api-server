@@ -150,7 +150,8 @@
                sui.name as submitted_name,
                aum.user_id as approval_user_id,
                aum.email as approval_email,
-               aui.name as approval_name
+               aui.name as approval_name,
+               bm.vim_num
         from (select *
                 from leases
                where 1 = 1
@@ -221,11 +222,13 @@
                sui.name as submitted_name,
                aum.user_id as approval_user_id,
                aum.email as approval_email,
-               aui.name as approval_name
+               aui.name as approval_name,
+               lm.vim_num
         from (select l.*,
                      bike_id,
                      `number`,
-                     `car_model`
+                     `car_model`,
+                     b.vim_num
                 from leases l
                      join bikes b on l.bike_no = b.bike_no
                where 1 = 1
@@ -241,15 +244,15 @@
                  )
                 </if>
               order by lease_id desc limit 30) lm
-                 join lease_info li on lm.lease_no = li.lease_no
-                 join lease_price lp on lm.lease_no = lp.lease_no
-                 join clients cm on lm.client_no = cm.client_no
-                 join client_info ci on cm.client_no = ci.client_no
-                 join insurances ins on lm.insurance_no = ins.insurance_no
-                 join releases rls on lm.release_no = rls.release_no
-                 join bike_user_mst cum on cum.user_no = lm.created_user_no
-                 join bike_user_info cui on cum.user_no = cui.user_no
-                 left outer join bike_user_mst sum on sum.user_no = lm.submitted_user_no
+            join lease_info li on lm.lease_no = li.lease_no
+            join lease_price lp on lm.lease_no = lp.lease_no
+            join clients cm on lm.client_no = cm.client_no
+            join client_info ci on cm.client_no = ci.client_no
+            join insurances ins on lm.insurance_no = ins.insurance_no
+            join releases rls on lm.release_no = rls.release_no
+            join bike_user_mst cum on cum.user_no = lm.created_user_no
+            join bike_user_info cui on cum.user_no = cui.user_no
+            left outer join bike_user_mst sum on sum.user_no = lm.submitted_user_no
             left outer join bike_user_info sui on sum.user_no = sui.user_no
             left outer join bike_user_mst aum on aum.user_no = lm.approval_user_no
             left outer join bike_user_info aui on aum.user_no = aui.user_no
