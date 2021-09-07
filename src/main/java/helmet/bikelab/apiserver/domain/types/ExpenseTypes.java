@@ -23,4 +23,16 @@ public enum ExpenseTypes {
         }
         return null;
     }
+
+    public static String getExpense(ExpenseTypes expenseTypes){
+        switch (expenseTypes){
+            case BIKE: return "오토바이 비용";
+            case BOX: return "배달 박스 비용";
+            case HOLDER: return "거치대 비용";
+            case CARRIER: return "캐리어 비용";
+            case WAGE: return "장착 공임비";
+            case INSURANCE: return "보험료";
+            default: return "취등록세";
+        }
+    }
 }

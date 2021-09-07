@@ -17,3 +17,4 @@ public class ExpenseDto {
     private Integer number;
     private String description;
 }
+

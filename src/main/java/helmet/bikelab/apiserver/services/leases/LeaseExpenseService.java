@@ -6,6 +6,7 @@ import helmet.bikelab.apiserver.domain.lease.Leases;
 import helmet.bikelab.apiserver.domain.types.ExpenseTypes;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.bikelabs.leases.ExpenseDto;
+import helmet.bikelab.apiserver.repositories.BikeUserLogRepository;
 import helmet.bikelab.apiserver.repositories.LeaseExpenseRepository;
 import helmet.bikelab.apiserver.repositories.LeaseRepository;
 import helmet.bikelab.apiserver.services.bikes.BikesService;
@@ -17,12 +18,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static helmet.bikelab.apiserver.domain.bikelab.BikeUserLog.addLog;
+
 @RequiredArgsConstructor
 @Service
 public class LeaseExpenseService extends SessService {
     private final LeaseExpenseRepository leaseExpenseRepository;
     private final LeaseRepository leaseRepository;
     private final BikesService bikesService;
+    private final BikeUserLogRepository bikeUserLogRepository;
 
     public BikeSessionRequest fetchLeaseExpenses(BikeSessionRequest request){
         Map param = request.getParam();
@@ -66,7 +70,7 @@ public class LeaseExpenseService extends SessService {
     public BikeSessionRequest updateLeaseExpense(BikeSessionRequest request){
         Map param = request.getParam();
         ExpenseDto expenseDto = map(param, ExpenseDto.class);
-        if(expenseDto.getExpenseType().equals("0") || expenseDto.getExpenseType().equals("6")) withException("870-002");
+        if(expenseDto.getExpenseType().equals("0")) withException("870-002");
         LeaseExpense leaseExpense = leaseExpenseRepository.findById(expenseDto.getExpenseNo()).get();
         leaseExpense.setExpenseTypes(ExpenseTypes.getType(expenseDto.getExpenseType()));
         leaseExpense.setNumber(expenseDto.getNumber());
