@@ -169,8 +169,8 @@
                   from bikes b
                  where bike_no not in (select bike_no from leases)
                    and bike_id != (select val from system_parameters where parameter_no = 0)
-                   and `number` is not null
-                   and `number` != ''
+--                    and `number` is not null
+--                    and `number` != ''
                    and reg_num is not null
                    and price is not null
                    and company_name is not null

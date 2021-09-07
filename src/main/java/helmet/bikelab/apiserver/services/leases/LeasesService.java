@@ -296,7 +296,7 @@ public class LeasesService extends SessService {
         List<Leases> leasesByBike = leaseRepository.findAllByBike_BikeId(addUpdateLeaseRequest.getBikeId());
         //bike
         Bikes bike = bikesRepository.findByBikeId(addUpdateLeaseRequest.getBikeId());
-        if(bike.getCarNum() == null) withException("850-011");
+//        if(bike.getCarNum() == null) withException("850-011");
         if(bike!=null && leasesByBike.size() > 0) withException("850-001"); //이미 리스가 존재할때
         if(bike.getTransaction() == null) withException("850-034");
         //clientÎ
