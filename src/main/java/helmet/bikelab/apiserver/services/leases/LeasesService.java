@@ -369,8 +369,7 @@ public class LeasesService extends SessService {
         //lease expense -bike registration
         LeaseExpense expenseReg = new LeaseExpense();
         ModelTransaction modelTransaction = new ModelTransaction();
-        //todo 취등록세 공식 적용
-        modelTransaction.setPrice(bike.getTransaction().getPrice() / 100);
+        modelTransaction.setPrice(bike.getTransaction().getPrice() / 50);
         modelTransaction.setRegNum("-");
         modelTransaction.setCompanyName("-");
         expenseReg.setTransaction(modelTransaction);
@@ -440,7 +439,6 @@ public class LeasesService extends SessService {
             if (expenseList.size() > 0) {
                 leaseExpense = expenseList.get(0);
                 ModelTransaction transaction = new ModelTransaction();
-                //todo 취등록세 공식 적용
                 transaction.setPrice(bike.getTransaction().getPrice() == null ? null : getRegistrationFee(modelTransaction.getPrice()));
                 transaction.setRegNum("-");
                 transaction.setCompanyName("-");
@@ -451,7 +449,6 @@ public class LeasesService extends SessService {
                 expenseReg.setLeaseNo(lease.getLeaseNo());
                 expenseReg.setExpenseTypes(ExpenseTypes.REGISTER);
                 ModelTransaction transaction = new ModelTransaction();
-                //todo 취등록세 공식 적용
                 transaction.setPrice(bike.getTransaction().getPrice() == null ? null : getRegistrationFee(modelTransaction.getPrice()));
                 transaction.setRegNum("-");
                 transaction.setCompanyName("-");
@@ -514,7 +511,6 @@ public class LeasesService extends SessService {
             if (expenseList.size() > 0) {
                 leaseExpense = expenseList.get(0);
                 ModelTransaction transaction = new ModelTransaction();
-                //todo 취등록세 공식 적용
                 transaction.setPrice(bike.getTransaction().getPrice() == null ? null : getRegistrationFee(modelTransaction.getPrice()));
                 transaction.setRegNum("-");
                 transaction.setCompanyName("-");
@@ -525,7 +521,6 @@ public class LeasesService extends SessService {
                 expenseReg.setLeaseNo(lease.getLeaseNo());
                 expenseReg.setExpenseTypes(ExpenseTypes.REGISTER);
                 ModelTransaction transaction = new ModelTransaction();
-                //todo 취등록세 공식 적용
                 transaction.setPrice(bike.getTransaction().getPrice() == null ? null : getRegistrationFee(modelTransaction.getPrice()));
                 transaction.setRegNum("-");
                 transaction.setCompanyName("-");
@@ -911,7 +906,8 @@ public class LeasesService extends SessService {
     }
 
     private Integer getRegistrationFee(Integer bikePrice){
-        return bikePrice/100;
+        //취등록세 공식 적용 2%
+        return bikePrice/50;
     }
 
 }
