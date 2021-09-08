@@ -45,6 +45,7 @@ public class LeasesRouters {
                 .route(GET("/demand-leases/{demand_lease_id}"), demandLeaseHandler::fetchDemandLeaseById)
                 .andRoute(PATCH("/demand-leases/{demand_lease_id}/complete"), demandLeaseHandler::completedDemandLeaseById)
                 .andRoute(PATCH("/demand-leases/{demand_lease_id}/deny"), demandLeaseHandler::denyDemandLeaseById)
+                .andRoute(GET("/demand-leases/{demand_lease_id}/leases"), demandLeaseHandler::fetchLeaseListByDemandLeaseNo)
                 ;
     }
 

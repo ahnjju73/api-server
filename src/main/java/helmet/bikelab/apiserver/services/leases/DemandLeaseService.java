@@ -9,6 +9,8 @@ import helmet.bikelab.apiserver.domain.types.ContractTypes;
 import helmet.bikelab.apiserver.domain.types.DemandLeaseStatusTypes;
 import helmet.bikelab.apiserver.domain.types.PaymentTypes;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
+import helmet.bikelab.apiserver.objects.PageableResponse;
+import helmet.bikelab.apiserver.objects.bikelabs.leases.LeaseListByDemandLeaseIdRequest;
 import helmet.bikelab.apiserver.objects.requests.DemandLeaseByIdRequest;
 import helmet.bikelab.apiserver.objects.requests.RejectDemandLeaseByIdRequest;
 import helmet.bikelab.apiserver.objects.responses.DemandLeaseDetailsByIdResponse;
@@ -45,6 +47,19 @@ public class DemandLeaseService extends SessService {
     private final BikesRepository bikesRepository;
     private final BikeUserLogRepository bikeUserLogRepository;
     private final InsurancesRepository insurancesRepository;
+
+    public BikeSessionRequest fetchLeaseListByDemandLeaseNo(BikeSessionRequest request){
+        LeaseListByDemandLeaseIdRequest demandLeaseByIdRequest = map(request.getParam(), LeaseListByDemandLeaseIdRequest.class);
+        PageableResponse pageableResponse = new PageableResponse();
+        DemandLeases demandLeaseById = demandLeaseWorker.getDemandLeaseById(demandLeaseByIdRequest.getDemandLeaseId());
+        List<Leases> leasesByDemandLeaseId = demandLeaseWorker.getLeasesByDemandLeaseId(demandLeaseByIdRequest.getDemandLeaseId(), demandLeaseByIdRequest);
+        pageableResponse.setList(leasesByDemandLeaseId);
+        pageableResponse.setTotal(demandLeaseById.getAmounts());
+        pageableResponse.setPage(!bePresent(demandLeaseWorker) ? demandLeaseByIdRequest.getPage() : demandLeaseByIdRequest.getPage() + 1);
+        pageableResponse.setSize(demandLeaseByIdRequest.getSize());
+        request.setResponse(pageableResponse);
+        return request;
+    }
 
     public BikeSessionRequest fetchDemandLeaseById(BikeSessionRequest request){
         DemandLeaseByIdRequest demandLeaseByIdRequest = map(request.getParam(), DemandLeaseByIdRequest.class);
