@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static helmet.bikelab.apiserver.domain.bikelab.BikeUserLog.addLog;
 
@@ -39,21 +40,20 @@ public class DemandLeaseService extends SessService {
 
     private final DemandLeaseWorker demandLeaseWorker;
     private final AutoKey autoKey;
-    private final LeasesWorker leasesWorker;
     private final LeaseRepository leaseRepository;
     private final LeasePaymentsRepository leasePaymentsRepository;
     private final LeaseInfoRepository leaseInfoRepository;
     private final LeasePriceRepository leasePriceRepository;
     private final BikesRepository bikesRepository;
     private final BikeUserLogRepository bikeUserLogRepository;
-    private final InsurancesRepository insurancesRepository;
 
     public BikeSessionRequest fetchLeaseListByDemandLeaseNo(BikeSessionRequest request){
         LeaseListByDemandLeaseIdRequest demandLeaseByIdRequest = map(request.getParam(), LeaseListByDemandLeaseIdRequest.class);
         PageableResponse pageableResponse = new PageableResponse();
         DemandLeases demandLeaseById = demandLeaseWorker.getDemandLeaseById(demandLeaseByIdRequest.getDemandLeaseId());
         List<Leases> leasesByDemandLeaseId = demandLeaseWorker.getLeasesByDemandLeaseId(demandLeaseByIdRequest.getDemandLeaseId(), demandLeaseByIdRequest);
-        pageableResponse.setList(leasesByDemandLeaseId);
+        List<String> collect = leasesByDemandLeaseId.stream().map(row -> row.getLeaseId()).collect(Collectors.toList());
+        pageableResponse.setList(collect);
         pageableResponse.setTotal(demandLeaseById.getAmounts());
         pageableResponse.setPage(!bePresent(demandLeaseWorker) ? demandLeaseByIdRequest.getPage() : demandLeaseByIdRequest.getPage() + 1);
         pageableResponse.setSize(demandLeaseByIdRequest.getSize());
