@@ -470,8 +470,8 @@ public class LeasesService extends SessService {
                     logList.add("노트 내용을 <>" +  lease.getLeaseInfo().getNote() + "</>에서 <>" + addUpdateLeaseRequest.getLeaseInfo().getNote() + "</>으로 변경하였습니다.");
             }
             if(!lease.getClientNo().equals(client.getClientNo())){
-                log = "바이크 번호 <>" + bike.getCarNum() + "</>을 <>" + lease.getClients().getClientInfo().getName() + "</>에서 <>"+ client.getClientInfo().getName() + "</>로 이전하였습니다.";
-                logList.add("바이크 번호 <>" + bike.getCarNum() + "</>을 <>" + lease.getClients().getClientInfo().getName() + "</>에서 <>"+ client.getClientInfo().getName() + "</>로 이전하였습니다.");
+                log = "바이크 번호 <>" + bike.getVimNum() + "</>을 <>" + lease.getClients().getClientInfo().getName() + "</>에서 <>"+ client.getClientInfo().getName() + "</>로 이전하였습니다.";
+                logList.add("바이크 번호 <>" + bike.getVimNum() + "</>을 <>" + lease.getClients().getClientInfo().getName() + "</>에서 <>"+ client.getClientInfo().getName() + "</>로 이전하였습니다.");
             }
             LeaseInfo leaseInfo = lease.getLeaseInfo();
             lease.setClientNo(client.getClientNo());
@@ -653,9 +653,9 @@ public class LeasesService extends SessService {
             if(bePresent(bikeRequested) && !bikeRequested.getBikeNo().equals(leases.getBikeNo())){
                 Bikes bike = leases.getBike();
                 if(bike == null)
-                    stringList.add("바이크 정보 <>" + bikeRequested.getCarNum() + " [" +  bikeRequested.getBikeId() + "] " + "</>로 설정하였습니다.");
+                    stringList.add("바이크 정보 <>" + bikeRequested.getVimNum() + " [" +  bikeRequested.getBikeId() + "] " + "</>로 설정하였습니다.");
                 else
-                    stringList.add("바이크 정보를 <>" + bike.getCarNum() + " [" + bike.getBikeId() + " ]" + "</>에서 <>" + bikeRequested.getCarNum() + " [" +  bikeRequested.getBikeId() + "] " + "</>으로 변경하였습니다.");
+                    stringList.add("바이크 정보를 <>" + bike.getVimNum() + " [" + bike.getBikeId() + " ]" + "</>에서 <>" + bikeRequested.getVimNum() + " [" +  bikeRequested.getBikeId() + "] " + "</>으로 변경하였습니다.");
             }
             if(bePresent(insurancesRequested) && !insurancesRequested.getInsuranceNo().equals(leases.getInsuranceNo())){
                 Insurances insurance = leases.getInsurances();
@@ -751,6 +751,9 @@ public class LeasesService extends SessService {
         LeasesDto leasesDto = map(param, LeasesDto.class);
         BikeUser session = request.getSessionUser();
         Leases lease = leaseRepository.findByLeaseId(leasesDto.getLeaseId());
+        String emptyBikeId = (String)getItem("comm.common.getEmptyCar", null);
+        Bikes bikes = lease.getBike();
+        if(emptyBikeId.equals(bikes.getBikeId())) withException("850-035");
         LeaseInsurances leaseInsurances = new LeaseInsurances();
         leaseInsurances.setInsurance(lease.getInsurances());
         lease.setSubmittedUserNo(session.getUserNo());

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.client.Clients;
+import helmet.bikelab.apiserver.domain.demands.DemandLeases;
 import helmet.bikelab.apiserver.domain.types.*;
 import helmet.bikelab.apiserver.domain.types.converters.*;
 import lombok.Getter;
@@ -139,6 +140,12 @@ public class Leases {
     @Column(name = "approval_dt")
     private LocalDateTime approvalDt;
 
+    @Column(name = "demand_lease_no")
+    private Long demandLeaseNo;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "demand_lease_no", insertable = false, updatable = false)
+    private DemandLeases demandLeases;
 
     @OneToOne(mappedBy = "lease", optional = false)
     private LeaseInfo leaseInfo;
