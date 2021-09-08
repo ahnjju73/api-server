@@ -49,15 +49,6 @@ public class DemandLeases extends OriginObject {
     @JoinColumn(name = "client_no", insertable = false, updatable = false)
     private Clients client;
 
-    @JsonIgnore
-    @Column(name = "lease_no")
-    private Integer leaseNo;
-
-    @JsonIgnore
-    @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "lease_no", insertable = false, updatable = false)
-    private Leases lease;
-
     @Column(name = "car_model", length = 21)
     private String carModelCode;
 
@@ -122,6 +113,9 @@ public class DemandLeases extends OriginObject {
 
     @Column(name = "completed_at")
     private LocalDateTime completedAt;
+
+    @Column(name = "amounts")
+    private Integer amounts = 0;
 
     @OneToMany(mappedBy = "demandLeases", fetch = FetchType.EAGER)
     private List<DemandLeaseAttachments> attachments = new ArrayList<>();
