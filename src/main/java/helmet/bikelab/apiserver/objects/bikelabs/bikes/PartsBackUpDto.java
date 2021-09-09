@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import helmet.bikelab.apiserver.domain.CommonCodeBikes;
 import helmet.bikelab.apiserver.domain.bike.PartsCodes;
 import helmet.bikelab.apiserver.domain.types.UnitTypes;
+import helmet.bikelab.apiserver.domain.types.YesNoTypes;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -26,5 +27,7 @@ public class PartsBackUpDto {
     private String bikeModelCode;
     private CommonCodeBikes bikeModel;
     private LocalDateTime updatedAt = LocalDateTime.now();
+    private String isFreeSupportCode;
+    private YesNoTypes isFreeSupport;
 
 }

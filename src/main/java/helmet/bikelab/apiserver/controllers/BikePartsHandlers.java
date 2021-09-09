@@ -87,6 +87,15 @@ public class BikePartsHandlers {
                         .map(partsService::returnData), Map.class);
     }
 
+    public Mono<ServerResponse> fetchPartImageByPartsId(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> partsService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(partsService::checkBikeSession)
+                        .map(partsService::fetchPartImageByPartsId)
+                        .map(partsService::returnData), List.class);
+    }
+
     public Mono<ServerResponse> addNewPartsImage(ServerRequest request) {
         return ServerResponse.ok().body(
                 request.bodyToMono(Map.class)
