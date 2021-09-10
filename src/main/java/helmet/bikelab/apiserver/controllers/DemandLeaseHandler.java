@@ -1,6 +1,7 @@
 package helmet.bikelab.apiserver.controllers;
 
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
+import helmet.bikelab.apiserver.objects.PageableResponse;
 import helmet.bikelab.apiserver.objects.responses.DemandLeaseDetailsByIdResponse;
 import helmet.bikelab.apiserver.services.leases.DemandLeaseService;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,16 @@ import java.util.Map;
 public class DemandLeaseHandler {
 
     private final DemandLeaseService demandLeaseService;
+
+    public Mono<ServerResponse> fetchLeaseListByDemandLeaseNo(ServerRequest request){
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> demandLeaseService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> demandLeaseService.getPathVariable(row, "demand_lease_id"))
+                        .map(demandLeaseService::checkBikeSession)
+                        .map(demandLeaseService::fetchLeaseListByDemandLeaseNo)
+                        .map(demandLeaseService::returnData), PageableResponse.class);
+    }
 
     public Mono<ServerResponse> fetchDemandLeaseById(ServerRequest request){
         return ServerResponse.ok().body(

@@ -16,10 +16,24 @@
           from com_comm_mst
          where up_comm_cd = #{up_comm_cd}
     </select>
+
     <select id="getMessage" parameterType="hmap" resultType="string">
         SELECT lang
           FROM system_language_mst
          WHERE lang_cd = #{lang_code}
            AND lang_tp = IF(#{lang} IS NULL, 'kr', #{lang})
     </select>
+
+    <select id="getDefaultInsurance" parameterType="hmap" resultType="string">
+        select val
+          from system_parameters
+         where parameter_no = 1
+    </select>
+
+    <select id="getEmptyCar" parameterType="hmap" resultType="string">
+        select val
+          from system_parameters
+         where parameter_no = 0
+    </select>
+
 </mapper>

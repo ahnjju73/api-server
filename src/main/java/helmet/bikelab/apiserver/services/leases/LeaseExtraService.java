@@ -197,14 +197,22 @@ public class LeaseExtraService extends SessService {
         Leases lease = payment.getLease();
         if(!lease.getLeaseStopStatus().equals(LeaseStopStatusTypes.CONTINUE)) withException("860-001");
         addUpdateExtraRequest.checkValidation();
-        extra.setPaymentNo(payment.getPaymentNo());
-        extra.setLeaseNo(payment.getLeaseNo());
+        if(!addUpdateExtraRequest.getExtraType().equals(extra.getExtraTypes().getExtra())){
+            logList.add(request.getSessionUser().getBikeUserInfo().getName() + "님께서 " + payment.getIndex() + "회차에 추가금 종류를 <>\"" + extra.getExtraTypes().getReason() + "\"</>에서 <>\"" + ExtraTypes.getExtraType(addUpdateExtraRequest.getExtraType()).getReason() +"\"</>으로 변경 했습니다.");
+        }
+        if(!addUpdateExtraRequest.getExtraFee().equals(extra.getExtraFee())){
+            logList.add(request.getSessionUser().getBikeUserInfo().getName() + "님께서 " + payment.getIndex() + "회차에 추가금을 <>" + Utils.getCurrencyFormat(extra.getExtraFee()) + "원</>에서 <>" + Utils.getCurrencyFormat(addUpdateExtraRequest.getExtraFee()) +"원</>으로 변경 했습니다.");
+        }
+        if(!addUpdateExtraRequest.getPaidFee().equals(extra.getPaidFee())){
+            logList.add(request.getSessionUser().getBikeUserInfo().getName() + "님께서 " + payment.getIndex() + "회차에 납부된 추가금을 <>" + Utils.getCurrencyFormat(extra.getPaidFee()) + "원</>에서 <>" + Utils.getCurrencyFormat(addUpdateExtraRequest.getPaidFee()) +"원</>으로 변경 했습니다.");
+        }
+        if(!addUpdateExtraRequest.getDescription().equals(extra.getDescription())){
+            logList.add(request.getSessionUser().getBikeUserInfo().getName() + "님께서 " + payment.getIndex() + "회차에 추가금 설명을 <> \"" + extra.getDescription() + "\"</>에서 <>\"" + addUpdateExtraRequest.getDescription() +"\"</>으로 변경 했습니다.");
+        }
         extra.setExtraFee(addUpdateExtraRequest.getExtraFee());
         extra.setExtraTypes(ExtraTypes.getExtraType(addUpdateExtraRequest.getExtraType()));
         extra.setPaidFee(addUpdateExtraRequest.getPaidFee());
         extra.setDescription(addUpdateExtraRequest.getDescription());
-        String log = request.getSessionUser().getBikeUserInfo().getName() + "님께서 " + payment.getIndex() + "회차에 " + extra.getExtraTypes().getReason() + "으로 " + Utils.getCurrencyFormat(extra.getExtraFee()) + "원의 추가금이 발생하였습니다.";
-        logList.add(log);
         bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_PAYMENT, request.getSessionUser().getUserNo(), lease.getLeaseNo().toString(), logList));
         leaseExtraRepository.save(extra);
         return request;

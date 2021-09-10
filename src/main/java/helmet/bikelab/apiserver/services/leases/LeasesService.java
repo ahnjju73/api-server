@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.services.leases;
 
+import helmet.bikelab.apiserver.domain.demands.DemandLeases;
 import helmet.bikelab.apiserver.domain.embeds.ModelTransaction;
 import helmet.bikelab.apiserver.domain.types.*;
 import helmet.bikelab.apiserver.objects.BikeDto;
@@ -54,6 +55,7 @@ public class LeasesService extends SessService {
     private final BikeUserTodoService bikeUserTodoService;
     private final CommonWorker commonWorker;
     private final LeaseInsurancesRepository leaseInsurancesRepository;
+    private final DemandLeasesRepository demandLeasesRepository;
 
     public BikeSessionRequest fetchLeases(BikeSessionRequest request){
         Map param = request.getParam();
@@ -184,7 +186,6 @@ public class LeasesService extends SessService {
         stopLeaseDto.setStopPaidFee(lease.getStopPaidFee() == null ? 0 : lease.getStopPaidFee());
         fetchLeasesResponse.setStopLeaseInfo(stopLeaseDto);
 
-
         if(leaseExpenses != null && leaseExpenses.size() > 0){
             List<ExpenseDto> expenseDtos = new ArrayList<>();
             for(LeaseExpense le:leaseExpenses){
@@ -278,6 +279,10 @@ public class LeasesService extends SessService {
         }
         fetchLeasesResponse.getLeasePrice().setLeaseFee(totalFee);
         fetchLeasesResponse.setLeasePayments(leasePayments);
+        if(bePresent(lease.getDemandLeaseNo())){
+            DemandLeases byDemandLeaseNo = demandLeasesRepository.findByDemandLeaseNo(lease.getDemandLeaseNo());
+            fetchLeasesResponse.setDemandLeaseId(byDemandLeaseNo.getDemandLeaseId());
+        }
         response.put("lease", fetchLeasesResponse);
         request.setResponse(response);
         return request;
@@ -296,7 +301,7 @@ public class LeasesService extends SessService {
         List<Leases> leasesByBike = leaseRepository.findAllByBike_BikeId(addUpdateLeaseRequest.getBikeId());
         //bike
         Bikes bike = bikesRepository.findByBikeId(addUpdateLeaseRequest.getBikeId());
-        if(bike.getCarNum() == null) withException("850-011");
+//        if(bike.getCarNum() == null) withException("850-011");
         if(bike!=null && leasesByBike.size() > 0) withException("850-001"); //이미 리스가 존재할때
         if(bike.getTransaction() == null) withException("850-034");
         //clientÎ
@@ -369,8 +374,7 @@ public class LeasesService extends SessService {
         //lease expense -bike registration
         LeaseExpense expenseReg = new LeaseExpense();
         ModelTransaction modelTransaction = new ModelTransaction();
-        //todo 취등록세 공식 적용
-        modelTransaction.setPrice(bike.getTransaction().getPrice() / 100);
+        modelTransaction.setPrice(bike.getTransaction().getPrice() / 50);
         modelTransaction.setRegNum("-");
         modelTransaction.setCompanyName("-");
         expenseReg.setTransaction(modelTransaction);
@@ -440,7 +444,6 @@ public class LeasesService extends SessService {
             if (expenseList.size() > 0) {
                 leaseExpense = expenseList.get(0);
                 ModelTransaction transaction = new ModelTransaction();
-                //todo 취등록세 공식 적용
                 transaction.setPrice(bike.getTransaction().getPrice() == null ? null : getRegistrationFee(modelTransaction.getPrice()));
                 transaction.setRegNum("-");
                 transaction.setCompanyName("-");
@@ -451,7 +454,6 @@ public class LeasesService extends SessService {
                 expenseReg.setLeaseNo(lease.getLeaseNo());
                 expenseReg.setExpenseTypes(ExpenseTypes.REGISTER);
                 ModelTransaction transaction = new ModelTransaction();
-                //todo 취등록세 공식 적용
                 transaction.setPrice(bike.getTransaction().getPrice() == null ? null : getRegistrationFee(modelTransaction.getPrice()));
                 transaction.setRegNum("-");
                 transaction.setCompanyName("-");
@@ -473,8 +475,8 @@ public class LeasesService extends SessService {
                     logList.add("노트 내용을 <>" +  lease.getLeaseInfo().getNote() + "</>에서 <>" + addUpdateLeaseRequest.getLeaseInfo().getNote() + "</>으로 변경하였습니다.");
             }
             if(!lease.getClientNo().equals(client.getClientNo())){
-                log = "바이크 번호 <>" + bike.getCarNum() + "</>을 <>" + lease.getClients().getClientInfo().getName() + "</>에서 <>"+ client.getClientInfo().getName() + "</>로 이전하였습니다.";
-                logList.add("바이크 번호 <>" + bike.getCarNum() + "</>을 <>" + lease.getClients().getClientInfo().getName() + "</>에서 <>"+ client.getClientInfo().getName() + "</>로 이전하였습니다.");
+                log = "바이크 번호 <>" + bike.getVimNum() + "</>을 <>" + lease.getClients().getClientInfo().getName() + "</>에서 <>"+ client.getClientInfo().getName() + "</>로 이전하였습니다.";
+                logList.add("바이크 번호 <>" + bike.getVimNum() + "</>을 <>" + lease.getClients().getClientInfo().getName() + "</>에서 <>"+ client.getClientInfo().getName() + "</>로 이전하였습니다.");
             }
             LeaseInfo leaseInfo = lease.getLeaseInfo();
             lease.setClientNo(client.getClientNo());
@@ -514,7 +516,6 @@ public class LeasesService extends SessService {
             if (expenseList.size() > 0) {
                 leaseExpense = expenseList.get(0);
                 ModelTransaction transaction = new ModelTransaction();
-                //todo 취등록세 공식 적용
                 transaction.setPrice(bike.getTransaction().getPrice() == null ? null : getRegistrationFee(modelTransaction.getPrice()));
                 transaction.setRegNum("-");
                 transaction.setCompanyName("-");
@@ -525,7 +526,6 @@ public class LeasesService extends SessService {
                 expenseReg.setLeaseNo(lease.getLeaseNo());
                 expenseReg.setExpenseTypes(ExpenseTypes.REGISTER);
                 ModelTransaction transaction = new ModelTransaction();
-                //todo 취등록세 공식 적용
                 transaction.setPrice(bike.getTransaction().getPrice() == null ? null : getRegistrationFee(modelTransaction.getPrice()));
                 transaction.setRegNum("-");
                 transaction.setCompanyName("-");
@@ -658,9 +658,9 @@ public class LeasesService extends SessService {
             if(bePresent(bikeRequested) && !bikeRequested.getBikeNo().equals(leases.getBikeNo())){
                 Bikes bike = leases.getBike();
                 if(bike == null)
-                    stringList.add("바이크 정보 <>" + bikeRequested.getCarNum() + " [" +  bikeRequested.getBikeId() + "] " + "</>로 설정하였습니다.");
+                    stringList.add("바이크 정보 <>" + bikeRequested.getVimNum() + " [" +  bikeRequested.getBikeId() + "] " + "</>로 설정하였습니다.");
                 else
-                    stringList.add("바이크 정보를 <>" + bike.getCarNum() + " [" + bike.getBikeId() + " ]" + "</>에서 <>" + bikeRequested.getCarNum() + " [" +  bikeRequested.getBikeId() + "] " + "</>으로 변경하였습니다.");
+                    stringList.add("바이크 정보를 <>" + bike.getVimNum() + " [" + bike.getBikeId() + " ]" + "</>에서 <>" + bikeRequested.getVimNum() + " [" +  bikeRequested.getBikeId() + "] " + "</>으로 변경하였습니다.");
             }
             if(bePresent(insurancesRequested) && !insurancesRequested.getInsuranceNo().equals(leases.getInsuranceNo())){
                 Insurances insurance = leases.getInsurances();
@@ -756,6 +756,9 @@ public class LeasesService extends SessService {
         LeasesDto leasesDto = map(param, LeasesDto.class);
         BikeUser session = request.getSessionUser();
         Leases lease = leaseRepository.findByLeaseId(leasesDto.getLeaseId());
+        String emptyBikeId = (String)getItem("comm.common.getEmptyCar", null);
+        Bikes bikes = lease.getBike();
+        if(emptyBikeId.equals(bikes.getBikeId())) withException("850-035");
         LeaseInsurances leaseInsurances = new LeaseInsurances();
         leaseInsurances.setInsurance(lease.getInsurances());
         lease.setSubmittedUserNo(session.getUserNo());
@@ -908,7 +911,8 @@ public class LeasesService extends SessService {
     }
 
     private Integer getRegistrationFee(Integer bikePrice){
-        return bikePrice/100;
+        //취등록세 공식 적용 2%
+        return bikePrice/50;
     }
 
 }

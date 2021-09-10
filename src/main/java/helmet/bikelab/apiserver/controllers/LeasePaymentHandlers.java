@@ -60,11 +60,22 @@ public class LeasePaymentHandlers {
                         .map(leasePaymentService::returnData), ResponseListDto.class);
     }
 
+    public Mono<ServerResponse> readLeaseFeeByPaymentId(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> leasePaymentService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(leasePaymentService::checkBikeSession)
+                        .map(leasePaymentService::readLeaseFeeByPaymentId)
+                        .map(leasePaymentService::returnData), Map.class);
+    }
+
     public Mono<ServerResponse> payLeaseFeeByPaymentId(ServerRequest request) {
         return ServerResponse.ok().body(
                 request.bodyToMono(Map.class)
                         .subscribeOn(Schedulers.elastic())
                         .map(row -> leasePaymentService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(row -> leasePaymentService.getPathVariable(row, "payment_id"))
                         .map(leasePaymentService::checkBikeSession)
                         .map(leasePaymentService::payLeaseFeeByPaymentId)
                         .map(leasePaymentService::returnData), Map.class);

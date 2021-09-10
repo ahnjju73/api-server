@@ -39,6 +39,14 @@ public class BikePartsService extends SessService {
     private final PartsRepository partsRepository;
     private final BikeWorker bikeWorker;
 
+    public BikeSessionRequest fetchPartImageByPartsId(BikeSessionRequest request){
+        PartsByIdRequest partsByIdRequest = map(request.getParam(), PartsByIdRequest.class);
+        Parts partsById = bikeWorker.getPartsById(partsByIdRequest.getPartsNo());
+        List<PartsImages> images = partsById.getImages();
+        request.setResponse(!bePresent(images) ? new ArrayList() : images);
+        return request;
+    }
+
     @Transactional
     public BikeSessionRequest deletePartsImage(BikeSessionRequest request){
         DeletePartsImageRequest partsByIdRequest = map(request.getParam(), DeletePartsImageRequest.class);
@@ -60,7 +68,8 @@ public class BikePartsService extends SessService {
 
     @Transactional
     public BikeSessionRequest addNewPartsImage(BikeSessionRequest request){
-        AddPartsImageRequest addPartsImageRequest = map(request.getParam(), AddPartsImageRequest.class);
+        Map param = request.getParam();
+        AddPartsImageRequest addPartsImageRequest = map(param, AddPartsImageRequest.class);
         Parts partsByIdAndCarModel = bikeWorker.getPartsById(addPartsImageRequest.getPartsNo());
 
         if(bePresent(addPartsImageRequest.getImages())){
@@ -81,6 +90,7 @@ public class BikePartsService extends SessService {
                         partsImage.setDomain(ENV.AWS_S3_ORIGIN_DOMAIN);
                         return partsImage;
                     }).collect(Collectors.toList());
+            if(!bePresent(images)) images = new ArrayList<>();
             images.addAll(collect);
             partsByIdAndCarModel.setImages(images);
             partsRepository.save(partsByIdAndCarModel);
@@ -94,7 +104,7 @@ public class BikePartsService extends SessService {
         Map param = request.getParam();
         String filename = (String)param.get("filename");
         String extension = (String)param.get("extension");
-        PresignedURLVo presignedURLVo = commonWorker.generatePreSignedUrl(filename, extension);
+        PresignedURLVo presignedURLVo = commonWorker.generatePreSignedUrl(filename, null);
         request.setResponse(presignedURLVo);
         return request;
     }
@@ -127,6 +137,10 @@ public class BikePartsService extends SessService {
         Boolean changed = false;
         PartsBackUpDto partsBackUpDto = map(partsByIdAndCarModel, PartsBackUpDto.class);
 
+        if(!partsUpdatedRequest.getIsFreeSupport().equals(partsByIdAndCarModel.getIsFreeSupport())){
+            partsByIdAndCarModel.setIsFreeSupport(partsUpdatedRequest.getIsFreeSupport());
+            changed = true;
+        }
         if(!partsUpdatedRequest.getPartsId().equals(partsByIdAndCarModel.getPartsId())){
             partsByIdAndCarModel.setPartsId(partsUpdatedRequest.getPartsId());
             changed = true;

@@ -57,5 +57,11 @@ public class BikeWorker extends Workspace {
         return byPartNoAndBikeModelCode;
     }
 
+    public Parts getPartsByPartsId(String partsId){
+        Parts byPartNoAndBikeModelCode = partsRepository.findByPartsId(partsId);
+        if(!bePresent(byPartNoAndBikeModelCode)) withException("503-007");
+        return byPartNoAndBikeModelCode;
+    }
+
 }
 
