@@ -45,4 +45,5 @@ public class FetchLeasesResponse {
     private List<LeasePaymentDto> leasePayments = new ArrayList<>();
     private StopLeaseDto stopLeaseInfo;
     private List<ExpenseDto> expense;
+    private String demandLeaseId;
 }

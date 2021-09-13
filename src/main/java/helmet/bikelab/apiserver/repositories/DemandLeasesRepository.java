@@ -11,5 +11,6 @@ public interface DemandLeasesRepository extends JpaRepository<DemandLeases, Stri
     DemandLeases findByDemandLeaseId(String demandLeaseId);
     DemandLeases findByDemandLeaseIdAndClientNo(String demandLeaseId, Integer clientNo);
     void deleteByDemandLeaseNo(Long demandLeaseNo);
+    DemandLeases findByDemandLeaseNo(Long demandLeaseNo);
 
 }

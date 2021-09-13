@@ -25,7 +25,12 @@ public class CommonWorker extends SessService {
     public PresignedURLVo generatePreSignedUrl(String filename, String extension){
         PresignedURLVo presignedURLVo = new PresignedURLVo();
         presignedURLVo.setBucket(ENV.AWS_S3_QUEUE_BUCKET);
-        presignedURLVo.setFileKey(LocalDate.now() + "/" + filename + "." + extension);
+        if(bePresent(extension)){
+            presignedURLVo.setFileKey(LocalDate.now() + "/" + filename + "." + extension);
+        }else {
+            presignedURLVo.setFileKey(LocalDate.now() + "/" + filename);
+        }
+
         presignedURLVo.setFilename(filename + "." + extension);
         presignedURLVo.setUrl(AmazonUtils.AWSGeneratePresignedURL(presignedURLVo));
         return presignedURLVo;

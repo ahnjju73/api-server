@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.services.leases;
 
+import helmet.bikelab.apiserver.domain.demands.DemandLeases;
 import helmet.bikelab.apiserver.domain.embeds.ModelTransaction;
 import helmet.bikelab.apiserver.domain.types.*;
 import helmet.bikelab.apiserver.objects.BikeDto;
@@ -54,6 +55,7 @@ public class LeasesService extends SessService {
     private final BikeUserTodoService bikeUserTodoService;
     private final CommonWorker commonWorker;
     private final LeaseInsurancesRepository leaseInsurancesRepository;
+    private final DemandLeasesRepository demandLeasesRepository;
 
     public BikeSessionRequest fetchLeases(BikeSessionRequest request){
         Map param = request.getParam();
@@ -184,7 +186,6 @@ public class LeasesService extends SessService {
         stopLeaseDto.setStopPaidFee(lease.getStopPaidFee() == null ? 0 : lease.getStopPaidFee());
         fetchLeasesResponse.setStopLeaseInfo(stopLeaseDto);
 
-
         if(leaseExpenses != null && leaseExpenses.size() > 0){
             List<ExpenseDto> expenseDtos = new ArrayList<>();
             for(LeaseExpense le:leaseExpenses){
@@ -278,6 +279,10 @@ public class LeasesService extends SessService {
         }
         fetchLeasesResponse.getLeasePrice().setLeaseFee(totalFee);
         fetchLeasesResponse.setLeasePayments(leasePayments);
+        if(bePresent(lease.getDemandLeaseNo())){
+            DemandLeases byDemandLeaseNo = demandLeasesRepository.findByDemandLeaseNo(lease.getDemandLeaseNo());
+            fetchLeasesResponse.setDemandLeaseId(byDemandLeaseNo.getDemandLeaseId());
+        }
         response.put("lease", fetchLeasesResponse);
         request.setResponse(response);
         return request;
