@@ -8,7 +8,7 @@
     <select id="countAllDemandLeases" parameterType="hmap" resultType="int">
         select count(*)
           from demand_leases
-         where demand_lease_status != '0'
+         where demand_lease_status = '1'
     </select>
 
     <select id="fetchDemandLeases" parameterType="hmap" resultType="hmap">
@@ -37,7 +37,7 @@
                ci.manager_name as client_manager_name
           from (select *
                   from demand_leases
-                 where demand_lease_status != '0'
+                 where demand_lease_status = '1'
                  <if test="next_token != null and next_token != '' and next_token != 'undefined'">
                    and demand_lease_id <![CDATA[ < ]]> #{next_token}
                  </if>

@@ -2,6 +2,7 @@ package helmet.bikelab.apiserver.services.leases;
 
 import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
+import helmet.bikelab.apiserver.domain.demands.DemandLeaseAttachments;
 import helmet.bikelab.apiserver.domain.demands.DemandLeases;
 import helmet.bikelab.apiserver.domain.lease.*;
 import helmet.bikelab.apiserver.domain.types.BikeUserLogTypes;
@@ -46,6 +47,14 @@ public class DemandLeaseService extends SessService {
     private final LeasePriceRepository leasePriceRepository;
     private final BikesRepository bikesRepository;
     private final BikeUserLogRepository bikeUserLogRepository;
+    private final DemandLeaseAttachmentsRepository demandLeaseAttachmentsRepository;
+
+    public BikeSessionRequest fetchAttachmentsByDemandLeaseId(BikeSessionRequest request){
+        DemandLeaseByIdRequest demandLeaseByIdRequest = map(request.getParam(), DemandLeaseByIdRequest.class);
+        List<DemandLeaseAttachments> demandLeaseAttachments = demandLeaseAttachmentsRepository.findAllByDemandLeases_DemandLeaseId(demandLeaseByIdRequest.getDemandLeaseId());
+        request.setResponse(demandLeaseAttachments == null ? new ArrayList<>() : demandLeaseAttachments);
+        return request;
+    }
 
     public BikeSessionRequest fetchLeaseListByDemandLeaseNo(BikeSessionRequest request){
         LeaseListByDemandLeaseIdRequest demandLeaseByIdRequest = map(request.getParam(), LeaseListByDemandLeaseIdRequest.class);
@@ -117,6 +126,7 @@ public class DemandLeaseService extends SessService {
             LeasePrice leasePrice = new LeasePrice();
             leasePrice.setLeaseNo(lease.getLeaseNo());
             leasePrice.setType(demandLeaseById.getPaymentType());
+            leasePrice.setPrepayment(demandLeaseById.getPrepayment());
             leasePriceRepository.save(leasePrice);
             Integer leaseFee = 0;
             List<LeasePayments> leasePaymentsList = new ArrayList<>();
