@@ -5,10 +5,7 @@ import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.demands.DemandLeaseAttachments;
 import helmet.bikelab.apiserver.domain.demands.DemandLeases;
 import helmet.bikelab.apiserver.domain.lease.*;
-import helmet.bikelab.apiserver.domain.types.BikeUserLogTypes;
-import helmet.bikelab.apiserver.domain.types.ContractTypes;
-import helmet.bikelab.apiserver.domain.types.DemandLeaseStatusTypes;
-import helmet.bikelab.apiserver.domain.types.PaymentTypes;
+import helmet.bikelab.apiserver.domain.types.*;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.PageableResponse;
 import helmet.bikelab.apiserver.objects.bikelabs.leases.LeaseListByDemandLeaseIdRequest;
@@ -31,6 +28,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.stream.Collectors;
 
 import static helmet.bikelab.apiserver.domain.bikelab.BikeUserLog.addLog;
@@ -48,6 +47,8 @@ public class DemandLeaseService extends SessService {
     private final BikesRepository bikesRepository;
     private final BikeUserLogRepository bikeUserLogRepository;
     private final DemandLeaseAttachmentsRepository demandLeaseAttachmentsRepository;
+    private final DemandLeasesRepository demandLeasesRepository;
+    private final ExecutorService executorService;
 
     public BikeSessionRequest fetchAttachmentsByDemandLeaseId(BikeSessionRequest request){
         DemandLeaseByIdRequest demandLeaseByIdRequest = map(request.getParam(), DemandLeaseByIdRequest.class);
@@ -91,9 +92,31 @@ public class DemandLeaseService extends SessService {
         DemandLeaseByIdRequest demandLeaseByIdRequest = map(request.getParam(), DemandLeaseByIdRequest.class);
         DemandLeases demandLeaseById = demandLeaseWorker.getDemandLeaseById(demandLeaseByIdRequest.getDemandLeaseId());
         if(!demandLeaseById.isOneOfDemandLeaseStatusType(DemandLeaseStatusTypes.PENDING)) withException("803-002");
-//        demandLeaseByIdRequest.checkValidation();
-        demandLeaseById.setRejectMessage(null);
-        demandLeaseById.setCompletedAt(LocalDateTime.now());
+        if(DemandLeaseContractTypes.PENDING.equals(demandLeaseById.getContracted())
+                || DemandLeaseContractTypes.FAILED.equals(demandLeaseById.getContracted())) {
+            executorService.submit(() -> {
+                try {
+                    createLeaseContractsFromDemandLeases(demandLeaseById, request.getSessionUser(), param);
+                }catch (Exception e){
+                    demandLeaseById.setFailContracted(e.getMessage());
+                    demandLeaseById.setContracted(DemandLeaseContractTypes.FAILED);
+                    demandLeasesRepository.save(demandLeaseById);
+                }
+            });
+            demandLeaseById.setContracted(DemandLeaseContractTypes.CONTRACTING);
+            demandLeaseById.setFailContracted(null);
+            demandLeaseById.setRejectMessage(null);
+            demandLeaseById.setCompletedAt(LocalDateTime.now());
+            demandLeasesRepository.save(demandLeaseById);
+        }else {
+            withException("803-008");
+        }
+
+        return request;
+    }
+
+    @Transactional
+    public void createLeaseContractsFromDemandLeases(DemandLeases demandLeaseById, BikeUser sessionUser, Map param){
         String bikeId = (String)getItem("comm.common.getEmptyCar", param);
         Bikes bike = bikesRepository.findByBikeId(bikeId);
         String insuranceNo = (String)getItem("comm.common.getDefaultInsurance", param);
@@ -110,10 +133,8 @@ public class DemandLeaseService extends SessService {
             lease.setCreatedAt(LocalDateTime.now());
             lease.setReleaseNo(1);
             lease.setDemandLeaseNo(demandLeaseById.getDemandLeaseNo());
-            lease.setCreatedUserNo(request.getSessionUser().getUserNo());
+            lease.setCreatedUserNo(sessionUser.getUserNo());
             leaseRepository.save(lease);
-
-            demandLeaseWorker.updateDemandLeaseStatusByDemandLease(demandLeaseById, DemandLeaseStatusTypes.COMPLETED);
 
             LeaseInfo leaseInfo = new LeaseInfo();
             leaseInfo.setLeaseNo(lease.getLeaseNo());
@@ -130,7 +151,6 @@ public class DemandLeaseService extends SessService {
             leasePriceRepository.save(leasePrice);
             Integer leaseFee = 0;
             List<LeasePayments> leasePaymentsList = new ArrayList<>();
-            BikeUser sessionUser = request.getSessionUser();
             if(leasePrice.getType().equals(PaymentTypes.MONTHLY)) {
                 for (int i = 0; i < leaseInfo.getPeriod(); i++) {
                     LeasePayments leasePayment = new LeasePayments();
@@ -160,8 +180,11 @@ public class DemandLeaseService extends SessService {
             leasePaymentsRepository.saveAll(leasePaymentsList);
             bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_ADDED, sessionUser.getUserNo(), lease.getLeaseNo().toString()));
         }
-
-        return request;
+        demandLeaseById.setContracted(DemandLeaseContractTypes.CONTRACTED);
+        demandLeaseById.setRejectMessage(null);
+        demandLeaseById.setCompletedAt(LocalDateTime.now());
+        demandLeasesRepository.save(demandLeaseById);
+        demandLeaseWorker.updateDemandLeaseStatusByDemandLease(demandLeaseById, DemandLeaseStatusTypes.COMPLETED);
     }
 
     @Transactional
