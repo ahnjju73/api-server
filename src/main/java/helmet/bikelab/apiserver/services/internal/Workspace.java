@@ -85,24 +85,6 @@ public class Workspace extends OriginObject{
         rtn.put("message", getMessage((Map)param));
         throw new RuntimeException(getJson(rtn));
     }
-    // Database Settings end
-
-    protected Map write(){
-        return write(new HashMap());
-    }
-
-    protected Map write(Object o){
-        if(o instanceof Map) {
-            ((Map)o).put("result", "y");
-            return (Map)o;
-        }else if(o instanceof List){
-            Map<String, Object> map = new HashMap<String, Object>();
-            map.put("result", "y");
-            map.put("list", o);
-            return map;
-        }
-        return (Map)o;
-    }
 
     protected void writeMessage(String message){
         writeMessage(message, HttpStatus.BAD_REQUEST);

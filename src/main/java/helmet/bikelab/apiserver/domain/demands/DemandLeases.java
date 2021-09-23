@@ -5,14 +5,8 @@ import helmet.bikelab.apiserver.domain.CommonCodeBikes;
 import helmet.bikelab.apiserver.domain.client.Clients;
 import helmet.bikelab.apiserver.domain.lease.Insurances;
 import helmet.bikelab.apiserver.domain.lease.Leases;
-import helmet.bikelab.apiserver.domain.types.DemandLeaseStatusTypes;
-import helmet.bikelab.apiserver.domain.types.ExpireTypes;
-import helmet.bikelab.apiserver.domain.types.ManagementTypes;
-import helmet.bikelab.apiserver.domain.types.PaymentTypes;
-import helmet.bikelab.apiserver.domain.types.converters.DemandLeaseStatusTypesConverter;
-import helmet.bikelab.apiserver.domain.types.converters.ExpireTypesConverter;
-import helmet.bikelab.apiserver.domain.types.converters.ManagementTypeConverter;
-import helmet.bikelab.apiserver.domain.types.converters.PaymentTypeConverter;
+import helmet.bikelab.apiserver.domain.types.*;
+import helmet.bikelab.apiserver.domain.types.converters.*;
 import helmet.bikelab.apiserver.services.internal.OriginObject;
 import helmet.bikelab.apiserver.utils.keys.SESSION;
 import lombok.Getter;
@@ -116,6 +110,16 @@ public class DemandLeases extends OriginObject {
 
     @Column(name = "amounts")
     private Integer amounts = 0;
+
+    @Column(name = "contracting", columnDefinition = "ENUM")
+    @Convert(converter = DemandLeaseContractTypesConverter.class)
+    private DemandLeaseContractTypes contracted = DemandLeaseContractTypes.PENDING;
+
+    @Column(name = "contracting", columnDefinition = "ENUM", insertable = false, updatable = false)
+    private String contractedCode;
+
+    @Column(name = "fail_contracted", columnDefinition = "MEDIUMTEXT")
+    private String failContracted;
 
     @OneToMany(mappedBy = "demandLeases", fetch = FetchType.EAGER)
     private List<DemandLeaseAttachments> attachments = new ArrayList<>();
