@@ -11,6 +11,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -18,6 +19,16 @@ import java.util.Map;
 public class DemandLeaseHandler {
 
     private final DemandLeaseService demandLeaseService;
+
+    public Mono<ServerResponse> fetchAttachmentsByDemandLeaseId(ServerRequest request){
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> demandLeaseService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> demandLeaseService.getPathVariable(row, "demand_lease_id"))
+                        .map(demandLeaseService::checkBikeSession)
+                        .map(demandLeaseService::fetchAttachmentsByDemandLeaseId)
+                        .map(demandLeaseService::returnData), List.class);
+    }
 
     public Mono<ServerResponse> fetchLeaseListByDemandLeaseNo(ServerRequest request){
         return ServerResponse.ok().body(

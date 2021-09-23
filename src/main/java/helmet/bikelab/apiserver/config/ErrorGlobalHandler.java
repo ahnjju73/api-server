@@ -77,6 +77,7 @@ public class ErrorGlobalHandler<T extends BusinessException> extends AbstractErr
     }
 
     private void apiLogger(HttpStatus httpStatus, Throwable exception){
+        exception.printStackTrace();
         Map logData = new HashMap();
         logData.put("status", httpStatus);
         logData.put("error_message", exception.getMessage());
