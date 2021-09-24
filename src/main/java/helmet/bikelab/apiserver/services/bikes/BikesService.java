@@ -251,7 +251,7 @@ public class BikesService extends SessService {
                 expenseReg.setExpenseTypes(ExpenseTypes.REGISTER);
                 ModelTransaction transaction = new ModelTransaction();
                 //취등록세 공식 2%
-                transaction.setPrice(bike.getTransaction().getPrice() == null ? null : bike.getTransaction().getPrice() / 50);
+                transaction.setPrice(bike.getTransaction() == null || bike.getTransaction().getPrice() == null ? null : bike.getTransaction().getPrice() / 50);
                 transaction.setRegNum("-");
                 transaction.setCompanyName("-");
                 expenseReg.setTransaction(transaction);

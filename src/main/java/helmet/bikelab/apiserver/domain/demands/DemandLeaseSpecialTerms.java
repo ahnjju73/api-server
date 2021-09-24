@@ -18,7 +18,6 @@ import javax.persistence.*;
 public class DemandLeaseSpecialTerms extends OriginObject {
 
     @Id
-    @JsonIgnore
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "term_no")
     private Long termNo;
@@ -26,6 +25,7 @@ public class DemandLeaseSpecialTerms extends OriginObject {
     @Column(name = "demand_lease_no")
     private Long demandLeaseNo;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "demand_lease_no", insertable = false, updatable = false)
     private DemandLeases demandLeases;
