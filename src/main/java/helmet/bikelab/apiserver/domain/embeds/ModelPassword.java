@@ -40,9 +40,9 @@ public class ModelPassword {
     }
 
     public void modifyPasswordWithoutSHA256(String password){
-        password = Crypt.newCrypt().SHA256(password);
+        String _password = Crypt.newCrypt().SHA256(password);
         String salt = Crypt.newCrypt().getSalt(128);
-        String cryptedPassword = Crypt.newCrypt().getPassword(password, salt);
+        String cryptedPassword = Crypt.newCrypt().getPassword(_password, salt);
         this.bakPassword = this.password;
         this.bakSalt = this.salt;
         this.setPassword(cryptedPassword);
