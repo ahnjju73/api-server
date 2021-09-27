@@ -206,7 +206,10 @@ public class LeaseExtraService extends SessService {
         if(!addUpdateExtraRequest.getPaidFee().equals(extra.getPaidFee())){
             logList.add(request.getSessionUser().getBikeUserInfo().getName() + "님께서 " + payment.getIndex() + "회차에 납부된 추가금을 <>" + Utils.getCurrencyFormat(extra.getPaidFee()) + "원</>에서 <>" + Utils.getCurrencyFormat(addUpdateExtraRequest.getPaidFee()) +"원</>으로 변경 했습니다.");
         }
-        if(!addUpdateExtraRequest.getDescription().equals(extra.getDescription())){
+        if(addUpdateExtraRequest.getDescription() != null && extra.getDescription() == null){
+            logList.add(request.getSessionUser().getBikeUserInfo().getName() + "님께서 " + payment.getIndex() + "회차에 추가금 설명을 <> \"" + addUpdateExtraRequest.getDescription() +"\"</>추가 했습니다.");
+        }
+        else if(extra.getDescription() != null && !addUpdateExtraRequest.getDescription().equals(extra.getDescription())){
             logList.add(request.getSessionUser().getBikeUserInfo().getName() + "님께서 " + payment.getIndex() + "회차에 추가금 설명을 <> \"" + extra.getDescription() + "\"</>에서 <>\"" + addUpdateExtraRequest.getDescription() +"\"</>으로 변경 했습니다.");
         }
         extra.setExtraFee(addUpdateExtraRequest.getExtraFee());
