@@ -3,6 +3,7 @@ package helmet.bikelab.apiserver.services.leases;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.demands.DemandLeaseAttachments;
+import helmet.bikelab.apiserver.domain.demands.DemandLeaseSpecialTerms;
 import helmet.bikelab.apiserver.domain.demands.DemandLeases;
 import helmet.bikelab.apiserver.domain.lease.*;
 import helmet.bikelab.apiserver.domain.types.*;
@@ -49,6 +50,7 @@ public class DemandLeaseService extends SessService {
     private final DemandLeaseAttachmentsRepository demandLeaseAttachmentsRepository;
     private final DemandLeasesRepository demandLeasesRepository;
     private final ExecutorService executorService;
+    private final DemandLeaseSpecialTermsRepository demandLeaseSpecialTermsRepository;
 
     public BikeSessionRequest fetchAttachmentsByDemandLeaseId(BikeSessionRequest request){
         DemandLeaseByIdRequest demandLeaseByIdRequest = map(request.getParam(), DemandLeaseByIdRequest.class);
@@ -74,10 +76,12 @@ public class DemandLeaseService extends SessService {
     public BikeSessionRequest fetchDemandLeaseById(BikeSessionRequest request){
         DemandLeaseByIdRequest demandLeaseByIdRequest = map(request.getParam(), DemandLeaseByIdRequest.class);
         DemandLeases demandLeases = demandLeaseWorker.getDemandLeaseById(demandLeaseByIdRequest.getDemandLeaseId());
-
+        List<DemandLeaseSpecialTerms> allByDemandLeaseNo = demandLeaseSpecialTermsRepository.findAllByDemandLeaseNo(demandLeases.getDemandLeaseNo());
         DemandLeaseDetailsByIdResponse demandLeaseDetailsByIdResponse = new DemandLeaseDetailsByIdResponse();
         demandLeaseDetailsByIdResponse.setDemandLease(demandLeases);
         demandLeaseDetailsByIdResponse.setClient(demandLeases.getClient());
+        demandLeaseDetailsByIdResponse.setTerms(!bePresent(allByDemandLeaseNo) ? new ArrayList<>() : allByDemandLeaseNo);
+
         try {
 //            Leases leases = leasesWorker.getLeaseByLeaseNo(demandLeases.getLeaseNo());
 //            if(bePresent(leases)) demandLeaseDetailsByIdResponse.setLeaseId(leases.getLeaseId());
