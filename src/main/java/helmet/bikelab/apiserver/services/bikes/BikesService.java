@@ -72,6 +72,14 @@ public class BikesService extends SessService {
         return request;
     }
 
+    public BikeSessionRequest fetchBikesRidable(BikeSessionRequest request){
+        Map param = request.getParam();
+        BikeRequestListDto requestListDto = map(param, BikeRequestListDto.class);
+        ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "bikelabs.commons.bikes.fetchBikesRidable", "bikelabs.commons.bikes.countAllBikesRidable", "bike_id");
+        request.setResponse(responseListDto);
+        return request;
+    }
+
     public BikeSessionRequest fetchBikesWithoutLease(BikeSessionRequest request){
         Map param = request.getParam();
         BikeRequestListDto requestListDto = map(param, BikeRequestListDto.class);

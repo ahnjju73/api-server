@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.domain.bike;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import helmet.bikelab.apiserver.domain.CommonCodeBikes;
@@ -8,6 +9,7 @@ import helmet.bikelab.apiserver.domain.lease.Leases;
 import helmet.bikelab.apiserver.domain.riders.Riders;
 import helmet.bikelab.apiserver.domain.types.BikeRiderStatusTypes;
 import helmet.bikelab.apiserver.domain.types.converters.BikeRiderStatusTypesConverter;
+import helmet.bikelab.apiserver.services.internal.OriginObject;
 import lombok.*;
 
 import javax.persistence.*;
@@ -21,7 +23,7 @@ import java.util.List;
 @Table(name = "bikes")
 @NoArgsConstructor
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
-public class Bikes {
+public class Bikes extends OriginObject {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "bike_no", nullable = false)
@@ -55,6 +57,7 @@ public class Bikes {
     @Column(name = "register_dt")
     private LocalDateTime registerDate;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "bike", fetch = FetchType.LAZY)
     private List<Leases> lease = new ArrayList<>();
 
@@ -77,6 +80,12 @@ public class Bikes {
     @JoinColumn(name = "rider_no", insertable = false, updatable = false)
     private Riders riders;
 
+    @Column(name = "rider_start_at")
+    private LocalDateTime riderStartAt;
+
+    @Column(name = "rider_end_at")
+    private LocalDateTime riderEndAt;
+
     @Column(name = "rider_request_at")
     private LocalDateTime riderRequestAt;
 
@@ -86,4 +95,31 @@ public class Bikes {
     @Column(name = "rider_status", columnDefinition = "ENUM", nullable = false)
     @Convert(converter = BikeRiderStatusTypesConverter.class)
     private BikeRiderStatusTypes riderStatus = BikeRiderStatusTypes.NONE;
+
+    public void doApproveRider(){
+        this.riderStatus = BikeRiderStatusTypes.TAKEN;
+        this.riderApprovalAt = LocalDateTime.now();
+    }
+
+    public void doDeclineRider(){
+        this.riderStatus = BikeRiderStatusTypes.NONE;
+        this.riderApprovalAt = null;
+        this.riderNo = null;
+        this.riders = null;
+    }
+
+    public void isRidable(){
+        if(this.riderNo != null) withException("510-002");
+        if(this.riderStatus != null && !BikeRiderStatusTypes.NONE.equals(this.riderStatus)) withException("510-002");
+    }
+
+    public void assignRider(Riders rider, LocalDateTime startAt, LocalDateTime endAt){
+        this.riders = rider;
+        this.riderNo = rider.getRiderNo();
+        this.setRiderStatus(BikeRiderStatusTypes.TAKEN);
+        this.setRiderStartAt(startAt);
+        this.setRiderEndAt(endAt);
+        this.setRiderApprovalAt(LocalDateTime.now());
+        this.setRiderRequestAt(LocalDateTime.now());
+    }
 }

@@ -30,6 +30,9 @@
 
         <mapper resource="mapper/comm/parts.xml"/>
 
+        <!-- riders -->
+        <mapper resource="mapper/bikelabs/riders.xml"/>
+
         <!-- bikelabs -->
         <mapper resource="mapper/bikelabs/employees.xml"/>
         <mapper resource="mapper/bikelabs/todo.xml"/>
