@@ -96,6 +96,13 @@ public class Bikes extends OriginObject {
     @Convert(converter = BikeRiderStatusTypesConverter.class)
     private BikeRiderStatusTypes riderStatus = BikeRiderStatusTypes.NONE;
 
+    @Column(name = "rider_lease_no", nullable = false)
+    private Integer riderLeaseNo;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "rider_lease_no", insertable = false, updatable = false)
+    private Leases riderLease;
+
     public void doApproveRider(){
         this.riderStatus = BikeRiderStatusTypes.TAKEN;
         this.riderApprovalAt = LocalDateTime.now();
@@ -106,6 +113,8 @@ public class Bikes extends OriginObject {
         this.riderApprovalAt = null;
         this.riderNo = null;
         this.riders = null;
+        this.riderLeaseNo = null;
+        this.riderLease = null;
     }
 
     public void isRidable(){
@@ -113,7 +122,7 @@ public class Bikes extends OriginObject {
         if(this.riderStatus != null && !BikeRiderStatusTypes.NONE.equals(this.riderStatus)) withException("510-002");
     }
 
-    public void assignRider(Riders rider, LocalDateTime startAt, LocalDateTime endAt){
+    public void assignRider(Riders rider, LocalDateTime startAt, LocalDateTime endAt, Leases leases){
         this.riders = rider;
         this.riderNo = rider.getRiderNo();
         this.setRiderStatus(BikeRiderStatusTypes.TAKEN);

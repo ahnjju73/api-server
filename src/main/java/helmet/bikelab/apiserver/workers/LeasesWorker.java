@@ -14,6 +14,12 @@ public class LeasesWorker extends Workspace {
 
     private final LeaseRepository leaseRepository;
 
+    public Leases getLeaseByBikeNo(Integer bikeNo){
+        Leases byLeaseNo = leaseRepository.findByBikeNo(bikeNo);
+        if(!bePresent(byLeaseNo)) withException("803-001");
+        return byLeaseNo;
+    }
+
     public Leases getLeaseByLeaseNo(Integer leaseNo){
         Leases byLeaseNo = leaseRepository.findByLeaseNo(leaseNo);
         if(!bePresent(byLeaseNo)) withException("803-001");

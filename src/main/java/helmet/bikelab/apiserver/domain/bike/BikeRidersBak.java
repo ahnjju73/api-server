@@ -2,6 +2,7 @@ package helmet.bikelab.apiserver.domain.bike;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import helmet.bikelab.apiserver.domain.lease.Leases;
 import helmet.bikelab.apiserver.domain.riders.Riders;
 import helmet.bikelab.apiserver.services.internal.OriginObject;
 import lombok.Getter;
@@ -49,5 +50,12 @@ public class BikeRidersBak extends OriginObject {
 
     @Column(name = "rider_approval_at")
     private LocalDateTime riderApprovalAt;
+
+    @Column(name = "rider_lease_no", nullable = false)
+    private Integer riderLeaseNo;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "rider_lease_no", insertable = false, updatable = false)
+    private Leases riderLease;
 
 }
