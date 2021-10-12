@@ -133,7 +133,7 @@ public class DemandLeaseService extends SessService {
             lease.setClientNo(demandLeaseById.getClientNo());
             lease.setBikeNo(bike.getBikeNo());
             lease.setType(demandLeaseById.getManagementType());
-            lease.setContractTypes(ContractTypes.OPERATING);
+            lease.setContractTypes(ContractTypes.MANAGEMENT);
             lease.setCreatedAt(LocalDateTime.now());
             lease.setReleaseNo(1);
             lease.setDemandLeaseNo(demandLeaseById.getDemandLeaseNo());

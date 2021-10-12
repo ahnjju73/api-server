@@ -317,7 +317,7 @@ public class LeasesService extends SessService {
             lease.setInsuranceNo(insurance.getInsuranceNo());
         if(addUpdateLeaseRequest.getManagementType() != null)
             lease.setType(ManagementTypes.getManagementStatus(addUpdateLeaseRequest.getManagementType()));
-        lease.setContractTypes(ContractTypes.OPERATING);
+        lease.setContractTypes(ContractTypes.MANAGEMENT);
         lease.setCreatedAt(LocalDateTime.now());
         lease.setReleaseNo(1);
         lease.setCreatedUserNo(session.getUserNo());
