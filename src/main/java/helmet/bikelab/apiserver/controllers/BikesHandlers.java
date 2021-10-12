@@ -109,6 +109,15 @@ public class BikesHandlers {
                         .map(bikesService::returnData), Map.class);
     }
 
+    public Mono<ServerResponse> fetchBikesRidable(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> bikesService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(bikesService::checkBikeSession)
+                        .map(bikesService::fetchBikesRidable)
+                        .map(bikesService::returnData), ResponseListDto.class);
+    }
+
     public Mono<ServerResponse> fetchBikesWithoutLease(ServerRequest request) {
         return ServerResponse.ok().body(
                 Mono.fromSupplier(() -> bikesService.makeSessionRequest(request, BikeSessionRequest.class))

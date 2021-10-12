@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding= "UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="bikelabs.riders">
+
+    <select id="countAllRiders" parameterType="hmap" resultType="int">
+        select count(*)
+          from riders
+         where 1 = 1
+    </select>
+
+    <select id="fetchRiders" parameterType="hmap" resultType="hmap">
+        select rider_id,
+               status as rider_status,
+               email as rider_email,
+               phone as rider_phone,
+               ri.name as rider_name,
+               if(b.rider_no is null, 0, bikes) bikes_count
+          from (select *
+                  from riders
+                 where 1 = 1
+                 <if test="next_token != null and next_token != '' and next_token != 'undefined'">
+                   and rider_id <![CDATA[ < ]]> #{next_token}
+                 </if>
+                 <if test="condition != null and condition != '' and condition != 'undefined'">
+                   and (
+                    email like ('%', ${condition}, '%')
+                    or name like ('%', ${condition}, '%')
+                    or rider_id like ('%', ${condition}, '%')
+                   )
+                 </if>
+                 order by rider_id desc limit 30) r
+               join rider_info ri on r.rider_no = ri.rider_no
+               left outer join (select rider_no,
+                                       count(*) bikes
+                                  from bikes
+                                 group by rider_no) b on r.rider_no = b.rider_no
+         order by rider_id desc
+    </select>
+
+    <select id="fetchRiderListByBike" parameterType="hmap" resultType="hmap">
+        select b.bike_id,
+               vim_num as bike_vim_num,
+               b.number as bike_number,
+               b.car_model as bike_car_model_code,
+               ccb.comm_nm as bike_car_model,
+               ccm.manuf as bike_manufacturer,
+               b.color,
+               b.usable,
+               b.payer_types,
+               b.rider_status,
+               b.rider_start_at,
+               b.rider_end_at,
+               b.rider_request_at,
+               b.rider_approval_at,
+               r.rider_id,
+               r.email as rider_email,
+               r.phone as rider_phone,
+               ri.name as rider_name,
+               l.lease_id,
+               c.client_id,
+               ci.name as client_name
+          from (select *
+                  from bikes
+                 where rider_no is not null
+                 order by rider_request_at desc) b
+               join riders r on b.rider_no = r.rider_no
+               join rider_info ri on r.rider_no = ri.rider_no
+               join com_comm_bikes ccb on b.car_model = ccb.comm_cd
+               join com_comm_manuf ccm on ccb.manuf_no = ccm.manuf_no
+               left outer join leases l on b.bike_no = l.bike_no
+               left outer join clients c on l.client_no = c.client_no
+               left outer join client_info ci on c.client_no = ci.client_no
+         order by rider_request_at desc
+    </select>
+
+    <select id="fetchRiderBikeRequests" parameterType="hmap" resultType="hmap">
+        select b.bike_id,
+               b.rider_request_at,
+               b.vim_num,
+               b.number as bike_number,
+               b.car_model as car_model_code,
+               ccb.comm_nm as car_model,
+               ccm.manuf as manufacturer,
+               ccb.volume,
+               b.color as bike_color,
+               b.years,
+               b.usable,
+               b.payer_types,
+               rider_status,
+               rider_start_at,
+               rider_end_at,
+               r.rider_id,
+               r.email as rider_email,
+               r.phone as rider_phone,
+               ri.name as rider_name,
+               l.lease_id,
+               c.client_id,
+               ci.name as client_name
+          from bikes b
+               join riders r on b.rider_no = r.rider_no
+               join rider_info ri on r.rider_no = ri.rider_no
+               join com_comm_bikes ccb on b.car_model = ccb.comm_cd
+               join com_comm_manuf ccm on ccb.manuf_no = ccm.manuf_no
+               left outer join leases l on b.bike_no = l.bike_no
+               left outer join clients c on l.client_no = c.client_no
+               left outer join client_info ci on c.client_no = ci.client_no
+         where rider_status = '1'
+         order by rider_request_at desc
+    </select>
+
+
+
+</mapper>

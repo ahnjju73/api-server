@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @Table(name = "bike_riders")
 @NoArgsConstructor
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
-public class BikeRiders extends OriginObject {
+public class BikeRidersBak extends OriginObject {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
