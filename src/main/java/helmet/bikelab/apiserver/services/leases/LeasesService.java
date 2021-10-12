@@ -56,6 +56,7 @@ public class LeasesService extends SessService {
     private final CommonWorker commonWorker;
     private final LeaseInsurancesRepository leaseInsurancesRepository;
     private final DemandLeasesRepository demandLeasesRepository;
+    private final SystemParameterRepository systemParameterRepository;
 
     public BikeSessionRequest fetchLeases(BikeSessionRequest request){
         Map param = request.getParam();
@@ -861,7 +862,7 @@ public class LeasesService extends SessService {
         double stopFee = stopLeaseDto.getStopFee();
         Leases lease = leaseRepository.findByLeaseId(stopLeaseDto.getLeaseId());
         if(lease == null || lease.getStatus() != LeaseStatusTypes.CONFIRM) withException("");
-        Bikes emptyBike = bikesRepository.findByBikeId("BK000000");
+        Bikes emptyBike = bikesRepository.findByBikeId(systemParameterRepository.findByRemark("공백바이크 ID").getValue());
         lease.setBakBikeNo(lease.getBike().getBikeNo());
         lease.setBikeNo(emptyBike.getBikeNo());
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일");
