@@ -5,7 +5,7 @@ import lombok.Getter;
 @Getter
 public enum ContractTypes {
 
-    MANAGEMENT("500-001"), LEASE("500-002");
+    LEASE("500-001"), MANAGEMENT("500-002");
 
     private String status;
 

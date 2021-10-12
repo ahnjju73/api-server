@@ -55,16 +55,24 @@ public class RiderService extends SessService {
     private final LeaseRepository leaseRepository;
     private final ActivitiesRepository activitiesRepository;
     private final CommonWorker commonWorker;
+    private final LeasesWorker leasesWorker;
 
     @Transactional
     public BikeSessionRequest assignRiderToBike(BikeSessionRequest request){
         AssignRiderByBikeRequest riderBikeApproveRequest = map(request.getParam(), AssignRiderByBikeRequest.class);
         riderBikeApproveRequest.checkValidation();
         Bikes bikeByRiderIdAndBikeId = bikesRepository.findByBikeId(riderBikeApproveRequest.getBikeId());
-        // todo: 리스 차량인지 검사해야함.
         Riders riderById = riderWorker.getRiderById(riderBikeApproveRequest.getRiderId());
+        Leases leaseByBikeNo = leasesWorker.getLeaseByBikeNo(bikeByRiderIdAndBikeId.getBikeNo());
+        if(ContractTypes.MANAGEMENT.equals(leaseByBikeNo.getContractTypes())){
+            LeaseInfo leaseInfo = leaseByBikeNo.getLeaseInfo();
+//            bikeByRiderIdAndBikeId.assignRider(riderById, leaseInfo.getStart(), leaseInfo.getEndDate(), leaseByBikeNo);
+        }else {
+            bikeByRiderIdAndBikeId.assignRider(riderById, riderBikeApproveRequest.getStartAt(), riderBikeApproveRequest.getEndAt(), leaseByBikeNo);
+        }
+
         bikeByRiderIdAndBikeId.isRidable();
-        bikeByRiderIdAndBikeId.assignRider(riderById, riderBikeApproveRequest.getStartAt(), riderBikeApproveRequest.getEndAt());
+
         bikesRepository.save(bikeByRiderIdAndBikeId);
 
         Activities activities = new Activities();
@@ -131,6 +139,7 @@ public class RiderService extends SessService {
         bikeRidersBak.setRiderStartAt(bikeByRiderIdAndBikeId.getRiderStartAt());
         bikeRidersBak.setRiderEndAt(bikeByRiderIdAndBikeId.getRiderEndAt());
         bikeRidersBak.setRiderRequestAt(bikeByRiderIdAndBikeId.getRiderRequestAt());
+        bikeRidersBak.setRiderLeaseNo(bikeByRiderIdAndBikeId.getRiderLeaseNo());
         bikeRiderBakRepository.save(bikeRidersBak);
 
         Activities activities = new Activities();
