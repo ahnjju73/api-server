@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.services.endusers;
 
+import com.amazonaws.services.dynamodbv2.xspec.B;
 import helmet.bikelab.apiserver.domain.bike.BikeRidersBak;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
@@ -162,6 +163,35 @@ public class RiderService extends SessService {
     public BikeSessionRequest addNewRider(BikeSessionRequest request){
         Map param = request.getParam();
         riderWorker.addNewRider(param);
+        return request;
+    }
+
+    public BikeSessionRequest fetchRiderDetail(BikeSessionRequest request){
+        String riderId = (String) request.getParam().get("rider_id");
+        request.setResponse(riderWorker.getRiderDetail(riderId));
+        return request;
+    }
+
+    @Transactional
+    public BikeSessionRequest updateRider(BikeSessionRequest request){
+        AddUpdateRiderRequest addUpdateRiderRequest = map(request.getParam(), AddUpdateRiderRequest.class);
+        riderWorker.updateRider(addUpdateRiderRequest);
+        return request;
+    }
+
+    @Transactional
+    public BikeSessionRequest stopRider(BikeSessionRequest request){
+        riderWorker.stopRider((String) request.getParam().get("rider_id"));
+        return request;
+    }
+
+    @Transactional
+    public BikeSessionRequest resetPassword(BikeSessionRequest request){
+        String riderId = (String) request.getParam().get("rider_id");
+        String password = riderWorker.resetPassword(riderId);
+        Map response = new HashMap();
+        response.put("changed_password", password);
+        request.setResponse(response);
         return request;
     }
 
