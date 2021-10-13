@@ -6,7 +6,6 @@ import helmet.bikelab.apiserver.domain.types.AccountTypes;
 import helmet.bikelab.apiserver.domain.types.ActivityTypes;
 import helmet.bikelab.apiserver.domain.types.RiderStatusTypes;
 import helmet.bikelab.apiserver.objects.BikeDto;
-import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.RiderInfoDto;
 import helmet.bikelab.apiserver.objects.requests.AddUpdateRiderRequest;
 import helmet.bikelab.apiserver.objects.responses.FetchRiderDetailResponse;
@@ -91,10 +90,10 @@ public class RiderWorker extends SessService {
         fetchRiderDetailResponse.setCreatedAt(rider.getCreatedAt());
 
         RiderInfoDto riderInfoDto = new RiderInfoDto();
-        riderInfoDto.setEmail(rider.getEmail());
-        riderInfoDto.setName(riderInfo.getName());
-        riderInfoDto.setStatus(rider.getStatus().getRiderStatusType());
-        riderInfoDto.setPhone(rider.getPhone());
+        riderInfoDto.setRiderEmail(rider.getEmail());
+        riderInfoDto.setRiderName(riderInfo.getName());
+        riderInfoDto.setRiderStatus(rider.getStatus().getRiderStatusType());
+        riderInfoDto.setRiderPhone(rider.getPhone());
         fetchRiderDetailResponse.setRiderInfo(riderInfoDto);
 
         List<BikeDto> leasingBikes = new ArrayList<>();
@@ -137,6 +136,8 @@ public class RiderWorker extends SessService {
 
     public String resetPassword(String riderId){
         Riders rider = riderRepository.findByRiderId(riderId);
+        if(rider.getStatus() != RiderStatusTypes.ACTIVATE)
+            withException("950-005");
         RiderPassword riderPassword = rider.getRiderPassword();
         Random random = new Random();
         char[] word = new char[8];
