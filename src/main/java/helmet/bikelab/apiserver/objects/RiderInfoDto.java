@@ -9,8 +9,8 @@ import lombok.Setter;
 @Setter
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class RiderInfoDto {
-    private String status;
-    private String email;
-    private String phone;
-    private String name;
+    private String riderStatus;
+    private String riderEmail;
+    private String riderPhone;
+    private String riderName;
 }
