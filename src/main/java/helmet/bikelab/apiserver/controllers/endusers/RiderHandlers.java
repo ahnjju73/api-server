@@ -78,4 +78,13 @@ public class RiderHandlers {
                         .map(riderService::returnData), Map.class);
     }
 
+    public Mono<ServerResponse> addNewRiders(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> riderService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(riderService::checkBikeSession)
+                        .map(riderService::addNewRider)
+                        .map(riderService::returnData), Map.class);
+    }
 }
