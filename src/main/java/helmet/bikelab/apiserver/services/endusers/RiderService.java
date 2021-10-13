@@ -158,4 +158,11 @@ public class RiderService extends SessService {
         return request;
     }
 
+    @Transactional
+    public BikeSessionRequest addNewRider(BikeSessionRequest request){
+        Map param = request.getParam();
+        riderWorker.addNewRider(param);
+        return request;
+    }
+
 }

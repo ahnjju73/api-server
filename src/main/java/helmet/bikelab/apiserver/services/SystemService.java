@@ -3,6 +3,7 @@ package helmet.bikelab.apiserver.services;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.bikelab.Program;
 import helmet.bikelab.apiserver.domain.bikelab.ProgramUser;
+import helmet.bikelab.apiserver.domain.bikelab.SystemParameter;
 import helmet.bikelab.apiserver.domain.types.BikeUserStatusTypes;
 import helmet.bikelab.apiserver.domain.types.ReadWriteTypes;
 import helmet.bikelab.apiserver.domain.types.YesNoTypes;
@@ -13,6 +14,7 @@ import helmet.bikelab.apiserver.objects.bikelabs.systems.MenuDto;
 import helmet.bikelab.apiserver.repositories.BikeLabUserRepository;
 import helmet.bikelab.apiserver.repositories.ProgramRepository;
 import helmet.bikelab.apiserver.repositories.ProgramUserRepository;
+import helmet.bikelab.apiserver.repositories.SystemParameterRepository;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,6 +29,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class SystemService extends SessService {
 
+    private final SystemParameterRepository systemParameterRepository;
     private final ProgramUserRepository programUserRepository;
     private final ProgramRepository programRepository;
     private final BikeLabUserRepository bikeLabUserRepository;
@@ -111,6 +114,12 @@ public class SystemService extends SessService {
         if(!bePresent(byProgramNoAndBikeUserNo)) withException("020-003");
         byProgramNoAndBikeUserNo.setReadWriting(readWriteTypes);
         programUserRepository.save(byProgramNoAndBikeUserNo);
+        return request;
+    }
+
+    public BikeSessionRequest fetchParameters(BikeSessionRequest request){
+        List<SystemParameter> parameters = systemParameterRepository.findAll();
+        request.setResponse(parameters);
         return request;
     }
 }
