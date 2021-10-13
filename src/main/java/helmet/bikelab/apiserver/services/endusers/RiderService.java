@@ -14,6 +14,7 @@ import helmet.bikelab.apiserver.domain.types.*;
 import helmet.bikelab.apiserver.objects.BikeDto;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.PageableResponse;
+import helmet.bikelab.apiserver.objects.RiderBikeDto;
 import helmet.bikelab.apiserver.objects.bikelabs.clients.ClientDto;
 import helmet.bikelab.apiserver.objects.bikelabs.fine.FetchFinesResponse;
 import helmet.bikelab.apiserver.objects.bikelabs.insurance.InsuranceDto;
@@ -162,7 +163,7 @@ public class RiderService extends SessService {
     @Transactional
     public BikeSessionRequest addNewRider(BikeSessionRequest request){
         Map param = request.getParam();
-        riderWorker.addNewRider(param);
+        request.setResponse(riderWorker.addNewRider(param));
         return request;
     }
 
@@ -192,6 +193,12 @@ public class RiderService extends SessService {
         Map response = new HashMap();
         response.put("changed_password", password);
         request.setResponse(response);
+        return request;
+    }
+
+    public BikeSessionRequest fetchRiderBikesHistory(BikeSessionRequest request){
+        List<RiderBikeDto> riderBikes = riderWorker.getRiderBikes((String) request.getParam().get("rider_id"));
+        request.setResponse(riderBikes);
         return request;
     }
 

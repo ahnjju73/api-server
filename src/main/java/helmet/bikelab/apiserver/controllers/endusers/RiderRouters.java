@@ -29,6 +29,7 @@ public class RiderRouters {
                 .andRoute(PUT("/riders/{rider_id}/update"), riderHandlers::updateRider)
                 .andRoute(DELETE("/riders/{rider_id}"), riderHandlers::stopRider)
                 .andRoute(PUT("/riders/reset-password"), riderHandlers::resetPassword)
+                .andRoute(GET("/riders/bike-history/{rider_id}"), riderHandlers::fetchRiderBikeHistories)
                 ;
     }
 }
