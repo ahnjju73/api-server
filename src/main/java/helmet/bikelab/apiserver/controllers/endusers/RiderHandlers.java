@@ -86,7 +86,7 @@ public class RiderHandlers {
                         .map(row -> riderService.makeSessionRequest(request, row, BikeSessionRequest.class))
                         .map(riderService::checkBikeSession)
                         .map(riderService::addNewRider)
-                        .map(riderService::returnData), Map.class);
+                        .map(riderService::returnData), String.class);
     }
 
     public Mono<ServerResponse> fetchRiderDetail(ServerRequest request) {
@@ -128,5 +128,15 @@ public class RiderHandlers {
                         .map(riderService::checkBikeSession)
                         .map(riderService::resetPassword)
                         .map(riderService::returnData), Map.class);
+    }
+
+    public Mono<ServerResponse> fetchRiderBikeHistories(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> riderService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> riderService.getPathVariable(row, "rider_id"))
+                        .map(riderService::checkBikeSession)
+                        .map(riderService::fetchRiderBikesHistory)
+                        .map(riderService::returnData), List.class);
     }
 }

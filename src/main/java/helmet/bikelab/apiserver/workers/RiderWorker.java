@@ -1,11 +1,14 @@
 package helmet.bikelab.apiserver.workers;
 
+import helmet.bikelab.apiserver.domain.CommonCodeBikes;
+import helmet.bikelab.apiserver.domain.bike.BikeRidersBak;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.riders.*;
 import helmet.bikelab.apiserver.domain.types.AccountTypes;
 import helmet.bikelab.apiserver.domain.types.ActivityTypes;
 import helmet.bikelab.apiserver.domain.types.RiderStatusTypes;
 import helmet.bikelab.apiserver.objects.BikeDto;
+import helmet.bikelab.apiserver.objects.RiderBikeDto;
 import helmet.bikelab.apiserver.objects.RiderInfoDto;
 import helmet.bikelab.apiserver.objects.requests.AddUpdateRiderRequest;
 import helmet.bikelab.apiserver.objects.responses.FetchRiderDetailResponse;
@@ -24,6 +27,7 @@ public class RiderWorker extends SessService {
 
     private final BikesRepository bikesRepository;
     private final BikeUserTodoRepository bikeUserTodoRepository;
+    private final BikeRiderBakRepository bikeRiderBakRepository;
     private final RiderRepository riderRepository;
     private final RiderInfoRepository riderInfoRepository;
     private final RiderPasswordRepository riderPasswordRepository;
@@ -43,7 +47,7 @@ public class RiderWorker extends SessService {
         return byRiderId;
     }
 
-    public void addNewRider(Map param){
+    public String addNewRider(Map param){
         AddUpdateRiderRequest addUpdateRiderRequest = map(param, AddUpdateRiderRequest.class);
         addUpdateRiderRequest.checkValidation();
         String riderId = autoKey.makeGetKey("rider");
@@ -79,6 +83,8 @@ public class RiderWorker extends SessService {
         activities.setRiderNo(riders.getRiderNo());
         activitiesRepository.save(activities);
 
+        return riderId;
+
     }
 
     public FetchRiderDetailResponse getRiderDetail(String riderId){
@@ -103,7 +109,7 @@ public class RiderWorker extends SessService {
             bikeDto.setBikeId(bike.getBikeId());
             bikeDto.setBikeNum(bike.getCarNum());
             bikeDto.setVimNum(bike.getVimNum());
-            bikeDto.setBikeModel(bike.getCarModelCode());
+            bikeDto.setBikeModel(bike.getCarModel().getModel());
             bikeDto.setBikeVolume(bike.getCarModel().getVolume());
             bikeDto.setBikeType(bike.getCarModel().getBikeType().getType());
             leasingBikes.add(bikeDto);
@@ -130,6 +136,8 @@ public class RiderWorker extends SessService {
 
     public void stopRider(String riderId){
         Riders rider = riderRepository.findByRiderId(riderId);
+        if(rider.getStatus() != RiderStatusTypes.ACTIVATE)
+            withException("950-006");
         rider.setStatus(RiderStatusTypes.DEACTIVATE);
         riderRepository.save(rider);
     }
@@ -148,6 +156,27 @@ public class RiderWorker extends SessService {
         String randomPassword = new String(word);
         riderPassword.newPassword(randomPassword);
         return randomPassword;
+    }
+
+    public List<RiderBikeDto> getRiderBikes(String riderId){
+        List<BikeRidersBak> bikes = bikeRiderBakRepository.findAllByRider_RiderId(riderId);
+        List<RiderBikeDto> riderBikes = new ArrayList<>();
+        for(BikeRidersBak bRider : bikes){
+            Bikes bike = bRider.getBike();
+            CommonCodeBikes carModel = bike.getCarModel();
+            RiderBikeDto rBike = new RiderBikeDto();
+            rBike.setBikeNo(bike.getBikeNo());
+            rBike.setBikeId(bike.getBikeId());
+            rBike.setBikeNum(bike.getCarNum());
+            rBike.setVimNum(bike.getVimNum());
+            rBike.setBikeModel(carModel.getModel());
+            rBike.setBikeVolume(carModel.getVolume());
+            rBike.setBikeType(carModel.getBikeType().getType());
+            rBike.setRiderStartAt(bRider.getRiderStartAt());
+            rBike.setRiderEndAt(bRider.getRiderEndAt());
+            riderBikes.add(rBike);
+        }
+        return riderBikes;
     }
 
 }
