@@ -53,6 +53,10 @@ public class RiderWorker extends SessService {
         Map response = new HashMap();
         AddUpdateRiderRequest addUpdateRiderRequest = map(param, AddUpdateRiderRequest.class);
         addUpdateRiderRequest.checkValidation();
+        if(bePresent(riderRepository.findByPhone(addUpdateRiderRequest.getPhone())))
+            withException("950-007");
+        if(bePresent(riderRepository.findByEmail(addUpdateRiderRequest.getEmail())))
+            withException("950-008");
         String riderId = autoKey.makeGetKey("rider");
         Riders riders = new Riders();
         riders.setRiderId(riderId);
@@ -129,6 +133,12 @@ public class RiderWorker extends SessService {
         Riders riders = riderRepository.findByRiderId(addUpdateRiderRequest.getRiderId());
         if(!bePresent(riders))
             withException("950-004");
+        if(bePresent(riderRepository.findByPhone(addUpdateRiderRequest.getPhone())) && !riderRepository.findByPhone(addUpdateRiderRequest.getPhone()).equals(riders))
+            withException("950-007");
+        if(bePresent(riderRepository.findByEmail(addUpdateRiderRequest.getEmail())) && !riderRepository.findByEmail(addUpdateRiderRequest.getEmail()).equals(riders))
+            withException("950-008");
+
+
         riders.setEmail(addUpdateRiderRequest.getEmail());
         riders.setPhone(addUpdateRiderRequest.getPhone());
         riderRepository.save(riders);
