@@ -8,12 +8,9 @@ import lombok.Setter;
 @Getter
 @Setter
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
-public class BikeDto {
-    private String bikeId;
-    private String bikeModel;
-    private double bikeVolume;
-    private String bikeType;
-    private String bikeNum;
-    private String vimNum;
-    private String filename;
+public class RiderInfoDto {
+    private String status;
+    private String email;
+    private String phone;
+    private String name;
 }

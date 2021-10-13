@@ -13,6 +13,7 @@ public interface BikesRepository extends JpaRepository<Bikes, Integer> {
     Integer countAllByCarNum(String carNum);
     Integer countAllByVimNum(String vimNum);
     Bikes findByBikeIdAndRiders_RiderId(String bikeId, String riderId);
+    List<Bikes> findAllByRiderNo(Integer riderNo);
     List<Bikes> findByRiderNoIsNotNull(Pageable pageable);
     Integer countAllByRiderNoIsNotNull();
 }

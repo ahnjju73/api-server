@@ -5,8 +5,11 @@ import helmet.bikelab.apiserver.domain.riders.*;
 import helmet.bikelab.apiserver.domain.types.AccountTypes;
 import helmet.bikelab.apiserver.domain.types.ActivityTypes;
 import helmet.bikelab.apiserver.domain.types.RiderStatusTypes;
+import helmet.bikelab.apiserver.objects.BikeDto;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
+import helmet.bikelab.apiserver.objects.RiderInfoDto;
 import helmet.bikelab.apiserver.objects.requests.AddUpdateRiderRequest;
+import helmet.bikelab.apiserver.objects.responses.FetchRiderDetailResponse;
 import helmet.bikelab.apiserver.repositories.*;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.utils.AutoKey;
@@ -14,7 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -77,6 +80,73 @@ public class RiderWorker extends SessService {
         activities.setRiderNo(riders.getRiderNo());
         activitiesRepository.save(activities);
 
+    }
+
+    public FetchRiderDetailResponse getRiderDetail(String riderId){
+        FetchRiderDetailResponse fetchRiderDetailResponse = new FetchRiderDetailResponse();
+        Riders rider = riderRepository.findByRiderId(riderId);
+        RiderInfo riderInfo = rider.getRiderInfo();
+        fetchRiderDetailResponse.setRiderId(riderId);
+        fetchRiderDetailResponse.setRiderNo(rider.getRiderNo());
+        fetchRiderDetailResponse.setCreatedAt(rider.getCreatedAt());
+
+        RiderInfoDto riderInfoDto = new RiderInfoDto();
+        riderInfoDto.setEmail(rider.getEmail());
+        riderInfoDto.setName(riderInfo.getName());
+        riderInfoDto.setStatus(rider.getStatus().getRiderStatusType());
+        riderInfoDto.setPhone(rider.getPhone());
+        fetchRiderDetailResponse.setRiderInfo(riderInfoDto);
+
+        List<BikeDto> leasingBikes = new ArrayList<>();
+        List<Bikes> allByRiderNo = bikesRepository.findAllByRiderNo(rider.getRiderNo());
+        for(Bikes bike : allByRiderNo){
+            BikeDto bikeDto = new BikeDto();
+            bikeDto.setBikeId(bike.getBikeId());
+            bikeDto.setBikeNum(bike.getCarNum());
+            bikeDto.setVimNum(bike.getVimNum());
+            bikeDto.setBikeModel(bike.getCarModelCode());
+            bikeDto.setBikeVolume(bike.getCarModel().getVolume());
+            bikeDto.setBikeType(bike.getCarModel().getBikeType().getType());
+            leasingBikes.add(bikeDto);
+        }
+        fetchRiderDetailResponse.setLeasingBikes(leasingBikes);
+        return fetchRiderDetailResponse;
+    }
+
+    public void updateRider(AddUpdateRiderRequest addUpdateRiderRequest){
+        addUpdateRiderRequest.checkValidation();
+        Riders riders = riderRepository.findByRiderId(addUpdateRiderRequest.getRiderId());
+        if(!bePresent(riders))
+            withException("950-004");
+        riders.setEmail(addUpdateRiderRequest.getEmail());
+        riders.setPhone(addUpdateRiderRequest.getPhone());
+        riderRepository.save(riders);
+
+        RiderInfo riderInfo = new RiderInfo();
+        riderInfo.setRiderNo(riders.getRiderNo());
+        riderInfo.setRider(riders);
+        riderInfo.setName(addUpdateRiderRequest.getName());
+        riderInfoRepository.save(riderInfo);
+    }
+
+    public void stopRider(String riderId){
+        Riders rider = riderRepository.findByRiderId(riderId);
+        rider.setStatus(RiderStatusTypes.DEACTIVATE);
+        riderRepository.save(rider);
+    }
+
+    public String resetPassword(String riderId){
+        Riders rider = riderRepository.findByRiderId(riderId);
+        RiderPassword riderPassword = rider.getRiderPassword();
+        Random random = new Random();
+        char[] word = new char[8];
+        for(int j = 0; j < word.length; j++)
+        {
+            word[j] = (char)('a' + random.nextInt(26));
+        }
+        String randomPassword = new String(word);
+        riderPassword.newPassword(randomPassword);
+        return randomPassword;
     }
 
 }
