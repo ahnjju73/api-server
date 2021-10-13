@@ -8,6 +8,7 @@ import helmet.bikelab.apiserver.domain.types.AccountTypes;
 import helmet.bikelab.apiserver.domain.types.ActivityTypes;
 import helmet.bikelab.apiserver.domain.types.RiderStatusTypes;
 import helmet.bikelab.apiserver.objects.BikeDto;
+import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.RiderBikeDto;
 import helmet.bikelab.apiserver.objects.RiderInfoDto;
 import helmet.bikelab.apiserver.objects.requests.AddUpdateRiderRequest;
@@ -47,16 +48,22 @@ public class RiderWorker extends SessService {
         return byRiderId;
     }
 
-    public String addNewRider(Map param){
+    public void addNewRider(BikeSessionRequest request){
+        Map param = request.getParam();
+        Map response = new HashMap();
         AddUpdateRiderRequest addUpdateRiderRequest = map(param, AddUpdateRiderRequest.class);
         addUpdateRiderRequest.checkValidation();
+        if(bePresent(riderRepository.findByPhone(addUpdateRiderRequest.getPhone())))
+            withException("950-007");
+        if(bePresent(riderRepository.findByEmail(addUpdateRiderRequest.getEmail())))
+            withException("950-008");
         String riderId = autoKey.makeGetKey("rider");
         Riders riders = new Riders();
         riders.setRiderId(riderId);
         riders.setCreatedAt(LocalDateTime.now());
         riders.setEmail(addUpdateRiderRequest.getEmail());
         riders.setPhone(addUpdateRiderRequest.getPhone());
-        riders.setStatus(RiderStatusTypes.ACTIVATE);
+        riders.setStatus(RiderStatusTypes.PENDING);
         riderRepository.save(riders);
 
         RiderInfo riderInfo = new RiderInfo();
@@ -65,9 +72,10 @@ public class RiderWorker extends SessService {
         riderInfo.setName(addUpdateRiderRequest.getName());
 
         RiderPassword riderPassword = new RiderPassword();
+        String password = generateNewPassword();
         riderPassword.setRider(riders);
         riderPassword.setRiderNo(riders.getRiderNo());
-        riderPassword.newPassword(addUpdateRiderRequest.getEmail());
+        riderPassword.newPassword(password);
 
         RiderAccounts riderAccount = new RiderAccounts();
         riderAccount.setRider(riders);
@@ -83,8 +91,10 @@ public class RiderWorker extends SessService {
         activities.setRiderNo(riders.getRiderNo());
         activitiesRepository.save(activities);
 
-        return riderId;
+        response.put("rider_id", riderId);
+        response.put("password", password);
 
+        request.setResponse(response);
     }
 
     public FetchRiderDetailResponse getRiderDetail(String riderId){
@@ -123,6 +133,12 @@ public class RiderWorker extends SessService {
         Riders riders = riderRepository.findByRiderId(addUpdateRiderRequest.getRiderId());
         if(!bePresent(riders))
             withException("950-004");
+        if(bePresent(riderRepository.findByPhone(addUpdateRiderRequest.getPhone())) && !riderRepository.findByPhone(addUpdateRiderRequest.getPhone()).equals(riders))
+            withException("950-007");
+        if(bePresent(riderRepository.findByEmail(addUpdateRiderRequest.getEmail())) && !riderRepository.findByEmail(addUpdateRiderRequest.getEmail()).equals(riders))
+            withException("950-008");
+
+
         riders.setEmail(addUpdateRiderRequest.getEmail());
         riders.setPhone(addUpdateRiderRequest.getPhone());
         riderRepository.save(riders);
@@ -147,13 +163,8 @@ public class RiderWorker extends SessService {
         if(rider.getStatus() != RiderStatusTypes.ACTIVATE)
             withException("950-005");
         RiderPassword riderPassword = rider.getRiderPassword();
-        Random random = new Random();
-        char[] word = new char[8];
-        for(int j = 0; j < word.length; j++)
-        {
-            word[j] = (char)('a' + random.nextInt(26));
-        }
-        String randomPassword = new String(word);
+
+        String randomPassword = generateNewPassword();
         riderPassword.newPassword(randomPassword);
         return randomPassword;
     }
@@ -177,6 +188,19 @@ public class RiderWorker extends SessService {
             riderBikes.add(rBike);
         }
         return riderBikes;
+    }
+
+    private String generateNewPassword(){
+        Random random = new Random();
+        StringBuffer sb = new StringBuffer();
+        for(int j = 0; j < 8; j++)
+        {
+            if(random.nextBoolean())
+                sb.append((char)('A' + random.nextInt(26)));
+            else
+                sb.append(random.nextInt(10));
+        }
+        return sb.toString();
     }
 
 }
