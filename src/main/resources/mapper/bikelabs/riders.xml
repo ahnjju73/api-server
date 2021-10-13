@@ -17,6 +17,8 @@
                email as rider_email,
                phone as rider_phone,
                ri.name as rider_name,
+               r.rider_no,
+               r.created_at,
                if(b.rider_no is null, 0, bikes) bikes_count
           from (select *
                   from riders

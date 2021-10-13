@@ -10,6 +10,7 @@ import lombok.Setter;
 @Setter
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class AddUpdateRiderRequest extends OriginObject {
+    private String riderId;
     private String email;
     private String name;
     private String phone;
