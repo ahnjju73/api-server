@@ -30,4 +30,8 @@ public class RiderPassword extends OriginObject {
     @Embedded
     private ModelPassword modelPassword = new ModelPassword();
 
+    public void newPassword(String password){
+        modelPassword.newPassword(password);
+    }
+
 }

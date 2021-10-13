@@ -24,6 +24,7 @@ public class RiderRouters {
                 .andRoute(PUT("/riders/requested/decline"), riderHandlers::doDeclineRider)
                 .andRoute(GET("/riders/by-bike"), riderHandlers::fetchRiderListByBike)
                 .andRoute(GET("/riders"), riderHandlers::fetchRiders)
+                .andRoute(POST("/riders"), riderHandlers::addNewRiders)
                 ;
     }
 }
