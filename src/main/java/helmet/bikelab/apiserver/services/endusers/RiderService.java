@@ -64,15 +64,16 @@ public class RiderService extends SessService {
         Bikes bikeByRiderIdAndBikeId = bikesRepository.findByBikeId(riderBikeApproveRequest.getBikeId());
         Riders riderById = riderWorker.getRiderById(riderBikeApproveRequest.getRiderId());
         Leases leaseByBikeNo = leasesWorker.getLeaseByBikeNo(bikeByRiderIdAndBikeId.getBikeNo());
+        LeaseInfo leaseInfo = leaseByBikeNo.getLeaseInfo();
+        LocalDateTime startAt = leaseInfo.getStart().atStartOfDay();
+        LocalDateTime endAt = leaseInfo.getEndDate().atStartOfDay();
         if(ContractTypes.MANAGEMENT.equals(leaseByBikeNo.getContractTypes())){
-            LeaseInfo leaseInfo = leaseByBikeNo.getLeaseInfo();
-//            bikeByRiderIdAndBikeId.assignRider(riderById, leaseInfo.getStart(), leaseInfo.getEndDate(), leaseByBikeNo);
+            bikeByRiderIdAndBikeId.assignRider(riderById, startAt, endAt, leaseByBikeNo);
         }else {
+            // todo : 리스계약서와 날짜 비교가 필요함.
             bikeByRiderIdAndBikeId.assignRider(riderById, riderBikeApproveRequest.getStartAt(), riderBikeApproveRequest.getEndAt(), leaseByBikeNo);
         }
-
         bikeByRiderIdAndBikeId.isRidable();
-
         bikesRepository.save(bikeByRiderIdAndBikeId);
 
         Activities activities = new Activities();

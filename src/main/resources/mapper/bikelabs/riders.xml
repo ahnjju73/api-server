@@ -63,6 +63,7 @@
                r.phone as rider_phone,
                ri.name as rider_name,
                l.lease_id,
+               l.contract_type,
                c.client_id,
                ci.name as client_name
           from (select *
@@ -100,6 +101,7 @@
                r.phone as rider_phone,
                ri.name as rider_name,
                l.lease_id,
+               l.contract_type,
                c.client_id,
                ci.name as client_name
           from bikes b
