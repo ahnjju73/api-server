@@ -9,7 +9,6 @@ public enum ContractTypes {
 
     private String status;
 
-
     ContractTypes(String status) {
         this.status = status;
     }

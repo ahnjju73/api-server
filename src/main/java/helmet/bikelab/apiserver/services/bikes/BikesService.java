@@ -53,7 +53,6 @@ public class BikesService extends SessService {
     private final LeaseRepository leaseRepository;
     private final BikeModelsRepository bikeModelsRepository;
     private final BikeUserLogRepository bikeUserLogRepository;
-    private final ClientsRepository clientsRepository;
     private final LeaseExpenseRepository expenseRepository;
     private final CommonWorker commonWorker;
     private final BikeWorker bikeWorker;
