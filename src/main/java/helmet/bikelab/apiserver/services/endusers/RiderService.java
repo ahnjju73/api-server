@@ -64,6 +64,7 @@ public class RiderService extends SessService {
         AssignRiderByBikeRequest riderBikeApproveRequest = map(request.getParam(), AssignRiderByBikeRequest.class);
         riderBikeApproveRequest.checkValidation();
         Bikes bikeByRiderIdAndBikeId = bikesRepository.findByBikeId(riderBikeApproveRequest.getBikeId());
+        bikeByRiderIdAndBikeId.isRidable();
         Riders riderById = riderWorker.getRiderById(riderBikeApproveRequest.getRiderId());
         Leases leaseByBikeNo = leasesWorker.getLeaseByBikeNo(bikeByRiderIdAndBikeId.getBikeNo());
         LeaseInfo leaseInfo = leaseByBikeNo.getLeaseInfo();
@@ -73,9 +74,12 @@ public class RiderService extends SessService {
             bikeByRiderIdAndBikeId.assignRider(riderById, startAt, endAt, leaseByBikeNo);
         }else {
             // todo : 리스계약서와 날짜 비교가 필요함.
+            if(riderBikeApproveRequest.getStartAt().compareTo(startAt) < 0) withException("511-001");
+            if(riderBikeApproveRequest.getStartAt().compareTo(endAt) > 0) withException("511-002");
+            if(riderBikeApproveRequest.getEndAt().compareTo(startAt) < 0) withException("511-003");
+            if(riderBikeApproveRequest.getEndAt().compareTo(endAt) > 0) withException("511-004");
             bikeByRiderIdAndBikeId.assignRider(riderById, riderBikeApproveRequest.getStartAt(), riderBikeApproveRequest.getEndAt(), leaseByBikeNo);
         }
-        bikeByRiderIdAndBikeId.isRidable();
         bikesRepository.save(bikeByRiderIdAndBikeId);
 
         Activities activities = new Activities();
