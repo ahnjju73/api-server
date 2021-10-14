@@ -2,6 +2,7 @@ package helmet.bikelab.apiserver.controllers.endusers;
 
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.PageableResponse;
+import helmet.bikelab.apiserver.objects.responses.FetchRiderDetailResponse;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.services.endusers.RiderService;
 import helmet.bikelab.apiserver.services.shops.ShopService;
@@ -78,4 +79,64 @@ public class RiderHandlers {
                         .map(riderService::returnData), Map.class);
     }
 
+    public Mono<ServerResponse> addNewRiders(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> riderService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(riderService::checkBikeSession)
+                        .map(riderService::addNewRider)
+                        .map(riderService::returnData), String.class);
+    }
+
+    public Mono<ServerResponse> fetchRiderDetail(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> riderService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> riderService.getPathVariable(row, "rider_id"))
+                        .map(riderService::checkBikeSession)
+                        .map(riderService::fetchRiderDetail)
+                        .map(riderService::returnData), FetchRiderDetailResponse.class);
+    }
+
+    public Mono<ServerResponse> updateRider(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> riderService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(row -> riderService.getPathVariable(row, "rider_id"))
+                        .map(riderService::checkBikeSession)
+                        .map(riderService::updateRider)
+                        .map(riderService::returnData), Map.class);
+    }
+
+    public Mono<ServerResponse> stopRider(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> riderService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> riderService.getPathVariable(row, "rider_id"))
+                        .map(riderService::checkBikeSession)
+                        .map(riderService::stopRider)
+                        .map(riderService::returnData), FetchRiderDetailResponse.class);
+    }
+
+    public Mono<ServerResponse> resetPassword(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> riderService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(riderService::checkBikeSession)
+                        .map(riderService::resetPassword)
+                        .map(riderService::returnData), Map.class);
+    }
+
+    public Mono<ServerResponse> fetchRiderBikeHistories(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> riderService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> riderService.getPathVariable(row, "rider_id"))
+                        .map(riderService::checkBikeSession)
+                        .map(riderService::fetchRiderBikesHistory)
+                        .map(riderService::returnData), List.class);
+    }
 }

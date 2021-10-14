@@ -5,15 +5,19 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
-public class BikeDto {
+public class RiderBikeDto {
+    private Integer bikeNo;
     private String bikeId;
+    private String bikeNum;
+    private String vimNum;
     private String bikeModel;
     private double bikeVolume;
     private String bikeType;
-    private String bikeNum;
-    private String vimNum;
-    private String filename;
+    private LocalDateTime riderStartAt;
+    private LocalDateTime riderEndAt;
 }

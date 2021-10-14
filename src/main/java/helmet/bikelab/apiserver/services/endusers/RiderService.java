@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.services.endusers;
 
+import com.amazonaws.services.dynamodbv2.xspec.B;
 import helmet.bikelab.apiserver.domain.bike.BikeRidersBak;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
@@ -13,6 +14,7 @@ import helmet.bikelab.apiserver.domain.types.*;
 import helmet.bikelab.apiserver.objects.BikeDto;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.PageableResponse;
+import helmet.bikelab.apiserver.objects.RiderBikeDto;
 import helmet.bikelab.apiserver.objects.bikelabs.clients.ClientDto;
 import helmet.bikelab.apiserver.objects.bikelabs.fine.FetchFinesResponse;
 import helmet.bikelab.apiserver.objects.bikelabs.insurance.InsuranceDto;
@@ -159,6 +161,47 @@ public class RiderService extends SessService {
         bikeByRiderIdAndBikeId.doDeclineRider();
         bikesRepository.save(bikeByRiderIdAndBikeId);
 
+        return request;
+    }
+
+    @Transactional
+    public BikeSessionRequest addNewRider(BikeSessionRequest request){
+        riderWorker.addNewRider(request);
+        return request;
+    }
+
+    public BikeSessionRequest fetchRiderDetail(BikeSessionRequest request){
+        String riderId = (String) request.getParam().get("rider_id");
+        request.setResponse(riderWorker.getRiderDetail(riderId));
+        return request;
+    }
+
+    @Transactional
+    public BikeSessionRequest updateRider(BikeSessionRequest request){
+        AddUpdateRiderRequest addUpdateRiderRequest = map(request.getParam(), AddUpdateRiderRequest.class);
+        riderWorker.updateRider(addUpdateRiderRequest);
+        return request;
+    }
+
+    @Transactional
+    public BikeSessionRequest stopRider(BikeSessionRequest request){
+        riderWorker.stopRider((String) request.getParam().get("rider_id"));
+        return request;
+    }
+
+    @Transactional
+    public BikeSessionRequest resetPassword(BikeSessionRequest request){
+        String riderId = (String) request.getParam().get("rider_id");
+        String password = riderWorker.resetPassword(riderId);
+        Map response = new HashMap();
+        response.put("changed_password", password);
+        request.setResponse(response);
+        return request;
+    }
+
+    public BikeSessionRequest fetchRiderBikesHistory(BikeSessionRequest request){
+        List<RiderBikeDto> riderBikes = riderWorker.getRiderBikes((String) request.getParam().get("rider_id"));
+        request.setResponse(riderBikes);
         return request;
     }
 

@@ -17,12 +17,17 @@
                email as rider_email,
                phone as rider_phone,
                ri.name as rider_name,
+               r.rider_no,
+               r.created_at,
                if(b.rider_no is null, 0, bikes) bikes_count
           from (select *
                   from riders
                  where 1 = 1
                  <if test="next_token != null and next_token != '' and next_token != 'undefined'">
                    and rider_id <![CDATA[ < ]]> #{next_token}
+                 </if>
+                 <if test="condition_status != null and condition_status != '' and condition_status != 'undefined'">
+                   and status = #{condition_status}
                  </if>
                  <if test="condition != null and condition != '' and condition != 'undefined'">
                    and (
