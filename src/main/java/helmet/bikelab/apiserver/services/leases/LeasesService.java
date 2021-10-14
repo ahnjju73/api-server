@@ -317,7 +317,7 @@ public class LeasesService extends SessService {
             lease.setInsuranceNo(insurance.getInsuranceNo());
         if(addUpdateLeaseRequest.getManagementType() != null)
             lease.setType(ManagementTypes.getManagementStatus(addUpdateLeaseRequest.getManagementType()));
-        lease.setContractTypes(ContractTypes.MANAGEMENT);
+        lease.setContractTypes(ContractTypes.getContractType(addUpdateLeaseRequest.getContractType()));
         lease.setCreatedAt(LocalDateTime.now());
         lease.setReleaseNo(1);
         lease.setCreatedUserNo(session.getUserNo());
@@ -567,6 +567,7 @@ public class LeasesService extends SessService {
                 lease.setTakeAt(addUpdateLeaseRequest.getTakeAt());
             if (addUpdateLeaseRequest.getReleaseAt() != null)
                 lease.setReleaseAt(addUpdateLeaseRequest.getReleaseAt());
+            lease.setContractTypes(ContractTypes.getContractType(addUpdateLeaseRequest.getContractType()));
             lease.setUpLesase(addUpdateLeaseRequest.getUpLeaseNo());
             leaseRepository.save(lease);
             leaseInsurances.setLeaseNo(lease.getLeaseNo());
@@ -691,6 +692,10 @@ public class LeasesService extends SessService {
 //                    }
                 }
             }
+            if(bePresent(leaseRequest.getContractType()) && !leaseRequest.getContractType().equals(leases.getContractTypes().getStatus())){
+                stringList.add("계약 형태룰 <>" + leases.getContractTypes() + "</>에서 <>" + ContractTypes.getContractType(leaseRequest.getManagementType()) + "</>으로 변경하였습니다.");
+            }
+
             if(bePresent(leaseRequest.getManagementType()) && !leaseRequest.getManagementType().equals(leases.getType().getStatus())){
                 stringList.add("운용 형태룰 <>" + leases.getType() + "</>에서 <>" + ManagementTypes.getManagementStatus(leaseRequest.getManagementType()) + "</>으로 변경하였습니다.");
             }
