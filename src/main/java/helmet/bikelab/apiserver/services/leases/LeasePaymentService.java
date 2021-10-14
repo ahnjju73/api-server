@@ -8,6 +8,7 @@ import helmet.bikelab.apiserver.domain.lease.*;
 import helmet.bikelab.apiserver.domain.types.BikeUserLogTypes;
 import helmet.bikelab.apiserver.domain.types.LeaseStatusTypes;
 import helmet.bikelab.apiserver.domain.types.LeaseStopStatusTypes;
+import helmet.bikelab.apiserver.domain.types.PaidTypes;
 import helmet.bikelab.apiserver.objects.BikeDto;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.UnpaidExcelDto;
@@ -115,9 +116,7 @@ public class LeasePaymentService  extends SessService {
     public BikeSessionRequest payLeaseFeeByPaymentId(BikeSessionRequest request){
         Map param = request.getParam();
         BikeUser session = request.getSessionUser();
-        String paymentId = (String)param.get("payment_id");
-        Integer payFee = (Integer) param.get("pay_fee");
-        leasePaymentWorker.payLeaseFeeByPaymentId(paymentId, session, payFee);
+        leasePaymentWorker.payLeaseFeeByPaymentId(session, param);
 //        leasePaymentWorker.readLeaseFeeByPaymentId(paymentId, session);
         return request;
     }
@@ -208,7 +207,8 @@ public class LeasePaymentService  extends SessService {
         if(payLeaseRequest.getType().equals("lease")){
             List<LeasePayments> payments = leasePaymentsRepository.findAllByLease_LeaseId(payLeaseRequest.getLeaseId());
             for (int i = 0; i < payments.size() && paidFee > 0 && payments.get(i).getPaymentDate().isBefore(LocalDate.now().plusDays(1)); i++) {
-
+                payments.get(i).setPaidType(PaidTypes.BANK);
+                payments.get(i).setRiderNo(lease.getBike().getRiderNo());
                 int unpaidFee = payments.get(i).getLeaseFee() - payments.get(i).getPaidFee();
                 if (unpaidFee > 0) {
                     if (paidFee > unpaidFee) {
