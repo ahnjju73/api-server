@@ -130,5 +130,6 @@ public class Bikes extends OriginObject {
         this.setRiderEndAt(endAt);
         this.setRiderApprovalAt(LocalDateTime.now());
         this.setRiderRequestAt(LocalDateTime.now());
+        this.riderLeaseNo = leases.getLeaseNo();
     }
 }
