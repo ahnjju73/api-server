@@ -86,7 +86,7 @@ public class RiderHandlers {
                         .map(row -> riderService.makeSessionRequest(request, row, BikeSessionRequest.class))
                         .map(riderService::checkBikeSession)
                         .map(riderService::addNewRider)
-                        .map(riderService::returnData), String.class);
+                        .map(riderService::returnData), Map.class);
     }
 
     public Mono<ServerResponse> fetchRiderDetail(ServerRequest request) {

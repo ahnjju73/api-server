@@ -1,6 +1,10 @@
 package helmet.bikelab.apiserver.domain.lease;
 
+import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
+import helmet.bikelab.apiserver.domain.riders.Riders;
+import helmet.bikelab.apiserver.domain.types.PaidTypes;
+import helmet.bikelab.apiserver.domain.types.converters.PaidTypeConverter;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -63,5 +67,24 @@ public class LeasePayments {
 
     @Column(name = "read_yn")
     private Boolean read = false;
+
+    @Column(name = "paid_type", columnDefinition = "ENUM")
+    @Convert(converter = PaidTypeConverter.class)
+    private PaidTypes paidType;
+
+    @Column(name = "rider_no")
+    private Integer riderNo;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "rider_no", insertable = false, updatable = false)
+    private Riders rider;
+
+    @Column(name = "bike_no")
+    private Integer bikeNo;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "bike_no", insertable = false, updatable = false)
+    private Bikes bike;
+
 
 }
