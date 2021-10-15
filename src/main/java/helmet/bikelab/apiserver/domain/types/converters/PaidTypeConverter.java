@@ -7,7 +7,7 @@ import javax.persistence.AttributeConverter;
 public class PaidTypeConverter implements AttributeConverter<PaidTypes, String> {
     @Override
     public String convertToDatabaseColumn(PaidTypes attribute) {
-        return attribute.getStatus();
+        return attribute == null ? null : attribute.getStatus();
     }
 
     @Override
