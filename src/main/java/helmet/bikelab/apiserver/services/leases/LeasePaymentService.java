@@ -399,6 +399,8 @@ public class LeasePaymentService  extends SessService {
                 int paidFee = payLeaseRequest.getPaidFee();
                 List<LeasePayments> payments = leasePaymentsRepository.findAllByLease_LeaseIdAndPaymentDateLessThanEqual(payLeaseRequest.getLeaseId(), LocalDate.now());
                 for (int i = 0; i < payments.size(); i++) {
+                    payments.get(i).setPaidType(PaidTypes.BANK);
+                    payments.get(i).setRiderNo(lease.getBike().getRiderNo());
                     int unpaidFee = payments.get(i).getLeaseFee() - payments.get(i).getPaidFee();
                     if (unpaidFee > 0) {
                         if (paidFee > unpaidFee) {
@@ -474,6 +476,8 @@ public class LeasePaymentService  extends SessService {
             if(payLeaseRequest.getPayType().equals("lease")) {
                 for (int i = 0; i < payments.size() && payments.get(i).getPaymentDate().isBefore(LocalDate.parse(payLeaseRequest.getEndDt()).plusDays(1)); i++) {
                     int unpaidFee = payments.get(i).getLeaseFee() - payments.get(i).getPaidFee();
+                    payments.get(i).setPaidType(PaidTypes.BANK);
+                    payments.get(i).setRiderNo(lease.getBike().getRiderNo());
                     payments.get(i).setRead(true);
                     if (payments.get(i).getReadUserNo() == null)
                         payments.get(i).setReadUserNo(request.getSessionUser().getUserNo());
@@ -544,6 +548,8 @@ public class LeasePaymentService  extends SessService {
                 int paidFee = payLeaseRequest.getPaidFee();
                 List<LeasePayments> payments = leasePaymentsRepository.findAllByLease_LeaseId(lease.getLeaseId());
                 for (int i = 0; i < payments.size() && payments.get(i).getPaymentDate().isBefore(LocalDate.now().plusDays(1)); i++) {
+                    payments.get(i).setPaidType(PaidTypes.BANK);
+                    payments.get(i).setRiderNo(lease.getBike().getRiderNo());
                     int unpaidFee = payments.get(i).getLeaseFee() - payments.get(i).getPaidFee();
                     if (unpaidFee > 0) {
                         if (paidFee > unpaidFee) {
@@ -607,6 +613,8 @@ public class LeasePaymentService  extends SessService {
                     continue;
                 List<LeasePayments> payments = leasePaymentsRepository.findAllByLease_LeaseId(lease.getLeaseId());
                 for (int i = 0; i < payments.size() && payments.get(i).getPaymentDate().isBefore(LocalDate.now().plusDays(1)); i++) {
+                    payments.get(i).setPaidType(PaidTypes.BANK);
+                    payments.get(i).setRiderNo(lease.getBike().getRiderNo());
                     int unpaidFee = payments.get(i).getLeaseFee() - payments.get(i).getPaidFee();
                     if (unpaidFee > 0) {
                         if (paidFee > unpaidFee) {
@@ -658,9 +666,9 @@ public class LeasePaymentService  extends SessService {
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일");
         LocalDate paymentDate = payment.getPaymentDate();
         if(isFull)
-            return ("<>" + payment.getIndex() + "회차 (" + paymentDate.format(dateTimeFormatter) + ")</> 리스료 <>" + Utils.getCurrencyFormat(payment.getLeaseFee()) + "원</>중에서 납부금액 (<>" + Utils.getCurrencyFormat(payment.getPaidFee()) + "원</>에서 <>" + Utils.getCurrencyFormat(changedFee + payment.getPaidFee()) + "원</>로) 완납하였습니다.");
+            return ("<>" + payment.getIndex() + "회차 (" + paymentDate.format(dateTimeFormatter) + ")</> 리스료 <>" + Utils.getCurrencyFormat(payment.getLeaseFee()) + "원</>중에서 납부금액 (<>" + Utils.getCurrencyFormat(payment.getPaidFee()) + "원</>에서 <>" + Utils.getCurrencyFormat(changedFee + payment.getPaidFee()) + "원</>로) 완납하였습니다. (계좌이체)");
         else
-            return ("<>" + payment.getIndex() + "회차 (" + paymentDate.format(dateTimeFormatter) + ")</> 리스료 <>" + Utils.getCurrencyFormat(payment.getLeaseFee()) + "원</>중에서 납부금액 (<>" + Utils.getCurrencyFormat(payment.getPaidFee()) + "원</>에서 <>" + Utils.getCurrencyFormat(changedFee + payment.getPaidFee()) + "원</>) 납부하여서 잔여금액은 <>" + Utils.getCurrencyFormat(payment.getLeaseFee() - (changedFee + payment.getPaidFee())) + "원</>입니다.");
+            return ("<>" + payment.getIndex() + "회차 (" + paymentDate.format(dateTimeFormatter) + ")</> 리스료 <>" + Utils.getCurrencyFormat(payment.getLeaseFee()) + "원</>중에서 납부금액 (<>" + Utils.getCurrencyFormat(payment.getPaidFee()) + "원</>에서 <>" + Utils.getCurrencyFormat(changedFee + payment.getPaidFee()) + "원</>) 납부하여서 잔여금액은 <>" + Utils.getCurrencyFormat(payment.getLeaseFee() - (changedFee + payment.getPaidFee())) + "원</>입니다. (계좌이체)");
     }
 
     private String extraPaymentLog(LeaseExtras extra, Integer changedFee, boolean isFull) {
