@@ -25,11 +25,20 @@ public class RiderRouters {
                 .andRoute(GET("/riders/by-bike"), riderHandlers::fetchRiderListByBike)
                 .andRoute(GET("/riders"), riderHandlers::fetchRiders)
                 .andRoute(POST("/riders"), riderHandlers::addNewRiders)
+                .andRoute(GET("/riders-verified"), riderHandlers::fetchRiderVerified)
                 .andRoute(GET("/riders/{rider_id}"), riderHandlers::fetchRiderDetail)
                 .andRoute(PUT("/riders/{rider_id}/update"), riderHandlers::updateRider)
                 .andRoute(DELETE("/riders/{rider_id}"), riderHandlers::stopRider)
                 .andRoute(PUT("/riders/reset-password"), riderHandlers::resetPassword)
                 .andRoute(GET("/riders/bike-history/{rider_id}"), riderHandlers::fetchRiderBikeHistories)
+                ;
+    }
+
+    @Bean
+    public RouterFunction<ServerResponse> riderVerified(){
+        return RouterFunctions
+                .route(PUT("/riders-verified/approve"), riderHandlers::doApproveRiderVerified)
+                .andRoute(PUT("/riders-verified/reject"), riderHandlers::doRejectRiderVerified)
                 ;
     }
 }

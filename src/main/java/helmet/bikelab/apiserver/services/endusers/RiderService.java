@@ -9,6 +9,7 @@ import helmet.bikelab.apiserver.domain.demands.DemandLeases;
 import helmet.bikelab.apiserver.domain.embeds.ModelTransaction;
 import helmet.bikelab.apiserver.domain.lease.*;
 import helmet.bikelab.apiserver.domain.riders.Activities;
+import helmet.bikelab.apiserver.domain.riders.RiderVerified;
 import helmet.bikelab.apiserver.domain.riders.Riders;
 import helmet.bikelab.apiserver.domain.types.*;
 import helmet.bikelab.apiserver.objects.BikeDto;
@@ -58,6 +59,68 @@ public class RiderService extends SessService {
     private final ActivitiesRepository activitiesRepository;
     private final CommonWorker commonWorker;
     private final LeasesWorker leasesWorker;
+    private final RiderVerifiedRepository riderVerifiedRepository;
+    private final RiderRepository riderRepository;
+
+    @Transactional
+    public BikeSessionRequest doRejectRiderVerified(BikeSessionRequest request){
+        Map param = request.getParam();
+        String riderId = (String)param.get("rider_id");
+        String message = (String)param.get("message");
+        Riders riderById = riderWorker.getRiderById(riderId);
+        riderById.setVerifiedRejectMessage(message);
+        riderVerifiedRepository.deleteAllByRiderNoAndRequestType(riderById.getRiderNo(), RiderVerifiedRequestTypes.REQUEST);
+        riderById.setVerifiedRequestAt(null);
+        riderById.setVerifiedType(RiderVerifiedTypes.REJECTED);
+        riderRepository.save(riderById);
+
+        Activities activities = new Activities();
+        activities.setRiderNo(riderById.getRiderNo());
+        activities.setActivityType(ActivityTypes.RIDER_VERIFIED_REJECTED);
+        activitiesRepository.save(activities);
+
+        return request;
+    }
+
+    @Transactional
+    public BikeSessionRequest doApproveRiderVerified(BikeSessionRequest request){
+        Map param = request.getParam();
+        String riderId = (String)param.get("rider_id");
+        Riders riderById = riderWorker.getRiderById(riderId);
+        riderVerifiedRepository.deleteAllByRiderNoAndRequestType(riderById.getRiderNo(), RiderVerifiedRequestTypes.VERIFIED);
+        List<RiderVerified> allByRiderNoAndRequestType = riderVerifiedRepository.findAllByRiderNoAndRequestType(riderById.getRiderNo(), RiderVerifiedRequestTypes.REQUEST);
+        if(!bePresent(allByRiderNoAndRequestType)) withException("960-001");
+        allByRiderNoAndRequestType.forEach(e -> {
+            e.setRequestType(RiderVerifiedRequestTypes.VERIFIED);
+        });
+        riderVerifiedRepository.saveAll(allByRiderNoAndRequestType);
+        riderById.setVerifiedAt(LocalDateTime.now());
+        riderById.setVerifiedRequestAt(null);
+        riderById.setVerifiedType(RiderVerifiedTypes.VERIFIED);
+        riderRepository.save(riderById);
+        Activities activities = new Activities();
+        activities.setRiderNo(riderById.getRiderNo());
+        activities.setActivityType(ActivityTypes.RIDER_VERIFIED_COMPLETED);
+        activitiesRepository.save(activities);
+        return request;
+    }
+
+    public BikeSessionRequest fetchRiderVerified(BikeSessionRequest request){
+        Map param = request.getParam();
+        String riderId = (String)param.get("rider_id");
+        Riders riderById = riderWorker.getRiderById(riderId);
+        RiderVerifiedResponse response = new RiderVerifiedResponse();
+        response.setVerified(riderById.getVerifiedType());
+        response.setVerifiedAt(riderById.getVerifiedAt());
+        response.setVerifiedRejectMessage(riderById.getVerifiedRejectMessage());
+        response.setVerifiedRequestAt(riderById.getVerifiedRequestAt());
+        List<RiderVerified> verifiedList = riderVerifiedRepository.findAllByRiderNoAndRequestType(riderById.getRiderNo(), RiderVerifiedRequestTypes.VERIFIED);
+        List<RiderVerified> requestVerifiedList = riderVerifiedRepository.findAllByRiderNoAndRequestType(riderById.getRiderNo(), RiderVerifiedRequestTypes.REQUEST);
+        response.setVerifiedList(verifiedList);
+        response.setRequestVerifiedList(requestVerifiedList);
+        request.setResponse(response);
+        return request;
+    }
 
     @Transactional
     public BikeSessionRequest assignRiderToBike(BikeSessionRequest request){
@@ -87,9 +150,6 @@ public class RiderService extends SessService {
         activities.setBikeNo(bikeByRiderIdAndBikeId.getBikeNo());
         activities.setActivityType(ActivityTypes.RIDER_ASSIGNED);
         activitiesRepository.save(activities);
-
-        // todo: push to application for rider
-
         return request;
     }
 
