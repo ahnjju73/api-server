@@ -11,6 +11,86 @@
          where 1 = 1
     </select>
 
+    <select id="countAllRidersVerified" parameterType="hmap" resultType="int">
+        select count(*)
+          from riders
+         where verified_request_at is not null
+    </select>
+
+    <select id="countAllRidersLeaseRequested" parameterType="hmap" resultType="int">
+        select count(*)
+          from riders
+         where lease_requested = "1"
+    </select>
+
+    <select id="fetchRidersLeaseRequested" parameterType="hmap" resultType="hmap">
+        select rider_id,
+               status as rider_status,
+               email as rider_email,
+               phone as rider_phone,
+               ri.name as rider_name,
+               r.rider_no,
+               r.created_at,
+               if(b.rider_no is null, 0, bikes) bikes_count
+        from (select *
+              from riders
+             where lease_requested = "1"
+            <if test="next_token != null and next_token != '' and next_token != 'undefined'">
+               and rider_id <![CDATA[ < ]]> #{next_token}
+            </if>
+            <if test="condition_status != null and condition_status != '' and condition_status != 'undefined'">
+               and status = #{condition_status}
+            </if>
+            <if test="condition != null and condition != '' and condition != 'undefined'">
+               and (
+                email like ('%', ${condition}, '%')
+                or name like ('%', ${condition}, '%')
+                or rider_id like ('%', ${condition}, '%')
+               )
+            </if>
+              order by rider_id desc limit 30) r
+             join rider_info ri on r.rider_no = ri.rider_no
+             left outer join (select rider_no,
+                                     count(*) bikes
+                                from bikes
+                               group by rider_no) b on r.rider_no = b.rider_no
+        order by rider_id desc
+    </select>
+
+    <select id="fetchRidersVerified" parameterType="hmap" resultType="hmap">
+        select rider_id,
+               status as rider_status,
+               email as rider_email,
+               phone as rider_phone,
+               ri.name as rider_name,
+               r.rider_no,
+               r.created_at,
+               if(b.rider_no is null, 0, bikes) bikes_count
+        from (select *
+              from riders
+              where verified_request_at is not null
+            <if test="next_token != null and next_token != '' and next_token != 'undefined'">
+                and rider_id <![CDATA[ < ]]> #{next_token}
+            </if>
+            <if test="condition_status != null and condition_status != '' and condition_status != 'undefined'">
+                and status = #{condition_status}
+            </if>
+            <if test="condition != null and condition != '' and condition != 'undefined'">
+                and (
+                email like ('%', ${condition}, '%')
+                or name like ('%', ${condition}, '%')
+                or rider_id like ('%', ${condition}, '%')
+                )
+            </if>
+              order by rider_id desc limit 30) r
+                 join rider_info ri on r.rider_no = ri.rider_no
+                 left outer join (select rider_no,
+                                         count(*) bikes
+                                  from bikes
+                                  group by rider_no) b on r.rider_no = b.rider_no
+        order by rider_id desc
+    </select>
+
     <select id="fetchRiders" parameterType="hmap" resultType="hmap">
         select rider_id,
                status as rider_status,

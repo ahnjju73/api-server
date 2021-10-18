@@ -105,6 +105,15 @@ public class RiderWorker extends SessService {
         fetchRiderDetailResponse.setRiderNo(rider.getRiderNo());
         fetchRiderDetailResponse.setCreatedAt(rider.getCreatedAt());
 
+        fetchRiderDetailResponse.setVerifiedType(rider.getVerifiedType());
+        fetchRiderDetailResponse.setVerifiedAt(rider.getVerifiedAt());
+        fetchRiderDetailResponse.setVerifiedRequestAt(rider.getVerifiedRequestAt());
+        fetchRiderDetailResponse.setVerifiedRejectMessage(rider.getVerifiedRejectMessage());
+
+        fetchRiderDetailResponse.setLeaseRequestedType(rider.getLeaseRequestedTypes());
+        fetchRiderDetailResponse.setLeaseRequestedAt(rider.getLeaseRequestedAt());
+        fetchRiderDetailResponse.setLeaseRequestUrl(rider.getLeaseRequestUrl());
+
         RiderInfoDto riderInfoDto = new RiderInfoDto();
         riderInfoDto.setRiderEmail(rider.getEmail());
         riderInfoDto.setRiderName(riderInfo.getName());

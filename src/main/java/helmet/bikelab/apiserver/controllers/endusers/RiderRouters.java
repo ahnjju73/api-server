@@ -24,6 +24,8 @@ public class RiderRouters {
                 .andRoute(PUT("/riders/requested/decline"), riderHandlers::doDeclineRider)
                 .andRoute(GET("/riders/by-bike"), riderHandlers::fetchRiderListByBike)
                 .andRoute(GET("/riders"), riderHandlers::fetchRiders)
+                .andRoute(GET("/riders-by/verified"), riderHandlers::fetchRidersVerified)
+                .andRoute(GET("/riders-by/lease-requested"), riderHandlers::fetchRidersLeaseRequested)
                 .andRoute(POST("/riders"), riderHandlers::addNewRiders)
                 .andRoute(GET("/riders-verified"), riderHandlers::fetchRiderVerified)
                 .andRoute(GET("/riders/{rider_id}"), riderHandlers::fetchRiderDetail)

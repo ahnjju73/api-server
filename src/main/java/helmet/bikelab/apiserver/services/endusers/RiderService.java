@@ -136,7 +136,6 @@ public class RiderService extends SessService {
         if(ContractTypes.MANAGEMENT.equals(leaseByBikeNo.getContractTypes())){
             bikeByRiderIdAndBikeId.assignRider(riderById, startAt, endAt, leaseByBikeNo);
         }else {
-            // todo : 리스계약서와 날짜 비교가 필요함.
             if(riderBikeApproveRequest.getStartAt().compareTo(startAt) < 0) withException("511-001");
             if(riderBikeApproveRequest.getStartAt().compareTo(endAt) > 0) withException("511-002");
             if(riderBikeApproveRequest.getEndAt().compareTo(startAt) < 0) withException("511-003");
@@ -144,6 +143,9 @@ public class RiderService extends SessService {
             bikeByRiderIdAndBikeId.assignRider(riderById, riderBikeApproveRequest.getStartAt(), riderBikeApproveRequest.getEndAt(), leaseByBikeNo);
         }
         bikesRepository.save(bikeByRiderIdAndBikeId);
+
+        riderById.leaseRequestedClear();
+        riderRepository.save(riderById);
 
         Activities activities = new Activities();
         activities.setRiderNo(riderById.getRiderNo());
@@ -156,6 +158,20 @@ public class RiderService extends SessService {
     public BikeSessionRequest fetchRiders(BikeSessionRequest request){
         RiderListRequest riderListRequest = map(request.getParam(), RiderListRequest.class);
         ResponseListDto riders = commonWorker.fetchItemListByNextToken(riderListRequest, "bikelabs.riders.fetchRiders", "bikelabs.riders.countAllRiders", "rider_id");
+        request.setResponse(riders);
+        return request;
+    }
+
+    public BikeSessionRequest fetchRidersVerified(BikeSessionRequest request){
+        RiderListRequest riderListRequest = map(request.getParam(), RiderListRequest.class);
+        ResponseListDto riders = commonWorker.fetchItemListByNextToken(riderListRequest, "bikelabs.riders.fetchRidersVerified", "bikelabs.riders.countAllRidersVerified", "rider_id");
+        request.setResponse(riders);
+        return request;
+    }
+
+    public BikeSessionRequest fetchRidersLeaseRequested(BikeSessionRequest request){
+        RiderListRequest riderListRequest = map(request.getParam(), RiderListRequest.class);
+        ResponseListDto riders = commonWorker.fetchItemListByNextToken(riderListRequest, "bikelabs.riders.fetchRidersLeaseRequested", "bikelabs.riders.countAllRidersLeaseRequested", "rider_id");
         request.setResponse(riders);
         return request;
     }

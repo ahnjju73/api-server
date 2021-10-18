@@ -32,6 +32,24 @@ public class RiderHandlers {
                         .map(riderService::returnData), List.class);
     }
 
+    public Mono<ServerResponse> fetchRidersLeaseRequested(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> riderService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(riderService::checkBikeSession)
+                        .map(riderService::fetchRidersLeaseRequested)
+                        .map(riderService::returnData), ResponseListDto.class);
+    }
+
+    public Mono<ServerResponse> fetchRidersVerified(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> riderService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(riderService::checkBikeSession)
+                        .map(riderService::fetchRidersVerified)
+                        .map(riderService::returnData), ResponseListDto.class);
+    }
+
     public Mono<ServerResponse> fetchRiders(ServerRequest request) {
         return ServerResponse.ok().body(
                 Mono.fromSupplier(() -> riderService.makeSessionRequest(request, BikeSessionRequest.class))

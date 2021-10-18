@@ -1,7 +1,9 @@
 package helmet.bikelab.apiserver.domain.riders;
 
+import helmet.bikelab.apiserver.domain.types.RiderLeaseRequestedTypes;
 import helmet.bikelab.apiserver.domain.types.RiderStatusTypes;
 import helmet.bikelab.apiserver.domain.types.RiderVerifiedTypes;
+import helmet.bikelab.apiserver.domain.types.converters.RiderLeaseRequestedTypesConverter;
 import helmet.bikelab.apiserver.domain.types.converters.RiderStatusTypesConverter;
 import helmet.bikelab.apiserver.domain.types.converters.RiderVerifiedTypesConverter;
 import helmet.bikelab.apiserver.utils.keys.SESSION;
@@ -56,11 +58,27 @@ public class Riders {
     @Column(name = "verified_reject_message", columnDefinition = "MEDIUMTEXT")
     private String verifiedRejectMessage;
 
+    @Column(name = "lease_requested", columnDefinition = "ENUM", nullable = false)
+    @Convert(converter = RiderLeaseRequestedTypesConverter.class)
+    private RiderLeaseRequestedTypes leaseRequestedTypes = RiderLeaseRequestedTypes.NOT;
+
+    @Column(name = "lease_requested_at", columnDefinition = "CURRENT_TIMESTAMP")
+    private LocalDateTime leaseRequestedAt;
+
+    @Column(name = "lease_request_url", length = 512)
+    private String leaseRequestUrl;
+
     @OneToOne(mappedBy = "rider", fetch = FetchType.EAGER)
     private RiderInfo riderInfo;
 
     @OneToOne(mappedBy = "rider", fetch = FetchType.EAGER)
     private RiderPassword riderPassword;
+
+    public void leaseRequestedClear(){
+        this.setLeaseRequestedAt(null);
+        this.setLeaseRequestedTypes(RiderLeaseRequestedTypes.NOT);
+        this.leaseRequestUrl = null;
+    }
 
 }
 
