@@ -24,4 +24,5 @@ public enum ContractTypes {
         }
         return null;
     }
+
 }
