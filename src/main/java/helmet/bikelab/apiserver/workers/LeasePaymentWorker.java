@@ -77,12 +77,11 @@ public class LeasePaymentWorker extends SessService {
     public void payLeaseFeeByPaymentId(BikeUser session, Map param){
         String paymentId = (String)param.get("payment_id");
         Integer payFee = (Integer) param.get("pay_fee");
-        String riderId = (String)param.get("rider_id");
         String paidType = (String)param.get("paid_type");
         List<String> strings = new ArrayList<>();
-        Riders rider = riderRepository.findByRiderId(riderId);
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일");
         LeasePayments byPaymentId = leasePaymentsRepository.findByPaymentId(paymentId);
+        Riders rider = byPaymentId.getLease().getBike().getRiders();
         if(!bePresent(byPaymentId)) withException("901-001");
         byPaymentId.setRiderNo(rider.getRiderNo());
         byPaymentId.setPaidType(PaidTypes.getStatus(paidType));
