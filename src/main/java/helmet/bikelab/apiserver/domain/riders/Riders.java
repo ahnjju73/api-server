@@ -1,7 +1,11 @@
 package helmet.bikelab.apiserver.domain.riders;
 
+import helmet.bikelab.apiserver.domain.types.RiderLeaseRequestedTypes;
 import helmet.bikelab.apiserver.domain.types.RiderStatusTypes;
+import helmet.bikelab.apiserver.domain.types.RiderVerifiedTypes;
+import helmet.bikelab.apiserver.domain.types.converters.RiderLeaseRequestedTypesConverter;
 import helmet.bikelab.apiserver.domain.types.converters.RiderStatusTypesConverter;
+import helmet.bikelab.apiserver.domain.types.converters.RiderVerifiedTypesConverter;
 import helmet.bikelab.apiserver.utils.keys.SESSION;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -41,11 +45,40 @@ public class Riders {
     @Column(name = "created_at", columnDefinition = "CURRENT_TIMESTAMP")
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    @Column(name = "verified", columnDefinition = "ENUM", nullable = false)
+    @Convert(converter = RiderVerifiedTypesConverter.class)
+    private RiderVerifiedTypes verifiedType = RiderVerifiedTypes.NOT;
+
+    @Column(name = "verified_at", columnDefinition = "CURRENT_TIMESTAMP")
+    private LocalDateTime verifiedAt;
+
+    @Column(name = "verified_request_at", columnDefinition = "CURRENT_TIMESTAMP")
+    private LocalDateTime verifiedRequestAt;
+
+    @Column(name = "verified_reject_message", columnDefinition = "MEDIUMTEXT")
+    private String verifiedRejectMessage;
+
+    @Column(name = "lease_requested", columnDefinition = "ENUM", nullable = false)
+    @Convert(converter = RiderLeaseRequestedTypesConverter.class)
+    private RiderLeaseRequestedTypes leaseRequestedTypes = RiderLeaseRequestedTypes.NOT;
+
+    @Column(name = "lease_requested_at", columnDefinition = "CURRENT_TIMESTAMP")
+    private LocalDateTime leaseRequestedAt;
+
+    @Column(name = "lease_request_url", length = 512)
+    private String leaseRequestUrl;
+
     @OneToOne(mappedBy = "rider", fetch = FetchType.EAGER)
     private RiderInfo riderInfo;
 
     @OneToOne(mappedBy = "rider", fetch = FetchType.EAGER)
     private RiderPassword riderPassword;
+
+    public void leaseRequestedClear(){
+        this.setLeaseRequestedAt(null);
+        this.setLeaseRequestedTypes(RiderLeaseRequestedTypes.NOT);
+        this.leaseRequestUrl = null;
+    }
 
 }
 

@@ -2,6 +2,7 @@ package helmet.bikelab.apiserver.controllers.endusers;
 
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.PageableResponse;
+import helmet.bikelab.apiserver.objects.requests.RiderVerifiedResponse;
 import helmet.bikelab.apiserver.objects.responses.FetchRiderDetailResponse;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.services.endusers.RiderService;
@@ -31,6 +32,24 @@ public class RiderHandlers {
                         .map(riderService::returnData), List.class);
     }
 
+    public Mono<ServerResponse> fetchRidersLeaseRequested(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> riderService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(riderService::checkBikeSession)
+                        .map(riderService::fetchRidersLeaseRequested)
+                        .map(riderService::returnData), ResponseListDto.class);
+    }
+
+    public Mono<ServerResponse> fetchRidersVerified(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> riderService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(riderService::checkBikeSession)
+                        .map(riderService::fetchRidersVerified)
+                        .map(riderService::returnData), ResponseListDto.class);
+    }
+
     public Mono<ServerResponse> fetchRiders(ServerRequest request) {
         return ServerResponse.ok().body(
                 Mono.fromSupplier(() -> riderService.makeSessionRequest(request, BikeSessionRequest.class))
@@ -56,6 +75,36 @@ public class RiderHandlers {
                         .map(row -> riderService.makeSessionRequest(request, row, BikeSessionRequest.class))
                         .map(riderService::checkBikeSession)
                         .map(riderService::doApproveRider)
+                        .map(riderService::returnData), Map.class);
+    }
+
+    public Mono<ServerResponse> fetchRiderVerified(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> riderService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(riderService::checkBikeSession)
+                        .map(riderService::fetchRiderVerified)
+                        .map(riderService::returnData), RiderVerifiedResponse.class);
+    }
+
+
+    public Mono<ServerResponse> doRejectRiderVerified(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> riderService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(riderService::checkBikeSession)
+                        .map(riderService::doRejectRiderVerified)
+                        .map(riderService::returnData), Map.class);
+    }
+
+    public Mono<ServerResponse> doApproveRiderVerified(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> riderService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(riderService::checkBikeSession)
+                        .map(riderService::doApproveRiderVerified)
                         .map(riderService::returnData), Map.class);
     }
 
