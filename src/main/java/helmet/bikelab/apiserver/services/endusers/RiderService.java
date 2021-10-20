@@ -260,8 +260,10 @@ public class RiderService extends SessService {
     }
 
     @Transactional
-    public BikeSessionRequest stopRider(BikeSessionRequest request){
-        riderWorker.stopRider((String) request.getParam().get("rider_id"));
+    public BikeSessionRequest changeRiderStatus(BikeSessionRequest request){
+        String riderId = (String) request.getParam().get("rider_id");
+        String status = (String) request.getParam().get("status");
+        riderWorker.changeStatus(riderId, status);
         return request;
     }
 

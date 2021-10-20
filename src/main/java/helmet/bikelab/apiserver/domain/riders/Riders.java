@@ -13,6 +13,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -67,12 +68,28 @@ public class Riders {
 
     @Column(name = "lease_request_url", length = 512)
     private String leaseRequestUrl;
+//
+//    @Column(name = "uudi")
+//    private String edpId;
+//
+//    @Column(name = "description", columnDefinition = "MEDIUMTEXT")
+//    private String description;
+//
+//    @Column(name = "front_ssn")
+//    private String frontSsn;
+//
+//    @Column(name = "back_ssn")
+//    private String backSsn;
 
     @OneToOne(mappedBy = "rider", fetch = FetchType.EAGER)
     private RiderInfo riderInfo;
 
     @OneToOne(mappedBy = "rider", fetch = FetchType.EAGER)
     private RiderPassword riderPassword;
+
+    @OneToMany(mappedBy = "rider", fetch = FetchType.LAZY)
+    private List<RiderAddresses> addresses;
+
 
     public void leaseRequestedClear(){
         this.setLeaseRequestedAt(null);
