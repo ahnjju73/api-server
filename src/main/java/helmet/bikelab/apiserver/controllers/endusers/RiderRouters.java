@@ -30,7 +30,7 @@ public class RiderRouters {
                 .andRoute(GET("/riders-verified"), riderHandlers::fetchRiderVerified)
                 .andRoute(GET("/riders/{rider_id}"), riderHandlers::fetchRiderDetail)
                 .andRoute(PUT("/riders/{rider_id}/update"), riderHandlers::updateRider)
-                .andRoute(DELETE("/riders/{rider_id}"), riderHandlers::stopRider)
+                .andRoute(PUT("/riders/change-status"), riderHandlers::stopRider)
                 .andRoute(PUT("/riders/reset-password"), riderHandlers::resetPassword)
                 .andRoute(GET("/riders/bike-history/{rider_id}"), riderHandlers::fetchRiderBikeHistories)
                 ;

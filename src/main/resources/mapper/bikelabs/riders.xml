@@ -43,9 +43,9 @@
             </if>
             <if test="condition != null and condition != '' and condition != 'undefined'">
                and (
-                email like ('%', ${condition}, '%')
-                or name like ('%', ${condition}, '%')
-                or rider_id like ('%', ${condition}, '%')
+                email like concat('%', #{condition}, '%')
+                or phone like concat('%', #{condition}, '%')
+                or rider_id like concat('%', #{condition}, '%')
                )
             </if>
               order by rider_id desc limit 30) r
@@ -77,9 +77,9 @@
             </if>
             <if test="condition != null and condition != '' and condition != 'undefined'">
                 and (
-                email like ('%', ${condition}, '%')
-                or name like ('%', ${condition}, '%')
-                or rider_id like ('%', ${condition}, '%')
+                email like concat('%', #{condition}, '%')
+                or phone like concat('%', #{condition}, '%')
+                or rider_id like concat('%', #{condition}, '%')
                 )
             </if>
               order by rider_id desc limit 30) r
@@ -111,9 +111,9 @@
                  </if>
                  <if test="condition != null and condition != '' and condition != 'undefined'">
                    and (
-                    email like ('%', ${condition}, '%')
-                    or name like ('%', ${condition}, '%')
-                    or rider_id like ('%', ${condition}, '%')
+                    email like concat('%', #{condition}, '%')
+                    or phone like concat('%', #{condition}, '%')
+                    or rider_id like concat('%', #{condition}, '%')
                    )
                  </if>
                  order by rider_id desc limit 30) r

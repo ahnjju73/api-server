@@ -159,17 +159,15 @@ public class RiderWorker extends SessService {
         riderInfoRepository.save(riderInfo);
     }
 
-    public void stopRider(String riderId){
+    public void changeStatus(String riderId, String status){
         Riders rider = riderRepository.findByRiderId(riderId);
-        if(rider.getStatus() != RiderStatusTypes.ACTIVATE)
-            withException("950-006");
-        rider.setStatus(RiderStatusTypes.DEACTIVATE);
+        rider.setStatus(RiderStatusTypes.getRiderStatusTypes(status));
         riderRepository.save(rider);
     }
 
     public String resetPassword(String riderId){
         Riders rider = riderRepository.findByRiderId(riderId);
-        if(rider.getStatus() != RiderStatusTypes.ACTIVATE)
+        if(rider.getStatus() != RiderStatusTypes.ACTIVATE || rider.getStatus() != RiderStatusTypes.PENDING)
             withException("950-005");
         RiderPassword riderPassword = rider.getRiderPassword();
 
