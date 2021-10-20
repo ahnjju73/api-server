@@ -161,11 +161,11 @@ public class RiderHandlers {
 
     public Mono<ServerResponse> stopRider(ServerRequest request) {
         return ServerResponse.ok().body(
-                Mono.fromSupplier(() -> riderService.makeSessionRequest(request, BikeSessionRequest.class))
+                request.bodyToMono(Map.class)
                         .subscribeOn(Schedulers.elastic())
-                        .map(row -> riderService.getPathVariable(row, "rider_id"))
+                        .map(row -> riderService.makeSessionRequest(request, row, BikeSessionRequest.class))
                         .map(riderService::checkBikeSession)
-                        .map(riderService::stopRider)
+                        .map(riderService::changeRiderStatus)
                         .map(riderService::returnData), FetchRiderDetailResponse.class);
     }
 
