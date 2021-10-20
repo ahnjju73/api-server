@@ -167,7 +167,7 @@ public class RiderWorker extends SessService {
 
     public String resetPassword(String riderId){
         Riders rider = riderRepository.findByRiderId(riderId);
-        if(rider.getStatus() != RiderStatusTypes.ACTIVATE || rider.getStatus() != RiderStatusTypes.PENDING)
+        if(rider.getStatus() != RiderStatusTypes.ACTIVATE && rider.getStatus() != RiderStatusTypes.PENDING)
             withException("950-005");
         RiderPassword riderPassword = rider.getRiderPassword();
 
