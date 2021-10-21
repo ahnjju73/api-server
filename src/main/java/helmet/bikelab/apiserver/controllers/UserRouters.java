@@ -18,4 +18,13 @@ public class UserRouters {
                 .andRoute(PATCH("/bike-labs/profiles"), handler::modifyProfile)
                 ;
     }
+
+    @Bean
+    public RouterFunction<ServerResponse> systemRouters() {
+        return RouterFunctions
+                .route(GET("/api/checkout"), request -> ServerResponse.ok().body(
+                        Mono.fromSupplier(() ->
+                                new HashMap()).subscribeOn(Schedulers.boundedElastic()), Map.class)
+                );
+    }
 }
