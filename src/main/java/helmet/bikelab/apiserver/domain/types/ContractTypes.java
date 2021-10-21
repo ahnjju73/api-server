@@ -4,10 +4,10 @@ import lombok.Getter;
 
 @Getter
 public enum ContractTypes {
-    OPERATING("500-001"), EXTEND("500-002"), FINISH("500-003"), CANCEL("500-004");
+
+    LEASE("500-001"), MANAGEMENT("500-002");
 
     private String status;
-
 
     ContractTypes(String status) {
         this.status = status;
@@ -24,4 +24,5 @@ public enum ContractTypes {
         }
         return null;
     }
+
 }

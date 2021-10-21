@@ -53,7 +53,6 @@ public class BikesService extends SessService {
     private final LeaseRepository leaseRepository;
     private final BikeModelsRepository bikeModelsRepository;
     private final BikeUserLogRepository bikeUserLogRepository;
-    private final ClientsRepository clientsRepository;
     private final LeaseExpenseRepository expenseRepository;
     private final CommonWorker commonWorker;
     private final BikeWorker bikeWorker;
@@ -69,6 +68,14 @@ public class BikesService extends SessService {
         Map param = request.getParam();
         Map details = (Map)getItem("bikelabs.commons.clients.fetchGroupDetailsByGroupId", param);
         request.setResponse(details);
+        return request;
+    }
+
+    public BikeSessionRequest fetchBikesRidable(BikeSessionRequest request){
+        Map param = request.getParam();
+        BikeRequestListDto requestListDto = map(param, BikeRequestListDto.class);
+        ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "bikelabs.commons.bikes.fetchBikesRidable", "bikelabs.commons.bikes.countAllBikesRidable", "bike_id");
+        request.setResponse(responseListDto);
         return request;
     }
 

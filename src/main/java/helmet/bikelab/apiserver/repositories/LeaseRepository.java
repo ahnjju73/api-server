@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface LeaseRepository extends JpaRepository<Leases, Integer> {
+    Leases findByBike_BikeId(String bikeId);
     Leases findByLeaseNo(Integer leaseNo);
     Leases findByBikeNo(Integer bikeNo);
     Leases findByLeaseId(String leaseId);
@@ -17,6 +18,5 @@ public interface LeaseRepository extends JpaRepository<Leases, Integer> {
     List<Leases> findAllByBike_BikeId(String bikeId);
     List<Leases> findAllByClients_ClientIdAndStatusOrderByLeaseInfo_ContractDate(String clientId, LeaseStatusTypes leaseStatusTypes);
     List<Leases> findAllByStatusAndLeaseStopStatus(LeaseStatusTypes lst, LeaseStopStatusTypes lsst);
-
     List<Leases> findAllByDemandLeases_DemandLeaseId(String demandLeaseId, Pageable pageable);
 }

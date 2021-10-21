@@ -11,6 +11,8 @@ import lombok.Setter;
 public class BikeDto {
     private String bikeId;
     private String bikeModel;
+    private double bikeVolume;
+    private String bikeType;
     private String bikeNum;
     private String vimNum;
     private String filename;
