@@ -14,6 +14,7 @@ public class LeasePriceDto {
     private Integer deposit;
     private Integer prePayment;
     private Integer leaseFee;
+    private Integer totalLeaseFee;
     private Integer profitFee;
     private Integer takeFee;
     private Integer registerFee;
