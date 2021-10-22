@@ -18,6 +18,7 @@ public class LeasePaymentDto {
     private Integer leaseFee;
     private Integer paidFee;
     private Integer unpaidFee;
+    private String paidType;
 
     public boolean equals(LeasePayments leasePayments){
         return paymentId.equals(leasePayments.getPaymentId());

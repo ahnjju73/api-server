@@ -7,5 +7,5 @@ public interface RiderRepository extends JpaRepository<Riders, Integer> {
     Riders findByPhone(String phone);
     Riders findByRiderId(String riderId);
     Riders findByEmail(String email);
-
+    Riders findByEdpId(String edpId);
 }
