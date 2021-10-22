@@ -5,6 +5,10 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerResponse;
+import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
+
+import java.util.HashMap;
 
 import static org.springframework.web.reactive.function.server.RequestPredicates.*;
 
@@ -23,5 +27,12 @@ public class SystemRouters {
                 .andRoute(GET("/check-loadbalancer"), handler::checkLoadbalancer)
                 .andRoute(GET("/bike-labs/systems/parameters"), handler::fetchParameters)
                 ;
+    }
+
+    @Bean
+    public RouterFunction<ServerResponse> awsRouters() {
+        return RouterFunctions
+                .route(GET("/api/checkout"),
+                        request -> ServerResponse.ok().body(Mono.fromSupplier(() -> new HashMap()).subscribeOn(Schedulers.elastic()), HashMap.class));
     }
 }
