@@ -68,18 +68,18 @@ public class Riders {
 
     @Column(name = "lease_request_url", length = 512)
     private String leaseRequestUrl;
-//
-//    @Column(name = "uudi")
-//    private String edpId;
-//
-//    @Column(name = "description", columnDefinition = "MEDIUMTEXT")
-//    private String description;
-//
-//    @Column(name = "front_ssn")
-//    private String frontSsn;
-//
-//    @Column(name = "back_ssn")
-//    private String backSsn;
+
+    @Column(name = "uuid")
+    private String edpId;
+
+    @Column(name = "description", columnDefinition = "MEDIUMTEXT")
+    private String description;
+
+    @Column(name = "front_ssn")
+    private String frontSsn;
+
+    @Column(name = "back_ssn")
+    private String backSsn;
 
     @OneToOne(mappedBy = "rider", fetch = FetchType.EAGER)
     private RiderInfo riderInfo;

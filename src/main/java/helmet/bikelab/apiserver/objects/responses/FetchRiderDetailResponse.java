@@ -2,6 +2,7 @@ package helmet.bikelab.apiserver.objects.responses;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import helmet.bikelab.apiserver.domain.embeds.ModelAddress;
 import helmet.bikelab.apiserver.domain.types.RiderLeaseRequestedTypes;
 import helmet.bikelab.apiserver.domain.types.RiderVerifiedTypes;
 import helmet.bikelab.apiserver.domain.types.converters.RiderLeaseRequestedTypesConverter;
@@ -37,6 +38,12 @@ public class FetchRiderDetailResponse extends OriginObject {
     private String leaseRequestedTypeCode;
     private LocalDateTime leaseRequestedAt;
     private String leaseRequestUrl;
+
+    private String edpId;
+    private String description;
+    private String ssn;
+    private ModelAddress realAddress;
+    private ModelAddress paperAddress;
 
     public void setVerifiedType(RiderVerifiedTypes verifiedType) {
         this.verifiedType = verifiedType;

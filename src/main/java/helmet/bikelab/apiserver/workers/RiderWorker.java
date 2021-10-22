@@ -6,6 +6,7 @@ import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.riders.*;
 import helmet.bikelab.apiserver.domain.types.AccountTypes;
 import helmet.bikelab.apiserver.domain.types.ActivityTypes;
+import helmet.bikelab.apiserver.domain.types.RiderAddressTypes;
 import helmet.bikelab.apiserver.domain.types.RiderStatusTypes;
 import helmet.bikelab.apiserver.objects.BikeDto;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
@@ -33,6 +34,7 @@ public class RiderWorker extends SessService {
     private final RiderInfoRepository riderInfoRepository;
     private final RiderPasswordRepository riderPasswordRepository;
     private final RiderAccountsRepository riderAccountsRepository;
+    private final RiderAddressRepository riderAddressRepository;
     private final ActivitiesRepository activitiesRepository;
     private final AutoKey autoKey;
 
@@ -58,13 +60,30 @@ public class RiderWorker extends SessService {
         if(bePresent(riderRepository.findByEmail(addUpdateRiderRequest.getEmail())))
             withException("950-008");
         String riderId = autoKey.makeGetKey("rider");
+        String front = addUpdateRiderRequest.getSsn().substring(0, addUpdateRiderRequest.getSsn().indexOf("-"));
+        String back = addUpdateRiderRequest.getSsn().substring(addUpdateRiderRequest.getSsn().indexOf("-")+1);
         Riders riders = new Riders();
         riders.setRiderId(riderId);
         riders.setCreatedAt(LocalDateTime.now());
         riders.setEmail(addUpdateRiderRequest.getEmail());
         riders.setPhone(addUpdateRiderRequest.getPhone());
         riders.setStatus(RiderStatusTypes.PENDING);
+        riders.setEdpId(addUpdateRiderRequest.getEdpId());
+        riders.setFrontSsn(front);
+        riders.setBackSsn(back);
         riderRepository.save(riders);
+
+        RiderAddresses real = new RiderAddresses();
+        real.setRiderNo(riders.getRiderNo());
+        real.setRiderAddressTypes(RiderAddressTypes.REAL_RESIDENCE);
+        real.setModelAddress(addUpdateRiderRequest.getRealAddress());
+        riderAddressRepository.save(real);
+
+        RiderAddresses paper = new RiderAddresses();
+        paper.setRiderNo(riders.getRiderNo());
+        paper.setRiderAddressTypes(RiderAddressTypes.ON_PAPER);
+        paper.setModelAddress(addUpdateRiderRequest.getPaperAddress());
+        riderAddressRepository.save(paper);
 
         RiderInfo riderInfo = new RiderInfo();
         riderInfo.setRiderNo(riders.getRiderNo());
@@ -101,6 +120,8 @@ public class RiderWorker extends SessService {
         FetchRiderDetailResponse fetchRiderDetailResponse = new FetchRiderDetailResponse();
         Riders rider = riderRepository.findByRiderId(riderId);
         RiderInfo riderInfo = rider.getRiderInfo();
+        RiderAddresses paper = riderAddressRepository.findByRider_RiderIdAndRiderAddressTypes(rider.getRiderId(), RiderAddressTypes.ON_PAPER);
+        RiderAddresses real = riderAddressRepository.findByRider_RiderIdAndRiderAddressTypes(rider.getRiderId(), RiderAddressTypes.REAL_RESIDENCE);
         fetchRiderDetailResponse.setRiderId(riderId);
         fetchRiderDetailResponse.setRiderNo(rider.getRiderNo());
         fetchRiderDetailResponse.setCreatedAt(rider.getCreatedAt());
@@ -113,6 +134,12 @@ public class RiderWorker extends SessService {
         fetchRiderDetailResponse.setLeaseRequestedType(rider.getLeaseRequestedTypes());
         fetchRiderDetailResponse.setLeaseRequestedAt(rider.getLeaseRequestedAt());
         fetchRiderDetailResponse.setLeaseRequestUrl(rider.getLeaseRequestUrl());
+
+        fetchRiderDetailResponse.setEdpId(rider.getEdpId());
+        fetchRiderDetailResponse.setDescription(rider.getDescription());
+        fetchRiderDetailResponse.setSsn(rider.getFrontSsn() + "-" + rider.getBackSsn());
+        fetchRiderDetailResponse.setRealAddress(real.getModelAddress());
+        fetchRiderDetailResponse.setPaperAddress(paper.getModelAddress());
 
         RiderInfoDto riderInfoDto = new RiderInfoDto();
         riderInfoDto.setRiderEmail(rider.getEmail());
@@ -146,11 +173,27 @@ public class RiderWorker extends SessService {
             withException("950-007");
         if(bePresent(riderRepository.findByEmail(addUpdateRiderRequest.getEmail())) && !riderRepository.findByEmail(addUpdateRiderRequest.getEmail()).equals(riders))
             withException("950-008");
+        if(bePresent(riderRepository.findByEdpId(addUpdateRiderRequest.getEdpId())) && !riderRepository.findByEdpId(addUpdateRiderRequest.getEdpId()).equals(riders))
+            withException("950-009");
 
+        String front = addUpdateRiderRequest.getSsn().substring(0, addUpdateRiderRequest.getSsn().indexOf("-"));
+        String back = addUpdateRiderRequest.getSsn().substring(addUpdateRiderRequest.getSsn().indexOf("-")+1);
 
         riders.setEmail(addUpdateRiderRequest.getEmail());
         riders.setPhone(addUpdateRiderRequest.getPhone());
+        riders.setDescription(addUpdateRiderRequest.getDescription());
+        riders.setEdpId(addUpdateRiderRequest.getEdpId());
+        riders.setFrontSsn(front);
+        riders.setBackSsn(back);
         riderRepository.save(riders);
+
+        RiderAddresses real = riderAddressRepository.findByRider_RiderIdAndRiderAddressTypes(riders.getRiderId(), RiderAddressTypes.REAL_RESIDENCE);
+        real.setModelAddress(addUpdateRiderRequest.getRealAddress());
+        riderAddressRepository.save(real);
+
+        RiderAddresses paper = riderAddressRepository.findByRider_RiderIdAndRiderAddressTypes(riders.getRiderId(), RiderAddressTypes.ON_PAPER);
+        paper.setModelAddress(addUpdateRiderRequest.getPaperAddress());
+        riderAddressRepository.save(paper);
 
         RiderInfo riderInfo = new RiderInfo();
         riderInfo.setRiderNo(riders.getRiderNo());
