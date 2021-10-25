@@ -138,8 +138,8 @@ public class RiderWorker extends SessService {
         fetchRiderDetailResponse.setEdpId(rider.getEdpId());
         fetchRiderDetailResponse.setDescription(rider.getDescription());
         fetchRiderDetailResponse.setSsn(rider.getFrontSsn() + "-" + rider.getBackSsn());
-        fetchRiderDetailResponse.setRealAddress(real.getModelAddress());
-        fetchRiderDetailResponse.setPaperAddress(paper.getModelAddress());
+        fetchRiderDetailResponse.setRealAddress(real == null ? null : real.getModelAddress());
+        fetchRiderDetailResponse.setPaperAddress(paper == null ? null : paper.getModelAddress());
 
         RiderInfoDto riderInfoDto = new RiderInfoDto();
         riderInfoDto.setRiderEmail(rider.getEmail());
