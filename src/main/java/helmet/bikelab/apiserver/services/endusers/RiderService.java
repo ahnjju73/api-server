@@ -144,7 +144,6 @@ public class RiderService extends SessService {
         }
         bikesRepository.save(bikeByRiderIdAndBikeId);
 
-        riderById.leaseRequestedClear();
         riderRepository.save(riderById);
 
         Activities activities = new Activities();

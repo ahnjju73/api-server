@@ -86,5 +86,7 @@ public class LeasePayments {
     @JoinColumn(name = "bike_no", insertable = false, updatable = false)
     private Bikes bike;
 
+    @Column(name = "description", columnDefinition = "MEDIUMTEXT")
+    private String description;
 
 }

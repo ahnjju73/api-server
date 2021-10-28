@@ -43,4 +43,13 @@ public class RiderRouters {
                 .andRoute(PUT("/riders-verified/reject"), riderHandlers::doRejectRiderVerified)
                 ;
     }
+
+    @Bean
+    public RouterFunction<ServerResponse> riderDemandLease(){
+        return RouterFunctions
+                .route(PUT("/rider-demands/approve"), riderHandlers::approveRiderDemandLease)
+                .andRoute(PUT("/rider-demands/reject"), riderHandlers::rejectRiderDemandLease)
+                ;
+    }
+
 }

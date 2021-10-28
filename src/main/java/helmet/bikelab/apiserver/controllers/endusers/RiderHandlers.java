@@ -5,6 +5,7 @@ import helmet.bikelab.apiserver.objects.PageableResponse;
 import helmet.bikelab.apiserver.objects.requests.RiderVerifiedResponse;
 import helmet.bikelab.apiserver.objects.responses.FetchRiderDetailResponse;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
+import helmet.bikelab.apiserver.services.endusers.RiderDemandLeaseService;
 import helmet.bikelab.apiserver.services.endusers.RiderService;
 import helmet.bikelab.apiserver.services.shops.ShopService;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ import java.util.Map;
 public class RiderHandlers {
 
     private final RiderService riderService;
+    private final RiderDemandLeaseService riderDemandLeaseService;
 
     public Mono<ServerResponse> fetchRiderListByBike(ServerRequest request) {
         return ServerResponse.ok().body(
@@ -188,4 +190,25 @@ public class RiderHandlers {
                         .map(riderService::fetchRiderBikesHistory)
                         .map(riderService::returnData), List.class);
     }
+
+    public Mono<ServerResponse> approveRiderDemandLease(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> riderDemandLeaseService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(riderDemandLeaseService::checkBikeSession)
+                        .map(riderDemandLeaseService::approveDemandLease)
+                        .map(riderDemandLeaseService::returnData), Map.class);
+    }
+
+    public Mono<ServerResponse> rejectRiderDemandLease(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> riderDemandLeaseService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(riderDemandLeaseService::checkBikeSession)
+                        .map(riderDemandLeaseService::rejectDemandLease)
+                        .map(riderDemandLeaseService::returnData), Map.class);
+    }
+
 }
