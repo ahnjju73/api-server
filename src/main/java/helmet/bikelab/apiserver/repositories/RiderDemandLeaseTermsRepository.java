@@ -10,5 +10,6 @@ import java.util.List;
 
 public interface RiderDemandLeaseTermsRepository extends JpaRepository<RiderDemandLeaseSpecialTerms, Integer> {
 
+    List<RiderDemandLeaseSpecialTerms> findAllByRiderNo(Integer riderNo);
     void deleteAllByRiderNo(Integer riderNo);
 }

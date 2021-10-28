@@ -103,12 +103,6 @@ public class RiderDemandLeaseHistories {
     @Column(name = "pending_at")
     private LocalDateTime pendingAt;
 
-    @Column(name = "rejected_at")
-    private LocalDateTime rejectedAt;
-
-    @Column(name = "reject_message", columnDefinition = "MEDIUMTEXT")
-    private String rejectMessage;
-
     @Column(name = "chat_url", length = 512)
     private String chatUrl;
 
@@ -119,5 +113,23 @@ public class RiderDemandLeaseHistories {
     @Column(name = "terms_history", columnDefinition = "json")
     @Convert(converter = RiderDemandTermBackUpConverter.class)
     private List<RiderDemandLeaseSpecialTerms> termsHistory;
+
+
+    public void setHistory(RiderDemandLease riderDemandLease){
+        riderNo = riderDemandLease.getRiderNo();
+        leaseNo = riderDemandLease.getLeaseNo();
+        carModelCode = riderDemandLease.getCarModelCode();
+        demandLeaseStatusTypes = riderDemandLease.getDemandLeaseStatusTypes();
+        managementType = riderDemandLease.getManagementType();
+        period = riderDemandLease.getPeriod();
+        expireTypes = riderDemandLease.getExpireTypes();
+        prepayment = riderDemandLease.getPrepayment();
+        paymentType = riderDemandLease.getPaymentType();
+        insuranceType = riderDemandLease.getInsuranceType();
+        isMaintenance = riderDemandLease.getIsMaintenance();
+        createdAt = riderDemandLease.getCreatedAt();
+        pendingAt = riderDemandLease.getPendingAt();
+        chatUrl = riderDemandLease.getChatUrl();
+    }
 
 }
