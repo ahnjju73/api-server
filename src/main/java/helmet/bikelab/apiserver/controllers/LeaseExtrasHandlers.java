@@ -78,6 +78,7 @@ public class LeaseExtrasHandlers {
     public Mono<ServerResponse> deleteExtra(ServerRequest request) {
         return ServerResponse.ok().body(
                 Mono.fromSupplier(() -> extraService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .map(row -> extraService.getPathVariable( row, "extra_id"))
                         .subscribeOn(Schedulers.elastic())
                         .map(extraService::checkBikeSession)
                         .map(extraService::deleteLeaseExtra)

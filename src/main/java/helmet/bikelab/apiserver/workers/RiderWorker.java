@@ -3,15 +3,17 @@ package helmet.bikelab.apiserver.workers;
 import helmet.bikelab.apiserver.domain.CommonCodeBikes;
 import helmet.bikelab.apiserver.domain.bike.BikeRidersBak;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
+import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
+import helmet.bikelab.apiserver.domain.client.Clients;
+import helmet.bikelab.apiserver.domain.embeds.ModelTransaction;
+import helmet.bikelab.apiserver.domain.lease.*;
 import helmet.bikelab.apiserver.domain.riders.*;
-import helmet.bikelab.apiserver.domain.types.AccountTypes;
-import helmet.bikelab.apiserver.domain.types.ActivityTypes;
-import helmet.bikelab.apiserver.domain.types.RiderAddressTypes;
-import helmet.bikelab.apiserver.domain.types.RiderStatusTypes;
-import helmet.bikelab.apiserver.objects.BikeDto;
-import helmet.bikelab.apiserver.objects.BikeSessionRequest;
-import helmet.bikelab.apiserver.objects.RiderBikeDto;
-import helmet.bikelab.apiserver.objects.RiderInfoDto;
+import helmet.bikelab.apiserver.domain.types.*;
+import helmet.bikelab.apiserver.objects.*;
+import helmet.bikelab.apiserver.objects.bikelabs.bikes.BikeModelDto;
+import helmet.bikelab.apiserver.objects.bikelabs.leases.AddUpdateLeaseRequest;
+import helmet.bikelab.apiserver.objects.bikelabs.leases.LeaseInfoDto;
+import helmet.bikelab.apiserver.objects.bikelabs.leases.LeasePriceDto;
 import helmet.bikelab.apiserver.objects.requests.AddUpdateRiderRequest;
 import helmet.bikelab.apiserver.objects.responses.FetchRiderDetailResponse;
 import helmet.bikelab.apiserver.repositories.*;
@@ -20,8 +22,12 @@ import helmet.bikelab.apiserver.utils.AutoKey;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.*;
+
+import static helmet.bikelab.apiserver.domain.bikelab.BikeUserLog.addLog;
 
 @Service
 @RequiredArgsConstructor
@@ -30,12 +36,23 @@ public class RiderWorker extends SessService {
     private final BikesRepository bikesRepository;
     private final BikeUserTodoRepository bikeUserTodoRepository;
     private final BikeRiderBakRepository bikeRiderBakRepository;
+    private final ClientsRepository clientsRepository;
     private final RiderRepository riderRepository;
     private final RiderInfoRepository riderInfoRepository;
     private final RiderPasswordRepository riderPasswordRepository;
     private final RiderAccountsRepository riderAccountsRepository;
     private final RiderAddressRepository riderAddressRepository;
+    private final RiderDemandLeaseRepository riderDemandLeaseRepository;
+    private final SystemParameterRepository systemParameterRepository;
     private final ActivitiesRepository activitiesRepository;
+    private final LeaseRepository leaseRepository;
+    private final LeasePaymentsRepository leasePaymentsRepository;
+    private final LeaseInfoRepository leaseInfoRepository;
+    private final LeasePriceRepository leasePriceRepository;
+    private final LeaseExtraRepository leaseExtraRepository;
+    private final LeaseExpenseRepository expenseRepository;
+    private final InsurancesRepository insurancesRepository;
+    private final BikeUserLogRepository bikeUserLogRepository;
     private final AutoKey autoKey;
 
     public Bikes getBikeByRiderIdAndBikeId(String riderId, String bikeId){
@@ -131,10 +148,6 @@ public class RiderWorker extends SessService {
         fetchRiderDetailResponse.setVerifiedRequestAt(rider.getVerifiedRequestAt());
         fetchRiderDetailResponse.setVerifiedRejectMessage(rider.getVerifiedRejectMessage());
 
-        fetchRiderDetailResponse.setLeaseRequestedType(rider.getLeaseRequestedTypes());
-        fetchRiderDetailResponse.setLeaseRequestedAt(rider.getLeaseRequestedAt());
-        fetchRiderDetailResponse.setLeaseRequestUrl(rider.getLeaseRequestUrl());
-
         fetchRiderDetailResponse.setEdpId(rider.getEdpId());
         fetchRiderDetailResponse.setDescription(rider.getDescription());
         fetchRiderDetailResponse.setSsn(rider.getFrontSsn() + "-" + rider.getBackSsn());
@@ -147,6 +160,37 @@ public class RiderWorker extends SessService {
         riderInfoDto.setRiderStatus(rider.getStatus().getRiderStatusType());
         riderInfoDto.setRiderPhone(rider.getPhone());
         fetchRiderDetailResponse.setRiderInfo(riderInfoDto);
+
+        if(riderDemandLeaseRepository.existsByRiderNo(rider.getRiderNo())){
+            RiderDemandLease riderDemandLease = riderDemandLeaseRepository.findByRiderNo(rider.getRiderNo());
+            Leases lease = riderDemandLease.getLease();
+            CommonCodeBikes carModel = riderDemandLease.getCarModel();
+            RiderDemandLeasesDto riderDemandLeasesDto = new RiderDemandLeasesDto();
+            riderDemandLeasesDto.setRiderId(rider.getRiderId());
+            riderDemandLeasesDto.setLeaseId(lease == null ? null : lease.getLeaseId());
+            riderDemandLeasesDto.setDemandLeaseStatus(riderDemandLease.getDemandLeaseStatusTypes().getStatusName());
+            riderDemandLeasesDto.setManagementType(riderDemandLease.getManagementType().getStatus());
+            riderDemandLeasesDto.setExpireType(riderDemandLease.getExpireTypes().getStatusName());
+            riderDemandLeasesDto.setPrepayment(riderDemandLease.getPrepayment());
+            riderDemandLeasesDto.setInsuranceType(riderDemandLease.getInsuranceType().getLeaseTypeName());
+            riderDemandLeasesDto.setPaymentType(riderDemandLease.getPaymentType().getPaymentType());
+            riderDemandLeasesDto.setIsMaintenance(riderDemandLease.getIsMaintenance());
+            riderDemandLeasesDto.setCreatedAt(riderDemandLease.getCreatedAt());
+            if(lease != null) {
+                LeaseInfoDto leaseInfoDto = new LeaseInfoDto();
+                leaseInfoDto.setPeriod(lease.getLeaseInfo().getPeriod());
+                leaseInfoDto.setStartDt(lease.getLeaseInfo().getStart().toString());
+                leaseInfoDto.setEndDt(lease.getLeaseInfo().getEndDate().toString());
+                riderDemandLeasesDto.setLeaseInfo(leaseInfoDto);
+            }
+            BikeModelDto modelDto = new BikeModelDto();
+            modelDto.setModel(carModel.getModel());
+            modelDto.setBikeType(carModel.getBikeType());
+            modelDto.setBikeTypeCode(carModel.getBikeTypeCode());
+            modelDto.setVolume(carModel.getVolume());
+            riderDemandLeasesDto.setBike(modelDto);
+            fetchRiderDetailResponse.setRiderDemandLease(riderDemandLeasesDto);
+        }
 
         List<BikeDto> leasingBikes = new ArrayList<>();
         List<Bikes> allByRiderNo = bikesRepository.findAllByRiderNo(rider.getRiderNo());
@@ -240,13 +284,115 @@ public class RiderWorker extends SessService {
         return riderBikes;
     }
 
+    public void approveRiderDemandLease(String riderId, String clientId, BikeUser session){
+        RiderDemandLease demandLease = riderDemandLeaseRepository.findByRider_RiderId(riderId);
+        if(demandLease.getDemandLeaseStatusTypes() != DemandLeaseStatusTypes.PENDING) withException("");
+        Clients client = clientsRepository.findByClientId(clientId);
+        demandLease.setDemandLeaseStatusTypes(DemandLeaseStatusTypes.COMPLETED);
+        Leases lease = new Leases();
+        String leaseId = autoKey.makeGetKey("lease");
+        String emptyBike = systemParameterRepository.findByRemark("공백바이크 ID").getValue();
+        AddUpdateLeaseRequest addUpdateLeaseRequest = new AddUpdateLeaseRequest();
+        addUpdateLeaseRequest.setLeaseId(leaseId);
+        addUpdateLeaseRequest.setBikeId(emptyBike);
+        addUpdateLeaseRequest.setClientId(clientId);
+        LeaseInfoDto leaseInfoDto = new LeaseInfoDto();
+        leaseInfoDto.setPeriod(demandLease.getPeriod());
+        leaseInfoDto.setStartDt(LocalDate.now().toString());
+        leaseInfoDto.setContractDt(LocalDate.now().toString());
+        leaseInfoDto.setEndDt(LocalDate.now().plusMonths(demandLease.getPeriod()).toString());
+        addUpdateLeaseRequest.setLeaseInfo(leaseInfoDto);
+
+        LeasePriceDto leasePriceDto = new LeasePriceDto();
+        leasePriceDto.setPaymentType(demandLease.getPaymentType().getPaymentType());
+        leasePriceDto.setPrePayment(demandLease.getPrepayment());
+        addUpdateLeaseRequest.setLeasePrice(leasePriceDto);
+        addUpdateLeaseRequest.setManagementType(demandLease.getManagementType().getStatus());
+
+        lease.setLeaseId(leaseId);
+        List<Leases> leasesByBike = leaseRepository.findAllByBike_BikeId(addUpdateLeaseRequest.getBikeId());
+        //bike
+        Bikes bike = bikesRepository.findByBikeId(addUpdateLeaseRequest.getBikeId());
+        lease.setBikeNo(bike.getBikeNo());
+        //insurance
+        Insurances insurance = insurancesRepository.findByInsuranceId(systemParameterRepository.findByRemark("리스신청서 계약완료 기본 보험 ID").getValue());
+        lease.setInsuranceNo(insurance.getInsuranceNo());
+        if(client!=null)
+            lease.setClientNo(client.getClientNo());
+        if(addUpdateLeaseRequest.getManagementType() != null)
+            lease.setType(ManagementTypes.getManagementStatus(addUpdateLeaseRequest.getManagementType()));
+        lease.setCreatedAt(LocalDateTime.now());
+        lease.setReleaseNo(1);
+        lease.setCreatedUserNo(session.getUserNo());
+        lease.setExpireTypes(demandLease.getExpireTypes());
+        leaseRepository.save(lease);
+
+        //lease info
+        LeaseInfo leaseInfo = new LeaseInfo();
+        leaseInfo.setLeaseNo(lease.getLeaseNo());
+        List<LeasePayments> leasePaymentsList = new ArrayList<>();
+        if(leaseInfoDto.getStartDt()!=null) {
+            leaseInfo.setStart(LocalDate.parse(leaseInfoDto.getStartDt()));//payment시작
+            if(leaseInfoDto.getPeriod() != null) {
+                leaseInfo.setPeriod(leaseInfoDto.getPeriod());
+                leaseInfo.setEndDate(leaseInfo.getStart().plusMonths(leaseInfoDto.getPeriod()));
+                if(PaymentTypes.getPaymentType(addUpdateLeaseRequest.getLeasePrice().getPaymentType()) == PaymentTypes.MONTHLY) {
+                    for (int i = 0; i < addUpdateLeaseRequest.getLeaseInfo().getPeriod(); i++) {
+                        LeasePayments leasePayment = new LeasePayments();
+                        String paymentId = autoKey.makeGetKey("payment");
+                        leasePayment.setPaymentId(paymentId);
+                        leasePayment.setLeaseNo(lease.getLeaseNo());
+                        leasePayment.setIndex(i + 1);
+                        leasePayment.setPaymentDate(leaseInfo.getStart().plusMonths(i));
+                        leasePayment.setInsertedUserNo(session.getUserNo());
+                        leasePayment.setLeaseFee(0);
+                        leasePaymentsList.add(leasePayment);
+                    }
+                }else{
+                    int days = (int)(ChronoUnit.DAYS.between(leaseInfo.getStart(), leaseInfo.getStart().plusMonths(addUpdateLeaseRequest.getLeaseInfo().getPeriod())));
+                    for(int i = 0 ; i < days; i++){
+                        LeasePayments leasePayment = new LeasePayments();
+                        String paymentId = autoKey.makeGetKey("payment");
+                        leasePayment.setPaymentId(paymentId);
+                        leasePayment.setLeaseNo(lease.getLeaseNo());
+                        leasePayment.setIndex(i + 1);
+                        leasePayment.setPaymentDate(leaseInfo.getStart().plusDays(i));
+                        leasePayment.setInsertedUserNo(session.getUserNo());
+                        leasePayment.setLeaseFee(0);
+                        leasePaymentsList.add(leasePayment);
+                    }
+                }
+            }
+        }
+        leaseInfo.setContractDate(LocalDate.parse(leaseInfoDto.getContractDt()));
+        leaseInfo.setNote(leaseInfoDto.getNote());
+        leaseInfoRepository.save(leaseInfo);
+
+        LeasePrice leasePrice = new LeasePrice();
+        leasePrice.setLeaseNo(lease.getLeaseNo());
+        leasePrice.setType(PaymentTypes.getPaymentType(addUpdateLeaseRequest.getLeasePrice().getPaymentType()));
+        if(addUpdateLeaseRequest.getLeasePrice().getPrePayment()!= null)
+            leasePrice.setPrepayment(addUpdateLeaseRequest.getLeasePrice().getPrePayment());
+        leasePriceRepository.save(leasePrice);
+        leasePaymentsRepository.saveAll(leasePaymentsList);
+        bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_ADDED, session.getUserNo(), lease.getLeaseNo().toString()));
+    }
+
+    public void rejectRiderDemandLease(String riderId, String reason) {
+        RiderDemandLease demandLease = riderDemandLeaseRepository.findByRider_RiderId(riderId);
+        demandLease.setDemandLeaseStatusTypes(DemandLeaseStatusTypes.DENIED);
+        demandLease.setRejectedAt(LocalDateTime.now());
+        demandLease.setRejectMessage(reason);
+        riderDemandLeaseRepository.save(demandLease);
+    }
+
     private String generateNewPassword(){
         Random random = new Random();
         StringBuffer sb = new StringBuffer();
         for(int j = 0; j < 8; j++)
         {
             if(random.nextBoolean())
-                sb.append((char)('A' + random.nextInt(26)));
+                sb.append((char)('a' + random.nextInt(26)));
             else
                 sb.append(random.nextInt(10));
         }

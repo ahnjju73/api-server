@@ -59,16 +59,6 @@ public class Riders {
     @Column(name = "verified_reject_message", columnDefinition = "MEDIUMTEXT")
     private String verifiedRejectMessage;
 
-    @Column(name = "lease_requested", columnDefinition = "ENUM", nullable = false)
-    @Convert(converter = RiderLeaseRequestedTypesConverter.class)
-    private RiderLeaseRequestedTypes leaseRequestedTypes = RiderLeaseRequestedTypes.NOT;
-
-    @Column(name = "lease_requested_at", columnDefinition = "CURRENT_TIMESTAMP")
-    private LocalDateTime leaseRequestedAt;
-
-    @Column(name = "lease_request_url", length = 512)
-    private String leaseRequestUrl;
-
     @Column(name = "uuid")
     private String edpId;
 
@@ -89,13 +79,6 @@ public class Riders {
 
     @OneToMany(mappedBy = "rider", fetch = FetchType.LAZY)
     private List<RiderAddresses> addresses;
-
-
-    public void leaseRequestedClear(){
-        this.setLeaseRequestedAt(null);
-        this.setLeaseRequestedTypes(RiderLeaseRequestedTypes.NOT);
-        this.leaseRequestUrl = null;
-    }
 
 }
 

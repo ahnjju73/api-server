@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import helmet.bikelab.apiserver.domain.embeds.ModelAddress;
+import helmet.bikelab.apiserver.domain.lease.LeaseInfo;
 import helmet.bikelab.apiserver.objects.requests.StopLeaseDto;
 import helmet.bikelab.apiserver.services.internal.OriginObject;
 import lombok.Getter;
@@ -44,6 +45,9 @@ public class AddUpdateLeaseRequest extends OriginObject {
         if(releaseAt != null)
             this.releaseAt = LocalDateTime.parse(releaseAt);
     }
+    public void setLeaseInfo(LeaseInfoDto info) {
+        this.leaseInfo = info;
+    }
 
     public void setLeaseInfo(Map info) {
         ObjectMapper objectMapper = new ObjectMapper();
@@ -52,6 +56,10 @@ public class AddUpdateLeaseRequest extends OriginObject {
     public void setLeasePrice(Map price) {
         ObjectMapper objectMapper = new ObjectMapper();
         this.leasePrice = objectMapper.convertValue(price, LeasePriceDto.class);
+    }
+
+    public void setLeasePrice(LeasePriceDto leasePrice) {
+        this.leasePrice = leasePrice;
     }
 
     public void validationCheck(){
