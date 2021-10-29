@@ -167,7 +167,7 @@ public class RiderWorker extends SessService {
             CommonCodeBikes carModel = riderDemandLease.getCarModel();
             RiderDemandLeasesDto riderDemandLeasesDto = new RiderDemandLeasesDto();
             riderDemandLeasesDto.setRiderId(rider.getRiderId());
-            riderDemandLeasesDto.setLeaseId(lease.getLeaseId());
+            riderDemandLeasesDto.setLeaseId(lease == null ? null : lease.getLeaseId());
             riderDemandLeasesDto.setDemandLeaseStatus(riderDemandLease.getDemandLeaseStatusTypes().getStatusName());
             riderDemandLeasesDto.setManagementType(riderDemandLease.getManagementType().getStatus());
             riderDemandLeasesDto.setExpireType(riderDemandLease.getExpireTypes().getStatusName());
@@ -176,11 +176,13 @@ public class RiderWorker extends SessService {
             riderDemandLeasesDto.setPaymentType(riderDemandLease.getPaymentType().getPaymentType());
             riderDemandLeasesDto.setIsMaintenance(riderDemandLease.getIsMaintenance());
             riderDemandLeasesDto.setCreatedAt(riderDemandLease.getCreatedAt());
-            LeaseInfoDto leaseInfoDto = new LeaseInfoDto();
-            leaseInfoDto.setPeriod(lease.getLeaseInfo().getPeriod());
-            leaseInfoDto.setStartDt(lease.getLeaseInfo().getStart().toString());
-            leaseInfoDto.setEndDt(lease.getLeaseInfo().getEndDate().toString());
-            riderDemandLeasesDto.setLeaseInfo(leaseInfoDto);
+            if(lease != null) {
+                LeaseInfoDto leaseInfoDto = new LeaseInfoDto();
+                leaseInfoDto.setPeriod(lease.getLeaseInfo().getPeriod());
+                leaseInfoDto.setStartDt(lease.getLeaseInfo().getStart().toString());
+                leaseInfoDto.setEndDt(lease.getLeaseInfo().getEndDate().toString());
+                riderDemandLeasesDto.setLeaseInfo(leaseInfoDto);
+            }
             BikeModelDto modelDto = new BikeModelDto();
             modelDto.setModel(carModel.getModel());
             modelDto.setBikeType(carModel.getBikeType());
@@ -311,11 +313,10 @@ public class RiderWorker extends SessService {
         List<Leases> leasesByBike = leaseRepository.findAllByBike_BikeId(addUpdateLeaseRequest.getBikeId());
         //bike
         Bikes bike = bikesRepository.findByBikeId(addUpdateLeaseRequest.getBikeId());
-        if(bike!=null && leasesByBike.size() > 0) withException("850-001"); //이미 리스가 존재할때
-        if(bike.getTransaction() == null) withException("850-034");
-        //clientÎ
+        lease.setBikeNo(bike.getBikeNo());
         //insurance
         Insurances insurance = insurancesRepository.findByInsuranceId(systemParameterRepository.findByRemark("리스신청서 계약완료 기본 보험 ID").getValue());
+        lease.setInsuranceNo(insurance.getInsuranceNo());
         if(client!=null)
             lease.setClientNo(client.getClientNo());
         if(addUpdateLeaseRequest.getManagementType() != null)
@@ -344,7 +345,7 @@ public class RiderWorker extends SessService {
                         leasePayment.setIndex(i + 1);
                         leasePayment.setPaymentDate(leaseInfo.getStart().plusMonths(i));
                         leasePayment.setInsertedUserNo(session.getUserNo());
-                        leasePayment.setLeaseFee(addUpdateLeaseRequest.getLeasePrice().getLeaseFee());
+                        leasePayment.setLeaseFee(0);
                         leasePaymentsList.add(leasePayment);
                     }
                 }else{
@@ -357,7 +358,7 @@ public class RiderWorker extends SessService {
                         leasePayment.setIndex(i + 1);
                         leasePayment.setPaymentDate(leaseInfo.getStart().plusDays(i));
                         leasePayment.setInsertedUserNo(session.getUserNo());
-                        leasePayment.setLeaseFee(addUpdateLeaseRequest.getLeasePrice().getLeaseFee());
+                        leasePayment.setLeaseFee(0);
                         leasePaymentsList.add(leasePayment);
                     }
                 }
