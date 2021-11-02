@@ -180,6 +180,10 @@ public class RiderWorker extends SessService {
             riderDemandLeasesDto.setInsuranceType(riderDemandLease.getInsuranceType().getLeaseTypeName());
             riderDemandLeasesDto.setPaymentType(riderDemandLease.getPaymentType().getPaymentType());
             riderDemandLeasesDto.setIsMaintenance(riderDemandLease.getIsMaintenance());
+            if(riderDemandLease.getRejectedAt() != null){
+                riderDemandLeasesDto.setRejectedAt(riderDemandLease.getRejectedAt());
+                riderDemandLeasesDto.setRejectMessage(riderDemandLease.getRejectMessage());
+            }
             riderDemandLeasesDto.setCreatedAt(riderDemandLease.getCreatedAt());
             if(lease != null) {
                 LeaseInfoDto leaseInfoDto = new LeaseInfoDto();
@@ -237,15 +241,30 @@ public class RiderWorker extends SessService {
         }
         riderRepository.save(riders);
         RiderAddresses real = riderAddressRepository.findByRider_RiderIdAndRiderAddressTypes(riders.getRiderId(), RiderAddressTypes.REAL_RESIDENCE);
-        if(real != null){
+        if(addUpdateRiderRequest.getRealAddress() != null){
+            if(real == null){
+                real = new RiderAddresses();
+            }
             real.setModelAddress(addUpdateRiderRequest.getRealAddress());
+            riderAddressRepository.save(real);
         }
-        riderAddressRepository.save(real);
+        else{
+            if(real != null)
+                riderAddressRepository.delete(real);
+        }
 
         RiderAddresses paper = riderAddressRepository.findByRider_RiderIdAndRiderAddressTypes(riders.getRiderId(), RiderAddressTypes.ON_PAPER);
-        paper.setModelAddress(addUpdateRiderRequest.getPaperAddress());
-        riderAddressRepository.save(paper);
-
+        if(addUpdateRiderRequest.getPaperAddress() != null){
+            if(paper == null){
+                paper = new RiderAddresses();
+            }
+            paper.setModelAddress(addUpdateRiderRequest.getPaperAddress());
+            riderAddressRepository.save(paper);
+        }
+        else{
+            if(paper != null)
+                riderAddressRepository.delete(paper);
+        }
         RiderInfo riderInfo = new RiderInfo();
         riderInfo.setRiderNo(riders.getRiderNo());
         riderInfo.setRider(riders);
@@ -317,7 +336,6 @@ public class RiderWorker extends SessService {
         addUpdateLeaseRequest.setManagementType(demandLease.getManagementType().getStatus());
 
         lease.setLeaseId(leaseId);
-        List<Leases> leasesByBike = leaseRepository.findAllByBike_BikeId(addUpdateLeaseRequest.getBikeId());
         //bike
         Bikes bike = bikesRepository.findByBikeId(addUpdateLeaseRequest.getBikeId());
         lease.setBikeNo(bike.getBikeNo());
@@ -333,7 +351,8 @@ public class RiderWorker extends SessService {
         lease.setCreatedUserNo(session.getUserNo());
         lease.setExpireTypes(demandLease.getExpireTypes());
         leaseRepository.save(lease);
-
+        demandLease.setLeaseNo(lease.getLeaseNo());
+        riderDemandLeaseRepository.save(demandLease);
         //lease info
         LeaseInfo leaseInfo = new LeaseInfo();
         leaseInfo.setLeaseNo(lease.getLeaseNo());

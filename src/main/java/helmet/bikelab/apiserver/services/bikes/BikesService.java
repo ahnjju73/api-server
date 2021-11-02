@@ -504,4 +504,6 @@ public class BikesService extends SessService {
         return request;
     }
 
+    @Transactional
+
 }
