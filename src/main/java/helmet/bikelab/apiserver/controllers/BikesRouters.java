@@ -17,6 +17,7 @@ public class BikesRouters {
     private final BikesModelHandlers bikesModelHandlers;
     private final BikePartsHandlers partsHandler;
 
+
     @Bean
     public RouterFunction<ServerResponse> bikeRouter(BikesHandlers handler){
         return RouterFunctions
@@ -66,6 +67,14 @@ public class BikesRouters {
                 .andRoute(DELETE("/commons/bikes/images"), partsHandler::deletePartsImage)
                 .andRoute(GET("/commons/bikes/images"), partsHandler::fetchPartImageByPartsId)
                 ;
+    }
+
+
+    @Bean
+    public RouterFunction<ServerResponse> bikeRiderFileUploadRouter(BikesHandlers handler){
+        return RouterFunctions
+                .route(PUT("/upload-bike-riders"), handler::)
+
     }
 
 }
