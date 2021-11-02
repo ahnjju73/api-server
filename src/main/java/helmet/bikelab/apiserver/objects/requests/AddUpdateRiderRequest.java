@@ -29,12 +29,6 @@ public class AddUpdateRiderRequest extends OriginObject {
         if(!bePresent(phone))
             withException("950-003");
         if(!bePresent(edpId))
-            withException("");
-        if(!bePresent(ssn))
-            withException("");
-        if(!bePresent(realAddress))
-            withException("");
-        if(!bePresent(paperAddress))
-            withException("");
+            withException("950-010");
     }
 }
