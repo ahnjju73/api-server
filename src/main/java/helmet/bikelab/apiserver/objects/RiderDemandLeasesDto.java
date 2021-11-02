@@ -25,6 +25,8 @@ public class RiderDemandLeasesDto {
     private String insuranceType;
     private String paymentType;
     private Boolean isMaintenance;
+    private String rejectMessage;
     private LocalDateTime createdAt;
+    private LocalDateTime rejectedAt;
 
 }
