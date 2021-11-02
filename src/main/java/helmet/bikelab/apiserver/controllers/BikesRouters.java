@@ -69,12 +69,12 @@ public class BikesRouters {
                 ;
     }
 
-
-    @Bean
-    public RouterFunction<ServerResponse> bikeRiderFileUploadRouter(BikesHandlers handler){
-        return RouterFunctions
-                .route(PUT("/upload-bike-riders"), handler::)
-
-    }
+//
+//    @Bean
+//    public RouterFunction<ServerResponse> bikeRiderFileUploadRouter(BikesHandlers handler){
+//        return RouterFunctions
+//                .route(PUT("/upload-bike-riders"), handler::)
+//
+//    }
 
 }

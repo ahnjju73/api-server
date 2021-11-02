@@ -216,16 +216,16 @@ public class BikesHandlers {
     }
 
 
-    public Mono<ServerResponse> uploadFile(ServerRequest request){
-        return request.body(BodyExtractors.toMultipartData())
-                .flatMap(m -> multiFiles.multipartFile(m, "excel"))
-                .map(m -> bikesService.makeSessionRequest(request, m, BikeSessionRequest.class))
-                .map(row -> bikesService.checkBikeSession(row))
-                .flatMap(sessionRequest ->
-                        ServerResponse.ok().body(
-                                Mono.just(bikesService.uploadFile(sessionRequest))
-                                        .map(bikesService::returnData), Map.class).subscribeOn(parallel())
-                );
-    }
+//    public Mono<ServerResponse> uploadFile(ServerRequest request){
+//        return request.body(BodyExtractors.toMultipartData())
+//                .flatMap(m -> multiFiles.multipartFile(m, "excel"))
+//                .map(m -> bikesService.makeSessionRequest(request, m, BikeSessionRequest.class))
+//                .map(row -> bikesService.checkBikeSession(row))
+//                .flatMap(sessionRequest ->
+//                        ServerResponse.ok().body(
+//                                Mono.just(bikesService.uploadFile(sessionRequest))
+//                                        .map(bikesService::returnData), Map.class).subscribeOn(parallel())
+//                );
+//    }
 
 }

@@ -45,6 +45,7 @@ public class AddUpdateLeaseRequest extends OriginObject {
 //        if(releaseAt != null)
 //            this.releaseAt = LocalDateTime.parse(releaseAt);
 //    }
+//
 //    public void setLeaseInfo(LeaseInfoDto info) {
 //        this.leaseInfo = info;
 //    }
