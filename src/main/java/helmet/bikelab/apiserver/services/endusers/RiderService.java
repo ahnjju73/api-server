@@ -27,6 +27,7 @@ import helmet.bikelab.apiserver.repositories.*;
 import helmet.bikelab.apiserver.services.BikeUserTodoService;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.utils.AutoKey;
+import helmet.bikelab.apiserver.utils.PushComponent;
 import helmet.bikelab.apiserver.utils.Utils;
 import helmet.bikelab.apiserver.workers.CommonWorker;
 import helmet.bikelab.apiserver.workers.LeasesWorker;
@@ -61,6 +62,7 @@ public class RiderService extends SessService {
     private final LeasesWorker leasesWorker;
     private final RiderVerifiedRepository riderVerifiedRepository;
     private final RiderRepository riderRepository;
+    private final PushComponent pushComponent;
 
     @Transactional
     public BikeSessionRequest doRejectRiderVerified(BikeSessionRequest request){
@@ -78,6 +80,14 @@ public class RiderService extends SessService {
         activities.setRiderNo(riderById.getRiderNo());
         activities.setActivityType(ActivityTypes.RIDER_VERIFIED_REJECTED);
         activitiesRepository.save(activities);
+
+        String returnMessage = "";
+        if(bePresent(message)){
+            returnMessage = "다음과 같은 이유로 인증이 완료되지 못했습니다." + "\n* " + message.substring(0, message.length() > 120 ? 120 : message.length()) + (message.length() > 120 ? "..." : "");
+        }else {
+            returnMessage = "자료가 부족하여서 인증에 실패하였습니다.";
+        }
+        pushComponent.pushNotification(riderById.getNotificationToken(), "인증이 완료되지못했습니다..", returnMessage);
 
         return request;
     }
@@ -102,6 +112,9 @@ public class RiderService extends SessService {
         activities.setRiderNo(riderById.getRiderNo());
         activities.setActivityType(ActivityTypes.RIDER_VERIFIED_COMPLETED);
         activitiesRepository.save(activities);
+
+        pushComponent.pushNotification(riderById.getNotificationToken(), "인증이 완료되었습니다.", "요청하신 라이더 인증이 완료되어서 리스신청이 가능합니다!");
+
         return request;
     }
 
