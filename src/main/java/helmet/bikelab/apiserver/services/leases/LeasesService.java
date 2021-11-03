@@ -292,6 +292,10 @@ public class LeasesService extends SessService {
             DemandLeases byDemandLeaseNo = demandLeasesRepository.findByDemandLeaseNo(lease.getDemandLeaseNo());
             fetchLeasesResponse.setDemandLeaseId(byDemandLeaseNo.getDemandLeaseId());
         }
+        RiderDemandLease riderDemandLease = riderDemandLeaseRepository.findByLease_LeaseId(lease.getLeaseId());
+        if(bePresent(riderDemandLease)){
+            fetchLeasesResponse.setRiderId(riderDemandLease.getRider().getRiderId());
+        }
         response.put("lease", fetchLeasesResponse);
         request.setResponse(response);
         return request;
@@ -898,6 +902,11 @@ public class LeasesService extends SessService {
         leaseInsurancesRepository.deleteAllByLease_LeaseId(lease.getLeaseId());
         expenseRepository.deleteAllByLease_LeaseId(lease.getLeaseId());
         leaseRepository.delete(lease);
+        RiderDemandLease riderDemandLease = riderDemandLeaseRepository.findByLease_LeaseId(lease.getLeaseId());
+        if(bePresent(riderDemandLease)){
+            riderDemandLease.setDemandLeaseStatusTypes(DemandLeaseStatusTypes.PENDING);
+            riderDemandLeaseRepository.save(riderDemandLease);
+        }
         return request;
     }
 
