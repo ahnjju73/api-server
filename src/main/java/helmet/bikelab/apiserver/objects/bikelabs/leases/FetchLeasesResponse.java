@@ -46,4 +46,5 @@ public class FetchLeasesResponse {
     private StopLeaseDto stopLeaseInfo;
     private List<ExpenseDto> expense;
     private String demandLeaseId;
+    private String riderId;
 }
