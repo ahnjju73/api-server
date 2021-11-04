@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.services.leases;
 
+import helmet.bikelab.apiserver.domain.bike.BikeRidersBak;
 import helmet.bikelab.apiserver.domain.demands.DemandLeases;
 import helmet.bikelab.apiserver.domain.embeds.ModelTransaction;
 import helmet.bikelab.apiserver.domain.riders.*;
@@ -45,6 +46,8 @@ public class LeasesService extends SessService {
     private final LeaseInfoRepository leaseInfoRepository;
     private final LeasePriceRepository leasePriceRepository;
     private final BikesRepository bikesRepository;
+    private final BikeRiderBakRepository bikeRiderBakRepository;
+    private final LeaseExpenseRepository leaseExpenseRepository;
     private final BikeLabUserRepository bikeLabUserRepository;
     private final ClientsRepository clientsRepository;
     private final ReleaseRepository releaseRepository;
@@ -61,6 +64,7 @@ public class LeasesService extends SessService {
     private final RiderDemandLeaseHistoryRepository riderDemandLeaseHistoryRepository;
     private final RiderDemandLeaseAttachmentsRepository riderDemandLeaseAttachmentsRepository;
     private final RiderDemandLeaseTermsRepository riderDemandLeaseTermsRepository;
+    private final RiderRepository riderRepository;
 
     private final SystemParameterRepository systemParameterRepository;
 
@@ -812,8 +816,22 @@ public class LeasesService extends SessService {
             bike.setRiderStartAt(lease.getLeaseInfo().getStart().atStartOfDay());
             bike.setRiderApprovalAt(LocalDateTime.now());
             bike.setRiderLeaseNo(lease.getLeaseNo());
+            bike.setRiderRequestAt(riderDemandLease.getCreatedAt());
+            bike.setRiderEndAt(lease.getLeaseInfo().getEndDate().atStartOfDay());
             bikesRepository.save(bike);
 
+            List<RiderDemandLeaseSpecialTerms> specialTerms = riderDemandLeaseTermsRepository.findAllByRiderNo(rider.getRiderNo());
+
+            for(RiderDemandLeaseSpecialTerms st : specialTerms){
+                LeaseExpense leaseExpense = new LeaseExpense();
+                leaseExpense.setLeaseNo(lease.getLeaseNo());
+                leaseExpense.setExpenseTypes(st.getSpecialTerms().getExpenseTypes());
+                ModelTransaction mt = new ModelTransaction();
+                mt.setPrice(0);
+                leaseExpense.setTransaction(mt);
+                leaseExpense.setNumber(1);
+                leaseExpenseRepository.save(leaseExpense);
+            }
             RiderDemandLeaseHistories riderDemandLeaseHistories = new RiderDemandLeaseHistories();
             riderDemandLeaseHistories.setHistory(riderDemandLease);
             List<RiderDemandLeaseAttachments> attachments = riderDemandLeaseAttachmentsRepository.findAllByRiderNo(rider.getRiderNo());
@@ -959,6 +977,7 @@ public class LeasesService extends SessService {
         lease.setStopFee(Math.round(stopFee));
         lease.setStopPaidFee(0L);
         lease.setStopReason(stopLeaseDto.getStopReason());
+        detachRiderFromBike(lease.getBike().getBikeId());
         leaseRepository.save(lease);
         bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_UPDATED, request.getSessionUser().getUserNo(), lease.getLeaseNo().toString(), log));
         return request;
@@ -1017,6 +1036,17 @@ public class LeasesService extends SessService {
         return isChange;
     }
 
+    private void detachRiderFromBike(String bikeId){
+        Bikes bike = bikesRepository.findByBikeId(bikeId);
+        Riders rider = riderRepository.findById(bike.getRiderNo()).get();
+        BikeRidersBak bikeRidersBak = bikeRiderBakRepository.findByRider_RiderIdAndBike_BikeId(rider.getRiderId(), bike.getBikeId());
+        if(LocalDateTime.now().isBefore(bikeRidersBak.getRiderEndAt())){
+            bikeRidersBak.setRiderEndAt(LocalDateTime.now());
+        }
+        bike.setRiderNo(null);
+        bikesRepository.save(bike);
+        bikeRiderBakRepository.save(bikeRidersBak);
+    }
 
 
 }

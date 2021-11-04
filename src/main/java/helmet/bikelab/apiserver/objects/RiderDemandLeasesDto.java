@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -26,6 +27,8 @@ public class RiderDemandLeasesDto {
     private String paymentType;
     private Boolean isMaintenance;
     private String rejectMessage;
+    private List<String> riderDemandLeaseSpecialTerms;
+    private List<RiderDemandLeaseAttachmentDto> riderDemandLeaseAttachments;
     private LocalDateTime createdAt;
     private LocalDateTime rejectedAt;
 
