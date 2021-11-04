@@ -25,6 +25,7 @@ import java.util.List;
 public class FetchRiderDetailResponse extends OriginObject {
     private Integer riderNo;
     private String riderId;
+    private String riderVerifiedStatus;
     private LocalDateTime createdAt;
     private List<BikeDto> leasingBikes;
     private RiderInfoDto riderInfo;

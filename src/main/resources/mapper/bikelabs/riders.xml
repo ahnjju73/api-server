@@ -9,18 +9,57 @@
         select count(*)
           from riders
          where 1 = 1
+        <if test="next_token != null and next_token != '' and next_token != 'undefined'">
+           and rider_id <![CDATA[ < ]]> #{next_token}
+        </if>
+        <if test="condition_status != null and condition_status != '' and condition_status != 'undefined'">
+           and status = #{condition_status}
+        </if>
+        <if test="condition != null and condition != '' and condition != 'undefined'">
+           and (
+           email like concat('%', #{condition}, '%')
+           or phone like concat('%', #{condition}, '%')
+           or rider_id like concat('%', #{condition}, '%')
+           )
+        </if>
     </select>
 
     <select id="countAllRidersVerified" parameterType="hmap" resultType="int">
         select count(*)
           from riders
          where verified_request_at is not null
+        <if test="next_token != null and next_token != '' and next_token != 'undefined'">
+           and rider_id <![CDATA[ < ]]> #{next_token}
+        </if>
+        <if test="condition_status != null and condition_status != '' and condition_status != 'undefined'">
+           and status = #{condition_status}
+        </if>
+        <if test="condition != null and condition != '' and condition != 'undefined'">
+           and (
+           email like concat('%', #{condition}, '%')
+           or phone like concat('%', #{condition}, '%')
+           or rider_id like concat('%', #{condition}, '%')
+           )
+        </if>
     </select>
 
     <select id="countAllRidersLeaseRequested" parameterType="hmap" resultType="int">
         select count(*)
           from riders r
           join rider_demand_leases rdl on rdl.rider_no = r.rider_no
+        <if test="next_token != null and next_token != '' and next_token != 'undefined'">
+           and rider_id <![CDATA[ < ]]> #{next_token}
+        </if>
+        <if test="condition_status != null and condition_status != '' and condition_status != 'undefined'">
+           and status = #{condition_status}
+        </if>
+        <if test="condition != null and condition != '' and condition != 'undefined'">
+           and (
+           email like concat('%', #{condition}, '%')
+           or phone like concat('%', #{condition}, '%')
+           or rider_id like concat('%', #{condition}, '%')
+           )
+        </if>
     </select>
 
     <select id="fetchRidersLeaseRequested" parameterType="hmap" resultType="hmap">
