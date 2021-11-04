@@ -78,29 +78,29 @@ public class Senders extends Workspace {
 
     public void withPhoneMessage(String message, String ...phoneNumber){
         if(phoneNumber.length == 0) return;
-        executorService.submit(() -> {
-            MultiValueMap<String, String> params = new LinkedMultiValueMap();
-            params.add("key", ENV.ALIGO_ACCESS_KEY);
-            params.add("user_id", ENV.ALIGO_USERID);
-            params.add("sender", ENV.ALIGO_SENDER);
-            params.add("msg", message);
+        if(ENV.IS_RELEASE){
+            executorService.submit(() -> {
+                MultiValueMap<String, String> params = new LinkedMultiValueMap();
+                params.add("key", ENV.ALIGO_ACCESS_KEY);
+                params.add("user_id", ENV.ALIGO_USERID);
+                params.add("sender", ENV.ALIGO_SENDER);
+                params.add("msg", message);
 
-            String collect = Arrays.stream(phoneNumber).collect(Collectors.joining("<"));
-            params.add("receiver", collect);
+                String collect = Arrays.stream(phoneNumber).collect(Collectors.joining("<"));
+                params.add("receiver", collect);
 
-            try {
-                // todo: 작동안됨 no_team
-                if(params != null) {
-                    HttpHeaders headers = new HttpHeaders();
-                    headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-                    HttpEntity entity = new HttpEntity(params, headers);
-                    restTemplate.postForEntity(ENV.ALIGO_DOMAIN + "/send/", entity, String.class);
+                try {
+                    if(params != null) {
+                        HttpHeaders headers = new HttpHeaders();
+                        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+                        HttpEntity entity = new HttpEntity(params, headers);
+                        restTemplate.postForEntity(ENV.ALIGO_DOMAIN + "/send/", entity, String.class);
+                    }
+                } catch (Exception e) {
+
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-                System.out.println(e);
-            }
-        });
+            });
+        }
     }
 
 }

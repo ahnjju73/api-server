@@ -17,6 +17,12 @@ public class ENV {
     public static String ALIGO_DOMAIN;
     public static String ALIGO_ACCESS_KEY;
     public static String ALIGO_SENDER;
+    public static Boolean IS_RELEASE;
+
+    @Value("${system.is-release}")
+    public void setIsRelease(Boolean isRelease) {
+        IS_RELEASE = isRelease;
+    }
 
     @Value("${aligo.sender}")
     public void setAligoSender(String aligoSender) {

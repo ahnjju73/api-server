@@ -26,7 +26,8 @@ public class PushComponent extends OriginObject {
     public void initialize() {
         try {
             InputStream inputStream = new ClassPathResource("bikelabs-b6f90-firebase-adminsdk-kx3wd-14cafb3ace.json").getInputStream();
-            FirebaseOptions options = new FirebaseOptions.Builder()
+            FirebaseOptions options = FirebaseOptions
+                    .builder()
                     .setCredentials(GoogleCredentials.fromStream(inputStream)).build();
             if (FirebaseApp.getApps().isEmpty()) {
                 FirebaseApp.initializeApp(options);
