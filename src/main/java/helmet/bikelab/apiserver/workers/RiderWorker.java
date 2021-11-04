@@ -53,6 +53,8 @@ public class RiderWorker extends SessService {
     private final LeaseExpenseRepository expenseRepository;
     private final InsurancesRepository insurancesRepository;
     private final BikeUserLogRepository bikeUserLogRepository;
+    private final RiderDemandLeaseTermsRepository riderDemandLeaseTermsRepository;
+    private final RiderDemandLeaseAttachmentsRepository riderDemandLeaseAttachmentsRepository;
     private final AutoKey autoKey;
 
     public Bikes getBikeByRiderIdAndBikeId(String riderId, String bikeId){
@@ -147,6 +149,7 @@ public class RiderWorker extends SessService {
         fetchRiderDetailResponse.setRiderId(riderId);
         fetchRiderDetailResponse.setRiderNo(rider.getRiderNo());
         fetchRiderDetailResponse.setCreatedAt(rider.getCreatedAt());
+        fetchRiderDetailResponse.setRiderVerifiedStatus(rider.getVerifiedType().getVerifiedType());
 
         fetchRiderDetailResponse.setVerifiedType(rider.getVerifiedType());
         fetchRiderDetailResponse.setVerifiedAt(rider.getVerifiedAt());
@@ -174,11 +177,11 @@ public class RiderWorker extends SessService {
             riderDemandLeasesDto.setRiderId(rider.getRiderId());
             riderDemandLeasesDto.setLeaseId(lease == null ? null : lease.getLeaseId());
             riderDemandLeasesDto.setDemandLeaseStatus(riderDemandLease.getDemandLeaseStatusTypes().getStatusName());
-            riderDemandLeasesDto.setManagementType(riderDemandLease.getManagementType().getStatus());
-            riderDemandLeasesDto.setExpireType(riderDemandLease.getExpireTypes().getStatusName());
+            riderDemandLeasesDto.setManagementType(riderDemandLease.getManagementType() != null ? riderDemandLease.getManagementType().getStatus() : null);
+            riderDemandLeasesDto.setExpireType(riderDemandLease.getExpireTypes() != null ? riderDemandLease.getExpireTypes().getStatusName() : null);
             riderDemandLeasesDto.setPrepayment(riderDemandLease.getPrepayment());
-            riderDemandLeasesDto.setInsuranceType(riderDemandLease.getInsuranceType().getLeaseTypeName());
-            riderDemandLeasesDto.setPaymentType(riderDemandLease.getPaymentType().getPaymentType());
+            riderDemandLeasesDto.setInsuranceType(riderDemandLease.getInsuranceType() != null ? riderDemandLease.getInsuranceType().getLeaseTypeName() : null);
+            riderDemandLeasesDto.setPaymentType(riderDemandLease.getPaymentType() != null ? riderDemandLease.getPaymentType().getPaymentType() : null);
             riderDemandLeasesDto.setIsMaintenance(riderDemandLease.getIsMaintenance());
             if(riderDemandLease.getRejectedAt() != null){
                 riderDemandLeasesDto.setRejectedAt(riderDemandLease.getRejectedAt());
@@ -192,12 +195,30 @@ public class RiderWorker extends SessService {
                 leaseInfoDto.setEndDt(lease.getLeaseInfo().getEndDate().toString());
                 riderDemandLeasesDto.setLeaseInfo(leaseInfoDto);
             }
-            BikeModelDto modelDto = new BikeModelDto();
-            modelDto.setModel(carModel.getModel());
-            modelDto.setBikeType(carModel.getBikeType());
-            modelDto.setBikeTypeCode(carModel.getBikeTypeCode());
-            modelDto.setVolume(carModel.getVolume());
-            riderDemandLeasesDto.setBike(modelDto);
+            if(carModel != null){
+                BikeModelDto modelDto = new BikeModelDto();
+                modelDto.setModel(carModel.getModel());
+                modelDto.setBikeType(carModel.getBikeType());
+                modelDto.setBikeTypeCode(carModel.getBikeTypeCode());
+                modelDto.setVolume(carModel.getVolume());
+                riderDemandLeasesDto.setBike(modelDto);
+            }
+            List<RiderDemandLeaseAttachmentDto> attachmentDtos = new ArrayList<>();
+            List<RiderDemandLeaseAttachments> allByRiderNo = riderDemandLeaseAttachmentsRepository.findAllByRiderNo(rider.getRiderNo());
+            for(RiderDemandLeaseAttachments attachments : allByRiderNo){
+                RiderDemandLeaseAttachmentDto riderDemandLeaseAttachmentDto = new RiderDemandLeaseAttachmentDto();
+                riderDemandLeaseAttachmentDto.setDomain(attachments.getDomain());
+                riderDemandLeaseAttachmentDto.setFileKey(attachments.getFileKey());
+                riderDemandLeaseAttachmentDto.setFileName(attachments.getFileName());
+                attachmentDtos.add(riderDemandLeaseAttachmentDto);
+            }
+            riderDemandLeasesDto.setRiderDemandLeaseAttachments(attachmentDtos);
+            List<String> terms = new ArrayList<>();
+            List<RiderDemandLeaseSpecialTerms> termsList = riderDemandLeaseTermsRepository.findAllByRiderNo(rider.getRiderNo());
+            for(RiderDemandLeaseSpecialTerms term : termsList){
+                terms.add(term.getSpecialTerms().getExpenseTypes().getType());
+            }
+            riderDemandLeasesDto.setRiderDemandLeaseSpecialTerms(terms);
             fetchRiderDetailResponse.setRiderDemandLease(riderDemandLeasesDto);
         }
 
