@@ -211,6 +211,11 @@ public class BikesService extends SessService {
         bike.setCarModelCode(addBikeRequest.getCarModel());
         bike.setColor(addBikeRequest.getColor());
         bike.setReceiveDate(addBikeRequest.getReceiveDt());
+        ModelTransaction modelTransaction = new ModelTransaction();
+        modelTransaction.setRegNum(addBikeRequest.getRegNum());
+        modelTransaction.setPrice(addBikeRequest.getPrice());
+        modelTransaction.setCompanyName(addBikeRequest.getCompanyName());
+        bike.setTransaction(modelTransaction);
         bikesRepository.save(bike);
         CommonCodeBikes model = bikeModelsRepository.findByCode(addBikeRequest.getCarModel());
         String log = "<>" + addBikeRequest.getYears() + "</>년식 차량모델 배기량은 <>"
@@ -498,5 +503,6 @@ public class BikesService extends SessService {
         amazonS3.deleteObject(ENV.AWS_S3_ORIGIN_BUCKET, url);
         return request;
     }
+
 
 }

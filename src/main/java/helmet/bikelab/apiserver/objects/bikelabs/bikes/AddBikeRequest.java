@@ -19,6 +19,9 @@ public class AddBikeRequest extends OriginObject {
     private Integer years;
     private LocalDateTime receiveDt;
     private LocalDateTime registerDt;
+    private String regNum;
+    private String companyName;
+    private Integer price;
 
     public void setReceiveDt(String receiveDt) {
         this.receiveDt = LocalDateTime.parse(receiveDt);

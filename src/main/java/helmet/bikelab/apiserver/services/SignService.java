@@ -55,6 +55,8 @@ public class SignService extends SessService {
                     BikeUserInfo userInfo = new BikeUserInfo();
                     userInfo.setBikeUser(newUser);
                     userInfo.setBikeUserNo(newUser.getUserNo());
+                    userInfo.setName(newBikeUserDto.getName());
+                    userInfo.setPhone(newBikeUserDto.getPhone());
                     userInfoRepository.save(userInfo);
 
                     BikeUserPassword password = new BikeUserPassword();

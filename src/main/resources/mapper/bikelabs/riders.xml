@@ -19,8 +19,8 @@
 
     <select id="countAllRidersLeaseRequested" parameterType="hmap" resultType="int">
         select count(*)
-          from riders
-         where lease_requested = "1"
+          from riders r
+          join rider_demand_leases rdl on rdl.rider_no = r.rider_no
     </select>
 
     <select id="fetchRidersLeaseRequested" parameterType="hmap" resultType="hmap">
@@ -31,10 +31,12 @@
                ri.name as rider_name,
                r.rider_no,
                r.created_at,
+               r.uuid as edp_id,
+               r.front_ssn as birth_date,
                if(b.rider_no is null, 0, bikes) bikes_count
         from (select *
               from riders
-             where lease_requested = "1"
+             where 1 = 1
             <if test="next_token != null and next_token != '' and next_token != 'undefined'">
                and rider_id <![CDATA[ < ]]> #{next_token}
             </if>
@@ -48,8 +50,10 @@
                 or rider_id like concat('%', #{condition}, '%')
                )
             </if>
-              order by rider_id desc limit 30) r
+             order by rider_id desc limit 30) r
              join rider_info ri on r.rider_no = ri.rider_no
+             join rider_demand_leases rdl on rdl.rider_no = r.rider_no
+                                         and rdl.demand_lease_status = #{status}
              left outer join (select rider_no,
                                      count(*) bikes
                                 from bikes
@@ -65,6 +69,8 @@
                ri.name as rider_name,
                r.rider_no,
                r.created_at,
+               r.uuid as edp_id,
+               r.front_ssn as birth_date,
                if(b.rider_no is null, 0, bikes) bikes_count
         from (select *
               from riders
@@ -99,6 +105,8 @@
                ri.name as rider_name,
                r.rider_no,
                r.created_at,
+               r.uuid as edp_id,
+               r.front_ssn as birth_date,
                if(b.rider_no is null, 0, bikes) bikes_count
           from (select *
                   from riders
@@ -143,6 +151,8 @@
                r.rider_id,
                r.email as rider_email,
                r.phone as rider_phone,
+               r.uuid as edp_id,
+               r.front_ssn as birth_date,
                ri.name as rider_name,
                l.lease_id,
                l.contract_type,
@@ -181,6 +191,8 @@
                r.rider_id,
                r.email as rider_email,
                r.phone as rider_phone,
+               r.uuid as edp_id,
+               r.front_ssn as birth_date,
                ri.name as rider_name,
                l.lease_id,
                l.contract_type,

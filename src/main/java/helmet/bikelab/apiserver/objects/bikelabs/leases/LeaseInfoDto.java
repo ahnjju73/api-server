@@ -20,8 +20,6 @@ public class LeaseInfoDto {
     private String note;
     private String endDt;
 
-
-
     public void setLeaseInfo(LeaseInfo leaseInfo){
         startDt = leaseInfo.getStart().toString();
         note = leaseInfo.getNote();

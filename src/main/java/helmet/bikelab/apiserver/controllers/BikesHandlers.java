@@ -5,8 +5,10 @@ import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.PresignedURLVo;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.services.bikes.BikesService;
+import helmet.bikelab.apiserver.utils.MultiFiles;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.BodyExtractors;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
@@ -16,11 +18,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import static reactor.core.scheduler.Schedulers.parallel;
+
 @Component
 @RequiredArgsConstructor
 public class BikesHandlers {
 
     private final BikesService bikesService;
+    private final MultiFiles multiFiles;
 
     public Mono<ServerResponse> fetchHistoriesByBikeId(ServerRequest request) {
         return ServerResponse.ok().body(
@@ -210,5 +215,17 @@ public class BikesHandlers {
                         .map(bikesService::returnData), Map.class);
     }
 
+
+//    public Mono<ServerResponse> uploadFile(ServerRequest request){
+//        return request.body(BodyExtractors.toMultipartData())
+//                .flatMap(m -> multiFiles.multipartFile(m, "excel"))
+//                .map(m -> bikesService.makeSessionRequest(request, m, BikeSessionRequest.class))
+//                .map(row -> bikesService.checkBikeSession(row))
+//                .flatMap(sessionRequest ->
+//                        ServerResponse.ok().body(
+//                                Mono.just(bikesService.uploadFile(sessionRequest))
+//                                        .map(bikesService::returnData), Map.class).subscribeOn(parallel())
+//                );
+//    }
 
 }

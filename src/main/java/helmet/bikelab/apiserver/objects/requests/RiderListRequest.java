@@ -11,4 +11,5 @@ import lombok.Setter;
 public class RiderListRequest extends RequestListDto{
     private String condition;
     private String conditionStatus;
+    private String status;
 }

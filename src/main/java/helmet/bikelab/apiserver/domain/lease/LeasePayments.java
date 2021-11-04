@@ -75,7 +75,7 @@ public class LeasePayments {
     @Column(name = "rider_no")
     private Integer riderNo;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "rider_no", insertable = false, updatable = false)
     private Riders rider;
 
@@ -86,5 +86,7 @@ public class LeasePayments {
     @JoinColumn(name = "bike_no", insertable = false, updatable = false)
     private Bikes bike;
 
+    @Column(name = "description", columnDefinition = "MEDIUMTEXT")
+    private String description;
 
 }
