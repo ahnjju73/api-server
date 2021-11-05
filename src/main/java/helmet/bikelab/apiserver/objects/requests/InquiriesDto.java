@@ -13,5 +13,6 @@ public class InquiriesDto extends RequestListDto{
 
     private String searchCompany;
     private String searchStatus;
+    private String inquiryId;
 
 }
