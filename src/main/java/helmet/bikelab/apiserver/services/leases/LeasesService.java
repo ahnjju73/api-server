@@ -23,6 +23,8 @@ import helmet.bikelab.apiserver.repositories.*;
 import helmet.bikelab.apiserver.services.BikeUserTodoService;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.utils.AutoKey;
+import helmet.bikelab.apiserver.utils.PushComponent;
+import helmet.bikelab.apiserver.utils.Senders;
 import helmet.bikelab.apiserver.utils.Utils;
 import helmet.bikelab.apiserver.workers.CommonWorker;
 import lombok.RequiredArgsConstructor;
@@ -65,6 +67,9 @@ public class LeasesService extends SessService {
     private final RiderDemandLeaseAttachmentsRepository riderDemandLeaseAttachmentsRepository;
     private final RiderDemandLeaseTermsRepository riderDemandLeaseTermsRepository;
     private final RiderRepository riderRepository;
+    private final Senders senders;
+    private final PushComponent pushComponent;
+    private final ActivitiesRepository activitiesRepository;
 
     private final SystemParameterRepository systemParameterRepository;
 
@@ -842,6 +847,16 @@ public class LeasesService extends SessService {
             riderDemandLeaseAttachmentsRepository.deleteAllByRiderNo(rider.getRiderNo());
             riderDemandLeaseTermsRepository.deleteAllByRiderNo(rider.getRiderNo());
             riderDemandLeaseRepository.deleteAllByRiderNo(rider.getRiderNo());
+
+            Clients clients = lease.getClients();
+            Activities activities = new Activities();
+            activities.setRiderNo(rider.getRiderNo());
+            activities.setBikeNo(bike.getBikeNo());
+            activities.setClientNo(clients.getClientNo());
+            activities.setActivityType(ActivityTypes.RIDER_DEMAND_LEASE_COMPLETED);
+            activitiesRepository.save(activities);
+            if(bePresent(rider.getNotificationToken())) pushComponent.pushNotification(rider.getNotificationToken(), "리스신청서 계약이 완료되었습니다,", "드디어 리스계약서가 체결되었습니다. 요청하신 차량을 이용가능합니다.");
+
         }
         return request;
     }
