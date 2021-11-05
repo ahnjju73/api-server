@@ -216,7 +216,7 @@ public class RiderWorker extends SessService {
             List<String> terms = new ArrayList<>();
             List<RiderDemandLeaseSpecialTerms> termsList = riderDemandLeaseTermsRepository.findAllByRiderNo(rider.getRiderNo());
             for(RiderDemandLeaseSpecialTerms term : termsList){
-                terms.add(term.getSpecialTerms().getExpenseTypes().getType());
+                terms.add(term.getSpecialTerms().getStermName());
             }
             riderDemandLeasesDto.setRiderDemandLeaseSpecialTerms(terms);
             fetchRiderDetailResponse.setRiderDemandLease(riderDemandLeasesDto);
