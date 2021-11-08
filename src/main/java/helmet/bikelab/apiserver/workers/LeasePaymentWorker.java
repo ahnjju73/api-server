@@ -78,6 +78,7 @@ public class LeasePaymentWorker extends SessService {
         String paymentId = (String)param.get("payment_id");
         Integer payFee = (Integer) param.get("pay_fee");
         String paidType = (String)param.get("paid_type");
+        String description = (String) param.get("description");
         List<String> strings = new ArrayList<>();
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일");
         LeasePayments byPaymentId = leasePaymentsRepository.findByPaymentId(paymentId);
@@ -90,6 +91,15 @@ public class LeasePaymentWorker extends SessService {
         checkLeaseIsConfirmed(leases);
         Integer prevPaidFee = byPaymentId.getPaidFee();
         String content = "";
+        if((byPaymentId.getDescription() == null && description != null) || (byPaymentId.getDescription() != null && !byPaymentId.getDescription().equals(byPaymentId.getDescription()))){
+            String log = "";
+            if(byPaymentId.getDescription() == null)
+                log = "<>" + byPaymentId.getIndex() + "회차</> 설명이 " + description + "로 입력되었습니다.";
+            else
+                log = "<>" + byPaymentId.getIndex() + "회차</> 설명이 " + byPaymentId.getDescription() + "에서 " +description + "로 변경되었습니다.";
+            byPaymentId.setDescription(description);
+            strings.add(log);
+        }
         if(payFee <= byPaymentId.getLeaseFee() - byPaymentId.getPaidFee()) {
             byPaymentId.setPaidFee(payFee);
             leasePaymentsRepository.save(byPaymentId);

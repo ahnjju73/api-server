@@ -180,6 +180,8 @@ public class LeasesService extends SessService {
         Leases lease = leaseRepository.findByLeaseId(leasesDto.getLeaseId());
         List<LeasePayments> payments = leasePaymentsRepository.findAllByLease_LeaseId(lease.getLeaseId());
         List<LeaseExpense> leaseExpenses = expenseRepository.findAllByLease_LeaseId(lease.getLeaseId());
+        Riders rider = riderRepository.findById(lease.getBike().getRiderNo()).get();
+        RiderDemandLeaseHistories riderDemandLeaseHistory = riderDemandLeaseHistoryRepository.findByRider_RiderIdAndLease_LeaseId(rider.getRiderId(), lease.getLeaseId());
 
         if(lease == null) withException("850-002");
         List<FetchFinesResponse> fines = new ArrayList<>();
@@ -201,6 +203,7 @@ public class LeasesService extends SessService {
         stopLeaseDto.setStopReason(lease.getStopReason() == null ? "" : lease.getStopReason());
         stopLeaseDto.setStopPaidFee(lease.getStopPaidFee() == null ? 0 : lease.getStopPaidFee());
         fetchLeasesResponse.setStopLeaseInfo(stopLeaseDto);
+
 
         if(leaseExpenses != null && leaseExpenses.size() > 0){
             List<ExpenseDto> expenseDtos = new ArrayList<>();
@@ -305,6 +308,11 @@ public class LeasesService extends SessService {
         if(bePresent(riderDemandLease)){
             fetchLeasesResponse.setRiderId(riderDemandLease.getRider().getRiderId());
         }
+        if(riderDemandLeaseHistory != null){
+            fetchLeasesResponse.setBakRiderLeaseAttachments(riderDemandLeaseHistory.getAttachmentHistoryString());
+            fetchLeasesResponse.setBakRiderLeaseSpecialTerms(riderDemandLeaseHistory.getTermsHistoryString());
+        }
+
         response.put("lease", fetchLeasesResponse);
         request.setResponse(response);
         return request;

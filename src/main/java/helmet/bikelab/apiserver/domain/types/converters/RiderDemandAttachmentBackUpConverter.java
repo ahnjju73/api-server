@@ -23,6 +23,8 @@ public class RiderDemandAttachmentBackUpConverter extends Workspace implements A
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
+        if(toJson.equals(""))
+            toJson = null;
         return toJson;
     }
 
