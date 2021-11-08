@@ -11,6 +11,7 @@ import helmet.bikelab.apiserver.domain.bike.BikeAttachments;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUserInfo;
+import helmet.bikelab.apiserver.domain.bikelab.SystemParameter;
 import helmet.bikelab.apiserver.domain.client.Clients;
 import helmet.bikelab.apiserver.domain.embeds.ModelTransaction;
 import helmet.bikelab.apiserver.domain.lease.LeaseExpense;
@@ -54,6 +55,7 @@ public class BikesService extends SessService {
     private final BikeModelsRepository bikeModelsRepository;
     private final BikeUserLogRepository bikeUserLogRepository;
     private final LeaseExpenseRepository expenseRepository;
+    private final SystemParameterRepository systemParameterRepository;
     private final CommonWorker commonWorker;
     private final BikeWorker bikeWorker;
 
@@ -128,10 +130,13 @@ public class BikesService extends SessService {
     public BikeSessionRequest fetchBikesByClient(BikeSessionRequest request){
         Map param = request.getParam();
         FetchBikeRequest fetchBikeRequest = map(param, FetchBikeRequest.class);
+        SystemParameter byRemark = systemParameterRepository.findByRemark("공백바이크 ID");
         List<Leases> leases = leaseRepository.findAllByClients_ClientIdOrderByLeaseInfo_ContractDate(fetchBikeRequest.getClientId());
         List<Bikes> bikes = new ArrayList<>();
-        for(Leases lease : leases)
-            bikes.add(lease.getBike());
+        for(Leases lease : leases) {
+            if(!lease.getBike().getBikeId().equals(byRemark.getValue()))
+                bikes.add(lease.getBike());
+        }
         List<FetchBikesResponse> fetchBikesResponses = new ArrayList<>();
         Map response = new HashMap();
         for(Bikes bike : bikes){
