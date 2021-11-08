@@ -47,4 +47,6 @@ public class FetchLeasesResponse {
     private List<ExpenseDto> expense;
     private String demandLeaseId;
     private String riderId;
+    private String bakRiderLeaseAttachments;
+    private String bakRiderLeaseSpecialTerms;
 }
