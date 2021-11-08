@@ -180,8 +180,8 @@ public class LeasesService extends SessService {
         Leases lease = leaseRepository.findByLeaseId(leasesDto.getLeaseId());
         List<LeasePayments> payments = leasePaymentsRepository.findAllByLease_LeaseId(lease.getLeaseId());
         List<LeaseExpense> leaseExpenses = expenseRepository.findAllByLease_LeaseId(lease.getLeaseId());
-        Riders rider = riderRepository.findById(lease.getBike().getRiderNo()).get();
-        RiderDemandLeaseHistories riderDemandLeaseHistory = riderDemandLeaseHistoryRepository.findByRider_RiderIdAndLease_LeaseId(rider.getRiderId(), lease.getLeaseId());
+        Riders rider = lease.getBike().getRiderNo() == null ? null : riderRepository.findById(lease.getBike().getRiderNo()).get();
+        RiderDemandLeaseHistories riderDemandLeaseHistory = rider != null ? riderDemandLeaseHistoryRepository.findByRider_RiderIdAndLease_LeaseId(rider.getRiderId(), lease.getLeaseId()) : null;
 
         if(lease == null) withException("850-002");
         List<FetchFinesResponse> fines = new ArrayList<>();
