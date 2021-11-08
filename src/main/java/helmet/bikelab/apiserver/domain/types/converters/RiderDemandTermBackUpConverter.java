@@ -22,6 +22,8 @@ public class RiderDemandTermBackUpConverter extends Workspace implements Attribu
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
+        if(toJson.equals(""))
+            toJson = null;
         return toJson;
     }
 
