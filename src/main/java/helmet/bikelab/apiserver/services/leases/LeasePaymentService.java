@@ -5,10 +5,7 @@ import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.client.ClientOverpay;
 import helmet.bikelab.apiserver.domain.client.Clients;
 import helmet.bikelab.apiserver.domain.lease.*;
-import helmet.bikelab.apiserver.domain.types.BikeUserLogTypes;
-import helmet.bikelab.apiserver.domain.types.LeaseStatusTypes;
-import helmet.bikelab.apiserver.domain.types.LeaseStopStatusTypes;
-import helmet.bikelab.apiserver.domain.types.PaidTypes;
+import helmet.bikelab.apiserver.domain.types.*;
 import helmet.bikelab.apiserver.objects.BikeDto;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.UnpaidExcelDto;
@@ -471,6 +468,8 @@ public class LeasePaymentService  extends SessService {
         List<Leases> leaseList = leaseRepository.findAllByClients_ClientIdAndStatusOrderByLeaseInfo_ContractDate(payLeaseRequest.getClientId(), LeaseStatusTypes.CONFIRM);
         int paidFee = payLeaseRequest.getPaidFee();
         for(Leases lease : leaseList){
+            if(lease.getContractTypes() != ContractTypes.LEASE)
+                continue;
             if(!bePresent(lease.getBike().getRiders())) withException("901-003");
             if(lease.getStatus() != LeaseStatusTypes.CONFIRM || lease.getLeaseStopStatus() != LeaseStopStatusTypes.CONTINUE)
                 continue;
@@ -546,6 +545,8 @@ public class LeasePaymentService  extends SessService {
                 Bikes bike = bikesRepository.findByCarNum(payLeaseRequest.getBikeNum());
                 ArrayList<String> logList = new ArrayList<>();
                 Leases lease = leaseRepository.findByBikeNo(bike.getBikeNo());
+                if(lease.getContractTypes() != ContractTypes.LEASE)
+                    continue;
                 if(!bePresent(lease.getBike().getRiders())) withException("901-003");
                 if(lease.getStatus() != LeaseStatusTypes.CONFIRM || lease.getLeaseStopStatus() != LeaseStopStatusTypes.CONTINUE)
                     continue;
