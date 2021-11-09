@@ -716,6 +716,7 @@ public class LeasesService extends SessService {
     @Transactional
     public void updateLeaseInfoLog(BikeUser session, AddUpdateLeaseRequest leaseRequest, Clients clientRequested, Insurances insurancesRequested, Bikes bikeRequested, Leases leases){
         List<String> stringList = new ArrayList<>();
+        String emptyBikeId = systemParameterRepository.findByRemark("공백바이크 ID").getValue();
         boolean isSet = true;
         if(bePresent(leaseRequest)){
             if(bePresent(clientRequested) && !clientRequested.getClientNo().equals(leases.getClientNo())){
@@ -728,7 +729,7 @@ public class LeasesService extends SessService {
             }
             if(bePresent(bikeRequested) && !bikeRequested.getBikeNo().equals(leases.getBikeNo())){
                 Bikes bike = leases.getBike();
-                if(bike == null)
+                if(bike == null || bike.getBikeId().equals(emptyBikeId))
                     stringList.add("바이크 정보 <>" + bikeRequested.getVimNum() + " [" +  bikeRequested.getBikeId() + "] " + "</>로 설정하였습니다.");
                 else
                     stringList.add("바이크 정보를 <>" + bike.getVimNum() + " [" + bike.getBikeId() + " ]" + "</>에서 <>" + bikeRequested.getVimNum() + " [" +  bikeRequested.getBikeId() + "] " + "</>으로 변경하였습니다.");
