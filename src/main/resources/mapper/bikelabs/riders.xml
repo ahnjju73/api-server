@@ -9,9 +9,6 @@
         select count(*)
           from riders
          where 1 = 1
-        <if test="next_token != null and next_token != '' and next_token != 'undefined'">
-           and rider_id <![CDATA[ < ]]> #{next_token}
-        </if>
         <if test="condition_status != null and condition_status != '' and condition_status != 'undefined'">
            and status = #{condition_status}
         </if>
@@ -28,9 +25,6 @@
         select count(*)
           from riders
          where verified_request_at is not null
-        <if test="next_token != null and next_token != '' and next_token != 'undefined'">
-           and rider_id <![CDATA[ < ]]> #{next_token}
-        </if>
         <if test="condition_status != null and condition_status != '' and condition_status != 'undefined'">
            and status = #{condition_status}
         </if>
@@ -47,11 +41,11 @@
         select count(*)
           from riders r
           join rider_demand_leases rdl on rdl.rider_no = r.rider_no
-        <if test="next_token != null and next_token != '' and next_token != 'undefined'">
-           and rider_id <![CDATA[ < ]]> #{next_token}
-        </if>
         <if test="condition_status != null and condition_status != '' and condition_status != 'undefined'">
            and status = #{condition_status}
+        </if>
+        <if test="status != null and status != '' and status != 'undefined'">
+            and lease_requested = #{status}
         </if>
         <if test="condition != null and condition != '' and condition != 'undefined'">
            and (
@@ -82,6 +76,9 @@
             <if test="condition_status != null and condition_status != '' and condition_status != 'undefined'">
                and status = #{condition_status}
             </if>
+            <if test="status != null and status != '' and status != 'undefined'">
+               and lease_requested = #{status}
+            </if>
             <if test="condition != null and condition != '' and condition != 'undefined'">
                and (
                 email like concat('%', #{condition}, '%')
@@ -92,7 +89,6 @@
              order by rider_id desc limit 30) r
              join rider_info ri on r.rider_no = ri.rider_no
              join rider_demand_leases rdl on rdl.rider_no = r.rider_no
-                                         and rdl.demand_lease_status = #{status}
              left outer join (select rider_no,
                                      count(*) bikes
                                 from bikes
