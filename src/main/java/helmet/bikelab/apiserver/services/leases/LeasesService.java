@@ -834,6 +834,16 @@ public class LeasesService extends SessService {
             bike.setRiderEndAt(lease.getLeaseInfo().getEndDate().atStartOfDay());
             bikesRepository.save(bike);
 
+            BikeRidersBak bikeRidersBak = new BikeRidersBak();
+            bikeRidersBak.setBikeNo(bike.getBikeNo());
+            bikeRidersBak.setRiderNo(rider.getRiderNo());
+            bikeRidersBak.setRiderStartAt(lease.getLeaseInfo().getStart().atStartOfDay());
+            bikeRidersBak.setRiderLeaseNo(lease.getLeaseNo());
+            bikeRidersBak.setRiderEndAt(lease.getLeaseInfo().getEndDate().atStartOfDay());
+            bikeRidersBak.setRiderApprovalAt(LocalDateTime.now());
+            bikeRidersBak.setRiderRequestAt(riderDemandLease.getCreatedAt());
+            bikeRiderBakRepository.save(bikeRidersBak);
+
             List<RiderDemandLeaseSpecialTerms> specialTerms = riderDemandLeaseTermsRepository.findAllByRiderNo(rider.getRiderNo());
 
             for(RiderDemandLeaseSpecialTerms st : specialTerms){
@@ -1064,12 +1074,13 @@ public class LeasesService extends SessService {
         Bikes bike = bikesRepository.findByBikeId(bikeId);
         Riders rider = riderRepository.findById(bike.getRiderNo()).get();
         BikeRidersBak bikeRidersBak = bikeRiderBakRepository.findByRider_RiderIdAndBike_BikeId(rider.getRiderId(), bike.getBikeId());
-        if(LocalDateTime.now().isBefore(bikeRidersBak.getRiderEndAt())){
+        if(bikeRidersBak != null && LocalDateTime.now().isBefore(bikeRidersBak.getRiderEndAt())){
             bikeRidersBak.setRiderEndAt(LocalDateTime.now());
         }
         bike.setRiderNo(null);
         bikesRepository.save(bike);
-        bikeRiderBakRepository.save(bikeRidersBak);
+        if(bikeRidersBak != null)
+            bikeRiderBakRepository.save(bikeRidersBak);
     }
 
 
