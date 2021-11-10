@@ -49,7 +49,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
 import java.util.*;
 
 import static helmet.bikelab.apiserver.domain.bikelab.BikeUserLog.addLog;
@@ -537,7 +540,7 @@ public class BikesService extends SessService {
             for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
                 XSSFSheet sheet = workbook.getSheetAt(i);
                 if (sheet.getSheetName().contains("라이더")) {
-//                    riderProcess(sheet);
+                    riderProcess(sheet);
                 } else if (sheet.getSheetName().contains("바이크")) {
                     bikeProcess(sheet, request.getSessionUser());
                 }
@@ -552,6 +555,7 @@ public class BikesService extends SessService {
         return request;
     }
 
+    @Transactional
     private void riderProcess(XSSFSheet sheet) {
         int name = 0;
         int email = 1;
@@ -579,7 +583,7 @@ public class BikesService extends SessService {
                     if(cell.toString().equals("공란"))
                         rider.setEdpId(rider.getRiderId());
                     else
-                        rider.setEdpId(cell.toString());
+                        rider.setEdpId(Double.valueOf(cell.toString()).intValue() + "");
                 } else {
                     String front = cell.toString().substring(0, cell.toString().indexOf("-"));
                     String back = cell.toString().substring(cell.toString().indexOf("-") + 1);
@@ -614,6 +618,7 @@ public class BikesService extends SessService {
         }
     }
 
+    @Transactional
     private void bikeProcess(XSSFSheet sheet, BikeUser user) {
         int vim = 0;
         int carNum = 1;
@@ -634,30 +639,52 @@ public class BikesService extends SessService {
             bikes.setBikeId(bikeId);
             CommonCodeBikes model = null;
             ModelTransaction modelTransaction = new ModelTransaction();
-            for (colIdx = 1; colIdx < row.getPhysicalNumberOfCells(); colIdx++) {
+            boolean isBreak = false;
+            for (colIdx = 0; colIdx < row.getPhysicalNumberOfCells(); colIdx++) {
                 XSSFCell cell = row.getCell(colIdx);
                 if(colIdx == vim){
+                    Bikes toCheck = bikesRepository.findByVimNum(cell.toString());
+                    if(toCheck != null) {
+                        isBreak = true;
+                        break;
+                    }
                     bikes.setVimNum(cell.toString());
                 }else if(colIdx == carNum){
                     bikes.setCarNum(cell.toString());
                 }else if(colIdx == type){
-                    CommonCodeBikes byModel = bikeModelsRepository.findByModel(cell.toString());
+                    CommonCodeBikes byModel;
+                    if(cell.toString().equals("VF100")){
+                        byModel = bikeModelsRepository.findByModel("VF100P");
+                    }else if(cell.toString().equals("파트너100")){
+                        byModel = bikeModelsRepository.findByModel("파트너100");
+                    }else if(cell.toString().equals("NMAX")){
+                        byModel = bikeModelsRepository.findByModel("NMAX125");
+                    }else{
+                        byModel = bikeModelsRepository.findByModel("PCX125");
+                    }
                     model = byModel;
                     bikes.setCarModelCode(byModel.getCode());
                 }else if(colIdx == color){
                     bikes.setColor(cell.toString());
                 }else if(colIdx == receiveDt){
-                    bikes.setReceiveDate(LocalDateTime.parse(cell.toString()));
+                    DateTimeFormatter dTF =
+                            new DateTimeFormatterBuilder().parseCaseInsensitive()
+                                    .appendPattern("dd-MMM-yyyy")
+                                    .toFormatter();
+                    LocalDate parse = LocalDate.parse(cell.toString(), dTF);
+                    bikes.setReceiveDate(parse.atStartOfDay());
                 }else if(colIdx == year){
-                    bikes.setCarNum(cell.toString());
+                    bikes.setYears(Double.valueOf(cell.toString()).intValue());
                 }else if(colIdx == buyer){
                     modelTransaction.setCompanyName(cell.toString());
                 }else if(colIdx == regNum){
                     modelTransaction.setRegNum(cell.toString());
                 }else if(colIdx == price){
-                    modelTransaction.setPrice(Integer.parseInt(cell.toString()));
+                    modelTransaction.setPrice(Double.valueOf(cell.getRawValue()).intValue());
                 }
             }
+            if(isBreak)
+                continue;
             bikes.setTransaction(modelTransaction);
             bikesRepository.save(bikes);
             String log = "<>" + bikes.getYears() + "</>년식 차량모델 배기량은 <>"

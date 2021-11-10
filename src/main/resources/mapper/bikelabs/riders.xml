@@ -45,7 +45,7 @@
            and status = #{condition_status}
         </if>
         <if test="status != null and status != '' and status != 'undefined'">
-            and lease_requested = #{status}
+            and rdl.demand_lease_status = #{status}
         </if>
         <if test="condition != null and condition != '' and condition != 'undefined'">
            and (
@@ -76,9 +76,6 @@
             <if test="condition_status != null and condition_status != '' and condition_status != 'undefined'">
                and status = #{condition_status}
             </if>
-            <if test="status != null and status != '' and status != 'undefined'">
-               and lease_requested = #{status}
-            </if>
             <if test="condition != null and condition != '' and condition != 'undefined'">
                and (
                 email like concat('%', #{condition}, '%')
@@ -86,14 +83,17 @@
                 or rider_id like concat('%', #{condition}, '%')
                )
             </if>
-             order by rider_id desc limit 30) r
+             order by rider_id desc) r
              join rider_info ri on r.rider_no = ri.rider_no
              join rider_demand_leases rdl on rdl.rider_no = r.rider_no
+                                      <if test="status != null and status != '' and status != 'undefined'">
+                                         and rdl.demand_lease_status = #{status}
+                                      </if>
              left outer join (select rider_no,
                                      count(*) bikes
                                 from bikes
                                group by rider_no) b on r.rider_no = b.rider_no
-        order by rider_id desc
+        order by rider_id desc limit 30
     </select>
 
     <select id="fetchRidersVerified" parameterType="hmap" resultType="hmap">
