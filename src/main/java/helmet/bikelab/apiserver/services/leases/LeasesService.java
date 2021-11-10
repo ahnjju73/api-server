@@ -181,7 +181,7 @@ public class LeasesService extends SessService {
         List<LeasePayments> payments = leasePaymentsRepository.findAllByLease_LeaseId(lease.getLeaseId());
         List<LeaseExpense> leaseExpenses = expenseRepository.findAllByLease_LeaseId(lease.getLeaseId());
         Riders rider = lease.getBike().getRiderNo() == null ? null : riderRepository.findById(lease.getBike().getRiderNo()).get();
-        RiderDemandLeaseHistories riderDemandLeaseHistory = rider != null ? riderDemandLeaseHistoryRepository.findByRider_RiderIdAndLease_LeaseId(rider.getRiderId(), lease.getLeaseId()) : null;
+        RiderDemandLeaseHistories riderDemandLeaseHistory = riderDemandLeaseHistoryRepository.findByLease_LeaseId(lease.getLeaseId());
 
         if(lease == null) withException("850-002");
         List<FetchFinesResponse> fines = new ArrayList<>();
@@ -819,6 +819,7 @@ public class LeasesService extends SessService {
         if(!lease.getStatus().getStatus().equals("550-002")) withException("850-009");
         lease.setStatus(LeaseStatusTypes.CONFIRM);
         lease.setApprovalDt(LocalDateTime.now());
+        lease.setBakBikeNo(lease.getBikeNo());
         leaseRepository.save(lease);
         bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_APPROVE_COMPLETED, session.getUserNo(), lease.getLeaseNo().toString()));
         bikeUserTodoService.addTodo(BikeUserTodoTypes.LEASE_CONFIRM, session.getUserNo(), lease.getSubmittedUserNo(), lease.getLeaseNo().toString(), lease.getLeaseId());
