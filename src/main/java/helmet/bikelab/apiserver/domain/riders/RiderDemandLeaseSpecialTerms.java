@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.domain.riders;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import helmet.bikelab.apiserver.domain.ComSpecialTerms;
 import helmet.bikelab.apiserver.domain.types.RiderDemandLeaseSpecialTermsPK;
 import helmet.bikelab.apiserver.services.internal.OriginObject;
@@ -21,10 +22,6 @@ public class RiderDemandLeaseSpecialTerms extends OriginObject {
     @Id
     @Column(name = "rider_no")
     private Integer riderNo;
-
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "rider_no", insertable = false, updatable = false)
-    private Riders rider;
 
     @Id
     @Column(name = "sterm_no")

@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface BikeRiderBakRepository extends JpaRepository<BikeRidersBak, Integer> {
     List<BikeRidersBak> findAllByRider_RiderId(String riderId);
+    BikeRidersBak findByRider_RiderIdAndBike_BikeId(String riderId, String bike_id);
 }

@@ -27,7 +27,7 @@ public class RiderDemandLeaseAttachments {
     private Integer riderNo;
 
     @JsonIgnore
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @ManyToOne(fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "rider_no", insertable = false, updatable = false)
     private Riders rider;
 

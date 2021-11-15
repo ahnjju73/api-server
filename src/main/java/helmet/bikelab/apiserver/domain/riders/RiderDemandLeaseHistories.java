@@ -110,9 +110,15 @@ public class RiderDemandLeaseHistories {
     @Convert(converter = RiderDemandAttachmentBackUpConverter.class)
     private List<RiderDemandLeaseAttachments> attachmentsHistory;
 
+    @Column(name = "attachments_history", columnDefinition = "json", updatable = false, insertable = false)
+    private String attachmentHistoryString;
+
     @Column(name = "terms_history", columnDefinition = "json")
     @Convert(converter = RiderDemandTermBackUpConverter.class)
     private List<RiderDemandLeaseSpecialTerms> termsHistory;
+
+    @Column(name = "terms_history", columnDefinition = "json", updatable = false, insertable = false)
+    private String termsHistoryString;
 
 
     public void setHistory(RiderDemandLease riderDemandLease){

@@ -3,6 +3,8 @@ package helmet.bikelab.apiserver.domain;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import helmet.bikelab.apiserver.domain.types.ExpenseTypes;
+import helmet.bikelab.apiserver.domain.types.converters.ExpenseTypesConverter;
 import helmet.bikelab.apiserver.services.internal.OriginObject;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,6 +28,10 @@ public class ComSpecialTerms extends OriginObject {
 
     @Column(name = "sterm_nm")
     private String stermName;
+
+    @Column(name = "expense_type", columnDefinition = "ENUM")
+    @Convert(converter = ExpenseTypesConverter.class)
+    private ExpenseTypes expenseTypes;
 
     @JsonIgnore
     @Column(name = "usable")

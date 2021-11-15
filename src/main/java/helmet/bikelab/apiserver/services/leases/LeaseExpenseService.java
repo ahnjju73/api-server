@@ -3,6 +3,7 @@ package helmet.bikelab.apiserver.services.leases;
 import helmet.bikelab.apiserver.domain.embeds.ModelTransaction;
 import helmet.bikelab.apiserver.domain.lease.LeaseExpense;
 import helmet.bikelab.apiserver.domain.lease.Leases;
+import helmet.bikelab.apiserver.domain.types.BikeUserLogTypes;
 import helmet.bikelab.apiserver.domain.types.ExpenseTypes;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.bikelabs.leases.ExpenseDto;
@@ -11,6 +12,7 @@ import helmet.bikelab.apiserver.repositories.LeaseExpenseRepository;
 import helmet.bikelab.apiserver.repositories.LeaseRepository;
 import helmet.bikelab.apiserver.services.bikes.BikesService;
 import helmet.bikelab.apiserver.services.internal.SessService;
+import helmet.bikelab.apiserver.utils.Utils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -65,8 +67,11 @@ public class LeaseExpenseService extends SessService {
         modelTransaction.setRegNum(expenseDto.getRegNum());
         leaseExpense.setTransaction(modelTransaction);
         leaseExpenseRepository.save(leaseExpense);
+        String expenseLog = getExpenseLog(expenseDto, null);
+        bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_UPDATED, request.getSessionUser().getUserNo(), lease.getLeaseNo().toString(), expenseLog));
         return request;
     }
+
     public BikeSessionRequest updateLeaseExpense(BikeSessionRequest request){
         Map param = request.getParam();
         ExpenseDto expenseDto = map(param, ExpenseDto.class);
@@ -81,11 +86,89 @@ public class LeaseExpenseService extends SessService {
         modelTransaction.setRegNum(expenseDto.getRegNum());
         leaseExpense.setTransaction(modelTransaction);
         leaseExpenseRepository.save(leaseExpense);
+        String expenseLog = getExpenseLog(expenseDto, leaseExpense);
+        bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_UPDATED, request.getSessionUser().getUserNo(), leaseExpense.getLeaseNo().toString(), expenseLog));
         return request;
     }
+
     public BikeSessionRequest deleteLeaseExpense(BikeSessionRequest request){
         leaseExpenseRepository.deleteById(Long.parseLong((String) request.getParam().get("expense_no")));
         return request;
     }
+
+    private String getExpenseLog(ExpenseDto expense, LeaseExpense leaseExpense){
+        String log = "";
+        if(leaseExpense == null){
+            if(expense.getExpenseType() != null && !expense.getExpenseType().equals("")){
+                log += "지출항목으로 <>" + ExpenseTypes.getExpense(ExpenseTypes.getType(expense.getExpenseType())) + "</>로 설정되었습니다.\n";
+            }
+            if(expense.getCompanyName() != null && !expense.getCompanyName().equals("")){
+                log += "구입처는 <>" + expense.getCompanyName() + "</>로 설정되었습니다.\n";
+            }
+            if(expense.getRegNum() != null && !expense.getRegNum().equals("")){
+                log += "구입처 사업자 번호는 <>" + expense.getRegNum() + "</>로 설정되었습니다.\n";
+            }
+            if(expense.getPrice() != null){
+                log += "지출가격이 <>" + Utils.getCurrencyFormat(expense.getPrice()) + "원</>으로 설정되었습니다.\n";
+            }
+            if(expense.getCompanyName() != null){
+                log += "구입 갯수는 <>" + expense.getNumber() + "</>개로 설정되었습니다.\n";
+            }
+            if(expense.getDescription() != null && !expense.getDescription().equals("")){
+                log += "상세설명이 <>\"" + expense.getDescription() + "\"</>로 입력되었습니다.";
+            }
+        } else {
+            if (leaseExpense.getExpenseTypes() != ExpenseTypes.getType(expense.getExpenseType())) {
+                log += "지출항목이 <>" + ExpenseTypes.getExpense(leaseExpense.getExpenseTypes()) + "</>에서 <>" + ExpenseTypes.getExpense(ExpenseTypes.getType(expense.getExpenseType())) + "</>로 변경하였습니다.\n";
+            }
+
+            if ((leaseExpense.getTransaction().getCompanyName() == null || leaseExpense.getTransaction().getCompanyName().equals(""))) {
+                if (expense.getCompanyName() != null && !expense.getCompanyName().equals("")) {
+                    log += "구입처는 <>" + expense.getCompanyName() + "</>로 설정되었습니다.\n";
+                }
+            } else {
+                if (expense.getCompanyName() != null && !expense.getCompanyName().equals("")) {
+                    log += "구입처는 <>" + leaseExpense.getTransaction().getCompanyName() + "</>에서 <>" + expense.getCompanyName() + "</>으로 변경되었습니다.\n";
+                } else {
+                    log += "구입처 정보를 삭제하였습니다.";
+                }
+            }
+
+            if ((leaseExpense.getTransaction().getRegNum() == null || leaseExpense.getTransaction().getRegNum().equals(""))) {
+                if (expense.getRegNum() != null && !expense.getRegNum().equals("")) {
+                    log += "구입처 사업자 번호는 <>" + expense.getRegNum() + "</>로 설정되었습니다.\n";
+                }
+            } else {
+                if (expense.getRegNum() != null && !expense.getRegNum().equals("")) {
+                    log += "구입처 사업자 번호가 <>" + leaseExpense.getTransaction().getRegNum() + "</>에서 <>" + expense.getRegNum() + "</>으로 변경되었습니다.\n";
+                } else {
+                    log += "구입처 사업자 번호 정보를 삭제하였습니다.";
+                }
+            }
+
+            if (leaseExpense.getTransaction().getPrice() != expense.getPrice()) {
+                log += "지출가격이 <>" + Utils.getCurrencyFormat(leaseExpense.getTransaction().getPrice()) + "원</>에서 <>" + Utils.getCurrencyFormat(expense.getPrice()) + "원</>으로 변경되었습니다.\n";
+            }
+
+            if (leaseExpense.getTransaction().getPrice() != expense.getPrice()) {
+                log += "구입 갯수가 <>" + leaseExpense.getNumber() + "</>개에서 <>" + expense.getNumber() + "</>개로 변경되었습니다.\n";
+            }
+
+            if ((leaseExpense.getDescription() == null || leaseExpense.getDescription().equals(""))) {
+                if (expense.getDescription() != null && !expense.getDescription().equals("")) {
+                    log += "상세 설명이 <>" + expense.getDescription() + "</>로 설정되었습니다.\n";
+                }
+            } else {
+                if (expense.getCompanyName() != null && !expense.getCompanyName().equals("")) {
+                    log += "상세 설명이 <>" + leaseExpense.getDescription() + "</>에서 <>" + expense.getDescription() + "</>으로 변경되었습니다.\n";
+                } else {
+                    log += "상세 설명을 삭제하였습니다.";
+
+                }
+            }
+        }
+        return log;
+    }
+
 
 }
