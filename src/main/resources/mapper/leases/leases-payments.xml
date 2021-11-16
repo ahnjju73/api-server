@@ -378,7 +378,7 @@
                           from leases
                          where status = '550-003'
                            and lease_stop_status in ('506-001')
-                           and contract_type not in ('500-002')) l
+                           and contract_type in ('500-002')) l
                   join (select payment_id, lease_no
                           from lease_payments
                          where date_format(payment_date, '%Y-%m-%d') <![CDATA[ <= ]]> #{now}
@@ -409,7 +409,7 @@
                                            from leases
                                           where `status` = '550-003'
                                             and lease_stop_status in ('506-001')
-                                            and contract_type not in ('500-002')) l
+                                            and contract_type in ('500-002')) l
                                         join lease_payments lp on lp.lease_no = l.lease_no
                                                               and payment_date <![CDATA[ <= ]]> #{now}
                                                               and lease_fee <![CDATA[ > ]]> paid_fee
@@ -645,6 +645,111 @@
          order by main.rownum
     </select>
 
+    <select id="countAllManagementExtraUnpaidPayments" parameterType="hmap" resultType="int">
+        select count(*)
+          from (select *
+          from leases
+         where status = '550-003'
+           and lease_stop_status in ('506-001')
+           and contract_type in ('500-002')
+         <if test="search_client_no != null">
+           and client_no = #{search_client_no}
+         </if>) lm
+          join (select *
+                  from lease_payments
+                 where 1 = 1
+                 <if test="start_at != null and start_at != '' and start_at != 'undefined' and end_at != null and end_at != '' and end_at != 'undefined'">
+                   and payment_date between #{end_at} and #{start_at}
+                 </if>) lp on lm.lease_no = lp.lease_no
+          join (select *
+                  from lease_extra
+                 where extra_fee <![CDATA[ > ]]> paid_fee) le on lp.payment_no = le.payment_no
+    </select>
+
+    <select id="fetchManagementExtraUnpaidPayments" parameterType="hmap" resultType="hmap">
+        select cast(main.rownum as char) as rownum,
+               main.lease_id,
+               main.payment_id,
+               date_format(main.payment_date, '%Y년%m월%d일') as payment_date,
+               main.idx,
+               main.extra_fee,
+               main.paid_fee,
+               main.extra_id,
+               c.client_id,
+               c.email as client_email,
+               c.uuid as cleint_uuid,
+               c.reg_no as client_reg_no,
+               if(ci.name is null, '', ci.name) as client_name,
+               if(ci.phone is null, '', ci.phone) as client_phone,
+               b.bike_id,
+               b.vim_num,
+               b.number,
+               cb.comm_nm as car_model,
+               lp.payment_type,
+               et.comm_nm as extra_type,
+               main.read_yn as `read`,
+               bum.user_id as read_user_id,
+               bui.name as read_user_name,
+               bum.email as read_user_email
+          from (select *
+                  from (select @rownum:=@rownum+1 as rownum,
+                               dum.*
+                          from (select lm.lease_id,
+                                       lm.lease_no,
+                                       lm.client_no,
+                                       lm.bike_no,
+                                       lp.payment_date,
+                                       lp.payment_id,
+                                       le.extra_id,
+                                       lp.idx,
+                                       le.extra_fee,
+                                       le.paid_fee,
+                                       le.extra_type,
+                                       le.read_yn,
+                                       le.read_user_no
+                                  from (select *
+                                          from leases
+                                         where status = '550-003'
+                                           and contract_type in ('500-002')
+                                           and lease_stop_status in ('506-001')
+                                         <if test="search_client_no != null">
+                                           and client_no = #{search_client_no}
+                                         </if>) lm
+                                  join (select *
+                                          from lease_payments
+                                         where 1 = 1
+                                         <if test="start_at != null and start_at != '' and start_at != 'undefined' and end_at != null and end_at != '' and end_at != 'undefined'">
+                                           and payment_date between #{end_at} and #{start_at}
+                                         </if>) lp on lm.lease_no = lp.lease_no
+                                  join (select *
+                                          from lease_extra
+                                         where 1 = 1
+                                         <if test='search_read == "N"'>
+                                           and read_yn = false
+                                         </if>
+                                           and extra_fee <![CDATA[ > ]]> paid_fee) le on lp.payment_no = le.payment_no
+                                 order by lp.payment_date desc, lp.payment_no desc) dum,
+                                       (SELECT @rownum :=0) AS R) lst
+                                 where 1 = 1
+                                 <if test="next_token != null and next_token != '' and next_token != 'undefined'">
+                                   and rownum <![CDATA[ > ]]> #{next_token}
+                                 </if>
+                                 order by rownum limit 30) main
+          join lease_price lp on main.lease_no = lp.lease_no
+          join clients c on main.client_no = c.client_no
+          join client_info ci on c.client_no = ci.client_no
+          join bikes b on main.bike_no = b.bike_no
+          join com_comm_bikes cb on b.car_model = cb.comm_cd
+          join (select *
+                  from com_comm_mst
+                 where up_comm_cd = 503) et on main.extra_type = et.comm_cd
+          left outer join bike_user_mst bum on main.read_user_no = bum.user_no
+          left outer join bike_user_info bui on bum.user_no = bui.user_no
+         order by main.rownum
+    </select>
+
+
+
     <select id="countAllUnpaidStopLeases" parameterType="hmap" resultType="int">
         select count(*)
           from (select *
@@ -653,44 +758,36 @@
                    and stop_fee <![CDATA[ > ]]> stop_paid_fee)l
     </select>
 
-    <select id="fetchAllUnpaidStopLeases" parameterType="hmap" resultMap="fetchUnpaidLeases">
-        select cast(main.rownum as char) as row_num,
-        main.*,
-        c.client_id,
-        ci.name as client_name,
-        b.bike_id,
-        b.number as bike_num,
-        bm.comm_cd as bike_model,
-        bm.comm_cd as bike_model
-        from (select *
-        from (select  @rownum:=@rownum+1 as rownum, m.*
-        from (select l.*,
-        sum(lease_fee) as unpaid_lease_fee,
-        sum(paid_fee) as unpaid_paid_fee
-        from (select lease_no,
-        lease_id,
-        bike_no,
-        client_no
-        from leases
-        where `status` = '550-003'
-        and lease_stop_status in ('506-001')
-        and contract_type = '500-002') l
-        join lease_payments lp on lp.lease_no = l.lease_no
-        and payment_date <![CDATA[ <= ]]> #{now}
-        and lease_fee <![CDATA[ > ]]> paid_fee
-        group by lease_id) m ,
-        (select @rownum:=0) as r
-        order by (unpaid_lease_fee - unpaid_paid_fee) desc) ma
-        where 1 = 1
-        <if test="next_token != null and next_token != '' and next_token != 'undefined'">
-            and rownum <![CDATA[ > ]]> #{next_token}
-        </if>
-        order by rownum limit 30) main
-        join clients c on main.client_no = c.client_no
-        join client_info ci on c.client_no = ci.client_no
-        join bikes b on main.bike_no = b.bike_no
-        and b.bike_id not in (SELECT val FROM system_parameters where parameter_no = 0)
-        join com_comm_bikes bm on b.car_model = bm.comm_cd
-        order by main.rownum
+    <select id="fetchAllUnpaidStopLeases" parameterType="hmap" resultType="hmap">
+        select main.*,
+               b.number,
+               b.car_model,
+               ci.name
+          from (select cast(m.rownum as char) as row_num,
+                       m.*
+                  from (select @rownum:=@rownum+1 as rownum,
+                               l.*
+                          from (select lease_id,
+                                       client_no,
+                                       bike_no,
+                                       contract_type,
+                                       management_type,
+                                       `status`,
+                                       bak_bike_no,
+                                       lease_stop_status,
+                                       stop_fee,
+                                       stop_paid_fee
+                                  from leases
+                                 where lease_stop_status not in ('506-001')
+                                   and stop_fee <![CDATA[ > ]]> stop_paid_fee) l,
+                               (select @rownum:=0) as r) m
+                         where 1 = 1
+                         <if test="next_token != null and next_token != '' and next_token != 'undefined'">
+                           and rownum <![CDATA[ > ]]> #{next_token}
+                         </if>
+                         order by rownum limit 30) main
+          join bikes b on b.bike_no = main.bak_bike_no
+          join clients c on main.client_no = c.client_no
+          join client_info ci on c.client_no = ci.client_no
     </select>
 </mapper>
