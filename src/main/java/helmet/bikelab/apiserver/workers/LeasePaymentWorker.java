@@ -84,7 +84,6 @@ public class LeasePaymentWorker extends SessService {
         LeasePayments byPaymentId = leasePaymentsRepository.findByPaymentId(paymentId);
         Riders rider = byPaymentId.getLease().getBike().getRiders();
         if(!bePresent(byPaymentId)) withException("901-001");
-        if(!bePresent(rider)) withException("901-003");
         byPaymentId.setRiderNo(rider.getRiderNo());
         byPaymentId.setPaidType(PaidTypes.getStatus(paidType));
         Leases leases = byPaymentId.getLease();
