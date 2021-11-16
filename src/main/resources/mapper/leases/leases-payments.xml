@@ -647,16 +647,10 @@
 
     <select id="countAllUnpaidStopLeases" parameterType="hmap" resultType="int">
         select count(*)
-        from (select count(*)
-                from (select *
-                        from leases
-                       where lease_stop_status not in ('506-001')
-                         and stop_fee <![CDATA[ > ]]> stop_paid_fee) l
-                join (select payment_id, lease_no
-                        from lease_payments
-                        where date_format(payment_date, '%Y-%m-%d') <![CDATA[ <= ]]> #{now}
-                          and lease_fee <![CDATA[ > ]]> paid_fee) lp on l.lease_no = lp.lease_no
-              group by l.lease_id) c
+          from (select *
+                  from leases
+                 where lease_stop_status not in ('506-001')
+                   and stop_fee <![CDATA[ > ]]> stop_paid_fee)l
     </select>
 
     <select id="fetchAllUnpaidStopLeases" parameterType="hmap" resultMap="fetchUnpaidLeases">
