@@ -384,7 +384,20 @@ public class LeasePaymentService  extends SessService {
     public BikeSessionRequest fetchUnpaidManagementLeases(BikeSessionRequest request){
         Map param = request.getParam();
         LeasePaymentsRequestListDto requestListDto = map(param, LeasePaymentsRequestListDto.class);
-        ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "leases.leases-payments.fetchManagementLeasesUnpaidPayments", "leases.leases-payments.countAllManagementLeasesUnpaidPayments", "row_num");
+        String type = (String) param.get("type");
+        ResponseListDto responseListDto;
+        if(type.equals("lease"))
+            responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "leases.leases-payments.fetchManagementLeasesUnpaidPayments", "leases.leases-payments.countAllManagementLeasesUnpaidPayments", "row_num");
+        else
+            responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "leases.leases-payments.fetchManagementExtraUnpaidPayments", "leases.leases-payments.countAllManagementExtraUnpaidPayments", "rownum");
+        request.setResponse(responseListDto);
+        return request;
+    }
+
+    public BikeSessionRequest fetchUnpaidStopLeases(BikeSessionRequest request){
+        Map param = request.getParam();
+        LeasePaymentsRequestListDto requestListDto = map(param, LeasePaymentsRequestListDto.class);
+        ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "leases.leases-payments.fetchAllUnpaidStopLeases", "leases.leases-payments.countAllUnpaidStopLeases", "row_num");
         request.setResponse(responseListDto);
         return request;
     }
