@@ -202,7 +202,6 @@ public class LeasePaymentService  extends SessService {
         if (lease.getStatus() != LeaseStatusTypes.CONFIRM) withException("900-001");
         if(!lease.getLeaseStopStatus().equals(LeaseStopStatusTypes.CONTINUE)) withException("900-002");
         int paidFee = payLeaseRequest.getPaidFee();
-        if(!bePresent(lease.getBike().getRiders())) withException("901-003");
         if(payLeaseRequest.getType().equals("lease")){
             List<LeasePayments> payments = leasePaymentsRepository.findAllByLease_LeaseId(payLeaseRequest.getLeaseId());
             for (int i = 0; i < payments.size() && paidFee > 0 && payments.get(i).getPaymentDate().isBefore(LocalDate.now().plusDays(1)); i++) {
@@ -403,7 +402,6 @@ public class LeasePaymentService  extends SessService {
                     continue;
                 int paidFee = payLeaseRequest.getPaidFee();
                 List<LeasePayments> payments = leasePaymentsRepository.findAllByLease_LeaseIdAndPaymentDateLessThanEqual(payLeaseRequest.getLeaseId(), LocalDate.now());
-                if(!bePresent(lease.getBike().getRiders())) withException("901-003");
                 for (int i = 0; i < payments.size(); i++) {
                     payments.get(i).setPaidType(PaidTypes.BANK);
                     payments.get(i).setRiderNo(lease.getBike().getRiderNo());
@@ -477,7 +475,6 @@ public class LeasePaymentService  extends SessService {
         for(Leases lease : leaseList){
             if(lease.getContractTypes() != ContractTypes.LEASE)
                 continue;
-            if(!bePresent(lease.getBike().getRiders())) withException("901-003");
             if(lease.getStatus() != LeaseStatusTypes.CONFIRM || lease.getLeaseStopStatus() != LeaseStopStatusTypes.CONTINUE)
                 continue;
             List<LeasePayments> payments = leasePaymentsRepository.findAllByLeaseNo(lease.getLeaseNo());
@@ -554,7 +551,6 @@ public class LeasePaymentService  extends SessService {
                 Leases lease = leaseRepository.findByBikeNo(bike.getBikeNo());
                 if(lease.getContractTypes() != ContractTypes.LEASE)
                     continue;
-                if(!bePresent(lease.getBike().getRiders())) withException("901-003");
                 if(lease.getStatus() != LeaseStatusTypes.CONFIRM || lease.getLeaseStopStatus() != LeaseStopStatusTypes.CONTINUE)
                     continue;
                 int paidFee = payLeaseRequest.getPaidFee();
@@ -678,7 +674,7 @@ public class LeasePaymentService  extends SessService {
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일");
         LocalDate paymentDate = payment.getPaymentDate();
         if(isFull)
-            return ("<>" + payment.getIndex() + "회차 (" + paymentDate.format(dateTimeFormatter) + ")</> 리스료 <>" + Utils.getCurrencyFormat(payment.getLeaseFee()) + "원</>중에서 납부금액 (<>" + Utils.getCurrencyFormat(payment.getPaidFee()) + "원</>에서 <>" + Utils.getCurrencyFormat(changedFee + payment.getPaidFee()) + "원</>로) 완납하였습니다." + (payment.getPaidType() == PaidTypes.BANK ? "계좌이체 하였습니다.)":"<>" + payment.getRider().getRiderInfo().getName() + "</>님이 " +  "어플 결제 하였습니다.)"));
+            return ("<>" + payment.getIndex() + "회차 (" + paymentDate.format(dateTimeFormatter) + ")</> 리스료 <>" + Utils.getCurrencyFormat(payment.getLeaseFee()) + "원</>중에서 납부금액 (<>" + Utils.getCurrencyFormat(payment.getPaidFee()) + "원</>에서 <>" + Utils.getCurrencyFormat(changedFee + payment.getPaidFee()) + "원</>로) 완납하였습니다." + (payment.getPaidType() == PaidTypes.BANK ? "계좌이체 하였습니다.)":("라이더가 어플 결제 하였습니다.)")));
         else
             return ("<>" + payment.getIndex() + "회차 (" + paymentDate.format(dateTimeFormatter) + ")</> 리스료 <>" + Utils.getCurrencyFormat(payment.getLeaseFee()) + "원</>중에서 납부금액 (<>" + Utils.getCurrencyFormat(payment.getPaidFee()) + "원</>에서 <>" + Utils.getCurrencyFormat(changedFee + payment.getPaidFee()) + "원</>) 납부하여서 잔여금액은 <>" + Utils.getCurrencyFormat(payment.getLeaseFee() - (changedFee + payment.getPaidFee())) + "원</>입니다. (계좌이체)");
     }
