@@ -224,7 +224,7 @@ public class BikesHandlers {
                 .flatMap(sessionRequest ->
                         ServerResponse.ok().body(
                                 Mono.just(bikesService.uploadBikePost(sessionRequest))
-                                        .map(bikesService::returnData), Map.class).subscribeOn(parallel())
+                                        .map(bikesService::returnData), String.class).subscribeOn(parallel())
                 );
     }
 

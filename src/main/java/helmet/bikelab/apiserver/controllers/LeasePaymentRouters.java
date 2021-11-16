@@ -27,7 +27,8 @@ public class LeasePaymentRouters {
                 .andRoute(PUT("/unpaid-leases/clients/{client_id}"), handler::payClientLease)
                 .andRoute(GET("/unpaid-leases/excel/{type}"), handler::unpaidExcelDownload)
                 .andRoute(POST("/unpaid-leases/excel/{type}"), handler::payLeaseWithExcel)
-                .andRoute(PUT("/unpaid-leases/excel-client"), handler::payLeaseWithClientExcel);
+                .andRoute(PUT("/unpaid-leases/excel-client"), handler::payLeaseWithClientExcel)
+                .andRoute(GET("/unpaid-management-leases"), handler::fetchUnpaidManagementLeases);
     }
 
 }

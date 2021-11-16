@@ -542,7 +542,7 @@ public class BikesService extends SessService {
                 if (sheet.getSheetName().contains("라이더")) {
                     riderProcess(sheet);
                 } else if (sheet.getSheetName().contains("바이크")) {
-                    bikeProcess(sheet, request.getSessionUser());
+                    request.setResponse(bikeProcess(sheet, request.getSessionUser()));
                 }
             }
         } catch (Exception e) {
@@ -556,7 +556,7 @@ public class BikesService extends SessService {
     }
 
     @Transactional
-    private void riderProcess(XSSFSheet sheet) {
+    public void riderProcess(XSSFSheet sheet) {
         int name = 0;
         int email = 1;
         int phone = 2;
@@ -619,7 +619,7 @@ public class BikesService extends SessService {
     }
 
     @Transactional
-    private void bikeProcess(XSSFSheet sheet, BikeUser user) {
+    public String bikeProcess(XSSFSheet sheet, BikeUser user) {
         int vim = 0;
         int carNum = 1;
         int type = 2;
@@ -632,6 +632,7 @@ public class BikesService extends SessService {
         int colIdx;
         int rowIdx;
         int rows = sheet.getPhysicalNumberOfRows();
+        String duplicated = "";
         for (rowIdx = 1; rowIdx < rows; rowIdx++) {
             XSSFRow row = sheet.getRow(rowIdx);
             Bikes bikes = new Bikes();
@@ -645,12 +646,16 @@ public class BikesService extends SessService {
                 if(colIdx == vim){
                     Bikes toCheck = bikesRepository.findByVimNum(cell.toString());
                     if(toCheck != null) {
+                        duplicated += toCheck.getCarNum() + ", ";
                         isBreak = true;
                         break;
                     }
                     bikes.setVimNum(cell.toString());
                 }else if(colIdx == carNum){
-                    bikes.setCarNum(cell.toString());
+                    if(cell.toString().equals("번호미정"))
+                        bikes.setCarNum(bikeId);
+                    else
+                        bikes.setCarNum(cell.toString());
                 }else if(colIdx == type){
                     CommonCodeBikes byModel;
                     if(cell.toString().equals("VF100")){
@@ -692,6 +697,7 @@ public class BikesService extends SessService {
                     "</> 색상은 <>" + bikes.getColor() + "</> 차대번호가 <>" + bikes.getVimNum() + "</> 인 바이크가 생성되었습니다";
             bikeUserLogRepository.save(addLog(BikeUserLogTypes.COMM_BIKE_ADDED, user.getUserNo(), bikes.getBikeNo().toString(), log));
         }
+        return duplicated;
     }
 
 
