@@ -161,4 +161,13 @@ public class LeasePaymentHandlers {
                         .map(leasePaymentService::payByClientWithExcel)
                         .map(leasePaymentService::returnData), Map.class);
     }
+
+    public Mono<ServerResponse> fetchUnpaidManagementLeases(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> leasePaymentService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(leasePaymentService::checkBikeSession)
+                        .map(leasePaymentService::fetchUnpaidManagementLeases)
+                        .map(leasePaymentService::returnData), ResponseListDto.class);
+    }
 }

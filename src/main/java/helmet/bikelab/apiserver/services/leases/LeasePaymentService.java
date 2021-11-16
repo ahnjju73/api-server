@@ -28,6 +28,7 @@ import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.reactive.function.server.ServerRequest;
 
 
 import java.io.File;
@@ -381,7 +382,13 @@ public class LeasePaymentService  extends SessService {
         return request;
     }
 
-
+    public BikeSessionRequest fetchUnpaidManagementLeases(BikeSessionRequest request){
+        Map param = request.getParam();
+        LeasePaymentsRequestListDto requestListDto = map(param, LeasePaymentsRequestListDto.class);
+        ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "leases.leases-payments.fetchManagementLeasesUnpaidPayments", "leases.leases-payments.countAllManagementLeasesUnpaidPayments", "row_num");
+        request.setResponse(responseListDto);
+        return request;
+    }
 
     @Transactional
     public BikeSessionRequest payWithExcel(BikeSessionRequest request) {
@@ -697,4 +704,6 @@ public class LeasePaymentService  extends SessService {
         bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_OVERPAY, session.getUserNo(), lease.getLeaseNo().toString(), log));
         bikeUserLogRepository.save(addLog(BikeUserLogTypes.COMM_CLIENT_OVERPAY, session.getUserNo(), lease.getClientNo().toString(), log));
     }
+
+
 }
