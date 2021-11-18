@@ -35,6 +35,9 @@ public class Shops {
     @Column(name = "reg_no", length = 45)
     private String regNum;
 
+    @Column(name = "usable", columnDefinition = "TINYINT(1)")
+    private Boolean usable = false;
+
     @Column(name = "created_at", columnDefinition = "CURRENT_TIMESTAMP")
     private LocalDateTime createdAt = LocalDateTime.now();
 
