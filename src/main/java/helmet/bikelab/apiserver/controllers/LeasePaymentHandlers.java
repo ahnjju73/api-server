@@ -166,8 +166,18 @@ public class LeasePaymentHandlers {
         return ServerResponse.ok().body(
                 Mono.fromSupplier(() -> leasePaymentService.makeSessionRequest(request, BikeSessionRequest.class))
                         .subscribeOn(Schedulers.elastic())
+                        .map(row -> leasePaymentService.getPathVariable(row, "type"))
                         .map(leasePaymentService::checkBikeSession)
                         .map(leasePaymentService::fetchUnpaidManagementLeases)
+                        .map(leasePaymentService::returnData), ResponseListDto.class);
+    }
+
+    public Mono<ServerResponse> fetchUnpaidStopLeases(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> leasePaymentService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(leasePaymentService::checkBikeSession)
+                        .map(leasePaymentService::fetchUnpaidStopLeases)
                         .map(leasePaymentService::returnData), ResponseListDto.class);
     }
 }

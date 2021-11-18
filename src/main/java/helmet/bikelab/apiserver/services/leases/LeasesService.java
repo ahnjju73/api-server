@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.services.leases;
 
+import helmet.bikelab.apiserver.domain.CommonCodeBikes;
 import helmet.bikelab.apiserver.domain.bike.BikeRidersBak;
 import helmet.bikelab.apiserver.domain.demands.DemandLeases;
 import helmet.bikelab.apiserver.domain.embeds.ModelTransaction;
@@ -203,7 +204,21 @@ public class LeasesService extends SessService {
         stopLeaseDto.setStopReason(lease.getStopReason() == null ? "" : lease.getStopReason());
         stopLeaseDto.setStopPaidFee(lease.getStopPaidFee() == null ? 0 : lease.getStopPaidFee());
         fetchLeasesResponse.setStopLeaseInfo(stopLeaseDto);
+        BikeDto bakBike;
 
+        if(lease.getLeaseStopStatus() != LeaseStopStatusTypes.CONTINUE){
+            Bikes bakBikes = bikesRepository.findById(lease.getBakBikeNo()).get();
+            CommonCodeBikes carModel = bakBikes.getCarModel();
+            bakBikes.getCarModel();
+            bakBike = new BikeDto();
+            bakBike.setBikeId(bakBikes.getBikeId());
+            bakBike.setBikeNum(bakBikes.getCarNum());
+            bakBike.setVimNum(bakBikes.getVimNum());
+            bakBike.setBikeModel(carModel.getModel());
+            bakBike.setBikeType(carModel.getBikeType().getType());
+            bakBike.setBikeVolume(carModel.getVolume());
+            fetchLeasesResponse.setBakBike(bakBike);
+        }
 
         if(leaseExpenses != null && leaseExpenses.size() > 0){
             List<ExpenseDto> expenseDtos = new ArrayList<>();
