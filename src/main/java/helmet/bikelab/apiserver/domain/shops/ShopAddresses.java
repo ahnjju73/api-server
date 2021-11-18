@@ -30,4 +30,10 @@ public class ShopAddresses {
 
     @Embedded
     private ModelAddress modelAddress = new ModelAddress();
+
+    @Column(name = "lng")
+    private Double longitude;
+    @Column(name = "lat")
+    private Double latitude;
+
 }
