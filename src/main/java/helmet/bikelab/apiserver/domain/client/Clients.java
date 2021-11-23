@@ -76,6 +76,9 @@ public class Clients {
     @Column(name = "created_at", columnDefinition = "CURRENT_TIMESTAMP")
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    @Column(name = "discount_rate")
+    private Double discountRate = 1.0;
+
     @OneToOne(mappedBy = "client", optional = false, fetch = FetchType.EAGER)
     private ClientInfo clientInfo;
 
