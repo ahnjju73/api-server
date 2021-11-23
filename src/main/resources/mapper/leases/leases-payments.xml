@@ -636,7 +636,10 @@
                           <if test="next_token != null and next_token != '' and next_token != 'undefined'">
                             and rownum <![CDATA[ > ]]> #{next_token}
                           </if>
-                          order by rownum limit 30) main
+                          order by rownum
+                          <if test="excel != null and excel != '' and excel != 'undefined'">
+                          limit 30
+                          </if>) main
           join clients c on main.client_no = c.client_no
           join client_info ci on c.client_no = ci.client_no
           join bikes b on main.bike_no = b.bike_no
@@ -762,6 +765,8 @@
         select main.*,
                b.number,
                b.car_model,
+               b.bike_id,
+               c.client_id,
                ci.name
           from (select cast(m.rownum as char) as row_num,
                        m.*

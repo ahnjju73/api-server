@@ -20,6 +20,7 @@ public class LeasePaymentsRequestListDto extends RequestListDto{
     private String searchClientId;
     private Integer searchClientNo;
     private String searchBike;
+    private String excel;
 
     public void setStartAt(String startAt) {
         this.startAt = LocalDateTime.parse(startAt.replace("Z", "")).toLocalDate().toString();
