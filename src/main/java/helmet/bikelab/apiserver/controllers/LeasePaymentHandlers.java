@@ -190,4 +190,14 @@ public class LeasePaymentHandlers {
                         .map(leasePaymentService::fetchUnpaidStopLeases)
                         .map(leasePaymentService::returnData), ResponseListDto.class);
     }
+
+    public Mono<ServerResponse> payLeaseFeeMulti(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> leasePaymentService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(leasePaymentService::checkBikeSession)
+                        .map(leasePaymentService::payLeaseFeeMulti)
+                        .map(leasePaymentService::returnData), Map.class);
+    }
 }

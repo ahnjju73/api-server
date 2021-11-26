@@ -37,7 +37,7 @@
                   from (select *
                           from leases
                          where status = '550-003'
-                           and lease_stop_status in ('506-001')
+                           and lease_stop_status in ('506-001', '506-003')
                            and contract_type not in ('500-002')) lm
                        join (select *
                                from lease_payments
@@ -99,7 +99,7 @@
                           from (select *
                                   from leases
                                  where status = '550-003'
-                                   and lease_stop_status in ('506-001')
+                                   and lease_stop_status in ('506-001', '506-003')
                                    and contract_type not in ('500-002')) l
                                 join (select *
                                         from lease_payments
@@ -137,7 +137,7 @@
                  from (select *
                          from leases
                         where status = '550-003'
-                          and lease_stop_status in ('506-001')
+                          and lease_stop_status in ('506-001', '506-003')
                           and contract_type not in ('500-002')) l
                       join (select *
                              from lease_payments
@@ -159,7 +159,7 @@
           from (select *
                   from leases
                   where status = '550-003'
-                    and lease_stop_status in ('506-001')
+                    and lease_stop_status in ('506-001', '506-003')
                     and contract_type not in ('500-002')
                     <if test="search_client_no != null">
                     and client_no = #{search_client_no}
@@ -225,7 +225,7 @@
                                         from leases
                                        where status = '550-003'
                                          and contract_type not in ('500-002')
-                                         and lease_stop_status in ('506-001')
+                                         and lease_stop_status in ('506-001', '506-003')
                                          <if test="search_client_no != null">
                                          and client_no = #{search_client_no}
                                          </if>) lm
@@ -270,7 +270,7 @@
                   <if test="search_client_no != null">
                    and client_no = #{search_client_no}
                   </if>
-                   and lease_stop_status in ('506-001')
+                   and lease_stop_status in ('506-001', '506-003')
                    and contract_type not in ('500-002')) l
                 join (select *
                         from lease_payments
@@ -336,7 +336,7 @@
                                          <if test="search_client_no != null">
                                          and client_no = #{search_client_no}
                                          </if>
-                                         and lease_stop_status in ('506-001')
+                                         and lease_stop_status in ('506-001', '506-003')
                                          and contract_type not in ('500-002')) l
                                      join (select *
                                              from bikes
@@ -377,7 +377,7 @@
                   from (select *
                           from leases
                          where status = '550-003'
-                           and lease_stop_status in ('506-001')
+                           and lease_stop_status in ('506-001', '506-003')
                            and contract_type in ('500-002')) l
                   join (select payment_id, lease_no
                           from lease_payments
@@ -408,7 +408,7 @@
                                                 client_no
                                            from leases
                                           where `status` = '550-003'
-                                            and lease_stop_status in ('506-001')
+                                            and lease_stop_status in ('506-001', '506-003')
                                             and contract_type in ('500-002')) l
                                         join lease_payments lp on lp.lease_no = l.lease_no
                                                               and payment_date <![CDATA[ <= ]]> #{now}
@@ -434,7 +434,7 @@
                   from (select *
                           from leases
                          where status = '550-003'
-                           and lease_stop_status in ('506-001')
+                           and lease_stop_status in ('506-001', '506-003')
                            and contract_type not in ('500-002')) l
                        join (select payment_id,
                                     lease_no,
@@ -467,7 +467,7 @@
                                                 client_no
                                            from leases
                                           where `status` = '550-003'
-                                            and lease_stop_status in ('506-001')
+                                            and lease_stop_status in ('506-001', '506-003')
                                             and contract_type not in ('500-002')) l
                                 join lease_payments lp on lp.lease_no = l.lease_no
                                                       and payment_date <![CDATA[ <= ]]> #{now}
@@ -498,7 +498,7 @@
                   from (select *
                           from leases
                          where `status` = '550-003'
-                           and lease_stop_status in ('506-001')
+                           and lease_stop_status in ('506-001', '506-003')
                            and contract_type not in ('500-002'))l
                        join (select *
                                from lease_payments) lp on lp.lease_no = l.lease_no
@@ -524,7 +524,7 @@
                   from (select *
                           from leases
                          where `status` = '550-003'
-                           and lease_stop_status in ('506-001')
+                           and lease_stop_status in ('506-001', '506-003')
                            and contract_type not in ('500-002'))l
                        join lease_payments lp on l.lease_no = lp.lease_no
                                              and lease_fee <![CDATA[ > ]]> paid_fee
@@ -542,7 +542,7 @@
                   from (select *
                           from leases
                          where `status` = '550-003'
-                           and lease_stop_status in ('506-001')
+                           and lease_stop_status in ('506-001', '506-003')
                            and contract_type not in ('500-002'))l
                         join (select payment_no,
                                      payment_id,
@@ -575,7 +575,7 @@
                   from (select *
                  from  leases
                  where `status` = '550-003'
-                   and lease_stop_status in ('506-001')
+                   and lease_stop_status in ('506-001', '506-003')
                    and contract_type not in ('500-002'))l
                  join lease_extra le on l.lease_no = le.lease_no
                                     and le.extra_fee <![CDATA[ > ]]> le.paid_fee
@@ -595,7 +595,7 @@
               from (select *
                     from leases
                     where status = '550-003'
-                      and lease_stop_status in ('506-001')
+                      and lease_stop_status in ('506-001', '506-003')
                       and contract_type = '500-002') l
               join (select payment_id, lease_no
                       from lease_payments
@@ -624,7 +624,7 @@
                                                 client_no
                                            from leases
                                           where `status` = '550-003'
-                                            and lease_stop_status in ('506-001')
+                                            and lease_stop_status in ('506-001', '506-003')
                                             and contract_type = '500-002') l
                                            join lease_payments lp on lp.lease_no = l.lease_no
                                                                  and payment_date <![CDATA[ <= ]]> #{now}
@@ -653,7 +653,7 @@
           from (select *
           from leases
          where status = '550-003'
-           and lease_stop_status in ('506-001')
+           and lease_stop_status in ('506-001', '506-003')
            and contract_type in ('500-002')
          <if test="search_client_no != null">
            and client_no = #{search_client_no}
@@ -714,7 +714,7 @@
                                           from leases
                                          where status = '550-003'
                                            and contract_type in ('500-002')
-                                           and lease_stop_status in ('506-001')
+                                           and lease_stop_status in ('506-001', '506-003')
                                          <if test="search_client_no != null">
                                            and client_no = #{search_client_no}
                                          </if>) lm
@@ -757,7 +757,7 @@
         select count(*)
           from (select *
                   from leases
-                 where lease_stop_status not in ('506-001')
+                 where lease_stop_status = '506-002'
                    and stop_fee <![CDATA[ > ]]> stop_paid_fee)l
     </select>
 
@@ -783,7 +783,7 @@
                                        stop_fee,
                                        stop_paid_fee
                                   from leases
-                                 where lease_stop_status not in ('506-001')
+                                 where lease_stop_status = '506-002'
                                    and stop_fee <![CDATA[ > ]]> stop_paid_fee) l,
                                (select @rownum:=0) as r) m
                          where 1 = 1

@@ -4,12 +4,14 @@ import lombok.Getter;
 
 @Getter
 public enum ExpenseTypes {
-    BIKE("0"), BOX("1"), HOLDER("2"), CARRIER("3"), WAGE("4"), INSURANCE("5"), REGISTER("6");
+    BIKE("0", "오토바이 비용"), BOX("1", "배달 박스 비용"), HOLDER("2", "거치대 비용"), CARRIER("3", "캐리어 비용"), WAGE("4", "장착 공임비"), INSURANCE("5", "보험료"), REGISTER("6", "취등록세"), DELIVERY("7", "탁송비");
 
     private String type;
+    private String typeName;
 
-    ExpenseTypes(String type) {
+    ExpenseTypes(String type, String typeName) {
         this.type = type;
+        this.typeName = typeName;
     }
 
     public static ExpenseTypes getType(String type){
@@ -24,15 +26,4 @@ public enum ExpenseTypes {
         return null;
     }
 
-    public static String getExpense(ExpenseTypes expenseTypes){
-        switch (expenseTypes){
-            case BIKE: return "오토바이 비용";
-            case BOX: return "배달 박스 비용";
-            case HOLDER: return "거치대 비용";
-            case CARRIER: return "캐리어 비용";
-            case WAGE: return "장착 공임비";
-            case INSURANCE: return "보험료";
-            default: return "취등록세";
-        }
-    }
 }
