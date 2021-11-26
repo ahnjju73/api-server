@@ -1066,7 +1066,7 @@ public class LeasesService extends SessService {
 
     private Integer getRegistrationFee(Integer bikePrice){
         //취등록세 공식 적용 2%
-        return bikePrice/50;
+        return bikePrice / 500 * 10;
     }
 
 

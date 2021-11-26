@@ -56,6 +56,7 @@ public class LeasesRouters {
                 .route(GET("/lease-expense"), expenseHandler::fetchExpenses)
                 .andRoute(POST("/lease-expense"), expenseHandler::addExpense)
                 .andRoute(PUT("/lease-expense"), expenseHandler::updateExpense)
-                .andRoute(DELETE("/lease-expense"), expenseHandler::deleteExpense);
+                .andRoute(DELETE("/lease-expense"), expenseHandler::deleteExpense)
+                .andRoute(PUT("/lease-expense-option/{expense_no}"), expenseHandler::changeExpenseOption);
     }
 }

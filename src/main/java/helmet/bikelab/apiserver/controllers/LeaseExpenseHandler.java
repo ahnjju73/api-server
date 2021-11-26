@@ -54,4 +54,14 @@ public class LeaseExpenseHandler {
                         .map(leaseExpenseService::deleteLeaseExpense)
                         .map(leaseExpenseService::returnData), Map.class);
     }
+
+    public Mono<ServerResponse> changeExpenseOption(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> leaseExpenseService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(req -> leaseExpenseService.getPathVariable(req, "expense_no"))
+                        .map(leaseExpenseService::checkBikeSession)
+                        .map(leaseExpenseService::changeExpenseOption)
+                        .map(leaseExpenseService::returnData), Map.class);
+    }
 }
