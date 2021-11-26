@@ -119,6 +119,14 @@ public class LeasePaymentService  extends SessService {
         return request;
     }
 
+    @Transactional
+    public BikeSessionRequest payLeaseFeeMulti(BikeSessionRequest request){
+        Map param = request.getParam();
+        BikeUser session = request.getSessionUser();
+        leasePaymentWorker.payLeaseFeeMulti(session, param);
+//        leasePaymentWorker.readLeaseFeeByPaymentId(paymentId, session);
+        return request;
+    }
 
     public BikeSessionRequest fetchLeasePaymentsByIndex(BikeSessionRequest request){
         Map param = request.getParam();
