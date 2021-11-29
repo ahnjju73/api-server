@@ -97,7 +97,7 @@ public class Senders extends Workspace {
                         restTemplate.postForEntity(ENV.ALIGO_DOMAIN + "/send/", entity, String.class);
                     }
                 } catch (Exception e) {
-
+                    e.printStackTrace();
                 }
             });
         }

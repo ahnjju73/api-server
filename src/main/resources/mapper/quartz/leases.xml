@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding= "UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="quartz.leases">
+
+    <select id="fetchUnPaidLeasesByEveryDay" parameterType="hmap" resultType="hmap">
+        select l.lease_id,
+               sum(lease_fee - paid_fee) as un_paid_fee,
+               GROUP_CONCAT(lp.idx, ', ') as idx
+          from (select *
+                  from lease_payments
+                 where payment_date <![CDATA[ <= ]]> now()
+                   and lease_fee <![CDATA[ > ]]> (paid_fee + paid_service_fee)
+                 order by lease_no, idx) lp
+               join leases l on lp.lease_no = l.lease_no
+         group by lp.lease_no, l.lease_id
+    </select>
+
+    <resultMap id="fetchUnPaidLeasesByDaysAgoMapLeases" type="hmap">
+        <result property="lease_id" column="lease_id"/>
+        <result property="payment_date" column="payment_date"/>
+        <result property="paid_fee" column="paid_fee"/>
+        <result property="lease_fee" column="lease_fee"/>
+        <result property="bike_id" column="bike_id"/>
+        <result property="vim_num" column="vim_num"/>
+        <result property="number" column="number"/>
+        <result property="car_model" column="car_model"/>
+        <result property="bike_type_code" column="bike_type_code"/>
+        <result property="volume" column="volume"/>
+        <result property="manuf" column="manuf"/>
+        <result property="idx" column="idx"/>
+    </resultMap>
+    <resultMap id="fetchUnPaidLeasesByDaysAgoMap" type="hmap">
+        <result property="client_id" column="client_id"/>
+        <result property="client_name" column="client_name"/>
+        <result property="phone" column="phone"/>
+        <result property="manager_phone" column="manager_phone"/>
+        <result property="manager_email" column="manager_email"/>
+        <collection property="leases" column="client_id" javaType="java.util.ArrayList" resultMap="fetchUnPaidLeasesByDaysAgoMapLeases" />
+    </resultMap>
+    <select id="fetchUnPaidLeasesByDaysAgo" parameterType="hmap" resultMap="fetchUnPaidLeasesByDaysAgoMap">
+        select l.lease_id,
+               payment_date,
+               lease_fee,
+               paid_fee,
+               c.client_id,
+               ci.name as client_name,
+               ci.phone,
+               ci.manager_phone,
+               ci.manager_email,
+               b.bike_id,
+               b.vim_num,
+               b.`number`,
+               ccb.comm_nm as car_model,
+               ccb.bike_type as bike_type_code,
+               ccb.volume,
+               ccm.manuf,
+               lp.idx,
+               r.rider_id,
+               r.phone as rider_phone,
+               r.notification_token,
+               ri.name as rider_name
+          from (select *
+                  from lease_payments
+                 where lease_fee > (paid_fee + paid_service_fee)
+                   and datediff(payment_date, now()) = 7) lp
+               join leases l on lp.lease_no = l.lease_no
+               join clients c on l.client_no = c.client_no
+               join client_info ci on ci.client_no = c.client_no
+               join bikes b on l.bike_no = b.bike_no
+               join com_comm_bikes ccb on b.car_model = ccb.comm_cd
+               join com_comm_manuf ccm on ccb.manuf_no = ccm.manuf_no
+               left outer join riders r on b.rider_no = r.rider_no
+               left outer join rider_info ri on r.rider_no = ri.rider_no
+        where l.status = '550-003'
+          and b.bike_id not in (select val from system_parameters)
+    </select>
+
+    <resultMap id="fetchUnPaidLeasesToRiderByDaysAgoMapLeases" type="hmap">
+        <result property="lease_id" column="lease_id"/>
+        <result property="payment_date" column="payment_date"/>
+        <result property="paid_fee" column="paid_fee"/>
+        <result property="lease_fee" column="lease_fee"/>
+        <result property="bike_id" column="bike_id"/>
+        <result property="vim_num" column="vim_num"/>
+        <result property="number" column="number"/>
+        <result property="car_model" column="car_model"/>
+        <result property="bike_type_code" column="bike_type_code"/>
+        <result property="volume" column="volume"/>
+        <result property="manuf" column="manuf"/>
+        <result property="idx" column="idx"/>
+    </resultMap>
+    <resultMap id="fetchUnPaidLeasesToRiderByDaysAgoMap" type="hmap">
+        <result property="rider_id" column="rider_id"/>
+        <result property="rider_phone" column="rider_phone"/>
+        <result property="notification_token" column="notification_token"/>
+        <result property="rider_name" column="rider_name"/>
+        <result property="rider_email" column="rider_email"/>
+        <collection property="leases" column="rider_id" javaType="java.util.ArrayList" resultMap="fetchUnPaidLeasesToRiderByDaysAgoMapLeases" />
+    </resultMap>
+    <select id="fetchUnPaidLeasesToRiderByDaysAgo" parameterType="hmap" resultMap="fetchUnPaidLeasesToRiderByDaysAgoMap">
+        select l.lease_id,
+               payment_date,
+               lease_fee,
+               paid_fee,
+               b.bike_id,
+               b.vim_num,
+               b.`number`,
+               ccb.comm_nm as car_model,
+               ccb.bike_type as bike_type_code,
+               ccb.volume,
+               ccm.manuf,
+               lp.idx,
+               r.rider_id,
+               r.phone as rider_phone,
+               r.notification_token,
+               ri.name as rider_name,
+               r.email as rider_email
+        from (select *
+              from lease_payments
+              where lease_fee > (paid_fee + paid_service_fee)
+                and datediff(payment_date, now()) = 7) lp
+              join leases l on lp.lease_no = l.lease_no
+              join bikes b on l.bike_no = b.bike_no
+              join com_comm_bikes ccb on b.car_model = ccb.comm_cd
+                 join com_comm_manuf ccm on ccb.manuf_no = ccm.manuf_no
+                 join riders r on b.rider_no = r.rider_no
+                 join rider_info ri on r.rider_no = ri.rider_no
+        where l.status = '550-003'
+          and b.bike_id not in (select val from system_parameters)
+    </select>
+
+</mapper>

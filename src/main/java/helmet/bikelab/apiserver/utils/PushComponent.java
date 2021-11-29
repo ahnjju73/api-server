@@ -7,6 +7,7 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.Message;
 import com.google.firebase.messaging.Notification;
 import helmet.bikelab.apiserver.services.internal.OriginObject;
+import helmet.bikelab.apiserver.utils.keys.ENV;
 import lombok.RequiredArgsConstructor;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
@@ -33,26 +34,27 @@ public class PushComponent extends OriginObject {
                 FirebaseApp.initializeApp(options);
             }
         } catch (IOException e) {
-            System.out.println(e);
         }
     }
 
     public void pushNotification(String targetToken, String title, String body){
-        executorService.submit(() -> {
-            try {
-                Message message = Message
-                        .builder()
-                        .setToken(targetToken)
-                        .setNotification(
-                                Notification.builder()
-                                        .setTitle(title)
-                                        .setBody(body)
-                                        .build())
-                        .build();
-                FirebaseMessaging.getInstance().send(message);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
+        if(ENV.IS_RELEASE){
+            executorService.submit(() -> {
+                try {
+                    Message message = Message
+                            .builder()
+                            .setToken(targetToken)
+                            .setNotification(
+                                    Notification.builder()
+                                            .setTitle(title)
+                                            .setBody(body)
+                                            .build())
+                            .build();
+                    FirebaseMessaging.getInstance().send(message);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        }
     }
 }
