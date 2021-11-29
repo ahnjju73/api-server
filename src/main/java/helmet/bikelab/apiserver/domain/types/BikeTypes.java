@@ -29,4 +29,13 @@ public enum BikeTypes {
         this.type = type;
     }
 
+    public String getBikeTypeUnit(){
+        if(BikeTypes.GAS.equals(this)){
+            return "cc";
+        }else if(BikeTypes.ELECTRONIC.equals(this)){
+            return "kw";
+        }
+        return "";
+    }
+
 }

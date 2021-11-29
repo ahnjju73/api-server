@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.domain.shops;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import helmet.bikelab.apiserver.domain.client.Clients;
@@ -24,6 +25,7 @@ public class ShopPassword {
     @Column(name = "shop_no")
     private Integer shopNo;
 
+    @JsonIgnore
     @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "shop_no", insertable = false, updatable = false)
     private Shops shop;

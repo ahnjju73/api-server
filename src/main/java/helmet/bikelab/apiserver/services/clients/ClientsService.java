@@ -6,6 +6,7 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CopyObjectRequest;
 import helmet.bikelab.apiserver.domain.bike.BikeAttachments;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
+import helmet.bikelab.apiserver.domain.bike.PartsTypeDiscountClient;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.client.*;
 import helmet.bikelab.apiserver.domain.embeds.ModelAddress;
@@ -18,9 +19,8 @@ import helmet.bikelab.apiserver.objects.BikeDto;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.PresignedURLVo;
 import helmet.bikelab.apiserver.objects.bikelabs.clients.*;
-import helmet.bikelab.apiserver.objects.requests.BikeListDto;
-import helmet.bikelab.apiserver.objects.requests.ClientListDto;
-import helmet.bikelab.apiserver.objects.requests.RequestListDto;
+import helmet.bikelab.apiserver.objects.requests.*;
+import helmet.bikelab.apiserver.objects.responses.PartsDiscountRateByClient;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.repositories.*;
 import helmet.bikelab.apiserver.services.internal.SessService;
@@ -35,6 +35,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static helmet.bikelab.apiserver.domain.bikelab.BikeUserLog.addLog;
 import static helmet.bikelab.apiserver.utils.Utils.randomPassword;
@@ -55,6 +56,58 @@ public class ClientsService extends SessService {
     private final CommonWorker commonWorker;
     private final LeaseRepository leaseRepository;
     private final ClientWorker clientWorker;
+    private final PartsTypeDiscountClientRepository partsTypeDiscountClientRepository;
+
+    @Transactional
+    public BikeSessionRequest updatePartsDiscountRateByClient(BikeSessionRequest request){
+        PartsDiscountRateByClientRequest requestParam = map(request.getParam(), PartsDiscountRateByClientRequest.class);
+        requestParam.checkValidation();
+        List<DiscountedParts> discountedParts = requestParam.getDiscountedParts();
+        BikeUser sessionUser = request.getSessionUser();
+        Clients clientByClientId = clientWorker.getClientByClientId(requestParam.getClientId());
+        updateClientDiscountRateByUserLog(BikeUserLogTypes.COMM_CLIENT_UPDATED, sessionUser.getUserNo(), clientByClientId, requestParam);
+        clientByClientId.setDiscountRate(requestParam.getDiscountRate());
+        clientsRepository.save(clientByClientId);
+
+        partsTypeDiscountClientRepository.deleteAllByClientNo(clientByClientId.getClientNo());
+        if(bePresent(discountedParts)){
+            List<PartsTypeDiscountClient> collect = discountedParts.stream().map(elm -> {
+                PartsTypeDiscountClient partsTypeDiscountClient = new PartsTypeDiscountClient();
+                partsTypeDiscountClient.setPartsTypeNo(elm.getPartsTypeNo());
+                partsTypeDiscountClient.setClientNo(clientByClientId.getClientNo());
+                partsTypeDiscountClient.setDiscountRate(elm.getDiscountRate());
+                return partsTypeDiscountClient;
+            }).collect(Collectors.toList());
+            partsTypeDiscountClientRepository.saveAll(collect);
+        }
+        return request;
+    }
+
+    public void updateClientDiscountRateByUserLog(BikeUserLogTypes bikeUserLogTypes, Integer fromUserNo, Clients clients, PartsDiscountRateByClientRequest requestParam){
+        if(bePresent(requestParam)){
+            List<String> stringList = new ArrayList<>();
+            if(bePresent(requestParam.getDiscountRate()) && !requestParam.getDiscountRate().equals(clients.getDiscountRate())){
+                if(bePresent(clients.getDiscountRate()))
+                    stringList.add("고객사 <>부품할인율</>을 <>" + clients.getDiscountRate() + "</>에서 <>" + requestParam.getDiscountRate() + "</>(으)로 변경하였습니다.");
+                else stringList.add("고객사 <>부품할인율</>를 <>" +  requestParam.getDiscountRate() + "</>(으)로 등록하였습니다.");
+            }
+            if(bePresent(stringList) && stringList.size() > 0)
+                bikeUserLogRepository.save(addLog(bikeUserLogTypes, fromUserNo, clients.getClientNo().toString(), stringList));
+        }
+    }
+
+    public BikeSessionRequest fetchPartsDiscountRateByClient(BikeSessionRequest request){
+        Map param = request.getParam();
+        String clientId = (String)param.get("client_id");
+        Clients clientByClientId = clientWorker.getClientByClientId(clientId);
+        param.put("client_no", clientByClientId.getClientNo());
+        PartsDiscountRateByClient partsDiscountRateByClient = new PartsDiscountRateByClient();
+        partsDiscountRateByClient.setDiscountRate(clientByClientId.getDiscountRate());
+        List discountedParts = getList("bikelabs.commons.clients.fetchPartsDiscountRateByClient", param);
+        partsDiscountRateByClient.setDiscountedParts(discountedParts);
+        request.setResponse(partsDiscountRateByClient);
+        return request;
+    }
 
     public BikeSessionRequest fetchHistoryOfClient(BikeSessionRequest request){
         Map param = request.getParam();

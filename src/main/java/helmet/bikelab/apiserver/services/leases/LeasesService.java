@@ -1028,7 +1028,8 @@ public class LeasesService extends SessService {
         lease.setStopFee(Math.round(stopFee));
         lease.setStopPaidFee(0L);
         lease.setStopReason(stopLeaseDto.getStopReason());
-        detachRiderFromBike(lease.getBike().getBikeId());
+        if(lease.getBike().getRiderNo() != null)
+            detachRiderFromBike(lease.getBike().getBikeId());
         leaseRepository.save(lease);
         bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_UPDATED, request.getSessionUser().getUserNo(), lease.getLeaseNo().toString(), log));
         return request;
