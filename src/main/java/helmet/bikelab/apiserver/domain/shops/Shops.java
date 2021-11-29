@@ -52,6 +52,7 @@ public class Shops {
     @OneToOne(mappedBy = "shop", fetch = FetchType.EAGER)
     private ShopAddresses shopAddress;
 
+    @JsonIgnore
     @OneToOne(mappedBy = "shop", fetch = FetchType.EAGER)
     private ShopPassword shopPassword;
 

@@ -1,6 +1,7 @@
 package helmet.bikelab.apiserver.workers;
 
 import helmet.bikelab.apiserver.domain.client.ClientAccounts;
+import helmet.bikelab.apiserver.domain.client.Clients;
 import helmet.bikelab.apiserver.objects.requests.RequestListDto;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.repositories.*;
@@ -23,6 +24,12 @@ public class ClientWorker extends SessService {
     private final ClientPasswordRepository clientPasswordRepository;
     private final ClientSessionsRepository clientSessionsRepository;
     private final ClientsRepository clientsRepository;
+
+    public Clients getClientByClientId(String clientId){
+        Clients byClientId = clientsRepository.findByClientId(clientId);
+        if(!bePresent(byClientId)) withException("400-100");
+        return byClientId;
+    }
 
     public void deleteClientAccount(String clientId){
         clientAccountsRepository.deleteAllByClient_ClientId(clientId);
