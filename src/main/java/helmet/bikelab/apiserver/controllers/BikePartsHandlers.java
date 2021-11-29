@@ -2,6 +2,7 @@ package helmet.bikelab.apiserver.controllers;
 
 import helmet.bikelab.apiserver.domain.bike.Parts;
 import helmet.bikelab.apiserver.domain.bike.PartsCodes;
+import helmet.bikelab.apiserver.domain.bike.PartsTypes;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.PresignedURLVo;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
@@ -46,6 +47,14 @@ public class BikePartsHandlers {
                         .map(partsService::checkBikeSession)
                         .map(partsService::fetchPartsCodes)
                         .map(partsService::returnData), Parts.class);
+    }
+
+    public Mono<ServerResponse> fetchPartsTypes(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> partsService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .map(partsService::checkBikeSession)
+                        .map(partsService::fetchPartsTypes)
+                        .map(partsService::returnData), List.class);
     }
 
     public Mono<ServerResponse> addPartsByModel(ServerRequest request) {
@@ -105,4 +114,5 @@ public class BikePartsHandlers {
                         .map(partsService::addNewPartsImage)
                         .map(partsService::returnData), Map.class);
     }
+
 }

@@ -2,6 +2,7 @@ package helmet.bikelab.apiserver.controllers.client;
 
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.PresignedURLVo;
+import helmet.bikelab.apiserver.objects.responses.PartsDiscountRateByClient;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.services.clients.ClientsService;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +20,27 @@ import java.util.Map;
 public class ClientsHandlers {
 
     private final ClientsService clientsService;
+
+    public Mono<ServerResponse> updatePartsDiscountRateByClient(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> clientsService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(clientsService::checkBikeSession)
+                        .map(row -> clientsService.getPathVariable(row, "client_id"))
+                        .map(clientsService::updatePartsDiscountRateByClient)
+                        .map(clientsService::returnData), Map.class);
+    }
+
+    public Mono<ServerResponse> fetchPartsDiscountRateByClient(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> clientsService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(clientsService::checkBikeSession)
+                        .map(row -> clientsService.getPathVariable(row, "client_id"))
+                        .map(clientsService::fetchPartsDiscountRateByClient)
+                        .map(clientsService::returnData), PartsDiscountRateByClient.class);
+    }
 
     public Mono<ServerResponse> fetchHistoryOfClient(ServerRequest request) {
         return ServerResponse.ok().body(

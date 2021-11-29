@@ -6,6 +6,7 @@ import com.amazonaws.services.s3.model.CopyObjectRequest;
 import helmet.bikelab.apiserver.domain.CommonCodeBikes;
 import helmet.bikelab.apiserver.domain.bike.Parts;
 import helmet.bikelab.apiserver.domain.bike.PartsImages;
+import helmet.bikelab.apiserver.domain.bike.PartsTypes;
 import helmet.bikelab.apiserver.domain.types.MediaTypes;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.PresignedURLVo;
@@ -16,6 +17,7 @@ import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.repositories.BikeModelsRepository;
 import helmet.bikelab.apiserver.repositories.PartsCodesRepository;
 import helmet.bikelab.apiserver.repositories.PartsRepository;
+import helmet.bikelab.apiserver.repositories.PartsTypesRepository;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.utils.amazon.AmazonUtils;
 import helmet.bikelab.apiserver.utils.keys.ENV;
@@ -38,6 +40,7 @@ public class BikePartsService extends SessService {
     private final CommonWorker commonWorker;
     private final PartsRepository partsRepository;
     private final BikeWorker bikeWorker;
+    private final PartsTypesRepository partsTypesRepository;
 
     public BikeSessionRequest fetchPartImageByPartsId(BikeSessionRequest request){
         PartsByIdRequest partsByIdRequest = map(request.getParam(), PartsByIdRequest.class);
@@ -191,10 +194,16 @@ public class BikePartsService extends SessService {
         return request;
     }
 
-    @Transactional
     public BikeSessionRequest fetchPartsCodes(BikeSessionRequest request){
         List response = getList("comm.parts.fetchPartsCodes", request.getParam());
         request.setResponse(response);
         return request;
     }
+
+    public BikeSessionRequest fetchPartsTypes(BikeSessionRequest request){
+        List<PartsTypes> allBy = partsTypesRepository.findAllBy();
+        request.setResponse(allBy);
+        return request;
+    }
+
 }
