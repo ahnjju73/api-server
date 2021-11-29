@@ -18,6 +18,7 @@ public class ExpenseDto extends OriginObject {
     private Integer price;
     private Integer number;
     private String description;
+    private String expenseOptionType;
 
     public void validationCheck(){
         if(ExpenseTypes.getType(expenseType) == null) withException("");

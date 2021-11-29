@@ -38,26 +38,26 @@ public class LeasePaymentWorker extends SessService {
     private final LeaseExtraRepository leaseExtraRepository;
     private final RiderRepository riderRepository;
 
-    public void payLeaseExtraFeeByExtraId(String extraId, BikeUser session){
+    public void payLeaseExtraFeeByExtraId(String extraId, BikeUser session) {
         LeaseExtras leaseExtras = leaseExtraRepository.findByExtraId(extraId);
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일");
-        if(!bePresent(leaseExtras)) withException("901-001");
+        if (!bePresent(leaseExtras)) withException("901-001");
         Leases leases = leaseExtras.getLease();
         LeasePayments payment = leaseExtras.getPayment();
         checkLeaseIsConfirmed(leases);
         Integer prevPaidFee = leaseExtras.getPaidFee();
         leaseExtras.setPaidFee(leaseExtras.getExtraFee());
         leaseExtraRepository.save(leaseExtras);
-        String content = "<>" + payment.getIndex() + "회차 (" + payment.getPaymentDate().format(dateTimeFormatter) + " - " + leaseExtras.getExtraId() + ")</> 추가 납부료 미납금 <>" + Utils.getCurrencyFormat(leaseExtras.getExtraFee() - prevPaidFee) + "원</>을 완납하였습니다. (<>" + Utils.getCurrencyFormat(prevPaidFee) + "원</> -> <>" + Utils.getCurrencyFormat(leaseExtras.getExtraFee())+ "원</>)";
+        String content = "<>" + payment.getIndex() + "회차 (" + payment.getPaymentDate().format(dateTimeFormatter) + " - " + leaseExtras.getExtraId() + ")</> 추가 납부료 미납금 <>" + Utils.getCurrencyFormat(leaseExtras.getExtraFee() - prevPaidFee) + "원</>을 완납하였습니다. (<>" + Utils.getCurrencyFormat(prevPaidFee) + "원</> -> <>" + Utils.getCurrencyFormat(leaseExtras.getExtraFee()) + "원</>)";
         List<String> strings = new ArrayList<>();
         strings.add(content);
         bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_EXTRA_PAYMENT, session.getUserNo(), leases.getLeaseNo().toString(), strings));
     }
 
-    public void readLeaseExtraFeeByExtraId(String extraId, BikeUser session){
+    public void readLeaseExtraFeeByExtraId(String extraId, BikeUser session) {
         LeaseExtras leaseExtras = leaseExtraRepository.findByExtraId(extraId);
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일");
-        if(!bePresent(leaseExtras)) withException("901-001");
+        if (!bePresent(leaseExtras)) withException("901-001");
         Leases leases = leaseExtras.getLease();
         LeasePayments payment = leaseExtras.getPayment();
         checkLeaseIsConfirmed(leases);
@@ -70,54 +70,53 @@ public class LeasePaymentWorker extends SessService {
         bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_EXTRA_PAYMENT, session.getUserNo(), leases.getLeaseNo().toString(), strings));
     }
 
-    public void checkLeaseIsConfirmed(Leases leases){
-        if(!LeaseStatusTypes.CONFIRM.equals(leases.getStatus())) withException("901-002");
+    public void checkLeaseIsConfirmed(Leases leases) {
+        if (!LeaseStatusTypes.CONFIRM.equals(leases.getStatus())) withException("901-002");
     }
 
-    public void payLeaseFeeByPaymentId(BikeUser session, Map param){
-        String paymentId = (String)param.get("payment_id");
+    public void payLeaseFeeByPaymentId(BikeUser session, Map param) {
+        String paymentId = (String) param.get("payment_id");
         Integer payFee = (Integer) param.get("pay_fee");
-        String paidType = (String)param.get("paid_type");
+        String paidType = (String) param.get("paid_type");
         String description = (String) param.get("description");
         List<String> strings = new ArrayList<>();
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일");
         LeasePayments byPaymentId = leasePaymentsRepository.findByPaymentId(paymentId);
         Riders rider = byPaymentId.getLease().getBike().getRiders();
-        if(!bePresent(byPaymentId)) withException("901-001");
-        if(bePresent(rider))
+        if (!bePresent(byPaymentId)) withException("901-001");
+        if (bePresent(rider))
             byPaymentId.setRiderNo(rider.getRiderNo());
         byPaymentId.setPaidType(PaidTypes.getStatus(paidType));
         Leases leases = byPaymentId.getLease();
         checkLeaseIsConfirmed(leases);
         Integer prevPaidFee = byPaymentId.getPaidFee();
         String content = "";
-        if((byPaymentId.getDescription() == null && description != null) || (byPaymentId.getDescription() != null && !byPaymentId.getDescription().equals(byPaymentId.getDescription()))){
+        if ((byPaymentId.getDescription() == null && description != null) || (byPaymentId.getDescription() != null && !byPaymentId.getDescription().equals(byPaymentId.getDescription()))) {
             String log = "";
-            if(byPaymentId.getDescription() == null)
+            if (byPaymentId.getDescription() == null)
                 log = "<>" + byPaymentId.getIndex() + "회차</> 설명이 " + description + "로 입력되었습니다.";
             else
-                log = "<>" + byPaymentId.getIndex() + "회차</> 설명이 " + byPaymentId.getDescription() + "에서 " +description + "로 변경되었습니다.";
+                log = "<>" + byPaymentId.getIndex() + "회차</> 설명이 " + byPaymentId.getDescription() + "에서 " + description + "로 변경되었습니다.";
             byPaymentId.setDescription(description);
             strings.add(log);
         }
-        if(payFee <= byPaymentId.getLeaseFee() - byPaymentId.getPaidFee()) {
+        if (payFee <= byPaymentId.getLeaseFee() - byPaymentId.getPaidFee()) {
             byPaymentId.setPaidFee(payFee);
             leasePaymentsRepository.save(byPaymentId);
-            content = "<>" + byPaymentId.getIndex() + "회차 (" + byPaymentId.getPaymentDate().format(dateTimeFormatter) + ")</> 납부료 미납금 중 <>" + Utils.getCurrencyFormat(payFee) + "원</>을 납부하였습니다. (<>" + Utils.getCurrencyFormat(prevPaidFee) + "원</> -> <>" + Utils.getCurrencyFormat(byPaymentId.getPaidFee()) + "원</> " + (byPaymentId.getPaidType() == PaidTypes.BANK? "계좌이체 하였습니다.)":"라이더가 어플 결제 하였습니다.)");
-        }
-        else{
+            content = "<>" + byPaymentId.getIndex() + "회차 (" + byPaymentId.getPaymentDate().format(dateTimeFormatter) + ")</> 납부료 미납금 중 <>" + Utils.getCurrencyFormat(payFee) + "원</>을 납부하였습니다. (<>" + Utils.getCurrencyFormat(prevPaidFee) + "원</> -> <>" + Utils.getCurrencyFormat(byPaymentId.getPaidFee()) + "원</> " + (byPaymentId.getPaidType() == PaidTypes.BANK ? "계좌이체 하였습니다.)" : "라이더가 어플 결제 하였습니다.)");
+        } else {
             byPaymentId.setPaidFee(byPaymentId.getLeaseFee());
             leasePaymentsRepository.save(byPaymentId);
-            content = "<>" + byPaymentId.getIndex() + "회차 (" + byPaymentId.getPaymentDate().format(dateTimeFormatter) + ")</> 납부료 미납금을 완납하였습니다. (<>" + Utils.getCurrencyFormat(prevPaidFee) + "원</> -> <>" + Utils.getCurrencyFormat(byPaymentId.getPaidFee()) + "원</> " + (byPaymentId.getPaidType() == PaidTypes.BANK? "계좌이체 하였습니다.)":"라이더가 어플 결제 하였습니다.)");
+            content = "<>" + byPaymentId.getIndex() + "회차 (" + byPaymentId.getPaymentDate().format(dateTimeFormatter) + ")</> 납부료 미납금을 완납하였습니다. (<>" + Utils.getCurrencyFormat(prevPaidFee) + "원</> -> <>" + Utils.getCurrencyFormat(byPaymentId.getPaidFee()) + "원</> " + (byPaymentId.getPaidType() == PaidTypes.BANK ? "계좌이체 하였습니다.)" : "라이더가 어플 결제 하였습니다.)");
         }
         strings.add(content);
         bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_PAYMENT, session.getUserNo(), leases.getLeaseNo().toString(), strings));
     }
 
-    public void readLeaseFeeByPaymentId(String paymentId, BikeUser session){
+    public void readLeaseFeeByPaymentId(String paymentId, BikeUser session) {
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일");
         LeasePayments byPaymentId = leasePaymentsRepository.findByPaymentId(paymentId);
-        if(!bePresent(byPaymentId)) withException("901-001");
+        if (!bePresent(byPaymentId)) withException("901-001");
         Leases leases = byPaymentId.getLease();
         checkLeaseIsConfirmed(leases);
         byPaymentId.setRead(Boolean.TRUE);
@@ -129,4 +128,28 @@ public class LeasePaymentWorker extends SessService {
         bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_PAYMENT, session.getUserNo(), leases.getLeaseNo().toString(), strings));
     }
 
+    public void payLeaseFeeMulti(BikeUser session, Map param) {
+        List<String> paymentIds = (List<String>) param.get("payments");
+        String paidType = (String) param.get("paid_type");
+        List<String> strings = new ArrayList<>();
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일");
+        Leases leases = null;
+        for(String paymentId : paymentIds) {
+            LeasePayments byPaymentId = leasePaymentsRepository.findByPaymentId(paymentId);
+            Riders rider = byPaymentId.getLease().getBike().getRiders();
+            if (!bePresent(byPaymentId)) withException("901-001");
+            if (bePresent(rider))
+                byPaymentId.setRiderNo(rider.getRiderNo());
+            byPaymentId.setPaidType(PaidTypes.getStatus(paidType));
+            leases = byPaymentId.getLease();
+            checkLeaseIsConfirmed(leases);
+            Integer prevPaidFee = byPaymentId.getPaidFee();
+            byPaymentId.setPaidFee(byPaymentId.getLeaseFee());
+            leasePaymentsRepository.save(byPaymentId);
+            String content = "<>" + byPaymentId.getIndex() + "회차 (" + byPaymentId.getPaymentDate().format(dateTimeFormatter) + ")</> 납부료 미납금을 완납하였습니다. (<>" + Utils.getCurrencyFormat(prevPaidFee) + "원</> -> <>" + Utils.getCurrencyFormat(byPaymentId.getPaidFee()) + "원</> " + (byPaymentId.getPaidType() == PaidTypes.BANK ? "계좌이체 하였습니다.)" : "라이더가 어플 결제 하였습니다.)");
+            strings.add(content);
+        }
+        if(leases != null)
+            bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_PAYMENT, session.getUserNo(), leases.getLeaseNo().toString(), strings));
+    }
 }
