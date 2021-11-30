@@ -49,7 +49,7 @@ public class LeaseExpense {
 
     @Column(name = "expense_option", columnDefinition = "ENUM")
     @Convert(converter = ExpenseOptionTypesConverter.class)
-    private ExpenseOptionTypes expenseOptionTypes;
+    private ExpenseOptionTypes expenseOptionTypes = ExpenseOptionTypes.OFF;
 
     @Column(name = "expense_option", columnDefinition = "ENUM", insertable = false, updatable = false)
     private String expenseOptionTypeCode;
