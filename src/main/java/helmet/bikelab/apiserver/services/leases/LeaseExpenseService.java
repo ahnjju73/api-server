@@ -91,6 +91,7 @@ public class LeaseExpenseService extends SessService {
         modelTransaction.setPrice(expenseDto.getPrice());
         modelTransaction.setRegNum(expenseDto.getRegNum());
         leaseExpense.setTransaction(modelTransaction);
+        leaseExpense.setExpenseOptionTypes(ExpenseOptionTypes.getType(expenseDto.getExpenseOptionType()));
         leaseExpenseRepository.save(leaseExpense);
         String expenseLog = getExpenseLog(expenseDto, leaseExpense);
         bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_UPDATED, request.getSessionUser().getUserNo(), leaseExpense.getLeaseNo().toString(), expenseLog));
