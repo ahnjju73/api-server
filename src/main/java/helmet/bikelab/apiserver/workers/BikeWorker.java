@@ -2,12 +2,10 @@ package helmet.bikelab.apiserver.workers;
 
 import helmet.bikelab.apiserver.domain.CommonCodeBikes;
 import helmet.bikelab.apiserver.domain.Manufacturers;
+import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.bike.Parts;
 import helmet.bikelab.apiserver.domain.bike.PartsCodes;
-import helmet.bikelab.apiserver.repositories.BikeModelsRepository;
-import helmet.bikelab.apiserver.repositories.ManufacturersRepository;
-import helmet.bikelab.apiserver.repositories.PartsCodesRepository;
-import helmet.bikelab.apiserver.repositories.PartsRepository;
+import helmet.bikelab.apiserver.repositories.*;
 import helmet.bikelab.apiserver.services.internal.Workspace;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,9 +20,16 @@ public class BikeWorker extends Workspace {
     private final BikeModelsRepository bikeModelsRepository;
     private final PartsCodesRepository partsCodesRepository;
     private final PartsRepository partsRepository;
+    private final BikesRepository bikesRepository;
 
     public List<Manufacturers> getManufacturers(){
         return manufacturersRepository.findAllBy();
+    }
+
+    public Bikes getEmptyBikes(){
+        String emptyBikeId = (String)getItem("comm.common.getEmptyCar", null);
+        Bikes byBikeId = bikesRepository.findByBikeId(emptyBikeId);
+        return byBikeId;
     }
 
     public Manufacturers getManufacturerById(Integer manufacturerNo){

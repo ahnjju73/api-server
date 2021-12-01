@@ -60,6 +60,7 @@ public class BikesRouters {
                 .route(GET("/clients/commons/parts"), partsHandler::fetchParts)
                 .andRoute(GET("/commons/bikes/parts/details"), partsHandler::fetchPartsByID)
                 .andRoute(GET("/commons/bikes/parts-codes"), partsHandler::fetchPartsCodes)
+                .andRoute(GET("/commons/bikes/parts-types"), partsHandler::fetchPartsTypes)
                 .andRoute(POST("/commons/bikes/parts"), partsHandler::addPartsByModel)
                 .andRoute(PUT("/commons/bikes/parts"), partsHandler::updatePartsByIdAndCarModel)
                 .andRoute(POST("/commons/bikes/images/pre-signed-url"), partsHandler::generatePresignedUrl)

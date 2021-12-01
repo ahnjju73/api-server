@@ -28,6 +28,7 @@ public class UpdateClientRequest extends OriginObject {
     private ClientInfo clientInfo;
     private ModelAddress address;
     private String uuid;
+    private Double discountRate;
 
     public void setAddress(Map address) {
         ObjectMapper objectMapper = new ObjectMapper();
@@ -43,6 +44,7 @@ public class UpdateClientRequest extends OriginObject {
         if(BusinessTypes.CORPORATE.equals(this.businessType)){
             if(!bePresent(this.businessNo)) withException("400-010");
         }
+        if(!bePresent(discountRate)) withException("400-022");
         if(!bePresent(regNo)) withException("400-015");
         if(!bePresent(clientInfo.getRegDate())) withException("400-016");
         if(!bePresent(clientInfo.getRegSectorType())) withException("400-017");

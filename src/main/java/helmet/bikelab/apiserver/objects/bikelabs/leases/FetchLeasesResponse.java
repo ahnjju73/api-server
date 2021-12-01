@@ -49,4 +49,5 @@ public class FetchLeasesResponse {
     private String riderId;
     private String bakRiderLeaseAttachments;
     private String bakRiderLeaseSpecialTerms;
+    private BikeDto bakBike;
 }

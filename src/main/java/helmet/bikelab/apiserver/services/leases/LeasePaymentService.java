@@ -119,6 +119,14 @@ public class LeasePaymentService  extends SessService {
         return request;
     }
 
+    @Transactional
+    public BikeSessionRequest payLeaseFeeMulti(BikeSessionRequest request){
+        Map param = request.getParam();
+        BikeUser session = request.getSessionUser();
+        leasePaymentWorker.payLeaseFeeMulti(session, param);
+//        leasePaymentWorker.readLeaseFeeByPaymentId(paymentId, session);
+        return request;
+    }
 
     public BikeSessionRequest fetchLeasePaymentsByIndex(BikeSessionRequest request){
         Map param = request.getParam();
@@ -381,10 +389,37 @@ public class LeasePaymentService  extends SessService {
         return request;
     }
 
+    public BikeSessionRequest fetchUnpaidManagementLease(BikeSessionRequest request){
+        Map param = request.getParam();
+        LeasePaymentsRequestListDto requestListDto = map(param, LeasePaymentsRequestListDto.class);
+        requestListDto.setExcel("no");
+        String type = (String) param.get("type");
+        ResponseListDto responseListDto;
+        if(type.equals("lease"))
+            responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "leases.leases-payments.fetchManagementLeasesUnpaidPayments", "leases.leases-payments.countAllManagementLeasesUnpaidPayments", "row_num");
+        else
+            responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "leases.leases-payments.fetchManagementExtraUnpaidPayments", "leases.leases-payments.countAllManagementExtraUnpaidPayments", "rownum");
+        request.setResponse(responseListDto);
+        return request;
+    }
+
     public BikeSessionRequest fetchUnpaidManagementLeases(BikeSessionRequest request){
         Map param = request.getParam();
         LeasePaymentsRequestListDto requestListDto = map(param, LeasePaymentsRequestListDto.class);
-        ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "leases.leases-payments.fetchManagementLeasesUnpaidPayments", "leases.leases-payments.countAllManagementLeasesUnpaidPayments", "row_num");
+        String type = (String) param.get("type");
+        ResponseListDto responseListDto;
+        if(type.equals("lease"))
+            responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "leases.leases-payments.fetchManagementLeasesUnpaidPayments", "leases.leases-payments.countAllManagementLeasesUnpaidPayments", "row_num");
+        else
+            responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "leases.leases-payments.fetchManagementExtraUnpaidPayments", "leases.leases-payments.countAllManagementExtraUnpaidPayments", "rownum");
+        request.setResponse(responseListDto.getItems());
+        return request;
+    }
+
+    public BikeSessionRequest fetchUnpaidStopLeases(BikeSessionRequest request){
+        Map param = request.getParam();
+        LeasePaymentsRequestListDto requestListDto = map(param, LeasePaymentsRequestListDto.class);
+        ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "leases.leases-payments.fetchAllUnpaidStopLeases", "leases.leases-payments.countAllUnpaidStopLeases", "row_num");
         request.setResponse(responseListDto);
         return request;
     }

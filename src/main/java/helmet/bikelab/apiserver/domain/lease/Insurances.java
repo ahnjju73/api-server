@@ -71,6 +71,9 @@ public class Insurances extends OriginObject {
     @Convert(converter = InsuranceTypesConverter.class)
     private InsuranceTypes type;
 
+    @Column(name = "type", nullable = false, insertable = false, updatable = false)
+    private String typeCode;
+
     public void setType (String type){
         this.type = InsuranceTypes.getInsuranceType(type);
     }

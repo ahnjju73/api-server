@@ -2,7 +2,9 @@ package helmet.bikelab.apiserver.domain.lease;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import helmet.bikelab.apiserver.domain.embeds.ModelTransaction;
+import helmet.bikelab.apiserver.domain.types.ExpenseOptionTypes;
 import helmet.bikelab.apiserver.domain.types.ExpenseTypes;
+import helmet.bikelab.apiserver.domain.types.converters.ExpenseOptionTypesConverter;
 import helmet.bikelab.apiserver.domain.types.converters.ExpenseTypesConverter;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -33,6 +35,9 @@ public class LeaseExpense {
     @Convert(converter = ExpenseTypesConverter.class)
     private ExpenseTypes expenseTypes;
 
+    @Column(name = "expense_type", columnDefinition = "ENUM", insertable = false, updatable = false)
+    private String expenseTypeCode;
+
     @Embedded
     private ModelTransaction transaction = new ModelTransaction();
 
@@ -41,5 +46,12 @@ public class LeaseExpense {
 
     @Column(name = "description", columnDefinition = "MEDIUMTEXT")
     private String description;
+
+    @Column(name = "expense_option", columnDefinition = "ENUM")
+    @Convert(converter = ExpenseOptionTypesConverter.class)
+    private ExpenseOptionTypes expenseOptionTypes = ExpenseOptionTypes.OFF;
+
+    @Column(name = "expense_option", columnDefinition = "ENUM", insertable = false, updatable = false)
+    private String expenseOptionTypeCode;
 
 }

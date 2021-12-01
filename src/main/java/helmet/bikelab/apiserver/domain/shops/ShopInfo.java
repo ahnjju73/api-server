@@ -32,4 +32,19 @@ public class ShopInfo {
     @Column(name = "name",  length =  45)
     private String name;
 
+    @Column(name = "thumbnail", length = 512)
+    private String thumbnail;
+
+    @Column(name = "phone", length = 45)
+    private String phone;
+
+    @Column(name = "manager_name", length = 45)
+    private String managerName;
+
+    @Column(name = "start_time", length = 21)
+    private String startTime;
+
+    @Column(name = "end_time", length = 21)
+    private String endTime;
+
 }

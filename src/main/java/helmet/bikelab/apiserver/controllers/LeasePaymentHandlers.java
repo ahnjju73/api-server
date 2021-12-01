@@ -162,12 +162,42 @@ public class LeasePaymentHandlers {
                         .map(leasePaymentService::returnData), Map.class);
     }
 
+    public Mono<ServerResponse> fetchUnpaidManagementLease(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> leasePaymentService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> leasePaymentService.getPathVariable(row, "type"))
+                        .map(leasePaymentService::checkBikeSession)
+                        .map(leasePaymentService::fetchUnpaidManagementLease)
+                        .map(leasePaymentService::returnData), ResponseListDto.class);
+    }
+
     public Mono<ServerResponse> fetchUnpaidManagementLeases(ServerRequest request) {
         return ServerResponse.ok().body(
                 Mono.fromSupplier(() -> leasePaymentService.makeSessionRequest(request, BikeSessionRequest.class))
                         .subscribeOn(Schedulers.elastic())
                         .map(leasePaymentService::checkBikeSession)
+                        .map(row -> leasePaymentService.getPathVariable(row, "type"))
                         .map(leasePaymentService::fetchUnpaidManagementLeases)
+                        .map(leasePaymentService::returnData), List.class);
+    }
+
+    public Mono<ServerResponse> fetchUnpaidStopLeases(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> leasePaymentService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(leasePaymentService::checkBikeSession)
+                        .map(leasePaymentService::fetchUnpaidStopLeases)
                         .map(leasePaymentService::returnData), ResponseListDto.class);
+    }
+
+    public Mono<ServerResponse> payLeaseFeeMulti(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> leasePaymentService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(leasePaymentService::checkBikeSession)
+                        .map(leasePaymentService::payLeaseFeeMulti)
+                        .map(leasePaymentService::returnData), Map.class);
     }
 }

@@ -20,7 +20,10 @@ public class ClientsRouters {
                 .andRoute(PUT("/clients"), handler::updateClient)
                 .andRoute(DELETE("/clients"), handler::deleteClient)
                 .andRoute(PUT("/clients/password"), handler::resetPassword)
-                .andRoute(GET("/clients/{client_id}/histories"), handler::fetchHistoryOfClient);
+                .andRoute(GET("/clients/{client_id}/histories"), handler::fetchHistoryOfClient)
+                .andRoute(GET("/clients/{client_id}/discount-parts"), handler::fetchPartsDiscountRateByClient)
+                .andRoute(PUT("/clients/{client_id}/discount-parts"), handler::updatePartsDiscountRateByClient)
+                ;
     }
     @Bean
     public RouterFunction<ServerResponse> clientOverpayRouter(ClientsHandlers handler){

@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.services.leases;
 
+import helmet.bikelab.apiserver.domain.CommonCodeBikes;
 import helmet.bikelab.apiserver.domain.bike.BikeRidersBak;
 import helmet.bikelab.apiserver.domain.demands.DemandLeases;
 import helmet.bikelab.apiserver.domain.embeds.ModelTransaction;
@@ -203,7 +204,21 @@ public class LeasesService extends SessService {
         stopLeaseDto.setStopReason(lease.getStopReason() == null ? "" : lease.getStopReason());
         stopLeaseDto.setStopPaidFee(lease.getStopPaidFee() == null ? 0 : lease.getStopPaidFee());
         fetchLeasesResponse.setStopLeaseInfo(stopLeaseDto);
+        BikeDto bakBike;
 
+        if(lease.getLeaseStopStatus() != LeaseStopStatusTypes.CONTINUE){
+            Bikes bakBikes = bikesRepository.findById(lease.getBakBikeNo()).get();
+            CommonCodeBikes carModel = bakBikes.getCarModel();
+            bakBikes.getCarModel();
+            bakBike = new BikeDto();
+            bakBike.setBikeId(bakBikes.getBikeId());
+            bakBike.setBikeNum(bakBikes.getCarNum());
+            bakBike.setVimNum(bakBikes.getVimNum());
+            bakBike.setBikeModel(carModel.getModel());
+            bakBike.setBikeType(carModel.getBikeType().getType());
+            bakBike.setBikeVolume(carModel.getVolume());
+            fetchLeasesResponse.setBakBike(bakBike);
+        }
 
         if(leaseExpenses != null && leaseExpenses.size() > 0){
             List<ExpenseDto> expenseDtos = new ArrayList<>();
@@ -212,6 +227,7 @@ public class LeasesService extends SessService {
                 expenseDto.setExpenseType(le.getExpenseTypes().getType());
                 expenseDto.setNumber(le.getNumber());
                 expenseDto.setDescription(le.getDescription());
+                expenseDto.setExpenseOptionType(le.getExpenseOptionTypes() == null ? ExpenseOptionTypes.OFF.getType() : le.getExpenseOptionTypeCode());
                 if(le.getTransaction() != null){
                     expenseDto.setRegNum(le.getTransaction().getRegNum());
                     expenseDto.setCompanyName(le.getTransaction().getCompanyName());
@@ -1013,7 +1029,8 @@ public class LeasesService extends SessService {
         lease.setStopFee(Math.round(stopFee));
         lease.setStopPaidFee(0L);
         lease.setStopReason(stopLeaseDto.getStopReason());
-        detachRiderFromBike(lease.getBike().getBikeId());
+        if(lease.getBike().getRiderNo() != null)
+            detachRiderFromBike(lease.getBike().getBikeId());
         leaseRepository.save(lease);
         bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_UPDATED, request.getSessionUser().getUserNo(), lease.getLeaseNo().toString(), log));
         return request;
@@ -1051,7 +1068,7 @@ public class LeasesService extends SessService {
 
     private Integer getRegistrationFee(Integer bikePrice){
         //취등록세 공식 적용 2%
-        return bikePrice/50;
+        return bikePrice / 500 * 10;
     }
 
 

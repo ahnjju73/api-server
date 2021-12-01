@@ -5,6 +5,18 @@
 
 <mapper namespace="bikelabs.commons.clients">
 
+    <select id="fetchPartsDiscountRateByClient" parameterType="hmap" resultType="hmap">
+        select ptdc.parts_type_no,
+               discount_rate,
+               pt.parts_type,
+               pt.usable
+          from (select *
+                  from parts_type_discount_client
+                 where client_no = #{client_no}) ptdc
+               join parts_types pt on ptdc.parts_type_no = pt.parts_type_no
+         order by pt.order_no
+    </select>
+
     <resultMap id="groupDetailAddressMap" type="hmap">
         <result property="country" column="country" />
         <result property="country_code" column="country_code" />
