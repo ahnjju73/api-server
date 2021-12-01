@@ -280,7 +280,13 @@ public class BikesService extends SessService {
             List<LeaseExpense> expenseList = expenseRepository.findAllByLease_LeaseIdAndExpenseTypes(leases.getLeaseId(), ExpenseTypes.REGISTER);
             if (expenseList.size() > 0) {
                 leaseExpense = expenseList.get(0);
-                leaseExpense.setTransaction(modelTransaction);
+                ModelTransaction transaction = new ModelTransaction();
+                //취등록세 공식 2%
+                transaction.setPrice(bike.getTransaction() == null || bike.getTransaction().getPrice() == null ? null : bike.getTransaction().getPrice() / 50);
+                transaction.setRegNum("-");
+                transaction.setCompanyName("-");
+                leaseExpense.setTransaction(transaction);
+                leaseExpense.setNumber(1);
                 expenseRepository.save(leaseExpense);
             } else {
                 LeaseExpense expenseReg = new LeaseExpense();
