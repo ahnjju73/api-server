@@ -227,6 +227,7 @@ public class LeasesService extends SessService {
                 expenseDto.setExpenseType(le.getExpenseTypes().getType());
                 expenseDto.setNumber(le.getNumber());
                 expenseDto.setDescription(le.getDescription());
+                expenseDto.setExpenseOptionType(le.getExpenseOptionTypes() == null ? ExpenseOptionTypes.OFF.getType() : le.getExpenseOptionTypeCode());
                 if(le.getTransaction() != null){
                     expenseDto.setRegNum(le.getTransaction().getRegNum());
                     expenseDto.setCompanyName(le.getTransaction().getCompanyName());
