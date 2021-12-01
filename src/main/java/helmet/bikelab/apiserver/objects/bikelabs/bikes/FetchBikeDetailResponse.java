@@ -29,5 +29,6 @@ public class FetchBikeDetailResponse extends OriginObject {
     private LocalDateTime receiveDt;
     private LocalDateTime registerDt;
     private InsuranceDto insuranceInfo;
+    private String description;
     private ModelTransaction transaction = new ModelTransaction();
 }

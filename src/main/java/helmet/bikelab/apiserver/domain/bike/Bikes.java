@@ -103,6 +103,9 @@ public class Bikes extends OriginObject {
     @JoinColumn(name = "rider_lease_no", insertable = false, updatable = false)
     private Leases riderLease;
 
+    @Column(name = "description", columnDefinition = "MEDIUMTEXT")
+    private String description;
+
     public void doApproveRider(){
         this.riderStatus = BikeRiderStatusTypes.TAKEN;
         this.riderApprovalAt = LocalDateTime.now();

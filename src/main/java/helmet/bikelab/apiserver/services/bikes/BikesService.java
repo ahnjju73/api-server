@@ -200,6 +200,7 @@ public class BikesService extends SessService {
         fetchBikeDetailResponse.setReceiveDt(bike.getReceiveDate());
         fetchBikeDetailResponse.setRegisterDt(bike.getRegisterDate());
         fetchBikeDetailResponse.setTransaction(bike.getTransaction());
+        fetchBikeDetailResponse.setDescription(bike.getDescription());
         if (leases != null) {
             ClientDto client = new ClientDto();
             client.setClientName(clients.getClientInfo().getName());
@@ -234,6 +235,7 @@ public class BikesService extends SessService {
         bike.setCarModelCode(addBikeRequest.getCarModel());
         bike.setColor(addBikeRequest.getColor());
         bike.setReceiveDate(addBikeRequest.getReceiveDt());
+        bike.setDescription(addBikeRequest.getDescription());
         ModelTransaction modelTransaction = new ModelTransaction();
         modelTransaction.setRegNum(addBikeRequest.getRegNum());
         modelTransaction.setPrice(addBikeRequest.getPrice());
@@ -307,6 +309,7 @@ public class BikesService extends SessService {
         bike.setReceiveDate(updateBikeRequest.getReceiveDt());
         bike.setRegisterDate(updateBikeRequest.getRegisterDt());
         bike.setTransaction(modelTransaction);
+        bike.setDescription(updateBikeRequest.getDescription());
         bikesRepository.save(bike);
 
         return request;
@@ -355,6 +358,10 @@ public class BikesService extends SessService {
             }
             if (bePresent(updateBikeRequest.getPrice()) && (bike.getTransaction() == null || !updateBikeRequest.getPrice().equals(bike.getTransaction().getPrice()))) {
                 String log = bike.getTransaction() == null || bike.getTransaction().getPrice() == null ? "바이크의 구매가격을 <>" + Utils.getCurrencyFormat(updateBikeRequest.getPrice()) + "원</>로/으로 설정했습니다." : "바이크의 구매가격을 <>" + Utils.getCurrencyFormat(bike.getTransaction().getPrice()) + "원</>에서 <>" + Utils.getCurrencyFormat(updateBikeRequest.getPrice()) + "원</>로/으로 변경하였습니다.";
+                stringList.add(log);
+            }
+            if (bePresent(updateBikeRequest.getDescription()) && !updateBikeRequest.getDescription().equals(bike.getDescription())) {
+                String log = bike.getDescription() == null ? "바이크 비고를 <>" + updateBikeRequest.getDescription() + "</>로/으로 설정했습니다." : "바이크 비고를 <>" + bike.getDescription() + "</>에서 <>" + updateBikeRequest.getDescription() + "</>으로 변경하였습니다.";
                 stringList.add(log);
             }
             if (bePresent(stringList) && stringList.size() > 0) {
