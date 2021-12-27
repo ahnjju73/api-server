@@ -24,6 +24,7 @@ public class UpdateBikeRequest extends OriginObject {
     private Integer price;
     private LocalDateTime receiveDt;
     private LocalDateTime registerDt;
+    private String description;
 
     public void setReceiveDt(String receiveDt) {
         try {
