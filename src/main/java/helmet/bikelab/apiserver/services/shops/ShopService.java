@@ -106,8 +106,8 @@ public class ShopService extends SessService {
         shopInfo.setShopNo(shop.getShopNo());
         shopInfo.setName(addShopRequest.getName());
         shopInfo.setManagerName(addShopRequest.getManagerName());
-        shopInfo.setStartTime(addShopRequest.getStartTime());
-        shopInfo.setEndTime(addShopRequest.getEndTime());
+//        shopInfo.setStartTime(addShopRequest.getStartTime());
+//        shopInfo.setEndTime(addShopRequest.getEndTime());
         shopInfoRepository.save(shopInfo);
 
         ShopPassword shopPassword = new ShopPassword();
@@ -154,8 +154,8 @@ public class ShopService extends SessService {
         shopInfo.setPhone(shopRequest.getPhone());
         shopInfo.setName(shopRequest.getName());
         shopInfo.setManagerName(shopRequest.getManagerName());
-        shopInfo.setStartTime(shopRequest.getStartTime());
-        shopInfo.setEndTime(shopRequest.getEndTime());
+//        shopInfo.setStartTime(shopRequest.getStartTime());
+//        shopInfo.setEndTime(shopRequest.getEndTime());
         shopInfoRepository.save(shopInfo);
 
         shopAddress.setModelAddress(shopRequest.getAddress());

@@ -140,10 +140,10 @@ public class BikePartsService extends SessService {
         Boolean changed = false;
         PartsBackUpDto partsBackUpDto = map(partsByIdAndCarModel, PartsBackUpDto.class);
 
-        if(!partsUpdatedRequest.getIsFreeSupport().equals(partsByIdAndCarModel.getIsFreeSupport())){
-            partsByIdAndCarModel.setIsFreeSupport(partsUpdatedRequest.getIsFreeSupport());
-            changed = true;
-        }
+//        if(!partsUpdatedRequest.getIsFreeSupport().equals(partsByIdAndCarModel.getIsFreeSupport())){
+//            partsByIdAndCarModel.setIsFreeSupport(partsUpdatedRequest.getIsFreeSupport());
+//            changed = true;
+//        }
         if(!partsUpdatedRequest.getPartsId().equals(partsByIdAndCarModel.getPartsId())){
             partsByIdAndCarModel.setPartsId(partsUpdatedRequest.getPartsId());
             changed = true;
