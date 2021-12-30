@@ -64,13 +64,6 @@ public class Parts {
     @JoinColumn(name = "bike_model_cd", insertable = false, updatable = false)
     private CommonCodeBikes bikeModel;
 
-    @Column(name = "is_free_support", columnDefinition = "ENUM")
-    @Convert(converter = YesNoTypeConverter.class)
-    private YesNoTypes isFreeSupport = YesNoTypes.NO;
-
-    @Column(name = "is_free_support", columnDefinition = "ENUM", insertable = false, updatable = false)
-    private String isFreeSupportCode;
-
     @Column(name = "bakup", columnDefinition = "json")
     @Convert(converter = PartsBackUpConverter.class)
     private List<PartsBackUpDto> backUpList;

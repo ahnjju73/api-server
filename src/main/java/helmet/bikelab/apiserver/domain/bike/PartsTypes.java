@@ -2,6 +2,8 @@ package helmet.bikelab.apiserver.domain.bike;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import helmet.bikelab.apiserver.domain.types.YesNoTypes;
+import helmet.bikelab.apiserver.domain.types.converters.YesNoTypeConverter;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -29,5 +31,12 @@ public class PartsTypes {
 
     @Column(name = "usable")
     private Boolean usable = true;
+
+    @Column(name = "is_free_support", columnDefinition = "ENUM")
+    @Convert(converter = YesNoTypeConverter.class)
+    private YesNoTypes isFreeSupport = YesNoTypes.NO;
+
+    @Column(name = "is_free_support", columnDefinition = "ENUM", insertable = false, updatable = false)
+    private String isFreeSupportCode;
 
 }
