@@ -7,6 +7,7 @@ import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.PresignedURLVo;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.services.bikes.BikePartsService;
+import helmet.bikelab.apiserver.services.bikes.PartsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
@@ -22,6 +23,65 @@ import java.util.Map;
 public class BikePartsHandlers {
 
     private final BikePartsService partsService;
+    private final PartsService partsTypeService;
+
+    public Mono<ServerResponse> doSavePartType(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> partsTypeService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(partsTypeService::checkBikeSession)
+                        .map(partsTypeService::doSavePartType)
+                        .map(partsTypeService::returnData), Map.class);
+    }
+
+    public Mono<ServerResponse> updatePartType(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> partsTypeService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(partsTypeService::checkBikeSession)
+                        .map(partsTypeService::updatePartType)
+                        .map(partsTypeService::returnData), Map.class);
+    }
+
+    public Mono<ServerResponse> doSavePartsCode(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> partsTypeService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(partsTypeService::checkBikeSession)
+                        .map(partsTypeService::doSavePartsCode)
+                        .map(partsTypeService::returnData), Map.class);
+    }
+
+    public Mono<ServerResponse> updatePartsCode(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> partsTypeService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(partsTypeService::checkBikeSession)
+                        .map(partsTypeService::updatePartsCode)
+                        .map(partsTypeService::returnData), Map.class);
+    }
+
+    public Mono<ServerResponse> fetchPartsTypeList(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> partsTypeService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(partsTypeService::checkBikeSession)
+                        .map(partsTypeService::fetchPartsTypeList)
+                        .map(partsTypeService::returnData), List.class);
+    }
+
+    public Mono<ServerResponse> fetchPartsCodeList(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> partsTypeService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(partsTypeService::checkBikeSession)
+                        .map(partsTypeService::fetchPartsCodeList)
+                        .map(partsTypeService::returnData), List.class);
+    }
 
     public Mono<ServerResponse> fetchPartsByID(ServerRequest request) {
         return ServerResponse.ok().body(

@@ -21,11 +21,11 @@ public class PartsCodes {
     @Column(name = "parts_code_no", nullable = false)
     private Integer partsCodeNo;
 
-    @Column(name = "parts_type_no", nullable = false, insertable = false, updatable = false)
+    @Column(name = "parts_type_no", nullable = false)
     private Integer partsTypeNo;
 
     @ManyToOne
-    @JoinColumn(name = "parts_type_no")
+    @JoinColumn(name = "parts_type_no", insertable = false, updatable = false)
     private PartsTypes partsType;
 
     @Column(name = "parts_name", nullable = false)
