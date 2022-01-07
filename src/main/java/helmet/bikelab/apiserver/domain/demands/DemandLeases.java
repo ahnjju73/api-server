@@ -1,10 +1,8 @@
 package helmet.bikelab.apiserver.domain.demands;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import helmet.bikelab.apiserver.domain.CommonCodeBikes;
+import helmet.bikelab.apiserver.domain.CommonBikes;
 import helmet.bikelab.apiserver.domain.client.Clients;
-import helmet.bikelab.apiserver.domain.lease.Insurances;
-import helmet.bikelab.apiserver.domain.lease.Leases;
 import helmet.bikelab.apiserver.domain.types.*;
 import helmet.bikelab.apiserver.domain.types.converters.*;
 import helmet.bikelab.apiserver.services.internal.OriginObject;
@@ -48,7 +46,7 @@ public class DemandLeases extends OriginObject {
 
     @ManyToOne(optional = false, fetch = FetchType.EAGER)
     @JoinColumn(name = "car_model", insertable = false, updatable = false)
-    private CommonCodeBikes carModel;
+    private CommonBikes carModel;
 
     @Column(name = "demand_lease_status", columnDefinition = "ENUM")
     @Convert(converter = DemandLeaseStatusTypesConverter.class)

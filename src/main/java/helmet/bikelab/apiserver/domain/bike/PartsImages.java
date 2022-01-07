@@ -2,19 +2,12 @@ package helmet.bikelab.apiserver.domain.bike;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import helmet.bikelab.apiserver.domain.CommonCodeBikes;
 import helmet.bikelab.apiserver.domain.types.MediaTypes;
-import helmet.bikelab.apiserver.domain.types.UnitTypes;
 import helmet.bikelab.apiserver.domain.types.converters.MediaTypesConverter;
-import helmet.bikelab.apiserver.domain.types.converters.PartsBackUpConverter;
-import helmet.bikelab.apiserver.domain.types.converters.UnitTypesConverter;
-import helmet.bikelab.apiserver.objects.bikelabs.bikes.PartsBackUpDto;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.util.List;
 import java.util.UUID;
 
 @Getter

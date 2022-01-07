@@ -50,7 +50,12 @@ public class BikesRouters {
     @Bean
     public RouterFunction<ServerResponse> bikeModelRouters(){
         return RouterFunctions
-                .route(GET("/manufacturers"), bikesModelHandlers::fetchModelManufacturer)
+                .route(GET("/car-models/by-manufacturers"), bikesModelHandlers::fetchCarModelByManufacturer)
+                .andRoute(POST("/car-models/by-manufacturers"), bikesModelHandlers::doSaveCarModel)
+                .andRoute(PUT("/car-models/by-manufacturers"), bikesModelHandlers::updateCarModel)
+                .andRoute(GET("/manufacturers"), bikesModelHandlers::fetchModelManufacturer)
+                .andRoute(POST("/manufacturers"), bikesModelHandlers::doSaveManuf)
+                .andRoute(PUT("/manufacturers"), bikesModelHandlers::updateManuf)
                 ;
     }
 

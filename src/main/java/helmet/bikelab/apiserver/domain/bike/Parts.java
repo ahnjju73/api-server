@@ -2,18 +2,15 @@ package helmet.bikelab.apiserver.domain.bike;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import helmet.bikelab.apiserver.domain.CommonCodeBikes;
+import helmet.bikelab.apiserver.domain.CommonBikes;
 import helmet.bikelab.apiserver.domain.types.UnitTypes;
-import helmet.bikelab.apiserver.domain.types.YesNoTypes;
 import helmet.bikelab.apiserver.domain.types.converters.PartsBackUpConverter;
 import helmet.bikelab.apiserver.domain.types.converters.PartsImagesConverter;
 import helmet.bikelab.apiserver.domain.types.converters.UnitTypesConverter;
-import helmet.bikelab.apiserver.domain.types.converters.YesNoTypeConverter;
 import helmet.bikelab.apiserver.objects.bikelabs.bikes.PartsBackUpDto;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
 import java.util.List;
@@ -62,7 +59,7 @@ public class Parts {
 
     @ManyToOne
     @JoinColumn(name = "bike_model_cd", insertable = false, updatable = false)
-    private CommonCodeBikes bikeModel;
+    private CommonBikes bikeModel;
 
     @Column(name = "bakup", columnDefinition = "json")
     @Convert(converter = PartsBackUpConverter.class)

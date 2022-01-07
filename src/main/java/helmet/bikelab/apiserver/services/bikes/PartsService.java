@@ -1,36 +1,19 @@
 package helmet.bikelab.apiserver.services.bikes;
 
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.CopyObjectRequest;
-import helmet.bikelab.apiserver.domain.CommonCodeBikes;
-import helmet.bikelab.apiserver.domain.bike.Parts;
 import helmet.bikelab.apiserver.domain.bike.PartsCodes;
-import helmet.bikelab.apiserver.domain.bike.PartsImages;
 import helmet.bikelab.apiserver.domain.bike.PartsTypes;
-import helmet.bikelab.apiserver.domain.types.MediaTypes;
 import helmet.bikelab.apiserver.domain.types.YesNoTypes;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
-import helmet.bikelab.apiserver.objects.PresignedURLVo;
-import helmet.bikelab.apiserver.objects.bikelabs.bikes.*;
-import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.repositories.PartsCodesRepository;
-import helmet.bikelab.apiserver.repositories.PartsRepository;
 import helmet.bikelab.apiserver.repositories.PartsTypesRepository;
 import helmet.bikelab.apiserver.services.internal.SessService;
-import helmet.bikelab.apiserver.utils.amazon.AmazonUtils;
-import helmet.bikelab.apiserver.utils.keys.ENV;
-import helmet.bikelab.apiserver.workers.BikeWorker;
-import helmet.bikelab.apiserver.workers.CommonWorker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
