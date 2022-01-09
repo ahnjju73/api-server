@@ -165,10 +165,6 @@ public class BikePartsService extends SessService {
             partsByIdAndCarModel.setWorkingHours(partsUpdatedRequest.getWorkingHours());
             changed = true;
         }
-        if(!partsUpdatedRequest.getUnits().equals(partsByIdAndCarModel.getUnits())){
-            partsByIdAndCarModel.setUnits(partsUpdatedRequest.getUnits());
-            changed = true;
-        }
 
         if(changed){
             List<PartsBackUpDto> backUpList = partsByIdAndCarModel.getBackUpList();
