@@ -63,7 +63,7 @@
                pc.parts_code_no,
                pc.parts_name,
                p.parts_prices,
-               p.working_prices,
+--                p.working_prices,
                p.working_hours,
                p.units,
                p.bike_model_cd,

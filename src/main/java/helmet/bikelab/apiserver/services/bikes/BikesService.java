@@ -4,16 +4,12 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CopyObjectRequest;
-import com.amazonaws.services.s3.model.DeleteObjectsRequest;
-import helmet.bikelab.apiserver.domain.CommonCodeBikes;
+import helmet.bikelab.apiserver.domain.CommonBikes;
 import helmet.bikelab.apiserver.domain.Manufacturers;
 import helmet.bikelab.apiserver.domain.bike.BikeAttachments;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
-import helmet.bikelab.apiserver.domain.bikelab.BikeUserInfo;
-import helmet.bikelab.apiserver.domain.bikelab.BikeUserSession;
 import helmet.bikelab.apiserver.domain.bikelab.SystemParameter;
-import helmet.bikelab.apiserver.domain.client.ClientGroups;
 import helmet.bikelab.apiserver.domain.client.Clients;
 import helmet.bikelab.apiserver.domain.embeds.ModelTransaction;
 import helmet.bikelab.apiserver.domain.lease.LeaseExpense;
@@ -127,7 +123,7 @@ public class BikesService extends SessService {
         Map response = new HashMap();
         for (Bikes bike : bikes) {
             FetchBikesResponse fetchBikesResponse = new FetchBikesResponse();
-            CommonCodeBikes carModel = bike.getCarModel();
+            CommonBikes carModel = bike.getCarModel();
             fetchBikesResponse.setColor(bike.getColor());
             fetchBikesResponse.setNumber(bike.getCarNum());
             CarModel model = new CarModel();
@@ -158,7 +154,7 @@ public class BikesService extends SessService {
         Map response = new HashMap();
         for (Bikes bike : bikes) {
             FetchBikesResponse fetchBikesResponse = new FetchBikesResponse();
-            CommonCodeBikes carModel = bike.getCarModel();
+            CommonBikes carModel = bike.getCarModel();
             fetchBikesResponse.setColor(bike.getColor());
             fetchBikesResponse.setNumber(bike.getCarNum());
             CarModel model = new CarModel();
@@ -184,7 +180,7 @@ public class BikesService extends SessService {
         Leases leases = leaseRepository.findByBikeNo(bike.getBikeNo());
         Clients clients = leases == null ? null : leases.getClients();
         FetchBikeDetailResponse fetchBikeDetailResponse = new FetchBikeDetailResponse();
-        CommonCodeBikes carModel = bike.getCarModel();
+        CommonBikes carModel = bike.getCarModel();
         CarModel model = new CarModel();
         model.setCarModelCode(carModel.getCode());
         model.setCarModelName(carModel.getModel());
@@ -242,7 +238,7 @@ public class BikesService extends SessService {
         modelTransaction.setCompanyName(addBikeRequest.getCompanyName());
         bike.setTransaction(modelTransaction);
         bikesRepository.save(bike);
-        CommonCodeBikes model = bikeModelsRepository.findByCode(addBikeRequest.getCarModel());
+        CommonBikes model = bikeModelsRepository.findByCode(addBikeRequest.getCarModel());
         String log = "<>" + addBikeRequest.getYears() + "</>년식 차량모델 배기량은 <>"
                 + (model.getBikeType().equals(BikeTypes.GAS) ? model.getVolume() + " cc" : model.getVolume() + " KW") +
                 "</> 색상은 <>" + addBikeRequest.getColor() + "</> 차대번호가 <>" + addBikeRequest.getVimNumber() + "</> 인 바이크가 생성되었습니다";
@@ -333,7 +329,7 @@ public class BikesService extends SessService {
                 stringList.add(log);
             }
             if (bePresent(updateBikeRequest.getCarModel()) && !updateBikeRequest.getCarModel().equals(bike.getCarModelCode())) {
-                CommonCodeBikes change = bikeModelsRepository.findByCode(updateBikeRequest.getCarModel());
+                CommonBikes change = bikeModelsRepository.findByCode(updateBikeRequest.getCarModel());
                 String exModel = bike.getCarModel().getBikeType().equals(BikeTypes.GAS) ? bike.getCarModel().getModel() + " / " + bike.getCarModel().getVolume() + " cc" : bike.getCarModel().getModel() + " / " + bike.getCarModel().getVolume() + " KW";
                 String nowModel = change.getBikeType().equals(BikeTypes.GAS) ? change.getModel() + " / " + change.getVolume() + " cc" : change.getModel() + " / " + change.getVolume() + " KW";
                 stringList.add("바이크 차량종류를 <>" + exModel + "</>에서 <>" + nowModel + "</>로 변경하였습니다.");
@@ -397,9 +393,9 @@ public class BikesService extends SessService {
     }
 
     public BikeSessionRequest fetchBikeVolumes(BikeSessionRequest request) {
-        List<CommonCodeBikes> commonCodeBikes = bikeModelsRepository.findAll();
+        List<CommonBikes> commonCodeBikes = bikeModelsRepository.findAll();
         List<String> volumeList = new ArrayList<>();
-        for (CommonCodeBikes ccb : commonCodeBikes) {
+        for (CommonBikes ccb : commonCodeBikes) {
             if (ccb.getBikeType().equals(BikeTypes.GAS))
                 volumeList.add(ccb.getVolume() + " cc");
             else
@@ -411,7 +407,7 @@ public class BikesService extends SessService {
     }
 
     public BikeSessionRequest fetchBikeModels(BikeSessionRequest request) {
-        List<CommonCodeBikes> commonCodeBikes = bikeModelsRepository.findAll();
+        List<CommonBikes> commonCodeBikes = bikeModelsRepository.findAll();
         request.setResponse(commonCodeBikes);
         return request;
     }
@@ -419,9 +415,9 @@ public class BikesService extends SessService {
     public BikeSessionRequest fetchBikeModelsByVolume(BikeSessionRequest request) {
         Double volume = Double.parseDouble((String) request.getParam().get("volume"));
         Map response = new HashMap();
-        List<CommonCodeBikes> commonCodeBikes = bikeModelsRepository.findAllByVolume(volume);
+        List<CommonBikes> commonCodeBikes = bikeModelsRepository.findAllByVolume(volume);
         List<FetchBikeModelsResponse> fetchBikeModelsResponses = new ArrayList<>();
-        for (CommonCodeBikes model : commonCodeBikes) {
+        for (CommonBikes model : commonCodeBikes) {
             if (model.getDiscontinue())
                 continue;
             FetchBikeModelsResponse fetchBikeModelsResponse = new FetchBikeModelsResponse();
@@ -444,9 +440,9 @@ public class BikesService extends SessService {
         bikeModelDto.checkValidation();
         Manufacturers manufacturerById = bikeWorker.getManufacturerById(bikeModelDto.getManufacturerNo());
         bikeModelDto.setManufacturers(manufacturerById);
-        List<CommonCodeBikes> models = bikeModelsRepository.findAll();
+        List<CommonBikes> models = bikeModelsRepository.findAll();
         int lastNum = Integer.parseInt(models.get(models.size() - 1).getCode().split("-")[1]);
-        CommonCodeBikes codeBike = new CommonCodeBikes();
+        CommonBikes codeBike = new CommonBikes();
         codeBike.setCode("001-" + String.format("%03d", lastNum + 1));
         codeBike.updateData(bikeModelDto);
         bikeModelsRepository.save(codeBike);
@@ -460,7 +456,7 @@ public class BikesService extends SessService {
         bikeModelDto.checkValidation();
         Manufacturers manufacturerById = bikeWorker.getManufacturerById(bikeModelDto.getManufacturerNo());
         bikeModelDto.setManufacturers(manufacturerById);
-        CommonCodeBikes codeBike = bikeModelsRepository.findByCode(bikeModelDto.getCode());
+        CommonBikes codeBike = bikeModelsRepository.findByCode(bikeModelDto.getCode());
         codeBike.updateData(bikeModelDto);
         bikeModelsRepository.save(codeBike);
         return request;
@@ -651,7 +647,7 @@ public class BikesService extends SessService {
             Bikes bikes = new Bikes();
             String bikeId = autoKey.makeGetKey("bike");
             bikes.setBikeId(bikeId);
-            CommonCodeBikes model = null;
+            CommonBikes model = null;
             ModelTransaction modelTransaction = new ModelTransaction();
             boolean isBreak = false;
             for (colIdx = 0; colIdx < row.getPhysicalNumberOfCells(); colIdx++) {
@@ -670,7 +666,7 @@ public class BikesService extends SessService {
                     else
                         bikes.setCarNum(cell.toString());
                 }else if(colIdx == type){
-                    CommonCodeBikes byModel;
+                    CommonBikes byModel;
                     if(cell.toString().equals("VF100")){
                         byModel = bikeModelsRepository.findByModel("VF100P");
                     }else if(cell.toString().equals("파트너100")){

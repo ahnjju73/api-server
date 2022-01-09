@@ -1,6 +1,6 @@
 package helmet.bikelab.apiserver.workers;
 
-import helmet.bikelab.apiserver.domain.CommonCodeBikes;
+import helmet.bikelab.apiserver.domain.CommonBikes;
 import helmet.bikelab.apiserver.domain.Manufacturers;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.bike.Parts;
@@ -38,8 +38,8 @@ public class BikeWorker extends Workspace {
         return byManufacturerNo;
     }
 
-    public CommonCodeBikes getCommonCodeBikesById(String code){
-        CommonCodeBikes byCode = bikeModelsRepository.findByCode(code);
+    public CommonBikes getCommonCodeBikesById(String code){
+        CommonBikes byCode = bikeModelsRepository.findByCode(code);
         if(!bePresent(byCode)) withException("501-001");
         return byCode;
     }

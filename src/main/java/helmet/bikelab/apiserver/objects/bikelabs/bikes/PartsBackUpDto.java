@@ -2,7 +2,7 @@ package helmet.bikelab.apiserver.objects.bikelabs.bikes;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import helmet.bikelab.apiserver.domain.CommonCodeBikes;
+import helmet.bikelab.apiserver.domain.CommonBikes;
 import helmet.bikelab.apiserver.domain.bike.PartsCodes;
 import helmet.bikelab.apiserver.domain.types.UnitTypes;
 import helmet.bikelab.apiserver.domain.types.YesNoTypes;
@@ -25,7 +25,7 @@ public class PartsBackUpDto {
     private Double workingHours;
     private UnitTypes units = UnitTypes.EA;
     private String bikeModelCode;
-    private CommonCodeBikes bikeModel;
+    private CommonBikes bikeModel;
     private LocalDateTime updatedAt = LocalDateTime.now();
     private String isFreeSupportCode;
     private YesNoTypes isFreeSupport;

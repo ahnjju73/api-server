@@ -3,7 +3,7 @@ package helmet.bikelab.apiserver.domain.bike;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import helmet.bikelab.apiserver.domain.CommonCodeBikes;
+import helmet.bikelab.apiserver.domain.CommonBikes;
 import helmet.bikelab.apiserver.domain.embeds.ModelTransaction;
 import helmet.bikelab.apiserver.domain.lease.Leases;
 import helmet.bikelab.apiserver.domain.riders.Riders;
@@ -43,7 +43,7 @@ public class Bikes extends OriginObject {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "car_model", insertable = false, updatable = false)
-    private CommonCodeBikes carModel;
+    private CommonBikes carModel;
 
     @Column(name = "years")
     private Integer years;
