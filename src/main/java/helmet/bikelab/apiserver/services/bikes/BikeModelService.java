@@ -1,12 +1,14 @@
 package helmet.bikelab.apiserver.services.bikes;
 
 import helmet.bikelab.apiserver.domain.CommonBikes;
+import helmet.bikelab.apiserver.domain.CommonWorking;
 import helmet.bikelab.apiserver.domain.Manufacturers;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.bikelabs.bikes.BikeModelByIdRequest;
 import helmet.bikelab.apiserver.objects.requests.NewCarModelRequest;
 import helmet.bikelab.apiserver.repositories.BikeModelsRepository;
+import helmet.bikelab.apiserver.repositories.CommonWorkingRepository;
 import helmet.bikelab.apiserver.repositories.ManufacturersRepository;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.utils.AutoKey;
@@ -26,6 +28,8 @@ public class BikeModelService extends SessService {
     private final ManufacturersRepository manufacturersRepository;
     private final BikeModelsRepository bikeModelsRepository;
     private final AutoKey autoKey;
+    private final CommonWorkingRepository commonWorkingRepository;
+
     @Transactional
     public BikeSessionRequest updateManuf(BikeSessionRequest request){
         Map param = request.getParam();

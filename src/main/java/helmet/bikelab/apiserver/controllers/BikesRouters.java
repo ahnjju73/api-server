@@ -78,6 +78,7 @@ public class BikesRouters {
                 .andRoute(GET("/commons/parts-codes"), partsHandler::fetchPartsCodeList)
                 .andRoute(POST("/commons/parts-codes"), partsHandler::doSavePartsCode)
                 .andRoute(PUT("/commons/parts-codes"), partsHandler::updatePartsCode)
+                .andRoute(GET("/commons/working-price"), partsHandler::fetchCommonWorkingPriceList)
                 ;
     }
 

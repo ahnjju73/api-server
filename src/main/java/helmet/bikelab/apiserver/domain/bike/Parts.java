@@ -41,9 +41,6 @@ public class Parts {
     @Column(name = "parts_prices")
     private Integer partsPrices;
 
-    @Column(name = "working_prices")
-    private Integer workingPrices;
-
     @Column(name = "working_hours")
     private Double workingHours;
 

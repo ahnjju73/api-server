@@ -175,4 +175,13 @@ public class BikePartsHandlers {
                         .map(partsService::returnData), Map.class);
     }
 
+    public Mono<ServerResponse> fetchCommonWorkingPriceList(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> partsService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(partsService::checkBikeSession)
+                        .map(partsService::fetchCommonWorkingPriceList)
+                        .map(partsService::returnData), List.class);
+    }
+
 }
