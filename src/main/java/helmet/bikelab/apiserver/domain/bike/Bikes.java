@@ -82,7 +82,7 @@ public class Bikes extends OriginObject {
     @Convert(converter = PayerTypesConverter.class)
     private PayerTypes payerType = PayerTypes.COMPANY;
 
-    @Column(name = "payer_types", columnDefinition = "ENUM", nullable = false)
+    @Column(name = "payer_types", columnDefinition = "ENUM", nullable = false, insertable = false, updatable = false)
     private String payerTypeCode;
 
     @Embedded
