@@ -8,7 +8,9 @@ import helmet.bikelab.apiserver.domain.embeds.ModelTransaction;
 import helmet.bikelab.apiserver.domain.lease.Leases;
 import helmet.bikelab.apiserver.domain.riders.Riders;
 import helmet.bikelab.apiserver.domain.types.BikeRiderStatusTypes;
+import helmet.bikelab.apiserver.domain.types.PayerTypes;
 import helmet.bikelab.apiserver.domain.types.converters.BikeRiderStatusTypesConverter;
+import helmet.bikelab.apiserver.domain.types.converters.PayerTypesConverter;
 import helmet.bikelab.apiserver.services.internal.OriginObject;
 import lombok.*;
 
@@ -69,6 +71,19 @@ public class Bikes extends OriginObject {
 
     @Column(name = "usable")
     private Boolean usable = true;
+
+    @Column(name = "is_bm", columnDefinition = "TINYINT(1)")
+    private Boolean isBikemaster = true;
+
+    @Column(name = "is_mt", columnDefinition = "TINYINT(1)")
+    private Boolean isMt = false;
+
+    @Column(name = "payer_types", columnDefinition = "ENUM", nullable = false)
+    @Convert(converter = PayerTypesConverter.class)
+    private PayerTypes payerType = PayerTypes.COMPANY;
+
+    @Column(name = "payer_types", columnDefinition = "ENUM", nullable = false)
+    private String payerTypeCode;
 
     @Embedded
     private ModelTransaction transaction = new ModelTransaction();
