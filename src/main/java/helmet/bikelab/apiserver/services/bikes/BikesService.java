@@ -197,6 +197,9 @@ public class BikesService extends SessService {
         fetchBikeDetailResponse.setRegisterDt(bike.getRegisterDate());
         fetchBikeDetailResponse.setTransaction(bike.getTransaction());
         fetchBikeDetailResponse.setDescription(bike.getDescription());
+        fetchBikeDetailResponse.setIsBikemaster(bike.getIsBikemaster());
+        fetchBikeDetailResponse.setIsMt(bike.getIsMt());
+        fetchBikeDetailResponse.setPayerTypeCode(bike.getPayerTypeCode());
         if (leases != null) {
             ClientDto client = new ClientDto();
             client.setClientName(clients.getClientInfo().getName());
