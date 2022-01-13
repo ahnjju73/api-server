@@ -235,6 +235,11 @@ public class BikesService extends SessService {
         bike.setColor(addBikeRequest.getColor());
         bike.setReceiveDate(addBikeRequest.getReceiveDt());
         bike.setDescription(addBikeRequest.getDescription());
+
+        bike.setPayerType(addBikeRequest.getPayerType());
+        bike.setIsBikemaster(addBikeRequest.getIsBikemaster());
+        bike.setIsMt(addBikeRequest.getIsMt());
+
         ModelTransaction modelTransaction = new ModelTransaction();
         modelTransaction.setRegNum(addBikeRequest.getRegNum());
         modelTransaction.setPrice(addBikeRequest.getPrice());

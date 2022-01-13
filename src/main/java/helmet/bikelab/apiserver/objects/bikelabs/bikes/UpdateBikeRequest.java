@@ -2,6 +2,7 @@ package helmet.bikelab.apiserver.objects.bikelabs.bikes;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import helmet.bikelab.apiserver.domain.types.PayerTypes;
 import helmet.bikelab.apiserver.services.internal.OriginObject;
 import lombok.Getter;
 import lombok.Setter;
@@ -26,6 +27,16 @@ public class UpdateBikeRequest extends OriginObject {
     private LocalDateTime registerDt;
     private String description;
 
+    private Boolean isBikemaster;
+    private Boolean isMt;
+    private String payerTypeCode;
+    private PayerTypes payerType;
+
+    public void setPayerTypeCode(String payerTypeCode) {
+        this.payerTypeCode = payerTypeCode;
+        this.payerType = PayerTypes.getPayerTypes(payerTypeCode);
+    }
+
     public void setReceiveDt(String receiveDt) {
         try {
             this.receiveDt = LocalDateTime.parse(receiveDt + "T00:00:00");
@@ -41,9 +52,9 @@ public class UpdateBikeRequest extends OriginObject {
     public void checkValidation(){
         if(!bePresent(this.vimNumber)) withException("500-002");
         if(!bePresent(this.carModel)) withException("500-004");
-        if(!bePresent(this.color)) withException("500-006");
-        if(!bePresent(this.receiveDt)) withException("500-007");
-        if(!bePresent(this.years)) withException("500-008");
+//        if(!bePresent(this.color)) withException("500-006");
+//        if(!bePresent(this.receiveDt)) withException("500-007");
+//        if(!bePresent(this.years)) withException("500-008");
     }
 
 }
