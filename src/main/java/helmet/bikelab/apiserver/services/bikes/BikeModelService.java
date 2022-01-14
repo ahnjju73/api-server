@@ -4,7 +4,10 @@ import helmet.bikelab.apiserver.domain.CommonBikes;
 import helmet.bikelab.apiserver.domain.CommonWorking;
 import helmet.bikelab.apiserver.domain.Manufacturers;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
+import helmet.bikelab.apiserver.domain.types.BikeTypes;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
+import helmet.bikelab.apiserver.objects.BikeWorkingDto;
+import helmet.bikelab.apiserver.objects.UpdateBikeWorkingRequest;
 import helmet.bikelab.apiserver.objects.bikelabs.bikes.BikeModelByIdRequest;
 import helmet.bikelab.apiserver.objects.requests.NewCarModelRequest;
 import helmet.bikelab.apiserver.repositories.BikeModelsRepository;
@@ -17,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -116,4 +120,37 @@ public class BikeModelService extends SessService {
         return request;
     }
 
+    public BikeSessionRequest fetchWorkingByModel(BikeSessionRequest request){
+        Map response = new HashMap();
+        response.put("gas", commonWorkingRepository.findByBikeTypeOrderByVolumeAsc(BikeTypes.GAS));
+        response.put("electronic", commonWorkingRepository.findByBikeTypeOrderByVolumeAsc(BikeTypes.ELECTRONIC));
+        request.setResponse(response);
+        return request;
+    }
+
+    @Transactional
+    public BikeSessionRequest updateWorkingByModel(BikeSessionRequest request) {
+        commonWorkingRepository.deleteAll();
+        Map param = request.getParam();
+        UpdateBikeWorkingRequest updateBikeWorkingRequest = map(param, UpdateBikeWorkingRequest.class);
+        List<BikeWorkingDto> gas = updateBikeWorkingRequest.getGas();
+        List<BikeWorkingDto> electronic = updateBikeWorkingRequest.getElectronic();
+        for(BikeWorkingDto bw : gas){
+            CommonWorking commonWorking = new CommonWorking();
+            commonWorking.setWorkingPrice(bw.getWorkingPrice());
+            commonWorking.setVolume(bw.getVolume());
+            commonWorking.setBikeType(BikeTypes.GAS);
+            commonWorking.setBikeTypeCode(BikeTypes.GAS.getType());
+            commonWorkingRepository.save(commonWorking);
+        }
+        for(BikeWorkingDto bw : electronic){
+            CommonWorking commonWorking = new CommonWorking();
+            commonWorking.setWorkingPrice(bw.getWorkingPrice());
+            commonWorking.setVolume(bw.getVolume());
+            commonWorking.setBikeType(BikeTypes.ELECTRONIC);
+            commonWorking.setBikeTypeCode(BikeTypes.ELECTRONIC.getType());
+            commonWorkingRepository.save(commonWorking);
+        }
+        return request;
+    }
 }
