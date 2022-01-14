@@ -252,10 +252,7 @@
                ci.name as client_name
           from (select *
                   from bikes b
-                 where bike_no in (select bike_no
-                                     from leases
-                                    where status = '550-003')
-                  and bike_id != (select val
+                 where bike_id != (select val
                                     from system_parameters
                                    where parameter_no = 0)
                   and reg_num is not null
