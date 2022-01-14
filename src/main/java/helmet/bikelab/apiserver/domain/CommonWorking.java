@@ -25,10 +25,10 @@ public class CommonWorking {
     private Double volume;
 
     @Id
-    @Column(name = "bike_type", columnDefinition = "ENUM", insertable = false, updatable = false)
+    @Column(name = "bike_type", columnDefinition = "ENUM")
     private String bikeTypeCode;
 
-    @Column(name = "bike_type", columnDefinition = "ENUM")
+    @Column(name = "bike_type", columnDefinition = "ENUM", insertable = false, updatable = false)
     @Convert(converter = BikeTypesConverter.class)
     private BikeTypes bikeType = BikeTypes.GAS;
 

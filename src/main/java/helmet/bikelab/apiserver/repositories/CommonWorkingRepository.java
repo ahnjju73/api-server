@@ -11,5 +11,6 @@ import java.util.List;
 public interface CommonWorkingRepository extends JpaRepository<CommonWorking, CommonWorkingPK> {
     List<CommonWorking> findByBikeTypeOrderByVolumeAsc(BikeTypes bikeType);
     List<CommonWorking> findByBikeType(BikeTypes bikeTypes);
+    CommonWorking findByBikeTypeAndVolume(BikeTypes bikeTypes, Double volume);
 
 }
