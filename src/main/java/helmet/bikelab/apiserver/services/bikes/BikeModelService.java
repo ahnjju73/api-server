@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 @RequiredArgsConstructor
 @Service
@@ -136,6 +137,11 @@ public class BikeModelService extends SessService {
         List<BikeWorkingDto> gas = updateBikeWorkingRequest.getGas();
         List<BikeWorkingDto> electronic = updateBikeWorkingRequest.getElectronic();
         for(BikeWorkingDto bw : gas){
+            long count = gas.stream().filter(o -> o.getVolume().equals(bw.getVolume())).count();
+            if(count > 1){
+                writeMessage(bw.getVolume() + " CC가 중복됩니다. 확인 후 다시 시도해 주세요.");
+
+            }
             CommonWorking commonWorking = new CommonWorking();
             commonWorking.setWorkingPrice(bw.getWorkingPrice());
             commonWorking.setVolume(bw.getVolume());
@@ -144,6 +150,13 @@ public class BikeModelService extends SessService {
             commonWorkingRepository.save(commonWorking);
         }
         for(BikeWorkingDto bw : electronic){
+            long count = Stream.of(electronic)
+                    .filter(e -> e.equals(bw))
+                    .count();
+            if(count > 1){
+                writeMessage(bw.getVolume() + " KW가 중복됩니다. 확인 후 다시 시도해 주세요.");
+
+            }
             CommonWorking commonWorking = new CommonWorking();
             commonWorking.setWorkingPrice(bw.getWorkingPrice());
             commonWorking.setVolume(bw.getVolume());
