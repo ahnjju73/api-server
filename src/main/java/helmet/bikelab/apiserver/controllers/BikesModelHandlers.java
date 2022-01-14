@@ -88,4 +88,23 @@ public class BikesModelHandlers {
                         .map(bikeModelService::returnData), CommonBikes.class);
     }
 
+    public Mono<ServerResponse> fetchWorkingPriceByModel(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> bikeModelService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(bikeModelService::checkBikeSession)
+                        .map(bikeModelService::fetchWorkingByModel)
+                        .map(bikeModelService::returnData), Map.class);
+    }
+
+    public Mono<ServerResponse> updateWorkingPriceByModel(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> bikeModelService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(bikeModelService::checkBikeSession)
+                        .map(bikeModelService::updateWorkingByModel)
+                        .map(bikeModelService::returnData), Map.class);
+    }
+
 }

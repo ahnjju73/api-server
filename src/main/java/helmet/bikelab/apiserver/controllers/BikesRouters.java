@@ -90,4 +90,12 @@ public class BikesRouters {
 
     }
 
+    @Bean
+    public RouterFunction<ServerResponse> bikeModelWorkingRouter(BikesModelHandlers handler){
+        return RouterFunctions
+                .route(GET("/bike-working"), handler::fetchWorkingPriceByModel)
+                .andRoute(PUT("/bike-working"), handler::updateWorkingPriceByModel)
+                ;
+    }
+
 }
