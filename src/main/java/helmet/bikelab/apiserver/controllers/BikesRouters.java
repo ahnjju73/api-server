@@ -50,7 +50,12 @@ public class BikesRouters {
     @Bean
     public RouterFunction<ServerResponse> bikeModelRouters(){
         return RouterFunctions
-                .route(GET("/manufacturers"), bikesModelHandlers::fetchModelManufacturer)
+                .route(GET("/car-models/by-manufacturers"), bikesModelHandlers::fetchCarModelByManufacturer)
+                .andRoute(POST("/car-models/by-manufacturers"), bikesModelHandlers::doSaveCarModel)
+                .andRoute(PUT("/car-models/by-manufacturers"), bikesModelHandlers::updateCarModel)
+                .andRoute(GET("/manufacturers"), bikesModelHandlers::fetchModelManufacturer)
+                .andRoute(POST("/manufacturers"), bikesModelHandlers::doSaveManuf)
+                .andRoute(PUT("/manufacturers"), bikesModelHandlers::updateManuf)
                 ;
     }
 
@@ -67,6 +72,13 @@ public class BikesRouters {
                 .andRoute(POST("/commons/bikes/images"), partsHandler::addNewPartsImage)
                 .andRoute(DELETE("/commons/bikes/images"), partsHandler::deletePartsImage)
                 .andRoute(GET("/commons/bikes/images"), partsHandler::fetchPartImageByPartsId)
+                .andRoute(GET("/commons/parts-types"), partsHandler::fetchPartsTypeList)
+                .andRoute(POST("/commons/parts-types"), partsHandler::doSavePartType)
+                .andRoute(PUT("/commons/parts-types"), partsHandler::updatePartType)
+                .andRoute(GET("/commons/parts-codes"), partsHandler::fetchPartsCodeList)
+                .andRoute(POST("/commons/parts-codes"), partsHandler::doSavePartsCode)
+                .andRoute(PUT("/commons/parts-codes"), partsHandler::updatePartsCode)
+                .andRoute(GET("/commons/working-price"), partsHandler::fetchCommonWorkingPriceList)
                 ;
     }
 
@@ -76,6 +88,14 @@ public class BikesRouters {
         return RouterFunctions
                 .route(PUT("/upload-bike-riders"), handler::uploadFile);
 
+    }
+
+    @Bean
+    public RouterFunction<ServerResponse> bikeModelWorkingRouter(BikesModelHandlers handler){
+        return RouterFunctions
+                .route(GET("/bike-working"), handler::fetchWorkingPriceByModel)
+                .andRoute(PUT("/bike-working"), handler::updateWorkingPriceByModel)
+                ;
     }
 
 }

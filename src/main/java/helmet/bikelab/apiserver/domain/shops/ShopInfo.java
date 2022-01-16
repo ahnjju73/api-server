@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.time.LocalTime;
 
 @Entity
 @Getter
@@ -41,10 +42,10 @@ public class ShopInfo {
     @Column(name = "manager_name", length = 45)
     private String managerName;
 
-    @Column(name = "start_time", length = 21)
-    private String startTime;
+    @Column(name = "start_time", columnDefinition = "TIME")
+    private LocalTime startTime;
 
-    @Column(name = "end_time", length = 21)
-    private String endTime;
+    @Column(name = "end_time", columnDefinition = "TIME")
+    private LocalTime endTime;
 
 }

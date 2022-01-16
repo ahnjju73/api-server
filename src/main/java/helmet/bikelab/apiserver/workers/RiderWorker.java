@@ -1,11 +1,10 @@
 package helmet.bikelab.apiserver.workers;
 
-import helmet.bikelab.apiserver.domain.CommonCodeBikes;
+import helmet.bikelab.apiserver.domain.CommonBikes;
 import helmet.bikelab.apiserver.domain.bike.BikeRidersBak;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.client.Clients;
-import helmet.bikelab.apiserver.domain.embeds.ModelTransaction;
 import helmet.bikelab.apiserver.domain.lease.*;
 import helmet.bikelab.apiserver.domain.riders.*;
 import helmet.bikelab.apiserver.domain.types.*;
@@ -174,7 +173,7 @@ public class RiderWorker extends SessService {
         if(riderDemandLeaseRepository.existsByRiderNo(rider.getRiderNo())){
             RiderDemandLease riderDemandLease = riderDemandLeaseRepository.findByRiderNo(rider.getRiderNo());
             Leases lease = riderDemandLease.getLease();
-            CommonCodeBikes carModel = riderDemandLease.getCarModel();
+            CommonBikes carModel = riderDemandLease.getCarModel();
             RiderDemandLeasesDto riderDemandLeasesDto = new RiderDemandLeasesDto();
             riderDemandLeasesDto.setRiderId(rider.getRiderId());
             riderDemandLeasesDto.setLeaseId(lease == null ? null : lease.getLeaseId());
@@ -317,7 +316,7 @@ public class RiderWorker extends SessService {
         List<RiderBikeDto> riderBikes = new ArrayList<>();
         for(BikeRidersBak bRider : bikes){
             Bikes bike = bRider.getBike();
-            CommonCodeBikes carModel = bike.getCarModel();
+            CommonBikes carModel = bike.getCarModel();
             RiderBikeDto rBike = new RiderBikeDto();
             rBike.setBikeNo(bike.getBikeNo());
             rBike.setBikeId(bike.getBikeId());

@@ -31,4 +31,8 @@ public class FetchBikeDetailResponse extends OriginObject {
     private InsuranceDto insuranceInfo;
     private String description;
     private ModelTransaction transaction = new ModelTransaction();
+    private Boolean isBikemaster;
+    private Boolean isMt;
+    private String payerTypeCode;
+
 }

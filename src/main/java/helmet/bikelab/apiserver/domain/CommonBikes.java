@@ -23,7 +23,7 @@ import java.time.LocalDateTime;
 @Table(name = "com_comm_bikes")
 @NoArgsConstructor
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
-public class CommonCodeBikes {
+public class CommonBikes {
     @Id
     @Column(name = "comm_cd", nullable = false, length = 21)
     private String code;
@@ -48,7 +48,6 @@ public class CommonCodeBikes {
     @Column(name = "bike_type", columnDefinition = "ENUM", insertable = false, updatable = false)
     private String bikeTypeCode;
 
-    @JsonIgnore
     @Column(name = "discontinue")
     private Boolean discontinue = false;
 

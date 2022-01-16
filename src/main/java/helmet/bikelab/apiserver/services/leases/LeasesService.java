@@ -1,6 +1,6 @@
 package helmet.bikelab.apiserver.services.leases;
 
-import helmet.bikelab.apiserver.domain.CommonCodeBikes;
+import helmet.bikelab.apiserver.domain.CommonBikes;
 import helmet.bikelab.apiserver.domain.bike.BikeRidersBak;
 import helmet.bikelab.apiserver.domain.demands.DemandLeases;
 import helmet.bikelab.apiserver.domain.embeds.ModelTransaction;
@@ -208,7 +208,7 @@ public class LeasesService extends SessService {
 
         if(lease.getLeaseStopStatus() != LeaseStopStatusTypes.CONTINUE){
             Bikes bakBikes = bikesRepository.findById(lease.getBakBikeNo()).get();
-            CommonCodeBikes carModel = bakBikes.getCarModel();
+            CommonBikes carModel = bakBikes.getCarModel();
             bakBikes.getCarModel();
             bakBike = new BikeDto();
             bakBike.setBikeId(bakBikes.getBikeId());

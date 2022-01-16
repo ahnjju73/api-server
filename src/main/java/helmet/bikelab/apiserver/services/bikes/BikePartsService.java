@@ -3,19 +3,19 @@ package helmet.bikelab.apiserver.services.bikes;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CopyObjectRequest;
-import helmet.bikelab.apiserver.domain.CommonCodeBikes;
+import helmet.bikelab.apiserver.domain.CommonBikes;
+import helmet.bikelab.apiserver.domain.CommonWorking;
 import helmet.bikelab.apiserver.domain.bike.Parts;
 import helmet.bikelab.apiserver.domain.bike.PartsImages;
 import helmet.bikelab.apiserver.domain.bike.PartsTypes;
+import helmet.bikelab.apiserver.domain.types.BikeTypes;
 import helmet.bikelab.apiserver.domain.types.MediaTypes;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.PresignedURLVo;
 import helmet.bikelab.apiserver.objects.bikelabs.bikes.*;
 import helmet.bikelab.apiserver.domain.bike.PartsCodes;
-import helmet.bikelab.apiserver.domain.types.UnitTypes;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
-import helmet.bikelab.apiserver.repositories.BikeModelsRepository;
-import helmet.bikelab.apiserver.repositories.PartsCodesRepository;
+import helmet.bikelab.apiserver.repositories.CommonWorkingRepository;
 import helmet.bikelab.apiserver.repositories.PartsRepository;
 import helmet.bikelab.apiserver.repositories.PartsTypesRepository;
 import helmet.bikelab.apiserver.services.internal.SessService;
@@ -41,6 +41,15 @@ public class BikePartsService extends SessService {
     private final PartsRepository partsRepository;
     private final BikeWorker bikeWorker;
     private final PartsTypesRepository partsTypesRepository;
+    private final CommonWorkingRepository commonWorkingRepository;
+
+    public BikeSessionRequest fetchCommonWorkingPriceList(BikeSessionRequest request){
+        Map param = request.getParam();
+        BikeTypes bikeType = BikeTypes.getType((String)param.get("bike_type"));
+        List<CommonWorking> all = commonWorkingRepository.findByBikeType(bikeType);
+        request.setResponse(all);
+        return request;
+    }
 
     public BikeSessionRequest fetchPartImageByPartsId(BikeSessionRequest request){
         PartsByIdRequest partsByIdRequest = map(request.getParam(), PartsByIdRequest.class);
@@ -140,10 +149,10 @@ public class BikePartsService extends SessService {
         Boolean changed = false;
         PartsBackUpDto partsBackUpDto = map(partsByIdAndCarModel, PartsBackUpDto.class);
 
-        if(!partsUpdatedRequest.getIsFreeSupport().equals(partsByIdAndCarModel.getIsFreeSupport())){
-            partsByIdAndCarModel.setIsFreeSupport(partsUpdatedRequest.getIsFreeSupport());
-            changed = true;
-        }
+//        if(!partsUpdatedRequest.getIsFreeSupport().equals(partsByIdAndCarModel.getIsFreeSupport())){
+//            partsByIdAndCarModel.setIsFreeSupport(partsUpdatedRequest.getIsFreeSupport());
+//            changed = true;
+//        }
         if(!partsUpdatedRequest.getPartsId().equals(partsByIdAndCarModel.getPartsId())){
             partsByIdAndCarModel.setPartsId(partsUpdatedRequest.getPartsId());
             changed = true;
@@ -152,16 +161,8 @@ public class BikePartsService extends SessService {
             partsByIdAndCarModel.setPartsPrices(partsUpdatedRequest.getPartsPrices());
             changed = true;
         }
-        if(!partsUpdatedRequest.getWorkingPrices().equals(partsByIdAndCarModel.getWorkingPrices())){
-            partsByIdAndCarModel.setWorkingPrices(partsUpdatedRequest.getWorkingPrices());
-            changed = true;
-        }
         if(!partsUpdatedRequest.getWorkingHours().equals(partsByIdAndCarModel.getWorkingHours())){
             partsByIdAndCarModel.setWorkingHours(partsUpdatedRequest.getWorkingHours());
-            changed = true;
-        }
-        if(!partsUpdatedRequest.getUnits().equals(partsByIdAndCarModel.getUnits())){
-            partsByIdAndCarModel.setUnits(partsUpdatedRequest.getUnits());
             changed = true;
         }
 
@@ -181,14 +182,13 @@ public class BikePartsService extends SessService {
         PartsNewRequest bikePartsDto = map(param, PartsNewRequest.class);
         bikePartsDto.checkValidation();
         Parts parts = new Parts();
-        CommonCodeBikes model = bikeWorker.getCommonCodeBikesById(bikePartsDto.getCarModel());
+        CommonBikes model = bikeWorker.getCommonCodeBikesById(bikePartsDto.getCarModel());
         PartsCodes partsCodes = bikeWorker.getPartsCodeById(bikePartsDto.getPartsCodeNo());
         parts.setPartsId(bikePartsDto.getPartsId());
         parts.setBikeModelCode(model.getCode());
         parts.setPartsCodeNo(partsCodes.getPartsCodeNo());
         parts.setPartsPrices(bikePartsDto.getPartsPrices());
         parts.setWorkingHours(bikePartsDto.getWorkingHours());
-        parts.setWorkingPrices(bikePartsDto.getWorkingPrices());
         parts.setUnits(bikePartsDto.getUnits());
         partsRepository.save(parts);
         return request;

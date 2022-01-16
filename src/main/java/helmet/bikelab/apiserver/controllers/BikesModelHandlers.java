@@ -1,12 +1,9 @@
 package helmet.bikelab.apiserver.controllers;
 
-import helmet.bikelab.apiserver.domain.CommonCodeBikes;
+import helmet.bikelab.apiserver.domain.CommonBikes;
+import helmet.bikelab.apiserver.domain.Manufacturers;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
-import helmet.bikelab.apiserver.objects.PresignedURLVo;
-import helmet.bikelab.apiserver.objects.bikelabs.bikes.BikeModelByIdRequest;
-import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.services.bikes.BikeModelService;
-import helmet.bikelab.apiserver.services.bikes.BikesService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
@@ -23,12 +20,61 @@ public class BikesModelHandlers {
 
     private final BikeModelService bikeModelService;
 
+    public Mono<ServerResponse> doSaveCarModel(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> bikeModelService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(bikeModelService::checkBikeSession)
+                        .map(bikeModelService::doSaveCarModel)
+                        .map(bikeModelService::returnData), CommonBikes.class);
+    }
+
+    public Mono<ServerResponse> updateCarModel(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> bikeModelService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(bikeModelService::checkBikeSession)
+                        .map(bikeModelService::updateCarModel)
+                        .map(bikeModelService::returnData), CommonBikes.class);
+    }
+
+    public Mono<ServerResponse> doSaveManuf(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> bikeModelService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(bikeModelService::checkBikeSession)
+                        .map(bikeModelService::doSaveManuf)
+                        .map(bikeModelService::returnData), Manufacturers.class);
+    }
+
+    public Mono<ServerResponse> updateManuf(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> bikeModelService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(bikeModelService::checkBikeSession)
+                        .map(bikeModelService::updateManuf)
+                        .map(bikeModelService::returnData), Manufacturers.class);
+    }
+
     public Mono<ServerResponse> fetchModelManufacturer(ServerRequest request) {
         return ServerResponse.ok().body(
                 Mono.fromSupplier(() -> bikeModelService.makeSessionRequest(request, BikeSessionRequest.class))
                         .subscribeOn(Schedulers.elastic())
                         .map(bikeModelService::checkBikeSession)
-                        .map(bikeModelService::fetchModelManufacturer)
+                        .map(bikeModelService::fetchManufacturerCodes)
+                        .map(bikeModelService::returnData), List.class);
+    }
+
+    public Mono<ServerResponse> fetchCarModelByManufacturer(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> bikeModelService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(bikeModelService::checkBikeSession)
+                        .map(bikeModelService::fetchCarModelByManufacturer)
                         .map(bikeModelService::returnData), List.class);
     }
 
@@ -39,7 +85,26 @@ public class BikesModelHandlers {
                         .map(req -> bikeModelService.getPathVariable(req, "code"))
                         .map(bikeModelService::checkBikeSession)
                         .map(bikeModelService::fetchModelManufacturerByCode)
-                        .map(bikeModelService::returnData), CommonCodeBikes.class);
+                        .map(bikeModelService::returnData), CommonBikes.class);
+    }
+
+    public Mono<ServerResponse> fetchWorkingPriceByModel(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> bikeModelService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(bikeModelService::checkBikeSession)
+                        .map(bikeModelService::fetchWorkingByModel)
+                        .map(bikeModelService::returnData), Map.class);
+    }
+
+    public Mono<ServerResponse> updateWorkingPriceByModel(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> bikeModelService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(bikeModelService::checkBikeSession)
+                        .map(bikeModelService::updateWorkingByModel)
+                        .map(bikeModelService::returnData), Map.class);
     }
 
 }

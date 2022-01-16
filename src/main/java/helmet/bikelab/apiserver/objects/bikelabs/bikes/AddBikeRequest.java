@@ -2,6 +2,7 @@ package helmet.bikelab.apiserver.objects.bikelabs.bikes;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import helmet.bikelab.apiserver.domain.types.PayerTypes;
 import helmet.bikelab.apiserver.services.internal.OriginObject;
 import lombok.Getter;
 import lombok.Setter;
@@ -23,6 +24,15 @@ public class AddBikeRequest extends OriginObject {
     private String companyName;
     private Integer price;
     private String description;
+    private Boolean isBikemaster;
+    private Boolean isMt;
+    private String payerTypeCode;
+    private PayerTypes payerType;
+
+    public void setPayerTypeCode(String payerTypeCode) {
+        this.payerTypeCode = payerTypeCode;
+        this.payerType = PayerTypes.getPayerTypes(payerTypeCode);
+    }
 
     public void setReceiveDt(String receiveDt) {
         this.receiveDt = LocalDateTime.parse(receiveDt);

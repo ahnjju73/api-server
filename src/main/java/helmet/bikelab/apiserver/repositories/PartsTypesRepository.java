@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface PartsTypesRepository extends JpaRepository<PartsTypes, Integer> {
     List<PartsTypes> findAllBy();
+    PartsTypes findTop1ByOrderByOrderNoDesc();
+    PartsTypes findByPartsTypeNo(Integer partsTypeNo);
 }

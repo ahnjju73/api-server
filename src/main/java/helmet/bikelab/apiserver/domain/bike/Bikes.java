@@ -3,12 +3,14 @@ package helmet.bikelab.apiserver.domain.bike;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import helmet.bikelab.apiserver.domain.CommonCodeBikes;
+import helmet.bikelab.apiserver.domain.CommonBikes;
 import helmet.bikelab.apiserver.domain.embeds.ModelTransaction;
 import helmet.bikelab.apiserver.domain.lease.Leases;
 import helmet.bikelab.apiserver.domain.riders.Riders;
 import helmet.bikelab.apiserver.domain.types.BikeRiderStatusTypes;
+import helmet.bikelab.apiserver.domain.types.PayerTypes;
 import helmet.bikelab.apiserver.domain.types.converters.BikeRiderStatusTypesConverter;
+import helmet.bikelab.apiserver.domain.types.converters.PayerTypesConverter;
 import helmet.bikelab.apiserver.services.internal.OriginObject;
 import lombok.*;
 
@@ -43,7 +45,7 @@ public class Bikes extends OriginObject {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "car_model", insertable = false, updatable = false)
-    private CommonCodeBikes carModel;
+    private CommonBikes carModel;
 
     @Column(name = "years")
     private Integer years;
@@ -69,6 +71,19 @@ public class Bikes extends OriginObject {
 
     @Column(name = "usable")
     private Boolean usable = true;
+
+    @Column(name = "is_bm", columnDefinition = "TINYINT(1)")
+    private Boolean isBikemaster = true;
+
+    @Column(name = "is_mt", columnDefinition = "TINYINT(1)")
+    private Boolean isMt = false;
+
+    @Column(name = "payer_types", columnDefinition = "ENUM", nullable = false)
+    @Convert(converter = PayerTypesConverter.class)
+    private PayerTypes payerType = PayerTypes.COMPANY;
+
+    @Column(name = "payer_types", columnDefinition = "ENUM", nullable = false, insertable = false, updatable = false)
+    private String payerTypeCode;
 
     @Embedded
     private ModelTransaction transaction = new ModelTransaction();
@@ -133,6 +148,6 @@ public class Bikes extends OriginObject {
         this.setRiderEndAt(endAt);
         this.setRiderApprovalAt(LocalDateTime.now());
         this.setRiderRequestAt(LocalDateTime.now());
-        this.riderLeaseNo = leases.getLeaseNo();
+        if(bePresent(leases)) this.riderLeaseNo = leases.getLeaseNo();
     }
 }
