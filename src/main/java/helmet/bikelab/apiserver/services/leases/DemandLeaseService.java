@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import static helmet.bikelab.apiserver.domain.bikelab.BikeUserLog.addLog;
@@ -51,6 +52,7 @@ public class DemandLeaseService extends SessService {
     private final DemandLeasesRepository demandLeasesRepository;
     private final ExecutorService executorService;
     private final DemandLeaseSpecialTermsRepository demandLeaseSpecialTermsRepository;
+    private final InsurancesRepository insurancesRepository;
 
     public BikeSessionRequest fetchAttachmentsByDemandLeaseId(BikeSessionRequest request){
         DemandLeaseByIdRequest demandLeaseByIdRequest = map(request.getParam(), DemandLeaseByIdRequest.class);
@@ -123,13 +125,14 @@ public class DemandLeaseService extends SessService {
     public void createLeaseContractsFromDemandLeases(DemandLeases demandLeaseById, BikeUser sessionUser, Map param){
         String bikeId = (String)getItem("comm.common.getEmptyCar", param);
         Bikes bike = bikesRepository.findByBikeId(bikeId);
-        String insuranceNo = (String)getItem("comm.common.getDefaultInsurance", param);
+        String insuranceId = (String)getItem("comm.common.getDefaultInsurance", param);
+        Insurances insurance = insurancesRepository.findByInsuranceId(insuranceId);
         Integer cycleToLease = demandLeaseById.getAmounts();
         for(int size = 0; size < cycleToLease; size++){
             Leases lease = new Leases();
             String leaseId = autoKey.makeGetKey("lease");
             lease.setLeaseId(leaseId);
-            lease.setInsuranceNo(Integer.parseInt(insuranceNo));
+            lease.setInsuranceNo(insurance.getInsuranceNo());
             lease.setClientNo(demandLeaseById.getClientNo());
             lease.setBikeNo(bike.getBikeNo());
             lease.setType(demandLeaseById.getManagementType());
