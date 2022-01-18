@@ -257,9 +257,9 @@
                  where bike_id != (select val
                                     from system_parameters
                                    where parameter_no = 0)
-                  and reg_num is not null
-                  and price is not null
-                  and company_name is not null
+                  -- and reg_num is not null
+                  -- and price is not null
+                  -- and company_name is not null
                   and rider_no is null
                   <if test="search_name != null and search_name != '' and search_name != 'undefined'">
                   and (
@@ -281,10 +281,10 @@
                   </if>
                 order by bike_no desc limit 30) bm
                join com_comm_bikes commb on bm.car_model = commb.comm_cd
-               join leases ls on bm.bike_no = ls.bike_no
-               join lease_info li on ls.lease_no = li.lease_no
-               join clients c on ls.client_no = c.client_no
-               join client_info ci on c.client_no = ci.client_no
+               left outer join leases ls on bm.bike_no = ls.bike_no
+               left outer join lease_info li on ls.lease_no = li.lease_no
+               left outer join clients c on ls.client_no = c.client_no
+               left outer join client_info ci on c.client_no = ci.client_no
         order by bm.bike_no desc
     </select>
 

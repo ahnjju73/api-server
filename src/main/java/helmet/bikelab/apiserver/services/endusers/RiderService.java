@@ -142,21 +142,24 @@ public class RiderService extends SessService {
         Bikes bikeByRiderIdAndBikeId = bikesRepository.findByBikeId(riderBikeApproveRequest.getBikeId());
         bikeByRiderIdAndBikeId.isRidable();
         Riders riderById = riderWorker.getRiderById(riderBikeApproveRequest.getRiderId());
-        Leases leaseByBikeNo = leasesWorker.getLeaseByBikeNo(bikeByRiderIdAndBikeId.getBikeNo());
-        LeaseInfo leaseInfo = leaseByBikeNo.getLeaseInfo();
-        LocalDateTime startAt = leaseInfo.getStart().atStartOfDay();
-        LocalDateTime endAt = leaseInfo.getEndDate().atStartOfDay();
-        if(ContractTypes.MANAGEMENT.equals(leaseByBikeNo.getContractTypes())){
-            bikeByRiderIdAndBikeId.assignRider(riderById, startAt, endAt, leaseByBikeNo);
+        Leases leaseByBikeNo = leaseRepository.findByBikeNo(bikeByRiderIdAndBikeId.getBikeNo());
+        if(bePresent(leaseByBikeNo)){
+            LeaseInfo leaseInfo = leaseByBikeNo.getLeaseInfo();
+            LocalDateTime startAt = leaseInfo.getStart().atStartOfDay();
+            LocalDateTime endAt = leaseInfo.getEndDate().atStartOfDay();
+            if(ContractTypes.MANAGEMENT.equals(leaseByBikeNo.getContractTypes())){
+                bikeByRiderIdAndBikeId.assignRider(riderById, startAt, endAt, leaseByBikeNo);
+            }else {
+                if(riderBikeApproveRequest.getStartAt().compareTo(startAt) < 0) withException("511-001");
+                if(riderBikeApproveRequest.getStartAt().compareTo(endAt) > 0) withException("511-002");
+                if(riderBikeApproveRequest.getEndAt().compareTo(startAt) < 0) withException("511-003");
+                if(riderBikeApproveRequest.getEndAt().compareTo(endAt) > 0) withException("511-004");
+                bikeByRiderIdAndBikeId.assignRider(riderById, riderBikeApproveRequest.getStartAt(), riderBikeApproveRequest.getEndAt(), leaseByBikeNo);
+            }
         }else {
-            if(riderBikeApproveRequest.getStartAt().compareTo(startAt) < 0) withException("511-001");
-            if(riderBikeApproveRequest.getStartAt().compareTo(endAt) > 0) withException("511-002");
-            if(riderBikeApproveRequest.getEndAt().compareTo(startAt) < 0) withException("511-003");
-            if(riderBikeApproveRequest.getEndAt().compareTo(endAt) > 0) withException("511-004");
             bikeByRiderIdAndBikeId.assignRider(riderById, riderBikeApproveRequest.getStartAt(), riderBikeApproveRequest.getEndAt(), leaseByBikeNo);
         }
         bikesRepository.save(bikeByRiderIdAndBikeId);
-
         riderRepository.save(riderById);
 
         Activities activities = new Activities();
