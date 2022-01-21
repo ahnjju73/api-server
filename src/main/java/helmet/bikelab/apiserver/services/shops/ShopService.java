@@ -26,6 +26,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -106,8 +107,8 @@ public class ShopService extends SessService {
         shopInfo.setShopNo(shop.getShopNo());
         shopInfo.setName(addShopRequest.getName());
         shopInfo.setManagerName(addShopRequest.getManagerName());
-//        shopInfo.setStartTime(addShopRequest.getStartTime());
-//        shopInfo.setEndTime(addShopRequest.getEndTime());
+        shopInfo.setStartTime(LocalTime.parse(addShopRequest.getStartTime()));
+        shopInfo.setEndTime(LocalTime.parse(addShopRequest.getEndTime()));
         shopInfoRepository.save(shopInfo);
 
         ShopPassword shopPassword = new ShopPassword();
@@ -154,8 +155,8 @@ public class ShopService extends SessService {
         shopInfo.setPhone(shopRequest.getPhone());
         shopInfo.setName(shopRequest.getName());
         shopInfo.setManagerName(shopRequest.getManagerName());
-//        shopInfo.setStartTime(shopRequest.getStartTime());
-//        shopInfo.setEndTime(shopRequest.getEndTime());
+        shopInfo.setStartTime(LocalTime.parse(shopRequest.getStartTime()));
+        shopInfo.setEndTime(LocalTime.parse(shopRequest.getEndTime()));
         shopInfoRepository.save(shopInfo);
 
         shopAddress.setModelAddress(shopRequest.getAddress());
