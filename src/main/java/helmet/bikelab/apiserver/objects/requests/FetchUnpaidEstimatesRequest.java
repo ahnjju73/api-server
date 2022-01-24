@@ -8,6 +8,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
-public class RequestListDto {
-    private String nextToken;
+public class FetchUnpaidEstimatesRequest extends RequestListDto{
+    private Integer clientNo;
 }
