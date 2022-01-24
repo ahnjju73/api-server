@@ -48,5 +48,6 @@
         <mapper resource="mapper/quartz/leases.xml"/>
         <mapper resource="mapper/quartz/leases-stop.xml"/>
 
+        <mapper resource="mapper/estimate/estimates.xml"/>
     </mappers>
 </configuration>
