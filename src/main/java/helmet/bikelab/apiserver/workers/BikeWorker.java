@@ -1,6 +1,7 @@
 package helmet.bikelab.apiserver.workers;
 
 import helmet.bikelab.apiserver.domain.CommonBikes;
+import helmet.bikelab.apiserver.domain.CommonWorking;
 import helmet.bikelab.apiserver.domain.Manufacturers;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.bike.Parts;
@@ -21,6 +22,7 @@ public class BikeWorker extends Workspace {
     private final PartsCodesRepository partsCodesRepository;
     private final PartsRepository partsRepository;
     private final BikesRepository bikesRepository;
+    private final CommonWorkingRepository commonWorkingRepository;
 
     public List<Manufacturers> getManufacturers(){
         return manufacturersRepository.findAllBy();
@@ -66,6 +68,20 @@ public class BikeWorker extends Workspace {
         Parts byPartNoAndBikeModelCode = partsRepository.findByPartsId(partsId);
         if(!bePresent(byPartNoAndBikeModelCode)) withException("503-007");
         return byPartNoAndBikeModelCode;
+    }
+
+    public Integer getWorkingPrice(CommonBikes carModel){
+        Integer workingPrice = 0;
+        List<CommonWorking> byBikeTypeOrderByVolumeAsc = commonWorkingRepository.findByBikeTypeOrderByVolumeAsc(carModel.getBikeType());
+        for(int i = 0; i < byBikeTypeOrderByVolumeAsc.size(); i++){
+            CommonWorking commonWorking = byBikeTypeOrderByVolumeAsc.get(i);
+            if(carModel.getVolume() >= commonWorking.getVolume()){
+                workingPrice = commonWorking.getWorkingPrice();
+            }else{
+                break;
+            }
+        }
+        return workingPrice;
     }
 
 }

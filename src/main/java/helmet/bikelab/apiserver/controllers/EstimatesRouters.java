@@ -20,6 +20,7 @@ public class EstimatesRouters {
                 .route(GET("/estimates/unpaid-clients"), estimatesHandler::fetchClientsWithUnpaidEstimates)
                 .andRoute(GET("/estimates/unpaid"), estimatesHandler::fetchUnpaidEstimates)
                 .andRoute(PATCH("/estimates/pay-unpaid/{client_id}"), estimatesHandler::payUnpaidEstimatesByClients)
+                .andRoute(GET("/estimate/{estimate_id}"), estimatesHandler::fetchEstimate)
                 ;
     }
 }

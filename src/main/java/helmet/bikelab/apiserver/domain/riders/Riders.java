@@ -1,11 +1,13 @@
 package helmet.bikelab.apiserver.domain.riders;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import helmet.bikelab.apiserver.domain.types.RiderLeaseRequestedTypes;
 import helmet.bikelab.apiserver.domain.types.RiderStatusTypes;
 import helmet.bikelab.apiserver.domain.types.RiderVerifiedTypes;
 import helmet.bikelab.apiserver.domain.types.converters.RiderLeaseRequestedTypesConverter;
 import helmet.bikelab.apiserver.domain.types.converters.RiderStatusTypesConverter;
 import helmet.bikelab.apiserver.domain.types.converters.RiderVerifiedTypesConverter;
+import helmet.bikelab.apiserver.services.internal.OriginObject;
 import helmet.bikelab.apiserver.utils.keys.SESSION;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,7 +22,7 @@ import java.util.List;
 @Setter
 @Table(name = "riders", catalog = SESSION.SCHEME_SERVICE)
 @NoArgsConstructor
-public class Riders {
+public class Riders extends OriginObject {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -73,12 +75,6 @@ public class Riders {
 
     @OneToOne(mappedBy = "rider", fetch = FetchType.EAGER)
     private RiderInfo riderInfo;
-
-    @OneToOne(mappedBy = "rider", fetch = FetchType.EAGER)
-    private RiderPassword riderPassword;
-
-    @OneToMany(mappedBy = "rider", fetch = FetchType.LAZY)
-    private List<RiderAddresses> addresses;
 
 }
 
