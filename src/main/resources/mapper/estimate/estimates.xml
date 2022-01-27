@@ -137,6 +137,7 @@
                           from (select *
                                   from estimates
                                  where client_no = #{client_no}
+                                   and status != '1'
                                  order by estimate_no desc) e,
                                (SELECT @rownum :=0) AS R) m
                  where 1 = 1
@@ -158,6 +159,7 @@
         select count(*)
           from estimates
          where client_no = #{client_no}
+           and status != '1'
     </select>
 
     <resultMap id="fetchEstimatePartsByIdMapItem" type="hmap">

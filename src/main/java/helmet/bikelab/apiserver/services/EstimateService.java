@@ -9,6 +9,7 @@ import helmet.bikelab.apiserver.objects.BikeDto;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.EstimateDto;
 import helmet.bikelab.apiserver.objects.bikelabs.clients.ClientDto;
+import helmet.bikelab.apiserver.objects.requests.EstimateRequestListDto;
 import helmet.bikelab.apiserver.objects.requests.FetchUnpaidEstimatesRequest;
 import helmet.bikelab.apiserver.objects.requests.RequestListDto;
 import helmet.bikelab.apiserver.objects.responses.EstimateByIdResponse;
@@ -37,7 +38,7 @@ public class EstimateService extends SessService {
 
     public BikeSessionRequest fetchEstimates(BikeSessionRequest request){
         Map param = request.getParam();
-        RequestListDto requestListDto = map(param, RequestListDto.class);
+        EstimateRequestListDto requestListDto = map(param, EstimateRequestListDto.class);
         ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "estimate.estimates.fetchEstimateList", "estimate.estimates.countEstimateList", "estimate_id");
         request.setResponse(responseListDto);
         return request;
@@ -123,20 +124,6 @@ public class EstimateService extends SessService {
         Map param = request.getParam();
         String estimateId = (String)param.get("estimate_id");
         Estimates byEstimateId = estimatesRepository.findByEstimateId(estimateId);
-//        Bikes bike = byEstimateId.getBike();
-//        CommonBikes model = bike.getCarModel();
-//
-//        EstimateDto estimateDto = new EstimateDto();
-//        estimateDto.setEstimateId(byEstimateId.getEstimateId());
-//        estimateDto.setDescription(byEstimateId.getDescription());
-//        estimateDto.setCreatedAt(byEstimateId.getCreatedAt());
-//        estimateDto.setStatus(byEstimateId.getEstimateStatusType().getStatus());
-//
-//        BikeDto bikeDto = new BikeDto();
-//        bikeDto.setBikeId(bike.getBikeId());
-//        bikeDto.setBikeModel(model.getModel());
-
-
         param.put("estimate_no", byEstimateId.getEstimateNo());
         param.put("client_no", byEstimateId.getClientNo());
         List parts = getList("estimate.estimates.fetchEstimatePartsById", param);
