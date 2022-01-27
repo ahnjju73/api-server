@@ -63,7 +63,7 @@ public class Bikes extends OriginObject {
     @OneToMany(mappedBy = "bike", fetch = FetchType.LAZY)
     private List<Leases> lease = new ArrayList<>();
 
-    @OneToMany(mappedBy = "bike", fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "bike", fetch = FetchType.EAGER)
     private List<BikeAttachments> files = new ArrayList<>();
 
     @Column(name = "volume")
@@ -91,7 +91,7 @@ public class Bikes extends OriginObject {
     @Column(name = "rider_no")
     private Integer riderNo;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "rider_no", insertable = false, updatable = false)
     private Riders riders;
 
@@ -114,6 +114,7 @@ public class Bikes extends OriginObject {
     @Column(name = "rider_lease_no", nullable = false)
     private Integer riderLeaseNo;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "rider_lease_no", insertable = false, updatable = false)
     private Leases riderLease;

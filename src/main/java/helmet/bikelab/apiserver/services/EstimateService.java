@@ -1,22 +1,29 @@
 package helmet.bikelab.apiserver.services;
 
+import helmet.bikelab.apiserver.domain.CommonBikes;
+import helmet.bikelab.apiserver.domain.EstimateParts;
 import helmet.bikelab.apiserver.domain.Estimates;
+import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.client.Clients;
+import helmet.bikelab.apiserver.objects.BikeDto;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
+import helmet.bikelab.apiserver.objects.EstimateDto;
 import helmet.bikelab.apiserver.objects.bikelabs.clients.ClientDto;
+import helmet.bikelab.apiserver.objects.requests.EstimateRequestListDto;
 import helmet.bikelab.apiserver.objects.requests.FetchUnpaidEstimatesRequest;
 import helmet.bikelab.apiserver.objects.requests.RequestListDto;
+import helmet.bikelab.apiserver.objects.responses.EstimateByIdResponse;
 import helmet.bikelab.apiserver.objects.responses.FetchUnpaidEstimateResponse;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
-import helmet.bikelab.apiserver.repositories.ClientsRepository;
-import helmet.bikelab.apiserver.repositories.EstimateAttachmentRepository;
-import helmet.bikelab.apiserver.repositories.EstimatesRepository;
+import helmet.bikelab.apiserver.repositories.*;
 import helmet.bikelab.apiserver.services.internal.SessService;
+import helmet.bikelab.apiserver.workers.BikeWorker;
 import helmet.bikelab.apiserver.workers.CommonWorker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -26,10 +33,12 @@ public class EstimateService extends SessService {
     private final EstimateAttachmentRepository estimateAttachmentRepository;
     private final ClientsRepository clientsRepository;
     private final CommonWorker commonWorker;
+    private final EstimatePartsRepository estimatePartsRepository;
+    private final BikeWorker bikeWorker;
 
     public BikeSessionRequest fetchEstimates(BikeSessionRequest request){
         Map param = request.getParam();
-        RequestListDto requestListDto = map(param, RequestListDto.class);
+        EstimateRequestListDto requestListDto = map(param, EstimateRequestListDto.class);
         ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "estimate.estimates.fetchEstimateList", "estimate.estimates.countEstimateList", "estimate_id");
         request.setResponse(responseListDto);
         return request;
@@ -75,6 +84,7 @@ public class EstimateService extends SessService {
             if(unpaidFee <= payingFee) {
                 payingFee -= unpaidFee;
                 estimates.setPaidFee(estimates.getTotalPrice());
+                estimates.setPaidAt(LocalDateTime.now());
             }else{
                 estimates.setPaidFee(estimates.getPaidFee() + payingFee);
             }
@@ -109,6 +119,27 @@ public class EstimateService extends SessService {
         request.setResponse(unpaidClients);
         return request;
     }
+
+    public BikeSessionRequest fetchEstimateDetail(BikeSessionRequest request){
+        Map param = request.getParam();
+        String estimateId = (String)param.get("estimate_id");
+        Estimates byEstimateId = estimatesRepository.findByEstimateId(estimateId);
+        param.put("estimate_no", byEstimateId.getEstimateNo());
+        param.put("client_no", byEstimateId.getClientNo());
+        List parts = getList("estimate.estimates.fetchEstimatePartsById", param);
+        List attachments = getList("estimate.estimates.fetchEstimateAttachmentsById", param);
+        EstimateByIdResponse estimateByIdResponse = new EstimateByIdResponse();
+        estimateByIdResponse.setEstimate(byEstimateId);
+        estimateByIdResponse.setParts(parts);
+        estimateByIdResponse.setAttachments(attachments);
+        if(estimatePartsRepository.findAllByEstimate_EstimateId(estimateId) == null||estimatePartsRepository.findAllByEstimate_EstimateId(estimateId).size() == 0)
+            estimateByIdResponse.setWorkingPrice(bikeWorker.getWorkingPrice(byEstimateId.getBike().getCarModel()));
+        else
+            estimateByIdResponse.setWorkingPrice(estimatePartsRepository.findAllByEstimate_EstimateId(estimateId).get(0).getWorkingPrice());
+        request.setResponse(estimateByIdResponse);
+        return request;
+    }
+
 
 
 

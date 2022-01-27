@@ -17,11 +17,13 @@ public class BikePartsDto extends RequestListDto {
     private Integer partsCodeNo;
     private Long partsNo;
     private Integer partsTypeNo;
-    private String partsType;
+    private String partsTypeName;
     private String partsName;
     private Integer partsPrice;
     private Integer workingPrices;
     private Double workingHours;
-    private String units;
-    
+    private Double clientDiscountRate;
+    private String isFreeSupport;
+    private Integer number;
+
 }
