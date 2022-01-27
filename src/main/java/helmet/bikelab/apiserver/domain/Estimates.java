@@ -170,6 +170,13 @@ public class Estimates extends OriginObject {
     @Embedded
     private ModelReview review;
 
+    @Column(name = "settle_no")
+    private Long settleNo;
+
+    @ManyToOne
+    @JoinColumn(name = "settle_no", insertable = false, updatable = false)
+    private Settles settle;
+
     @JsonIgnore
     public void payingStart(){
         this.paidAt = LocalDateTime.now();
