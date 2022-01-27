@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 public interface RiderRepository extends JpaRepository<Riders, Integer> {
     Riders findByPhone(String phone);
     Riders findByRiderId(String riderId);
+    Riders findByRiderNo(Integer riderNo);
     Riders findByEmail(String email);
     Riders findByEdpId(String edpId);
 }

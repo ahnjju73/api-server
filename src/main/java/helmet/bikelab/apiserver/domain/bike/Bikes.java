@@ -91,7 +91,7 @@ public class Bikes extends OriginObject {
     @Column(name = "rider_no")
     private Integer riderNo;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "rider_no", insertable = false, updatable = false)
     private Riders riders;
 

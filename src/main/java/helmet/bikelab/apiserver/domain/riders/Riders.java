@@ -1,10 +1,7 @@
 package helmet.bikelab.apiserver.domain.riders;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import helmet.bikelab.apiserver.domain.types.RiderLeaseRequestedTypes;
 import helmet.bikelab.apiserver.domain.types.RiderStatusTypes;
 import helmet.bikelab.apiserver.domain.types.RiderVerifiedTypes;
-import helmet.bikelab.apiserver.domain.types.converters.RiderLeaseRequestedTypesConverter;
 import helmet.bikelab.apiserver.domain.types.converters.RiderStatusTypesConverter;
 import helmet.bikelab.apiserver.domain.types.converters.RiderVerifiedTypesConverter;
 import helmet.bikelab.apiserver.services.internal.OriginObject;
@@ -15,7 +12,6 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Entity
 @Getter

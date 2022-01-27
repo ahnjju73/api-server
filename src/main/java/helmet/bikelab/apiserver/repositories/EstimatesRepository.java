@@ -12,12 +12,6 @@ import java.util.List;
 
 
 public interface EstimatesRepository extends JpaRepository<Estimates, Integer> {
-    Estimates findByEstimateIdAndRiderNo(String estimateId, Integer riderNo);
-    Estimates findByEstimateIdAndRiderNoAndEstimateStatusTypeNot(String estimateId, Integer riderNo, EstimateStatusTypes estimateStatusType);
     Estimates findByEstimateId(String estimateId);
     List<Estimates> findAllByClient_ClientId(String clientId);
-    void deleteByEstimateId(String estimateId);
-    List<Estimates> findAllByBike_BikeId(String bikeId);
-    Page<Estimates> findAllByShopNo(Integer shopNo, Pageable pageable);
-    Page<Estimates> findByShop_ShopIdAndReviewNotNullAndEstimateStatusType(String shopId, EstimateStatusTypes estimateStatusTypes, Pageable pageable);
 }
