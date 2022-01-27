@@ -9,6 +9,7 @@ import lombok.Setter;
 @Setter
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class RiderDemandLeaseAttachmentDto {
+    private Integer attachmentNo;
     private String domain;
     private String fileName;
     private String fileKey;

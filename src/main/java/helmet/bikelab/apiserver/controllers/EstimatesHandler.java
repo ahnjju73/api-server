@@ -1,6 +1,7 @@
 package helmet.bikelab.apiserver.controllers;
 
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
+import helmet.bikelab.apiserver.objects.responses.EstimateByIdResponse;
 import helmet.bikelab.apiserver.objects.responses.FetchUnpaidEstimateResponse;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.services.EstimateService;
@@ -47,5 +48,15 @@ public class EstimatesHandler {
                         .map(estimateService::checkBikeSession)
                         .map(estimateService::fetchUnpaidEstimates)
                         .map(estimateService::returnData), FetchUnpaidEstimateResponse.class);
+    }
+
+    public Mono<ServerResponse> fetchEstimate(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> estimateService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(req -> estimateService.getPathVariable(req, "estimate_id"))
+                        .map(estimateService::checkBikeSession)
+                        .map(estimateService::fetchEstimateDetail)
+                        .map(estimateService::returnData), EstimateByIdResponse.class);
     }
 }
