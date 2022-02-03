@@ -168,14 +168,14 @@ public class Estimates extends OriginObject {
     private Integer odometer;
 
     @Embedded
-    private ModelReview review;
-
     @Column(name = "settle_no")
     private Long settleNo;
 
     @ManyToOne
     @JoinColumn(name = "settle_no", insertable = false, updatable = false)
-    private Settles settle;
+    private Settles settle;    private ModelReview review;
+
+
 
     @JsonIgnore
     public void payingStart(){
