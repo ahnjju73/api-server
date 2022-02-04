@@ -44,11 +44,11 @@
                      c.client_no,
                      l.lease_id,
                      b.*
-              from (select *
-                    from clients
-                    where client_id = #{search_client_id}) c
-                       join leases l on c.client_no = l.client_no
-                       join bikes b on l.bike_no = b.bike_no
+               from (select *
+                       from clients
+                      where client_id = #{search_client_id}) c
+                    join leases l on c.client_no = l.client_no
+                    join bikes b on l.bike_no = b.bike_no
               where 1 = 1
                 and bike_id != (select val from system_parameters where parameter_no = 0)
                 <if test="search_name != null and search_name != '' and search_name != 'undefined'">
@@ -79,31 +79,32 @@
                ci.name as client_name,
                if(l.lease_no is null, false, true) as used
         from (select *
-              from bikes b
-              where 1 = 1
-                and bike_id != (select val from system_parameters where parameter_no = 0)
-                <if test="search_name != null and search_name != '' and search_name != 'undefined'">
-                and (
+                from bikes b
+               where 1 = 1
+                 and is_bm = #{is_bikemaster}
+                 and bike_id != (select val from system_parameters where parameter_no = 0)
+                 <if test="search_name != null and search_name != '' and search_name != 'undefined'">
+                 and (
                         vim_num like concat('%', #{search_name}, '%')
                         or `number` like concat('%', #{search_name}, '%')
                     )
-                </if>
-                <if test="next_token != null and next_token != '' and next_token != 'undefined'">
-                and bike_id <![CDATA[ < ]]> #{next_token}
-                </if>
-              order by bike_no desc limit 30) bm
-                 join com_comm_bikes commb on bm.car_model = commb.comm_cd
-                 left outer join leases ls on bm.bike_no = ls.bike_no
-                <if test="search_client_id != null and search_client_id != '' and search_client_id != 'undefined'">
-                 join (select *
-                         from clients
-                        where client_id = #{search_client_id}) c on ls.client_no = c.client_no
-                </if>
-                <if test="search_client_id == null or search_client_id == '' or search_client_id == 'undefined'">
-                    left outer join clients c on ls.client_no = c.client_no
-                </if>
-                 left outer join client_info ci on c.client_no = ci.client_no
-                 left outer join leases l on bm.bike_no = l.bike_no
+                 </if>
+                 <if test="next_token != null and next_token != '' and next_token != 'undefined'">
+                 and bike_id <![CDATA[ < ]]> #{next_token}
+                 </if>
+                order by bike_no desc limit 30) bm
+              join com_comm_bikes commb on bm.car_model = commb.comm_cd
+              left outer join leases ls on bm.bike_no = ls.bike_no
+              <if test="search_client_id != null and search_client_id != '' and search_client_id != 'undefined'">
+              join (select *
+                      from clients
+                     where client_id = #{search_client_id}) c on ls.client_no = c.client_no
+              </if>
+              <if test="search_client_id == null or search_client_id == '' or search_client_id == 'undefined'">
+              left outer join clients c on ls.client_no = c.client_no
+              </if>
+              left outer join client_info ci on c.client_no = ci.client_no
+              left outer join leases l on bm.bike_no = l.bike_no
          order by bm.bike_no desc
     </select>
 
@@ -113,6 +114,7 @@
               from (select *
                       from bikes
                      where bike_no not in (select bike_no from leases)
+                       and is_bm = #{is_bikemaster}
                        and reg_num is not null
                        and price is not null
                        and company_name is not null
