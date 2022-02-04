@@ -3,6 +3,7 @@ package helmet.bikelab.apiserver.domain.shops;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import helmet.bikelab.apiserver.domain.embeds.ModelBankAccount;
 import helmet.bikelab.apiserver.utils.keys.SESSION;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -47,5 +48,8 @@ public class ShopInfo {
 
     @Column(name = "end_time", columnDefinition = "TIME")
     private LocalTime endTime;
+
+    @Embedded
+    private ModelBankAccount bankAccount = new ModelBankAccount();
 
 }
