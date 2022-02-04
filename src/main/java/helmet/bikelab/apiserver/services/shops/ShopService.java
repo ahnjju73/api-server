@@ -1,6 +1,8 @@
 package helmet.bikelab.apiserver.services.shops;
 
 import helmet.bikelab.apiserver.domain.Banks;
+import helmet.bikelab.apiserver.domain.Estimates;
+import helmet.bikelab.apiserver.domain.Settles;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.embeds.ModelBankAccount;
 import helmet.bikelab.apiserver.domain.shops.ShopAddresses;
@@ -11,9 +13,11 @@ import helmet.bikelab.apiserver.domain.types.BikeUserLogTypes;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.requests.ClientListDto;
 import helmet.bikelab.apiserver.objects.requests.PageableRequest;
+import helmet.bikelab.apiserver.objects.requests.RequestListDto;
 import helmet.bikelab.apiserver.objects.requests.shops.AddShopRequest;
 import helmet.bikelab.apiserver.objects.requests.shops.ShopListDto;
 import helmet.bikelab.apiserver.objects.requests.shops.UpdateShopRequest;
+import helmet.bikelab.apiserver.objects.responses.FetchSettleDetailResponse;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.repositories.*;
 import helmet.bikelab.apiserver.services.internal.SessService;
@@ -45,9 +49,11 @@ public class ShopService extends SessService {
     private final ShopInfoRepository shopInfoRepository;
     private final ShopPasswordRepository shopPasswordRepository;
     private final ShopAddressesRepository shopAddressesRepository;
+    private final EstimatesRepository estimatesRepository;
     private final AutoKey autoKey;
     private final ShopWorker shopWorker;
     private final BikeUserLogRepository bikeUserLogRepository;
+    private final SettleRepository settleRepository;
     private final BankRepository bankRepository;
     private final CommonWorker commonWorker;
 
@@ -229,7 +235,27 @@ public class ShopService extends SessService {
     }
 
     public BikeSessionRequest fetchSettles(BikeSessionRequest request) {
+        Map param = request.getParam();
+        RequestListDto requestListDto = map(param, RequestListDto.class);
+        ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "estimate.settles.fetchAllSettles", "estimate.settles.countAllSettles", "settle_no");
+        request.setResponse(responseListDto);
+        return request;
+    }
 
+    public BikeSessionRequest fetchSettleDetail(BikeSessionRequest request) {
+        Map param = request.getParam();
+        String settleId = (String) param.get("settle_id");
+        Settles bySettleId = settleRepository.findBySettleId(settleId);
+        List<Estimates> allBySettle_settleId = estimatesRepository.findAllBySettle_SettleId(settleId);
+        FetchSettleDetailResponse fetchSettleDetailResponse  = new FetchSettleDetailResponse();
+        fetchSettleDetailResponse.setSettleId(settleId);
+        fetchSettleDetailResponse.setShop(bySettleId.getShop());
+        fetchSettleDetailResponse.setCreatedAt(bySettleId.getCreatedAt());
+        fetchSettleDetailResponse.setConfirmedAt(bySettleId.getConfirmedAt());
+        fetchSettleDetailResponse.setConfirmedUser(bySettleId.getConfirmedUser());
+        fetchSettleDetailResponse.setBankAccount(bySettleId.getBankAccount());
+        fetchSettleDetailResponse.setEstimates(allBySettle_settleId);
+        request.setResponse(fetchSettleDetailResponse);
         return request;
     }
 }

@@ -35,6 +35,7 @@ public class ShopRouters {
         return RouterFunctions
                 .route(GET("/banks"), shopHandler::fetchBanks)
                 .andRoute(GET("/settles"), shopHandler::fetchAllSettles)
+                .andRoute(GET("/settles/{settle_id}"), shopHandler::fetchSettleDetail)
                 ;
     }
 

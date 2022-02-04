@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
@@ -13,6 +14,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -52,5 +54,9 @@ public class Settles extends OriginObject {
 
     @Embedded
     private ModelBankAccount bankAccount = new ModelBankAccount();
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "settle", fetch = FetchType.LAZY)
+    private List<Estimates> estimates;
 
 }

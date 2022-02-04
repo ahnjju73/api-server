@@ -1,8 +1,10 @@
 package helmet.bikelab.apiserver.controllers.shop;
 
+import helmet.bikelab.apiserver.domain.Settles;
 import helmet.bikelab.apiserver.domain.shops.Shops;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.SessionResponseDto;
+import helmet.bikelab.apiserver.objects.responses.FetchSettleDetailResponse;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.services.SignService;
 import helmet.bikelab.apiserver.services.shops.ShopService;
@@ -95,6 +97,16 @@ public class ShopHandler {
                         .subscribeOn(Schedulers.elastic())
                         .map(shopService::checkBikeSession)
                         .map(shopService::fetchSettles)
-                        .map(shopService::returnData), List.class);
+                        .map(shopService::returnData), ResponseListDto.class);
+    }
+
+    public Mono<ServerResponse> fetchSettleDetail(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> shopService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .map(row -> shopService.getPathVariable(row, "settle_id"))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(shopService::checkBikeSession)
+                        .map(shopService::fetchSettleDetail)
+                        .map(shopService::returnData), FetchSettleDetailResponse.class);
     }
 }

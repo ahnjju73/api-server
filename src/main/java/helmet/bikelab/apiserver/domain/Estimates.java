@@ -177,8 +177,6 @@ public class Estimates extends OriginObject {
     @Embedded
     private ModelReview review;
 
-
-
     @JsonIgnore
     public void payingStart(){
         this.paidAt = LocalDateTime.now();
