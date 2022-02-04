@@ -1,0 +1,280 @@
+<?xml version="1.0" encoding= "UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="estimate.estimates">
+
+    <select id="countExternalEstimatePartsByBikeAndRider" parameterType="hmap" resultType="int">
+        select count(*)
+          from estimates
+         where rider_no = #{rider_no}
+           and bike_no= #{bike_no}
+           and status != '0'
+    </select>
+
+    <resultMap id="fetchExternalEstimatePartsByBikeAndRiderMapParts" type="hmap">
+        <result property="parts_no" column="parts_no"/>
+        <result property="estimate_type" column="estimate_type"/>
+        <result property="idx" column="idx"/>
+        <result property="number" column="number"/>
+        <result property="price" column="price"/>
+        <result property="hours" column="hours"/>
+        <result property="parts_price" column="parts_price"/>
+        <result property="working_price" column="working_price"/>
+        <result property="is_free_support" column="is_free_support"/>
+        <result property="client_discount_rate" column="client_discount_rate"/>
+        <result property="parts_type_discount_rate" column="parts_type_discount_rate"/>
+        <result property="parts_name" column="parts_name"/>
+        <result property="parts_type_name" column="parts_type_name"/>
+    </resultMap>
+    <resultMap id="fetchExternalEstimatePartsByBikeAndRiderMap" type="hmap">
+        <result property="estimate_id" column="estimate_id"/>
+        <result property="status" column="status"/>
+        <collection property="parts" javaType="ArrayList" resultMap="fetchExternalEstimatePartsByBikeAndRiderMapParts"/>
+    </resultMap>
+    <select id="fetchExternalEstimatePartsByBikeAndRider" parameterType="hmap" resultMap="fetchExternalEstimatePartsByBikeAndRiderMap">
+        select es.estimate_id,
+               es.status,
+               esp.parts_no,
+               idx,
+               number,
+               estimate_type,
+               price,
+               hours,
+               parts_price,
+               working_price,
+               is_free_support,
+               client_discount_rate,
+               parts_type_discount_rate,
+               parts_name,
+               parts_type_name
+          from (select *
+                  from estimates
+                where rider_no = #{rider_no}
+                  and bike_no= #{bike_no}
+                  and status != '0'
+                <if test="next_token != null and next_token != '' and next_token != 'undefined'">
+                  and estimate_id <![CDATA[ < ]]> #{next_token}
+                </if>
+                order by estimate_no desc limit 30) es
+               left outer join (select *
+                                  from estimate_parts
+                                 where estimate_type = '1') esp on es.estimate_no = esp.estimate_no
+         order by es.estimate_no desc, parts_name
+    </select>
+
+    <resultMap id="bikeMap" type="hmap">
+        <result property="bike_id" column="bike_id"/>
+        <result property="bike_num" column="bike_num"/>
+        <result property="model_code" column="model_code"/>
+        <result property="model_name" column="model_name"/>
+    </resultMap>
+    <resultMap id="partMap" type="hmap">
+        <result property="parts_no" column="parts_no"/>
+        <result property="parts_price" column="parts_price"/>
+        <result property="parts_hours" column="parts_hours"/>
+    </resultMap>
+    <resultMap id="riderMap" type="hmap">
+        <result property="rider_no" column="rider_no"/>
+        <result property="rider_name" column="name"/>
+        <result property="rider_phone" column="phone"/>
+    </resultMap>
+    <resultMap id="shopMap" type="hmap">
+        <result property="shop_no" column="shop_no"/>
+        <result property="shop_name" column="shop_name"/>
+    </resultMap>
+    <resultMap id="fetchEstimateMap" type="hmap">
+        <result property="total_price" column="total_price"/>
+        <result property="total_hour" column="total_hour"/>
+        <result property="description" column="description"/>
+        <collection property="bike" javaType="hmap" resultMap="bikeMap"/>
+        <collection property="parts" javaType="ArrayList" resultMap="partMap"/>
+        <collection property="rider" javaType="hmap" resultMap="riderMap"/>
+    </resultMap>
+    <resultMap id="fetchEstimateListMap" type="hmap">
+        <result property="rownum" column="rownum"/>
+        <result property="estimate_id" column="estimate_id"/>
+        <result property="estimate_status" column="status"/>
+        <result property="total_price" column="total_price"/>
+        <result property="total_hour" column="total_hour"/>
+        <result property="created_at" column="created_at"/>
+        <result property="is_released" column="is_released"/>
+        <result property="paid_fee" column="paid_fee"/>
+        <collection property="bike" javaType="hmap" resultMap="bikeMap"/>
+        <collection property="rider" javaType="hmap" resultMap="riderMap"/>
+        <collection property="shop" javaType="hmap" resultMap="shopMap"/>
+    </resultMap>
+    <select id="fetchEstimateDetail" parameterType="hmap" resultMap="fetchEstimateMap">
+        select e.*,
+               b.car_model as model_code,
+               b.number as bike_num,
+               b.bike_id,
+               ep.* ,
+               p.*
+        from estimates e
+                 join bikes b on e.bike_no = b.bike_no
+                 join estimate_parts ep on ep.estimate_no = e.estimate_no and ep.estimate_type = "0"
+                 join parts p on p.parts_no = ep.parts_no
+        where estimate_id = #{estimateId}
+    </select>
+
+    <select id="fetchEstimateList" parameterType="hmap" resultMap="fetchEstimateListMap">
+        select main.*,
+               b.car_model as model_code,
+               b.number as bike_num,
+               b.bike_id,
+               bm.comm_nm as model_name,
+               ep.* ,
+               p.*,
+               r.*,
+               ri.name,
+               si.name as shop_name,
+               si.shop_no
+          from (select *,
+                       convert(row_num, CHAR) as rownum
+                  from (select @rownum:=@rownum+1 as row_num,
+			                   e.*
+                          from (select *
+                                  from estimates
+                                 where 1 = 1
+                                 <if test="client_no != null and client_no != '' and client_no != 'undefined'">
+                                   and client_no = #{client_no}
+                                 </if>
+                                   and status != '1'
+                                 order by estimate_no desc) e,
+                               (SELECT @rownum :=0) AS R) m
+                 where 1 = 1
+                 <if test="next_token != null and next_token != '' and next_token != 'undefined'">
+                   and row_num <![CDATA[ > ]]> #{next_token}
+                 </if>
+                 order by row_num limit 30) main
+          join bikes b on main.bike_no = b.bike_no
+          join com_comm_bikes bm on b.car_model = bm.comm_cd
+          left outer join estimate_parts ep on ep.estimate_no = main.estimate_no
+          left outer join parts p on p.parts_no = ep.parts_no
+          left outer join riders r on r.rider_no = main.rider_no
+          left outer join rider_info ri on ri.rider_no = r.rider_no
+          join shops s on s.shop_no = main.shop_no
+          join shop_info si on si.shop_no = s.shop_no
+    </select>
+
+    <select id="countEstimateList" parameterType="hmap" resultType="int">
+        select count(*)
+          from estimates
+         where 1 = 1
+         <if test="client_no != null and client_no != '' and client_no != 'undefined'">
+           and client_no = #{client_no}
+         </if>
+           and status != '1'
+    </select>
+
+    <resultMap id="fetchEstimatePartsByIdMapItem" type="hmap">
+        <result property="idx" column="idx"/>
+        <result property="parts_no" column="parts_no"/>
+        <result property="estimate_type" column="estimate_type"/>
+        <result property="number" column="number"/>
+        <result property="price" column="price"/>
+        <result property="hours" column="hours"/>
+        <result property="parts_price" column="parts_price"/>
+        <result property="working_price" column="working_price"/>
+        <result property="is_free_support" column="is_free_support"/>
+        <result property="client_discount_rate" column="client_discount_rate"/>
+        <result property="parts_type_discount_rate" column="parts_type_discount_rate"/>
+        <result property="parts_name" column="parts_name"/>
+        <result property="parts_type_name" column="parts_type_name"/>
+    </resultMap>
+    <resultMap id="fetchEstimateAttachmentItem" type="hmap">
+        <result property="attachment_no" column="attachment_no"/>
+        <result property="domain" column="domain"/>
+        <result property="file_key" column="file_key"/>
+        <result property="file_name" column="file_name"/>
+    </resultMap>
+    <resultMap id="fetchEstimatePartsByIdMap" type="hmap">
+        <result property="estimate_type" column="estimate_type"/>
+        <collection property="list" javaType="ArrayList" resultMap="fetchEstimatePartsByIdMapItem"/>
+    </resultMap>
+    <select id="fetchEstimatePartsById" parameterType="hmap" resultMap="fetchEstimatePartsByIdMap">
+        select idx,
+               parts_no,
+               estimate_type,
+               number,
+               price,
+               hours,
+               parts_price,
+               working_price,
+               is_free_support,
+               client_discount_rate,
+               parts_type_discount_rate,
+               parts_name,
+               parts_type_name
+        from estimate_parts
+       where estimate_no = #{estimate_no}
+    </select>
+
+    <select id="fetchEstimateAttachmentsById" parameterType="hmap" resultMap="fetchEstimateAttachmentItem">
+        select *
+          from estimate_attachments
+         where estimate_no = #{estimate_no}
+    </select>
+
+    <select id="fetchUnpaidEstimateList" parameterType="hmap" resultMap="fetchEstimateListMap">
+        select main.*,
+               b.car_model as model_code,
+               b.number as bike_num,
+               b.bike_id,
+               bm.comm_nm as model_name,
+               ep.* ,
+               p.*,
+               r.*,
+               ri.name,
+               si.name as shop_name,
+               si.shop_no
+          from (select *
+                  from (select @rownum:=@rownum+1 as rownum,
+                               e.*
+                          from (select *
+                                  from estimates
+                                 where 1 = 1
+                                 <if test="client_no != null">
+                                   and client_no = ${client_no}
+                                 </if>
+                                   and total_price <![CDATA[ > ]]> paid_fee
+                                   and status in ('6','7')
+                                 order by estimate_no desc) e,
+                                       (SELECT @rownum :=0) AS R) m
+                                 where 1 = 1
+                                 <if test="next_token != null and next_token != '' and next_token != 'undefined'">
+                                   and rownum <![CDATA[ > ]]> #{next_token}
+                                 </if>
+                                 order by rownum limit 30) main
+          join bikes b on main.bike_no = b.bike_no
+          join com_comm_bikes bm on b.car_model = bm.comm_cd
+          left outer join estimate_parts ep on ep.estimate_no = main.estimate_no
+          left outer join parts p on p.parts_no = ep.parts_no
+          left outer join riders r on r.rider_no = main.rider_no
+          left outer join rider_info ri on ri.rider_no = r.rider_no
+          join shops s on s.shop_no = main.shop_no
+          join shop_info si on si.shop_no = s.shop_no
+    </select>
+
+    <select id="countUnpaidEstimateList" parameterType="hmap" resultType="int">
+        select count(*)
+          from estimates
+        where 1 = 1
+        <if test="client_no != null">
+          and client_no = ${client_no}
+        </if>
+          and total_price <![CDATA[ > ]]> paid_fee
+          and status in ('6','7')
+    </select>
+
+
+    <select id="fetchUnpaidEstimates" parameterType="hmap" resultType="hmap">
+        select *
+          from estimates
+         where total_price <![CDATA[ > ]]> paid_fee
+           and client_no is not null
+           and status in ('6','7')
+    </select>
+
+</mapper>

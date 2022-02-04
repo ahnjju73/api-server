@@ -8,13 +8,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
-public class BikeRequestListDto extends RequestListDto{
-
-    private String searchClientId;
-    private String searchName;
-    private String searchBikeId;
-    private String searchNumber;
-    private String searchVim;
-    private Boolean isBikemaster;
-
+public class FetchUnpaidEstimatesRequest extends RequestListDto{
+    private Integer clientNo;
 }

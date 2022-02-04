@@ -52,9 +52,8 @@ public class DemandLeaseHandler {
 
     public Mono<ServerResponse> completedDemandLeaseById(ServerRequest request) {
         return ServerResponse.ok().body(
-                request.bodyToMono(Map.class)
+                Mono.fromSupplier(() -> demandLeaseService.makeSessionRequest(request, BikeSessionRequest.class))
                         .subscribeOn(Schedulers.elastic())
-                        .map(row -> demandLeaseService.makeSessionRequest(request, row, BikeSessionRequest.class))
                         .map(row -> demandLeaseService.getPathVariable(row, "demand_lease_id"))
                         .map(demandLeaseService::checkBikeSession)
                         .map(demandLeaseService::completedDemandLeaseById)

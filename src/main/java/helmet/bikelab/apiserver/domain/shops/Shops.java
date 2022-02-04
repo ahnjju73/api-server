@@ -40,6 +40,9 @@ public class Shops {
     @Column(name = "reg_no", length = 45)
     private String regNum;
 
+    @Column(name = "rate", columnDefinition = "TINYINT(3)")
+    private Integer rate = 70;
+
     @Column(name = "usable", columnDefinition = "TINYINT(1)")
     private Boolean usable = false;
 

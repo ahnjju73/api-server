@@ -9,6 +9,5 @@ import lombok.Setter;
 @Setter
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class RequestListDto {
-
     private String nextToken;
 }

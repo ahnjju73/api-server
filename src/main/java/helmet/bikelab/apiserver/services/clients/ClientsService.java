@@ -408,6 +408,9 @@ public class ClientsService extends SessService {
                 if(bePresent(address) && !address.getAddress().equals(modelAddress.getAddress())){
                     stringList.add("고객사 주소를 변경하였습니다.");
                 }
+                if(updateClientRequest.getDiscountRate() != clients.getDiscountRate()){
+                    stringList.add("고객사 할인율을 <>" + clients.getDiscountRate() * 100 + " %</>에서 <>"+ updateClientRequest.getDiscountRate() * 100 +" %</>로 변경하였습니다.");
+                }
             }
             if(bePresent(stringList) && stringList.size() > 0)
                 bikeUserLogRepository.save(addLog(bikeUserLogTypes, fromUserNo, clients.getClientNo().toString(), stringList));

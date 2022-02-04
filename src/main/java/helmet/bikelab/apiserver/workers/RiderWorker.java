@@ -304,7 +304,7 @@ public class RiderWorker extends SessService {
         Riders rider = riderRepository.findByRiderId(riderId);
         if(rider.getStatus() != RiderStatusTypes.ACTIVATE && rider.getStatus() != RiderStatusTypes.PENDING)
             withException("950-005");
-        RiderPassword riderPassword = rider.getRiderPassword();
+        RiderPassword riderPassword = riderPasswordRepository.findByRider_Email(rider.getEmail());
 
         String randomPassword = generateNewPassword();
         riderPassword.newPassword(randomPassword);

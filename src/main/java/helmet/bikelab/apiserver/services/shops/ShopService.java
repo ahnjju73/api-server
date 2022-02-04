@@ -1,6 +1,8 @@
 package helmet.bikelab.apiserver.services.shops;
 
+import helmet.bikelab.apiserver.domain.Banks;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
+import helmet.bikelab.apiserver.domain.embeds.ModelBankAccount;
 import helmet.bikelab.apiserver.domain.shops.ShopAddresses;
 import helmet.bikelab.apiserver.domain.shops.ShopInfo;
 import helmet.bikelab.apiserver.domain.shops.ShopPassword;
@@ -26,6 +28,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -45,6 +48,7 @@ public class ShopService extends SessService {
     private final AutoKey autoKey;
     private final ShopWorker shopWorker;
     private final BikeUserLogRepository bikeUserLogRepository;
+    private final BankRepository bankRepository;
     private final CommonWorker commonWorker;
 
     public BikeSessionRequest fetchHistoryOfShop(BikeSessionRequest request){
@@ -106,8 +110,13 @@ public class ShopService extends SessService {
         shopInfo.setShopNo(shop.getShopNo());
         shopInfo.setName(addShopRequest.getName());
         shopInfo.setManagerName(addShopRequest.getManagerName());
-//        shopInfo.setStartTime(addShopRequest.getStartTime());
-//        shopInfo.setEndTime(addShopRequest.getEndTime());
+        shopInfo.setStartTime(LocalTime.parse(addShopRequest.getStartTime()));
+        shopInfo.setEndTime(LocalTime.parse(addShopRequest.getEndTime()));
+        ModelBankAccount modelBankAccount = new ModelBankAccount();
+        modelBankAccount.setBankCode(addShopRequest.getBankCd());
+        modelBankAccount.setAccount(addShopRequest.getAccount());
+        modelBankAccount.setDepositor(addShopRequest.getDepositor());
+        shopInfo.setBankAccount(modelBankAccount);
         shopInfoRepository.save(shopInfo);
 
         ShopPassword shopPassword = new ShopPassword();
@@ -154,8 +163,13 @@ public class ShopService extends SessService {
         shopInfo.setPhone(shopRequest.getPhone());
         shopInfo.setName(shopRequest.getName());
         shopInfo.setManagerName(shopRequest.getManagerName());
-//        shopInfo.setStartTime(shopRequest.getStartTime());
-//        shopInfo.setEndTime(shopRequest.getEndTime());
+        shopInfo.setStartTime(LocalTime.parse(shopRequest.getStartTime()));
+        shopInfo.setEndTime(LocalTime.parse(shopRequest.getEndTime()));
+        ModelBankAccount modelBankAccount = new ModelBankAccount();
+        modelBankAccount.setBankCode(shopRequest.getBankCd());
+        modelBankAccount.setAccount(shopRequest.getAccount());
+        modelBankAccount.setDepositor(shopRequest.getDepositor());
+        shopInfo.setBankAccount(modelBankAccount);
         shopInfoRepository.save(shopInfo);
 
         shopAddress.setModelAddress(shopRequest.getAddress());
@@ -208,5 +222,15 @@ public class ShopService extends SessService {
             bikeUserLogRepository.save(addLog(bikeUserLogTypes, fromUser.getUserNo(), originShop.getShopNo().toString(), stringList));
     }
 
+    public BikeSessionRequest fetchBanks(BikeSessionRequest request) {
+        List<Banks> all = bankRepository.findAll();
+        request.setResponse(all);
+        return request;
+    }
+
+    public BikeSessionRequest fetchSettles(BikeSessionRequest request) {
+
+        return request;
+    }
 }
 
