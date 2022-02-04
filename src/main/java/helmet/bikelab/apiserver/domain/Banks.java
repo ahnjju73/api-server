@@ -2,15 +2,17 @@ package helmet.bikelab.apiserver.domain;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import helmet.bikelab.apiserver.domain.shops.Shops;
 import helmet.bikelab.apiserver.services.internal.OriginObject;
 import helmet.bikelab.apiserver.utils.keys.SESSION;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.*;
-import java.time.LocalDateTime;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
 
 @Entity
 @Getter

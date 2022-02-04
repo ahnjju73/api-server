@@ -1,21 +1,10 @@
 package helmet.bikelab.apiserver.domain;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
-import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
-import helmet.bikelab.apiserver.domain.client.Clients;
-import helmet.bikelab.apiserver.domain.embeds.ModelBankAccount;
-import helmet.bikelab.apiserver.domain.embeds.ModelReview;
-import helmet.bikelab.apiserver.domain.riders.Riders;
 import helmet.bikelab.apiserver.domain.shops.Shops;
-import helmet.bikelab.apiserver.domain.types.EstimateStatusTypes;
-import helmet.bikelab.apiserver.domain.types.PayerTypes;
-import helmet.bikelab.apiserver.domain.types.YesNoTypes;
-import helmet.bikelab.apiserver.domain.types.converters.EstimateStatusTypesConverter;
-import helmet.bikelab.apiserver.domain.types.converters.PayerTypesConverter;
-import helmet.bikelab.apiserver.domain.types.converters.YesNoTypeConverter;
+import helmet.bikelab.apiserver.domain.embeds.ModelBankAccount;
 import helmet.bikelab.apiserver.services.internal.OriginObject;
 import helmet.bikelab.apiserver.utils.keys.SESSION;
 import lombok.Getter;
