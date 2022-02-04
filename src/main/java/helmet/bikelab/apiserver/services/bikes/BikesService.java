@@ -198,7 +198,6 @@ public class BikesService extends SessService {
         fetchBikeDetailResponse.setTransaction(bike.getTransaction());
         fetchBikeDetailResponse.setDescription(bike.getDescription());
         fetchBikeDetailResponse.setIsBikemaster(bike.getIsBikemaster());
-        fetchBikeDetailResponse.setIsMt(bike.getIsMt());
         fetchBikeDetailResponse.setPayerTypeCode(bike.getPayerTypeCode());
         if (leases != null) {
             ClientDto client = new ClientDto();
@@ -238,7 +237,6 @@ public class BikesService extends SessService {
 
         bike.setPayerType(addBikeRequest.getPayerType());
         bike.setIsBikemaster(addBikeRequest.getIsBikemaster());
-        bike.setIsMt(addBikeRequest.getIsMt());
 
         ModelTransaction modelTransaction = new ModelTransaction();
         modelTransaction.setRegNum(addBikeRequest.getRegNum());
