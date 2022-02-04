@@ -167,8 +167,17 @@ public class Estimates extends OriginObject {
     @Column(name = "odometer")
     private Integer odometer;
 
+    @Column(name = "settle_no")
+    private Long settleNo;
+
+    @ManyToOne
+    @JoinColumn(name = "settle_no", insertable = false, updatable = false)
+    private Settles settle;
+
     @Embedded
     private ModelReview review;
+
+
 
     @JsonIgnore
     public void payingStart(){

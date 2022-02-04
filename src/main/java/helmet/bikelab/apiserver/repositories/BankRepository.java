@@ -6,5 +6,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface BankRepository extends JpaRepository<Banks, String> {
-    Banks findByBankCd(String bankCd);
+    Banks findByBankCode(String bankCd);
 }

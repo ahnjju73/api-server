@@ -2,6 +2,7 @@ package helmet.bikelab.apiserver.services.shops;
 
 import helmet.bikelab.apiserver.domain.Banks;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
+import helmet.bikelab.apiserver.domain.embeds.ModelBankAccount;
 import helmet.bikelab.apiserver.domain.shops.ShopAddresses;
 import helmet.bikelab.apiserver.domain.shops.ShopInfo;
 import helmet.bikelab.apiserver.domain.shops.ShopPassword;
@@ -111,9 +112,11 @@ public class ShopService extends SessService {
         shopInfo.setManagerName(addShopRequest.getManagerName());
         shopInfo.setStartTime(LocalTime.parse(addShopRequest.getStartTime()));
         shopInfo.setEndTime(LocalTime.parse(addShopRequest.getEndTime()));
-        shopInfo.setBankCd(addShopRequest.getBankCd());
-        shopInfo.setAccount(addShopRequest.getAccount());
-        shopInfo.setDepositor(addShopRequest.getDepositor());
+        ModelBankAccount modelBankAccount = new ModelBankAccount();
+        modelBankAccount.setBankCode(addShopRequest.getBankCd());
+        modelBankAccount.setAccount(addShopRequest.getAccount());
+        modelBankAccount.setDepositor(addShopRequest.getDepositor());
+        shopInfo.setBankAccount(modelBankAccount);
         shopInfoRepository.save(shopInfo);
 
         ShopPassword shopPassword = new ShopPassword();
@@ -162,9 +165,11 @@ public class ShopService extends SessService {
         shopInfo.setManagerName(shopRequest.getManagerName());
         shopInfo.setStartTime(LocalTime.parse(shopRequest.getStartTime()));
         shopInfo.setEndTime(LocalTime.parse(shopRequest.getEndTime()));
-        shopInfo.setBankCd(shopRequest.getBankCd());
-        shopInfo.setAccount(shopRequest.getAccount());
-        shopInfo.setDepositor(shopRequest.getDepositor());
+        ModelBankAccount modelBankAccount = new ModelBankAccount();
+        modelBankAccount.setBankCode(shopRequest.getBankCd());
+        modelBankAccount.setAccount(shopRequest.getAccount());
+        modelBankAccount.setDepositor(shopRequest.getDepositor());
+        shopInfo.setBankAccount(modelBankAccount);
         shopInfoRepository.save(shopInfo);
 
         shopAddress.setModelAddress(shopRequest.getAddress());
