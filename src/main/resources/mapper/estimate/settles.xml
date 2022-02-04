@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding= "UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="estimate.settles">
+    <select id="countAllSettles" parameterType="hmap" resultType="int">
+        select count(*)
+        from settles
+        where rider_no = #{rider_no}
+          and bike_no= #{bike_no}
+          and status != '0'
+    </select>
+
+</mapper>
