@@ -26,6 +26,9 @@ public class AddShopRequest extends OriginObject {
     private ModelAddress address;
     private Double longitude;
     private Double latitude;
+    private String bankCd;
+    private String account;
+    private String depositor;
 
     public void setAddress(Map address) {
         ObjectMapper objectMapper = new ObjectMapper();

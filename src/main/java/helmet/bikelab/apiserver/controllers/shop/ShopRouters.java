@@ -30,4 +30,12 @@ public class ShopRouters {
                 ;
     }
 
+    @Bean
+    public RouterFunction<ServerResponse> bankRouter(){
+        return RouterFunctions
+                .route(GET("/banks"), shopHandler::fetchBanks)
+                .andRoute(GET("/settles"), shopHandler::fetchAllSettles)
+                ;
+    }
+
 }
