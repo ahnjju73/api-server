@@ -14,6 +14,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -79,4 +80,21 @@ public class ShopHandler {
                         .map(shopService::returnData), Page.class);
     }
 
+    public Mono<ServerResponse> fetchBanks(ServerRequest request){
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> shopService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(shopService::checkBikeSession)
+                        .map(shopService::fetchBanks)
+                        .map(shopService::returnData), List.class);
+    }
+
+    public Mono<ServerResponse> fetchAllSettles(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> shopService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(shopService::checkBikeSession)
+                        .map(shopService::fetchSettles)
+                        .map(shopService::returnData), List.class);
+    }
 }
