@@ -5,12 +5,14 @@ import lombok.Getter;
 @Getter
 public enum PayerTypes {
 
-    COMPANY("COMPANY"), RIDER("RIDER");
+    COMPANY("COMPANY", "고객사"), RIDER("RIDER", "라이더");
 
     private String status;
+    private String statusName;
 
-    PayerTypes(String status) {
+    PayerTypes(String status, String statusName) {
         this.status = status;
+        this.statusName = statusName;
     }
 
     public static PayerTypes getPayerTypes(String status){
