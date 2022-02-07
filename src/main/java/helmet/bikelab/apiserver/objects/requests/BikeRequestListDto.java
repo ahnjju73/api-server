@@ -15,6 +15,6 @@ public class BikeRequestListDto extends RequestListDto{
     private String searchBikeId;
     private String searchNumber;
     private String searchVim;
-    private Boolean isBikemaster;
+    private String isBikemaster;
 
 }

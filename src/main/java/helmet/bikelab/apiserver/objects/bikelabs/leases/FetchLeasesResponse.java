@@ -50,4 +50,5 @@ public class FetchLeasesResponse {
     private String bakRiderLeaseAttachments;
     private String bakRiderLeaseSpecialTerms;
     private BikeDto bakBike;
+    private Boolean isMt = false;
 }
