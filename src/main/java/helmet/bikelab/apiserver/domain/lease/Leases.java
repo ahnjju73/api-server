@@ -152,6 +152,9 @@ public class Leases {
     @OneToOne(mappedBy = "lease", optional = false, fetch = FetchType.EAGER)
     private LeasePrice leasePrice;
 
+    @Column(name = "is_mt", columnDefinition = "TINYINT(1)")
+    private Boolean isMt = false;
+
     @OneToOne(mappedBy = "lease")
     private LeaseInsurances leaseInsurance;
 

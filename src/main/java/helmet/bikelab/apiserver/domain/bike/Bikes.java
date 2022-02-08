@@ -75,9 +75,6 @@ public class Bikes extends OriginObject {
     @Column(name = "is_bm", columnDefinition = "TINYINT(1)")
     private Boolean isBikemaster = true;
 
-    @Column(name = "is_mt", columnDefinition = "TINYINT(1)")
-    private Boolean isMt = false;
-
     @Column(name = "payer_types", columnDefinition = "ENUM", nullable = false)
     @Convert(converter = PayerTypesConverter.class)
     private PayerTypes payerType = PayerTypes.COMPANY;
