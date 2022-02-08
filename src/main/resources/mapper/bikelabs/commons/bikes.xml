@@ -114,11 +114,12 @@
               from (select *
                       from bikes
                      where bike_no not in (select bike_no from leases)
-                       and is_bm = #{is_bikemaster}
                        and reg_num is not null
                        and price is not null
                        and company_name is not null
-                       and is_bm = '1'
+                       <if test="is_bikemaster != null and is_bikemaster != '' and is_bikemaster != 'undefined'">
+                       and is_bm = #{is_bikemaster}
+                       </if>
                        and bike_id != (select val from system_parameters where parameter_no = 0)
                      <if test="search_name != null and search_name != '' and search_name != 'undefined'">
                         and (
@@ -171,13 +172,13 @@
           from (select *
                   from bikes b
                  where bike_no not in (select bike_no from leases)
+                   <if test="is_bikemaster != null and is_bikemaster != '' and is_bikemaster != 'undefined'">
+                   and is_bm = #{is_bikemaster}
+                   </if>
                    and bike_id != (select val from system_parameters where parameter_no = 0)
---                    and `number` is not null
---                    and `number` != ''
                    and reg_num is not null
                    and price is not null
                    and company_name is not null
-                   and is_bm = '1'
                 <if test="search_name != null and search_name != '' and search_name != 'undefined'">
                    and (
                         vim_num like concat('%', #{search_name}, '%')
