@@ -109,4 +109,14 @@ public class ShopHandler {
                         .map(shopService::fetchSettleDetail)
                         .map(shopService::returnData), FetchSettleDetailResponse.class);
     }
+
+    public Mono<ServerResponse> completeSettle(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .map(row -> shopService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(shopService::checkBikeSession)
+                        .map(shopService::completeSettle)
+                        .map(shopService::returnData), Map.class);
+    }
 }

@@ -36,6 +36,7 @@ public class ShopRouters {
                 .route(GET("/banks"), shopHandler::fetchBanks)
                 .andRoute(GET("/settles"), shopHandler::fetchAllSettles)
                 .andRoute(GET("/settles/{settle_id}"), shopHandler::fetchSettleDetail)
+                .andRoute(PATCH("/settles"), shopHandler::completeSettle)
                 ;
     }
 

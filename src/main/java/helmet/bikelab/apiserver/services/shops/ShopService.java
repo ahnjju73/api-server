@@ -32,6 +32,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -256,6 +257,19 @@ public class ShopService extends SessService {
         fetchSettleDetailResponse.setBankAccount(bySettleId.getBankAccount());
         fetchSettleDetailResponse.setEstimates(allBySettle_settleId);
         request.setResponse(fetchSettleDetailResponse);
+        return request;
+    }
+
+    public BikeSessionRequest completeSettle(BikeSessionRequest request) {
+        Map param = request.getParam();
+        String settleId = (String) param.get("settle_id");
+        Integer retroact = (Integer)param.get("retroact");
+        Settles bySettleId = settleRepository.findBySettleId(settleId);
+        bySettleId.setConfirmedAt(LocalDateTime.now());
+        bySettleId.setConfirmedUserNo(request.getSessionUser().getUserNo());
+
+
+
         return request;
     }
 }
