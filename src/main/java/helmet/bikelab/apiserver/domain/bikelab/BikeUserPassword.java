@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.domain.bikelab;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import helmet.bikelab.apiserver.domain.embeds.ModelPassword;
@@ -24,6 +25,7 @@ public class BikeUserPassword {
     @Column(name = "user_no", length = 21)
     private Integer bikeUserNo;
 
+    @JsonIgnore
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_no", insertable = false, updatable = false)
     private BikeUser bikeUser;

@@ -254,7 +254,7 @@ public class ShopService extends SessService {
         fetchSettleDetailResponse.setShop(bySettleId.getShop());
         fetchSettleDetailResponse.setCreatedAt(bySettleId.getCreatedAt());
         fetchSettleDetailResponse.setConfirmedAt(bySettleId.getConfirmedAt());
-        fetchSettleDetailResponse.setConfirmedUser(bySettleId.getConfirmedUser());
+        fetchSettleDetailResponse.setConfirmedUserId(bySettleId.getConfirmedUser().getUserId());
         fetchSettleDetailResponse.setBankAccount(bySettleId.getBankAccount());
         fetchSettleDetailResponse.setEstimates(allBySettle_settleId);
         fetchSettleDetailResponse.setSettleStatus(bySettleId.getSettleStatus() == null ? null : bySettleId.getSettleStatus().getStatus());

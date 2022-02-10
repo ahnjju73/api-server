@@ -12,9 +12,12 @@
     <select id="fetchAllSettles" parameterType="hmap" resultType="hmap">
         select s.*,
                count(*) as num_estimates,
-               sum(e.total_price) as total_price
+               sum(e.total_price) as total_price,
+               sum(e.shop_fee) as shop_fee,
+               si.name as shop_name
           from settles s
           join estimates e on e.settle_no = s.settle_no
+          join shop_info si on si.shop_no = s.shop_no
          where 1 = 1
          <if test="next_token != null and next_token != '' and next_token != 'undefined'">
            and settle_no <![CDATA[ < ]]> #{next_token}
