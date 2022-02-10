@@ -9,7 +9,6 @@ import helmet.bikelab.apiserver.domain.shops.Shops;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -23,5 +22,7 @@ public class FetchSettleDetailResponse {
     private LocalDateTime confirmedAt;
     private BikeUser confirmedUser;
     private ModelBankAccount bankAccount;
+    private String settleStatus;
+    private Integer deductible;
     private List<Estimates> estimates;
 }

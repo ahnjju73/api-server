@@ -46,10 +46,6 @@ public class EstimateParts {
     @Column(name = "number")
     private Integer number;
 
-    // Default 는 계산된 금액이지만, 사용자가 변경할수도 있는 금액이다.
-    @Column(name = "price")
-    private Integer price;
-
     @Column(name = "parts_price")
     private Integer partsPrice;
 

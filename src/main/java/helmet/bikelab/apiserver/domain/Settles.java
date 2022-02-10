@@ -6,6 +6,8 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.shops.Shops;
 import helmet.bikelab.apiserver.domain.embeds.ModelBankAccount;
+import helmet.bikelab.apiserver.domain.types.SettleStatusTypes;
+import helmet.bikelab.apiserver.domain.types.converters.SettleStatusTypesConverter;
 import helmet.bikelab.apiserver.services.internal.OriginObject;
 import helmet.bikelab.apiserver.utils.keys.SESSION;
 import lombok.Getter;
@@ -35,6 +37,10 @@ public class Settles extends OriginObject {
     @Column(name = "shop_no")
     private Integer shopNo;
 
+    @Column(name = "status", columnDefinition = "ENUM", nullable = false)
+    @Convert(converter = SettleStatusTypesConverter.class)
+    private SettleStatusTypes settleStatus = SettleStatusTypes.PENDING;
+
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "shop_no", insertable = false, updatable = false)
     private Shops shop;
@@ -58,5 +64,8 @@ public class Settles extends OriginObject {
     @JsonIgnore
     @OneToMany(mappedBy = "settle", fetch = FetchType.LAZY)
     private List<Estimates> estimates;
+
+    @Column(name = "deductible")
+    private Integer deductible;
 
 }

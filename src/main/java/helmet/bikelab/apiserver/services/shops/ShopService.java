@@ -10,6 +10,7 @@ import helmet.bikelab.apiserver.domain.shops.ShopInfo;
 import helmet.bikelab.apiserver.domain.shops.ShopPassword;
 import helmet.bikelab.apiserver.domain.shops.Shops;
 import helmet.bikelab.apiserver.domain.types.BikeUserLogTypes;
+import helmet.bikelab.apiserver.domain.types.SettleStatusTypes;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.requests.ClientListDto;
 import helmet.bikelab.apiserver.objects.requests.PageableRequest;
@@ -256,6 +257,8 @@ public class ShopService extends SessService {
         fetchSettleDetailResponse.setConfirmedUser(bySettleId.getConfirmedUser());
         fetchSettleDetailResponse.setBankAccount(bySettleId.getBankAccount());
         fetchSettleDetailResponse.setEstimates(allBySettle_settleId);
+        fetchSettleDetailResponse.setSettleStatus(bySettleId.getSettleStatus() == null ? null : bySettleId.getSettleStatus().getStatus());
+        fetchSettleDetailResponse.setDeductible(bySettleId.getDeductible());
         request.setResponse(fetchSettleDetailResponse);
         return request;
     }
@@ -267,9 +270,9 @@ public class ShopService extends SessService {
         Settles bySettleId = settleRepository.findBySettleId(settleId);
         bySettleId.setConfirmedAt(LocalDateTime.now());
         bySettleId.setConfirmedUserNo(request.getSessionUser().getUserNo());
-
-
-
+        bySettleId.setDeductible(retroact);
+        bySettleId.setSettleStatus(SettleStatusTypes.COMPLETED);
+        settleRepository.save(bySettleId);
         return request;
     }
 }
