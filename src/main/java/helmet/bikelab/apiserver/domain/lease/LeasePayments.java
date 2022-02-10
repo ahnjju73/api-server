@@ -2,6 +2,7 @@ package helmet.bikelab.apiserver.domain.lease;
 
 import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
+import helmet.bikelab.apiserver.domain.client.Clients;
 import helmet.bikelab.apiserver.domain.riders.Riders;
 import helmet.bikelab.apiserver.domain.types.PaidTypes;
 import helmet.bikelab.apiserver.domain.types.converters.PaidTypeConverter;
@@ -35,6 +36,13 @@ public class LeasePayments {
     @ManyToOne(optional = false)
     @JoinColumn(name = "lease_no", insertable = false, updatable = false)
     private Leases lease;
+
+    @Column(name = "client_no")
+    private Integer clientNo;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "client_no", insertable = false, updatable = false)
+    private Clients client;
 
     @Column(name = "idx")
     private Integer index;

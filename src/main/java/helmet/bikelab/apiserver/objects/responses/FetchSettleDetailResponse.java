@@ -20,9 +20,10 @@ public class FetchSettleDetailResponse {
     private Shops shop;
     private LocalDateTime createdAt;
     private LocalDateTime confirmedAt;
-    private BikeUser confirmedUser;
+    private String confirmedUserId;
     private ModelBankAccount bankAccount;
     private String settleStatus;
     private Integer deductible;
+    private Integer bmTax;
     private List<Estimates> estimates;
 }
