@@ -4,14 +4,16 @@ import helmet.bikelab.apiserver.domain.types.SettleStatusTypes;
 
 import javax.persistence.AttributeConverter;
 
-public class SettleStatusTypeConverter implements AttributeConverter<SettleStatusTypes, String> {
+public class SettleStatusTypesConverter implements AttributeConverter<SettleStatusTypes, String> {
+
     @Override
     public String convertToDatabaseColumn(SettleStatusTypes attribute) {
-        return attribute != null? attribute.getStatus() : null;
+        return attribute.getStatus();
     }
 
     @Override
     public SettleStatusTypes convertToEntityAttribute(String dbData) {
-        return SettleStatusTypes.getStatusType(dbData);
+        return SettleStatusTypes.getSettleStatusTypes(dbData);
     }
+
 }

@@ -4,21 +4,23 @@ import lombok.Getter;
 
 @Getter
 public enum SettleStatusTypes {
-     SCHEDULE("SCHEDULE", "0"), SETTLED("SETTLED", "1");
+    PENDING("0"), COMPLETED("1");
 
-     private String schedule, status;
+    private String status;
 
-    SettleStatusTypes(String schedule, String status) {
-        this.schedule = schedule;
+    SettleStatusTypes(String status) {
         this.status = status;
     }
 
-    public static SettleStatusTypes getStatusType(String status){
-        if(status == null)
+    public static SettleStatusTypes getSettleStatusTypes(String status) {
+        if (status == null) {
             return null;
-        for(SettleStatusTypes sst : SettleStatusTypes.values()){
-            if(sst.getStatus().equals(status))
-                return sst;
+        }
+
+        for (SettleStatusTypes ls : SettleStatusTypes.values()) {
+            if (status.equals(ls.getStatus())) {
+                return ls;
+            }
         }
         return null;
     }
