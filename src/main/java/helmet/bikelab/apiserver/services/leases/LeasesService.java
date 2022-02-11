@@ -1023,6 +1023,8 @@ public class LeasesService extends SessService {
         StopLeaseDto stopLeaseDto = map(param, StopLeaseDto.class);
         double stopFee = stopLeaseDto.getStopFee();
         Leases lease = leaseRepository.findByLeaseId(stopLeaseDto.getLeaseId());
+        Bikes bike = lease.getBike();
+        bike.doDeclineRider();
         if(lease == null || lease.getStatus() != LeaseStatusTypes.CONFIRM) withException("");
         Bikes emptyBike = bikesRepository.findByBikeId(systemParameterRepository.findByRemark("공백바이크 ID").getValue());
         lease.setBakBikeNo(lease.getBike().getBikeNo());
