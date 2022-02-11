@@ -100,6 +100,9 @@
         <result property="created_at" column="created_at"/>
         <result property="is_released" column="is_released"/>
         <result property="paid_fee" column="paid_fee"/>
+        <result property="client_id" column="client_id"/>
+        <result property="client_name" column="client_name"/>
+        <result property="client_no" column="client_no"/>
         <collection property="bike" javaType="hmap" resultMap="bikeMap"/>
         <collection property="rider" javaType="hmap" resultMap="riderMap"/>
         <collection property="shop" javaType="hmap" resultMap="shopMap"/>
@@ -129,7 +132,9 @@
                r.*,
                ri.name,
                si.name as shop_name,
-               si.shop_no
+               si.shop_no,
+               ci.name as client_name,
+               cc.client_id
           from (select *,
                        convert(row_num, CHAR) as rownum
                   from (select @rownum:=@rownum+1 as row_num,
@@ -156,6 +161,8 @@
           left outer join rider_info ri on ri.rider_no = r.rider_no
           join shops s on s.shop_no = main.shop_no
           join shop_info si on si.shop_no = s.shop_no
+          join clients cc on cc.client_no = main.client_no
+          join client_info ci on ci.client_no = main.client_no
     </select>
 
     <select id="countEstimateList" parameterType="hmap" resultType="int">
