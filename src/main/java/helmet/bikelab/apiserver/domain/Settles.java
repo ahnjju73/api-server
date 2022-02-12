@@ -1,10 +1,13 @@
 package helmet.bikelab.apiserver.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.shops.Shops;
 import helmet.bikelab.apiserver.domain.embeds.ModelBankAccount;
+import helmet.bikelab.apiserver.domain.types.SettleStatusTypes;
+import helmet.bikelab.apiserver.domain.types.converters.SettleStatusTypesConverter;
 import helmet.bikelab.apiserver.services.internal.OriginObject;
 import helmet.bikelab.apiserver.utils.keys.SESSION;
 import lombok.Getter;
@@ -13,6 +16,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Getter
@@ -33,6 +37,10 @@ public class Settles extends OriginObject {
     @Column(name = "shop_no")
     private Integer shopNo;
 
+    @Column(name = "status", columnDefinition = "ENUM", nullable = false)
+    @Convert(converter = SettleStatusTypesConverter.class)
+    private SettleStatusTypes settleStatus = SettleStatusTypes.PENDING;
+
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "shop_no", insertable = false, updatable = false)
     private Shops shop;
@@ -52,5 +60,12 @@ public class Settles extends OriginObject {
 
     @Embedded
     private ModelBankAccount bankAccount = new ModelBankAccount();
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "settle", fetch = FetchType.LAZY)
+    private List<Estimates> estimates;
+
+    @Column(name = "deductible")
+    private Integer deductible;
 
 }

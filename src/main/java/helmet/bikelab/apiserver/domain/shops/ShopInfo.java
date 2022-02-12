@@ -26,7 +26,7 @@ public class ShopInfo {
     private Integer shopNo;
 
     @JsonIgnore
-    @OneToOne(fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "shop_no", insertable = false, updatable = false)
     private Shops shop;
 

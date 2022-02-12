@@ -167,6 +167,16 @@ public class RiderService extends SessService {
         activities.setBikeNo(bikeByRiderIdAndBikeId.getBikeNo());
         activities.setActivityType(ActivityTypes.RIDER_ASSIGNED);
         activitiesRepository.save(activities);
+
+        BikeRidersBak bikeRidersBak = new BikeRidersBak();
+        bikeRidersBak.setBikeNo(bikeByRiderIdAndBikeId.getBikeNo());
+        bikeRidersBak.setRiderNo(bikeByRiderIdAndBikeId.getRiderNo());
+        bikeRidersBak.setRiderStartAt(bikeByRiderIdAndBikeId.getRiderStartAt());
+        bikeRidersBak.setRiderEndAt(bikeByRiderIdAndBikeId.getRiderEndAt());
+        bikeRidersBak.setRiderRequestAt(bikeByRiderIdAndBikeId.getRiderRequestAt());
+        bikeRidersBak.setRiderLeaseNo(bikeByRiderIdAndBikeId.getRiderLeaseNo());
+        bikeRiderBakRepository.save(bikeRidersBak);
+
         return request;
     }
 
@@ -230,15 +240,6 @@ public class RiderService extends SessService {
         Bikes bikeByRiderIdAndBikeId = riderWorker.getBikeByRiderIdAndBikeId(riderBikeApproveRequest.getRiderId(), riderBikeApproveRequest.getBikeId());
         Leases leases = leaseRepository.findByBike_BikeId(bikeByRiderIdAndBikeId.getBikeId());
         if(!BikeRiderStatusTypes.PENDING.equals(bikeByRiderIdAndBikeId.getRiderStatus())) withException("2006-002");
-
-        BikeRidersBak bikeRidersBak = new BikeRidersBak();
-        bikeRidersBak.setBikeNo(bikeByRiderIdAndBikeId.getBikeNo());
-        bikeRidersBak.setRiderNo(bikeByRiderIdAndBikeId.getRiderNo());
-        bikeRidersBak.setRiderStartAt(bikeByRiderIdAndBikeId.getRiderStartAt());
-        bikeRidersBak.setRiderEndAt(bikeByRiderIdAndBikeId.getRiderEndAt());
-        bikeRidersBak.setRiderRequestAt(bikeByRiderIdAndBikeId.getRiderRequestAt());
-        bikeRidersBak.setRiderLeaseNo(bikeByRiderIdAndBikeId.getRiderLeaseNo());
-        bikeRiderBakRepository.save(bikeRidersBak);
 
         Activities activities = new Activities();
         activities.setRiderNo(bikeByRiderIdAndBikeId.getRiderNo());

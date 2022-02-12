@@ -147,7 +147,6 @@ public class Estimates extends OriginObject {
     @Column(name = "shop_tax")
     private Integer shopTax = 0;
 
-    @JsonIgnore
     @Column(name = "bm_tax")
     private Integer bmTax = 0;
 

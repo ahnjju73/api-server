@@ -14,4 +14,5 @@ import java.util.List;
 public interface EstimatesRepository extends JpaRepository<Estimates, Integer> {
     Estimates findByEstimateId(String estimateId);
     List<Estimates> findAllByClient_ClientId(String clientId);
+    List<Estimates> findAllBySettle_SettleId(String settleId);
 }

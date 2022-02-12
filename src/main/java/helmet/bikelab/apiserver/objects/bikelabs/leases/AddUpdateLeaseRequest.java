@@ -35,6 +35,7 @@ public class AddUpdateLeaseRequest extends OriginObject {
     private LocalDateTime releaseAt;
     private List<LeasePaymentDto> leasePayments = new ArrayList<>();
     private StopLeaseDto stopLeaseInfo;
+    private Boolean isMt;
 
 //    public void setTakeAt(String takeAt) {
 //        if(takeAt != null)
