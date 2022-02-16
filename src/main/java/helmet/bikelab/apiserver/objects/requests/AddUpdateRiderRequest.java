@@ -30,5 +30,8 @@ public class AddUpdateRiderRequest extends OriginObject {
             withException("950-003");
         if(!bePresent(edpId))
             withException("950-010");
+        if(ssn.length() != 14 || ssn.indexOf("-") == -1){
+            withException("950-011");
+        }
     }
 }
