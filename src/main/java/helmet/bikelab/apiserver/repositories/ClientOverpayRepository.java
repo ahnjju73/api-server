@@ -7,4 +7,5 @@ import java.util.List;
 
 public interface ClientOverpayRepository extends JpaRepository<ClientOverpay, Long> {
     List<ClientOverpay> findAllByClientNo(Integer clientNo);
+    void deleteAllByClient_ClientId(String clientId);
 }

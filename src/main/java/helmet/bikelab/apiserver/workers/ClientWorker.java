@@ -24,6 +24,9 @@ public class ClientWorker extends SessService {
     private final ClientPasswordRepository clientPasswordRepository;
     private final ClientSessionsRepository clientSessionsRepository;
     private final ClientsRepository clientsRepository;
+    private final ClientOverpayRepository clientOverpayRepository;
+    private final ClientManagersRepository clientManagersRepository;
+    private final ClientAttachmentsRepository clientAttachmentsRepository;
 
     public Clients getClientByClientId(String clientId){
         Clients byClientId = clientsRepository.findByClientId(clientId);
@@ -37,6 +40,9 @@ public class ClientWorker extends SessService {
         clientInfoRepository.deleteAllByClient_ClientId(clientId);
         clientPasswordRepository.deleteAllByClient_ClientId(clientId);
         clientSessionsRepository.deleteAllByClient_ClientId(clientId);
+        clientOverpayRepository.deleteAllByClient_ClientId(clientId);
+        clientManagersRepository.deleteAllByClient_ClientId(clientId);
+        clientAttachmentsRepository.deleteAllByClient_ClientId(clientId);
         clientsRepository.deleteByClientId(clientId);
     }
 }

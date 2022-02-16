@@ -6,6 +6,7 @@ import helmet.bikelab.apiserver.domain.types.RiderAddressTypes;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface RiderAddressRepository extends JpaRepository<RiderAddresses, RiderAddressPK> {
-    RiderAddresses findByRider_RiderIdAndRiderAddressTypes(String riderId, RiderAddressTypes type);
+    RiderAddresses findByRider_RiderIdAndRiderAddressType(String riderId, RiderAddressTypes type);
+    RiderAddresses findByRiderNoAndRiderAddressType(Integer riderNo, RiderAddressTypes type);
 
 }
