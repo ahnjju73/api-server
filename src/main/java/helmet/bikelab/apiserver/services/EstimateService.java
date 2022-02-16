@@ -87,6 +87,7 @@ public class EstimateService extends SessService {
                 estimates.setPaidAt(LocalDateTime.now());
             }else{
                 estimates.setPaidFee(estimates.getPaidFee() + payingFee);
+                payingFee = 0;
             }
             estimatesRepository.save(estimates);
             if(payingFee == 0)
