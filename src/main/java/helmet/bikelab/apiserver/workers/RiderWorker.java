@@ -96,14 +96,14 @@ public class RiderWorker extends SessService {
         if(addUpdateRiderRequest.getRealAddress() != null) {
             RiderAddresses real = new RiderAddresses();
             real.setRiderNo(riders.getRiderNo());
-            real.setRiderAddressTypes(RiderAddressTypes.REAL_RESIDENCE);
+            real.setRiderAddressType(RiderAddressTypes.REAL_RESIDENCE);
             real.setModelAddress(addUpdateRiderRequest.getRealAddress());
             riderAddressRepository.save(real);
         }
         if(addUpdateRiderRequest.getPaperAddress() != null) {
             RiderAddresses paper = new RiderAddresses();
             paper.setRiderNo(riders.getRiderNo());
-            paper.setRiderAddressTypes(RiderAddressTypes.ON_PAPER);
+            paper.setRiderAddressType(RiderAddressTypes.ON_PAPER);
             paper.setModelAddress(addUpdateRiderRequest.getPaperAddress());
             riderAddressRepository.save(paper);
         }
@@ -143,8 +143,8 @@ public class RiderWorker extends SessService {
         FetchRiderDetailResponse fetchRiderDetailResponse = new FetchRiderDetailResponse();
         Riders rider = riderRepository.findByRiderId(riderId);
         RiderInfo riderInfo = rider.getRiderInfo();
-        RiderAddresses paper = riderAddressRepository.findByRider_RiderIdAndRiderAddressTypes(rider.getRiderId(), RiderAddressTypes.ON_PAPER);
-        RiderAddresses real = riderAddressRepository.findByRider_RiderIdAndRiderAddressTypes(rider.getRiderId(), RiderAddressTypes.REAL_RESIDENCE);
+        RiderAddresses paper = riderAddressRepository.findByRider_RiderIdAndRiderAddressType(rider.getRiderId(), RiderAddressTypes.ON_PAPER);
+        RiderAddresses real = riderAddressRepository.findByRider_RiderIdAndRiderAddressType(rider.getRiderId(), RiderAddressTypes.REAL_RESIDENCE);
         fetchRiderDetailResponse.setRiderId(riderId);
         fetchRiderDetailResponse.setRiderNo(rider.getRiderNo());
         fetchRiderDetailResponse.setCreatedAt(rider.getCreatedAt());
@@ -262,7 +262,7 @@ public class RiderWorker extends SessService {
             riders.setBackSsn(back);
         }
         riderRepository.save(riders);
-        RiderAddresses real = riderAddressRepository.findByRider_RiderIdAndRiderAddressTypes(riders.getRiderId(), RiderAddressTypes.REAL_RESIDENCE);
+        RiderAddresses real = riderAddressRepository.findByRider_RiderIdAndRiderAddressType(riders.getRiderId(), RiderAddressTypes.REAL_RESIDENCE);
         if(addUpdateRiderRequest.getRealAddress() != null){
             if(real == null){
                 real = new RiderAddresses();
@@ -277,8 +277,8 @@ public class RiderWorker extends SessService {
                 riderAddressRepository.delete(real);
         }
 
-        RiderAddresses paper = riderAddressRepository.findByRider_RiderIdAndRiderAddressTypes(riders.getRiderId(), RiderAddressTypes.ON_PAPER);
-        if(addUpdateRiderRequest.getPaperAddress() != null){
+        RiderAddresses paper = riderAddressRepository.findByRiderNoAndRiderAddressType(riders.getRiderNo(), RiderAddressTypes.ON_PAPER);
+        if(bePresent(addUpdateRiderRequest.getPaperAddress())){
             if(paper == null){
                 paper = new RiderAddresses();
             }

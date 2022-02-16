@@ -438,7 +438,7 @@ public class ClientsService extends SessService {
     public BikeSessionRequest deleteClient(BikeSessionRequest request){
         Map param = request.getParam();
         DeleteClientRequest deleteClientRequest = map(param, DeleteClientRequest.class);
-        List<Leases> allByClients_clientId = leaseRepository.findAllByClients_ClientIdOrderByLeaseInfo_ContractDate(deleteClientRequest.getClientId());
+        List<Leases> allByClients_clientId = leaseRepository.findAllByClients_ClientId(deleteClientRequest.getClientId());
         if(bePresent(allByClients_clientId)) withException("410-001");
         clientWorker.deleteClientAccount(deleteClientRequest.getClientId());
         return request;
