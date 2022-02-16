@@ -267,6 +267,8 @@ public class RiderWorker extends SessService {
             if(real == null){
                 real = new RiderAddresses();
             }
+            real.setRiderNo(riders.getRiderNo());
+            real.setRiderAddressTypes(RiderAddressTypes.REAL_RESIDENCE);
             real.setModelAddress(addUpdateRiderRequest.getRealAddress());
             riderAddressRepository.save(real);
         }
@@ -280,6 +282,8 @@ public class RiderWorker extends SessService {
             if(paper == null){
                 paper = new RiderAddresses();
             }
+            paper.setRiderNo(riders.getRiderNo());
+            paper.setRiderAddressTypes(RiderAddressTypes.ON_PAPER);
             paper.setModelAddress(addUpdateRiderRequest.getPaperAddress());
             riderAddressRepository.save(paper);
         }
