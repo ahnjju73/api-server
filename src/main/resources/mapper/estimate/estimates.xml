@@ -235,7 +235,8 @@
                r.*,
                ri.name,
                si.name as shop_name,
-               si.shop_no
+               si.shop_no,
+               ci.name as client_name
           from (select *
                   from (select @rownum:=@rownum+1 as rownum,
                                e.*
@@ -254,6 +255,7 @@
                                    and rownum <![CDATA[ > ]]> #{next_token}
                                  </if>
                                  order by rownum limit 30) main
+          join client_info ci on ci.client_no = main.client_no
           join bikes b on main.bike_no = b.bike_no
           join com_comm_bikes bm on b.car_model = bm.comm_cd
           left outer join estimate_parts ep on ep.estimate_no = main.estimate_no
