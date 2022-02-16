@@ -93,7 +93,7 @@ public class PartsService extends SessService {
         }
 
         PartsTypes top1ByOrderByOrderNoDesc = partsTypesRepository.findTop1ByOrderByOrderNoDesc();
-        Integer orderNo = top1ByOrderByOrderNoDesc.getOrderNo() + 1;
+        Integer orderNo = top1ByOrderByOrderNoDesc == null ? 0 : top1ByOrderByOrderNoDesc.getOrderNo() + 1;
         PartsTypes partsTypes = new PartsTypes();
         partsTypes.setOrderNo(orderNo);
         partsTypes.setPartsType(partsType);
