@@ -55,7 +55,7 @@ public class EstimateService extends SessService {
         toReturn.setTotal(responseListDto.getTotal());
         toReturn.setItems(responseListDto.getItems());
         toReturn.setNextToken(responseListDto.getNextToken());
-        List<Estimates> allByClient_clientId = estimatesRepository.findAllByClient_ClientId(clientId);
+        List<Estimates> allByClient_clientId = estimatesRepository.getUnpaidEstimates(clientsRepository.findByClientId(clientId).getClientNo());
         Integer total = 0;
         Integer paid = 0;
         for(Estimates e : allByClient_clientId){
@@ -75,7 +75,7 @@ public class EstimateService extends SessService {
         Map param = request.getParam();
         String clientId = (String) param.get("client_id");
         Integer payingFee = (Integer) param.get("paying_fee");
-        List<Estimates> allByClient_clientId = estimatesRepository.findAllByClient_ClientId(clientId);
+        List<Estimates> allByClient_clientId = estimatesRepository.getUnpaidEstimates(clientsRepository.findByClientId(clientId).getClientNo());
         for(int i = 0; i < allByClient_clientId.size(); i++){
             Estimates estimates = allByClient_clientId.get(i);
             int unpaidFee= estimates.getTotalPrice() - estimates.getPaidFee();
