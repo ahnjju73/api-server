@@ -34,6 +34,7 @@ public class EstimateService extends SessService {
     private final ClientsRepository clientsRepository;
     private final CommonWorker commonWorker;
     private final EstimatePartsRepository estimatePartsRepository;
+    private final LeaseRepository leaseRepository;
     private final BikeWorker bikeWorker;
 
     public BikeSessionRequest fetchEstimates(BikeSessionRequest request){
@@ -133,6 +134,7 @@ public class EstimateService extends SessService {
         estimateByIdResponse.setEstimate(byEstimateId);
         estimateByIdResponse.setParts(parts);
         estimateByIdResponse.setAttachments(attachments);
+        estimateByIdResponse.setLease(leaseRepository.findByBike_BikeId(byEstimateId.getBike().getBikeId()));
         if(estimatePartsRepository.findAllByEstimate_EstimateId(estimateId) == null||estimatePartsRepository.findAllByEstimate_EstimateId(estimateId).size() == 0)
             estimateByIdResponse.setWorkingPrice(bikeWorker.getWorkingPrice(byEstimateId.getBike().getCarModel()));
         else

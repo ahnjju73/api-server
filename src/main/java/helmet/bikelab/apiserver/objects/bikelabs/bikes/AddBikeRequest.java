@@ -7,6 +7,9 @@ import helmet.bikelab.apiserver.services.internal.OriginObject;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.persistence.EntityManager;
+import javax.persistence.EntityManagerFactory;
+import javax.persistence.Persistence;
 import java.time.LocalDateTime;
 
 @Getter
@@ -47,5 +50,7 @@ public class AddBikeRequest extends OriginObject {
         if(!bePresent(this.color)) withException("500-006");
         if(!bePresent(this.receiveDt)) withException("500-007");
         if(!bePresent(this.years)) withException("500-008");
+        EntityManagerFactory emf = Persistence.createEntityManagerFactory("ge");
+        EntityManager em = emf.createEntityManager();
     }
 }
