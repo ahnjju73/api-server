@@ -85,7 +85,8 @@ public class ShopService extends SessService {
 
     public BikeSessionRequest fetchAllShops(BikeSessionRequest request){
         PageableRequest pageableRequest = map(request.getParam(), PageableRequest.class);
-        Page<Shops> allShopByPageableRequest = shopWorker.getAllShopByPageableRequest(pageableRequest);
+        String keyword = (String) request.getParam().get("keyword");
+        Page<Shops> allShopByPageableRequest = shopWorker.getAllShopByPageableRequest(pageableRequest, keyword);
         request.setResponse(allShopByPageableRequest);
         return request;
     }

@@ -6,6 +6,7 @@ import helmet.bikelab.apiserver.objects.responses.FetchUnpaidEstimateResponse;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.services.EstimateService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -67,5 +68,13 @@ public class EstimatesHandler {
                         .map(estimateService::checkBikeSession)
                         .map(estimateService::fetchEstimates)
                         .map(estimateService::returnData), ResponseListDto.class);
+    }
+    public Mono<ServerResponse> fetchReviewList(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> estimateService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(estimateService::checkBikeSession)
+                        .map(estimateService::fetchReviewsByShop)
+                        .map(estimateService::returnData), Page.class);
     }
 }
