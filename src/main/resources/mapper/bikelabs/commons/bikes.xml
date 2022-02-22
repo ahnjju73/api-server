@@ -11,6 +11,7 @@
               from (select *
                       from bikes
                      where bike_id != (select val from system_parameters where parameter_no = 0)
+                       and is_bm = #{is_bikemaster}
                     <if test="search_name != null and search_name != '' and search_name != 'undefined'">
                        and (
                             vim_num like concat('%', #{search_name}, '%')
@@ -25,6 +26,14 @@
             select count(*)
               from bikes
              where bike_id != (select val from system_parameters where parameter_no = 0)
+               and is_bm = #{is_bikemaster}
+             <if test="search_name != null and search_name != '' and search_name != 'undefined'">
+               and (
+                   vim_num like concat('%', #{search_name}, '%')
+                   or `number` like concat('%', #{search_name}, '%')
+                   )
+             </if>
+
         </if>
     </select>
 

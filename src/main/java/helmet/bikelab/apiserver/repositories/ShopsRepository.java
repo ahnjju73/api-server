@@ -11,5 +11,6 @@ public interface ShopsRepository extends JpaRepository<Shops, Integer> {
     Shops findByRegNum(String regNum);
     Shops findByShopId(String shopId);
     Page<Shops> findAll(Pageable pageable);
+    Page<Shops> findAllByShopInfo_NameContaining(String keyword, Pageable pageable);
 
 }

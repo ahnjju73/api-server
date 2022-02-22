@@ -5,12 +5,14 @@ import helmet.bikelab.apiserver.domain.EstimateParts;
 import helmet.bikelab.apiserver.domain.Estimates;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.client.Clients;
+import helmet.bikelab.apiserver.domain.types.EstimateStatusTypes;
 import helmet.bikelab.apiserver.objects.BikeDto;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.EstimateDto;
 import helmet.bikelab.apiserver.objects.bikelabs.clients.ClientDto;
 import helmet.bikelab.apiserver.objects.requests.EstimateRequestListDto;
 import helmet.bikelab.apiserver.objects.requests.FetchUnpaidEstimatesRequest;
+import helmet.bikelab.apiserver.objects.requests.PageableRequest;
 import helmet.bikelab.apiserver.objects.requests.RequestListDto;
 import helmet.bikelab.apiserver.objects.responses.EstimateByIdResponse;
 import helmet.bikelab.apiserver.objects.responses.FetchUnpaidEstimateResponse;
@@ -20,6 +22,9 @@ import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.workers.BikeWorker;
 import helmet.bikelab.apiserver.workers.CommonWorker;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -143,6 +148,19 @@ public class EstimateService extends SessService {
         return request;
     }
 
+    public BikeSessionRequest fetchReviewsByShop(BikeSessionRequest request){
+        PageableRequest pageableRequest = map(request.getParam(), PageableRequest.class);
+        Pageable pageable = PageRequest.of(pageableRequest.getPage(), pageableRequest.getSize());
+        String shopId = (String) request.getParam().get("shop_id");
+        Page<Estimates> reviewList;
+        if(bePresent(shopId)){
+            reviewList = estimatesRepository.findByShop_ShopIdAndReviewNotNullAndEstimateStatusType(shopId, EstimateStatusTypes.COMPLETED, pageable);
+        } else{
+            reviewList = estimatesRepository.findAllByReviewNotNullAndEstimateStatusType(EstimateStatusTypes.COMPLETED, pageable);
+        }
+        request.setResponse(reviewList);
+        return request;
+    }
 
 
 
