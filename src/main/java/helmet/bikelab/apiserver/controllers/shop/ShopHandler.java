@@ -81,6 +81,14 @@ public class ShopHandler {
                         .map(shopService::fetchAllShops)
                         .map(shopService::returnData), Page.class);
     }
+    public Mono<ServerResponse> fetchAllShopsWithoutPage(ServerRequest request){
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> shopService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(shopService::checkBikeSession)
+                        .map(shopService::fetchAllShopsWithoutPage)
+                        .map(shopService::returnData), List.class);
+    }
 
     public Mono<ServerResponse> fetchBanks(ServerRequest request){
         return ServerResponse.ok().body(
