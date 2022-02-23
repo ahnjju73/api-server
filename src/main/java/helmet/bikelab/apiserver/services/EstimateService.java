@@ -45,7 +45,7 @@ public class EstimateService extends SessService {
     public BikeSessionRequest fetchEstimates(BikeSessionRequest request){
         Map param = request.getParam();
         EstimateRequestListDto requestListDto = map(param, EstimateRequestListDto.class);
-        ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "estimate.estimates.fetchEstimateList", "estimate.estimates.countEstimateList", "estimate_id");
+        ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "estimate.estimates.fetchEstimateList", "estimate.estimates.countEstimateList", "row_num");
         request.setResponse(responseListDto);
         return request;
     }
