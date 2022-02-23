@@ -91,6 +91,17 @@ public class ShopService extends SessService {
         return request;
     }
 
+    public BikeSessionRequest fetchAllShopsWithoutPage(BikeSessionRequest request){
+        String keyword = (String) request.getParam().get("keyword");
+        List<Shops> shopList;
+        if(bePresent(keyword))
+            shopList = shopsRepository.findAllByShopInfo_NameContaining(keyword);
+        else
+            shopList = shopsRepository.findAll();
+        request.setResponse(shopList);
+        return request;
+    }
+
     public BikeSessionRequest fetchShopDetailsByShopId(BikeSessionRequest request){
         Map param = request.getParam();
         String shopId = (String)param.get("shop_id");
