@@ -58,6 +58,8 @@ public class LeasePaymentService  extends SessService {
     public BikeSessionRequest fetchLeaseExtrasGroupByClient(BikeSessionRequest request){
         Map param = request.getParam();
         LeasePaymentsRequestListDto requestListDto = map(param, LeasePaymentsRequestListDto.class);
+        Map map = new HashMap();
+
         ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "leases.leases-payments.fetchLeaseExtrasGroupByClient", "leases.leases-payments.countAllLeaseExtrasGroupByClient", "client_id");
         request.setResponse(responseListDto);
         return request;

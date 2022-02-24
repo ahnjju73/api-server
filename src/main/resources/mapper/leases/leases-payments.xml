@@ -30,15 +30,14 @@
 
     <select id="countAllLeaseExtrasGroupByClient" parameterType="hmap" resultType="int">
         select count(*)
-          from (select lp.payment_date,
-                       sum(le.extra_fee) as extra_fee,
+          from (select sum(le.extra_fee) as extra_fee,
                        sum(le.paid_fee) as paid_fee,
                        lm.client_no
                   from (select *
                           from leases
-                         where status = '550-003'
-                           and lease_stop_status in ('506-001', '506-003')
-                           and contract_type not in ('500-002')) lm
+                         where status = '550-003')lm
+--                            and lease_stop_status in ('506-001', '506-003')
+--                            and contract_type not in ('500-002')) lm
                        join (select *
                                from lease_payments
                               where 1 = 1
@@ -62,18 +61,15 @@
                if(ci.manager_name is null, '', ci.manager_name) as manager_name,
                if(ci.manager_email is null, '', ci.manager_email) as manager_email,
                if(ci.manager_phone is null, '', ci.manager_phone) as manager_phone,
-               et.comm_nm as extra_type,
                extra_fee,
                paid_fee
-          from (select lp.payment_date,
-                       sum(le.extra_fee) as extra_fee,
+          from (select sum(le.extra_fee) as extra_fee,
                        sum(le.paid_fee) as paid_fee,
-                       lm.client_no,
-                       le.extra_type
+                       lm.client_no
                   from (select *
                           from leases
-                         where status = '550-003'
-                           and contract_type not in ('500-002')) lm
+                         where status = '550-003')lm
+--                            and contract_type not in ('500-002')) lm
                        join (select *
                                from lease_payments
                               where 1 = 1
@@ -87,9 +83,6 @@
                  group by client_no) m
              join clients c on m.client_no = c.client_no
              join client_info ci on ci.client_no = c.client_no
-             join (select *
-                     from com_comm_mst
-                    where up_comm_cd = 503) et on m.extra_type = et.comm_cd
     </select>
 
     <select id="countAllLeasePaymentsGroupByClient" parameterType="hmap" resultType="int">
