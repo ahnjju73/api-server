@@ -50,7 +50,5 @@ public class AddBikeRequest extends OriginObject {
         if(!bePresent(this.color)) withException("500-006");
         if(!bePresent(this.receiveDt)) withException("500-007");
         if(!bePresent(this.years)) withException("500-008");
-        EntityManagerFactory emf = Persistence.createEntityManagerFactory("ge");
-        EntityManager em = emf.createEntityManager();
     }
 }
