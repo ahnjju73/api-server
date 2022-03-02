@@ -142,6 +142,7 @@ public class Leases {
     @Column(name = "demand_lease_no")
     private Long demandLeaseNo;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "demand_lease_no", insertable = false, updatable = false)
     private DemandLeases demandLeases;

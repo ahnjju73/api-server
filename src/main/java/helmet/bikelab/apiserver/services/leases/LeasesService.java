@@ -518,7 +518,7 @@ public class LeasesService extends SessService {
             if(insurance.getInsuranceNo() != lease.getInsuranceNo()){
                 logList.add("보험을 <>" + insurance.getCompanyName() + " " + insurance.getAge() + " [" + insurance.getInsuranceName() + " ]" + "</>에서 <>" + insurance.getCompanyName() + " " + insurance.getAge() + " [" +  insurance.getInsuranceName() + "] " + "</>으로 변경하였습니다.\n");
             }
-            if(!lease.getLeaseInfo().getNote().equals(addUpdateLeaseRequest.getLeaseInfo().getNote())){
+            if((lease.getLeaseInfo().getNote() == null && addUpdateLeaseRequest.getLeaseInfo().getNote() != null) || (lease.getLeaseInfo().getNote() != null && !lease.getLeaseInfo().getNote().equals(addUpdateLeaseRequest.getLeaseInfo().getNote()))){
                 if(lease.getLeaseInfo().getNote() == null)
                     logList.add("노트 내용을 <>" + addUpdateLeaseRequest.getLeaseInfo().getNote() + "</>로 설정하였습니다.");
                 else

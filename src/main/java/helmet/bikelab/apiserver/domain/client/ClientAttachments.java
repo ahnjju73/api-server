@@ -17,6 +17,7 @@ import javax.persistence.*;
 @NoArgsConstructor
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class ClientAttachments {
+
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "client_attachment_no")
     private Integer attachNo;

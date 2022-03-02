@@ -5,12 +5,14 @@ import helmet.bikelab.apiserver.domain.EstimateParts;
 import helmet.bikelab.apiserver.domain.Estimates;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.client.Clients;
+import helmet.bikelab.apiserver.domain.types.EstimateStatusTypes;
 import helmet.bikelab.apiserver.objects.BikeDto;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.EstimateDto;
 import helmet.bikelab.apiserver.objects.bikelabs.clients.ClientDto;
 import helmet.bikelab.apiserver.objects.requests.EstimateRequestListDto;
 import helmet.bikelab.apiserver.objects.requests.FetchUnpaidEstimatesRequest;
+import helmet.bikelab.apiserver.objects.requests.PageableRequest;
 import helmet.bikelab.apiserver.objects.requests.RequestListDto;
 import helmet.bikelab.apiserver.objects.responses.EstimateByIdResponse;
 import helmet.bikelab.apiserver.objects.responses.FetchUnpaidEstimateResponse;
@@ -20,6 +22,9 @@ import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.workers.BikeWorker;
 import helmet.bikelab.apiserver.workers.CommonWorker;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,12 +39,13 @@ public class EstimateService extends SessService {
     private final ClientsRepository clientsRepository;
     private final CommonWorker commonWorker;
     private final EstimatePartsRepository estimatePartsRepository;
+    private final LeaseRepository leaseRepository;
     private final BikeWorker bikeWorker;
 
     public BikeSessionRequest fetchEstimates(BikeSessionRequest request){
         Map param = request.getParam();
         EstimateRequestListDto requestListDto = map(param, EstimateRequestListDto.class);
-        ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "estimate.estimates.fetchEstimateList", "estimate.estimates.countEstimateList", "estimate_id");
+        ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "estimate.estimates.fetchEstimateList", "estimate.estimates.countEstimateList", "row_num");
         request.setResponse(responseListDto);
         return request;
     }
@@ -55,7 +61,7 @@ public class EstimateService extends SessService {
         toReturn.setTotal(responseListDto.getTotal());
         toReturn.setItems(responseListDto.getItems());
         toReturn.setNextToken(responseListDto.getNextToken());
-        List<Estimates> allByClient_clientId = estimatesRepository.findAllByClient_ClientId(clientId);
+        List<Estimates> allByClient_clientId = estimatesRepository.getUnpaidEstimates(clientsRepository.findByClientId(clientId).getClientNo());
         Integer total = 0;
         Integer paid = 0;
         for(Estimates e : allByClient_clientId){
@@ -75,7 +81,7 @@ public class EstimateService extends SessService {
         Map param = request.getParam();
         String clientId = (String) param.get("client_id");
         Integer payingFee = (Integer) param.get("paying_fee");
-        List<Estimates> allByClient_clientId = estimatesRepository.findAllByClient_ClientId(clientId);
+        List<Estimates> allByClient_clientId = estimatesRepository.getUnpaidEstimates(clientsRepository.findByClientId(clientId).getClientNo());
         for(int i = 0; i < allByClient_clientId.size(); i++){
             Estimates estimates = allByClient_clientId.get(i);
             int unpaidFee= estimates.getTotalPrice() - estimates.getPaidFee();
@@ -87,6 +93,7 @@ public class EstimateService extends SessService {
                 estimates.setPaidAt(LocalDateTime.now());
             }else{
                 estimates.setPaidFee(estimates.getPaidFee() + payingFee);
+                payingFee = 0;
             }
             estimatesRepository.save(estimates);
             if(payingFee == 0)
@@ -132,6 +139,7 @@ public class EstimateService extends SessService {
         estimateByIdResponse.setEstimate(byEstimateId);
         estimateByIdResponse.setParts(parts);
         estimateByIdResponse.setAttachments(attachments);
+        estimateByIdResponse.setLease(leaseRepository.findByBike_BikeId(byEstimateId.getBike().getBikeId()));
         if(estimatePartsRepository.findAllByEstimate_EstimateId(estimateId) == null||estimatePartsRepository.findAllByEstimate_EstimateId(estimateId).size() == 0)
             estimateByIdResponse.setWorkingPrice(bikeWorker.getWorkingPrice(byEstimateId.getBike().getCarModel()));
         else
@@ -140,6 +148,19 @@ public class EstimateService extends SessService {
         return request;
     }
 
+    public BikeSessionRequest fetchReviewsByShop(BikeSessionRequest request){
+        PageableRequest pageableRequest = map(request.getParam(), PageableRequest.class);
+        Pageable pageable = PageRequest.of(pageableRequest.getPage(), pageableRequest.getSize());
+        String shopId = (String) request.getParam().get("shop_id");
+        Page<Estimates> reviewList;
+        if(bePresent(shopId)){
+            reviewList = estimatesRepository.findByShop_ShopIdAndReviewNotNullAndEstimateStatusType(shopId, EstimateStatusTypes.COMPLETED, pageable);
+        } else{
+            reviewList = estimatesRepository.findAllByReviewNotNullAndEstimateStatusType(EstimateStatusTypes.COMPLETED, pageable);
+        }
+        request.setResponse(reviewList);
+        return request;
+    }
 
 
 

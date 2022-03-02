@@ -4,6 +4,9 @@ import helmet.bikelab.apiserver.domain.shops.Shops;
 import org.springframework.data.domain.Page;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.Query;
+
+import java.util.List;
 
 public interface ShopsRepository extends JpaRepository<Shops, Integer> {
 
@@ -11,5 +14,6 @@ public interface ShopsRepository extends JpaRepository<Shops, Integer> {
     Shops findByRegNum(String regNum);
     Shops findByShopId(String shopId);
     Page<Shops> findAll(Pageable pageable);
-
+    Page<Shops> findAllByShopInfo_NameContaining(String keyword, Pageable pageable);
+    List<Shops> findAllByShopInfo_NameContaining(String keyword);
 }

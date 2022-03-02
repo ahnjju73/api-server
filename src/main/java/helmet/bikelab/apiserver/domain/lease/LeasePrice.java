@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.domain.lease;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import helmet.bikelab.apiserver.domain.types.PaymentTypes;
 import helmet.bikelab.apiserver.domain.types.converters.PaymentTypeConverter;
 import lombok.Getter;
@@ -19,6 +20,7 @@ public class LeasePrice {
     @Column(name = "lease_no")
     private Integer leaseNo;
 
+    @JsonIgnore
     @OneToOne(optional = false)
     @JoinColumn(name = "lease_no", nullable = false)
     private Leases lease;

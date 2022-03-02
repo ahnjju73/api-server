@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.domain.client;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import helmet.bikelab.apiserver.services.internal.OriginObject;
@@ -31,6 +32,11 @@ public class ClientOverpay extends OriginObject {
 
     @Column(name = "client_no")
     private Integer clientNo;
+
+    @JsonIgnore
+    @ManyToOne
+    @JoinColumn(name = "client_no", insertable = false, updatable = false)
+    private Clients client;
 
     @Column(name = "overpay_fee")
     private Integer overpayFee;
