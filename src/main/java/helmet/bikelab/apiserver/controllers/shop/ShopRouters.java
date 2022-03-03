@@ -25,6 +25,7 @@ public class ShopRouters {
                 .andRoute(PUT("/repairshop"), shopHandler::updateShopInfo)
                 .andRoute(GET("/repairshop/details"), shopHandler::fetchShopDetailsByShopId)
                 .andRoute(GET("/repairshop"), shopHandler::fetchAllShops)
+                .andRoute(GET("/repairshop/no-page"), shopHandler::fetchAllShopsWithoutPage)
                 .andRoute(PUT("/repairshop/password"), shopHandler::updatePasswordByShopId)
                 .andRoute(GET("/repairshop/histories"), shopHandler::fetchHistoryOfShop)
                 ;

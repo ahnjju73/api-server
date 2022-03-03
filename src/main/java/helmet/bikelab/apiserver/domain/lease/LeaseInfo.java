@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.domain.lease;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -17,6 +18,7 @@ public class LeaseInfo {
     @Column(name = "lease_no", nullable = false)
     private Integer leaseNo;
 
+    @JsonIgnore
     @OneToOne
     @JoinColumn(name = "lease_no")
     private Leases lease;

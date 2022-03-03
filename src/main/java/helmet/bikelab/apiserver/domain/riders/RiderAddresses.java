@@ -28,7 +28,7 @@ public class RiderAddresses {
     @Id
     @Column(name = "address_type", columnDefinition = "ENUM")
     @Convert(converter = RiderAddressTypeConverter.class)
-    private RiderAddressTypes riderAddressTypes;
+    private RiderAddressTypes riderAddressType;
 
     @JsonIgnore
     @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)

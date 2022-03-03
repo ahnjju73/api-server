@@ -36,6 +36,10 @@ public class UpdateClientRequest extends OriginObject {
     }
 
     public void checkValidation(){
+        if(bePresent(clientInfo.getPhone())){
+            String trim = clientInfo.getPhone().replace("-", "").replaceAll(" ", "").replaceAll(" ", "").trim();
+            clientInfo.setPhone(trim);
+        }
         if(!bePresent(clientId)) withException("400-003");
         if(!bePresent(clientInfo.getName())) withException("400-011");
         if(!bePresent(uuid)) withException("400-012");

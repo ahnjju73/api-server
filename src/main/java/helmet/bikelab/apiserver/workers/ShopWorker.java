@@ -19,6 +19,15 @@ public class ShopWorker extends SessService {
 
     private final ShopsRepository shopsRepository;
 
+    public Page<Shops> getAllShopByPageableRequest(PageableRequest pageableRequest, String keyword){
+        if(keyword == null || keyword.isBlank()){
+            return getAllShopByPageableRequest(pageableRequest);
+        }
+        Pageable pageable = PageRequest.of(pageableRequest.getPage(), pageableRequest.getSize());
+        Page<Shops> all = shopsRepository.findAllByShopInfo_NameContaining(keyword, pageable);
+        return all;
+    }
+
     public Page<Shops> getAllShopByPageableRequest(PageableRequest pageableRequest){
         Pageable pageable = PageRequest.of(pageableRequest.getPage(), pageableRequest.getSize());
         Page<Shops> all = shopsRepository.findAll(pageable);
