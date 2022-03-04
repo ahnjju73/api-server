@@ -16,6 +16,7 @@ public class LeasePaymentRouters {
     public RouterFunction<ServerResponse> paymentRouters(LeasePaymentHandlers handler){
         return RouterFunctions
                 .route(GET("/unpaid-leases"), handler::fetchLeases)
+                .andRoute(PUT("/leases-payments/change-client"), handler::changeClient)
                 .andRoute(GET("/leases-extra-payments/group-by-client"), handler::fetchLeaseExtrasGroupByClient)
                 .andRoute(GET("/leases-payments-by-index/group-by-client"), handler::fetchLeasePaymentsByClient)
                 .andRoute(GET("/leases-payments-by-index"), handler::fetchLeasePaymentsByIndex)
