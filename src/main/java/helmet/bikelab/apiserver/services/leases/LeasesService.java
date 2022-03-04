@@ -760,6 +760,7 @@ public class LeasesService extends SessService {
         List<String> stringList = new ArrayList<>();
         String emptyBikeId = systemParameterRepository.findByRemark("공백바이크 ID").getValue();
         boolean isSet = true;
+        LeasePayments firstByLease_leaseId = leasePaymentsRepository.findFirstByLease_LeaseId(leases.getLeaseId());
         if(bePresent(leaseRequest)){
             if(bePresent(clientRequested) && !clientRequested.getClientNo().equals(leases.getClientNo())){
                 Clients clients = leases.getClients();
@@ -784,8 +785,8 @@ public class LeasesService extends SessService {
                     stringList.add("보험을 <>" + insurance.getCompanyName() + " " + insurance.getAge() + " [" + insurance.getInsuranceId() + " ]" + "</>에서 <>" + insurancesRequested.getCompanyName() + " " + insurancesRequested.getAge() + " [" +  insurancesRequested.getInsuranceId() + "] " + "</>으로 변경하였습니다.\n");
             }
             // 납부료가 변경되었을 때 if문 작성
-            if(bePresent(leaseRequest.getLeasePrice().getLeaseFee()) && !leaseRequest.getLeasePrice().getLeaseFee().equals(leases.getLeasePrice())){
-                stringList.add("납부료를 기존 <> " + leases.getLeasePrice() + " </>원에서 <>" + leaseRequest.getLeasePrice().getLeaseFee() + "</>원으로 변경하였습니다.\n");
+            if(bePresent(leaseRequest.getLeasePrice().getLeaseFee()) && !leaseRequest.getLeasePrice().getLeaseFee().equals(firstByLease_leaseId.getLeaseFee())){
+                stringList.add("납부료를 기존 <> " + firstByLease_leaseId.getLeaseFee() + " </>원에서 <>" + leaseRequest.getLeasePrice().getLeaseFee() + " </>원으로 변경하였습니다.\n");
             }
             if(bePresent(leaseRequest.getLeasePrice().getPaymentType()) && !leaseRequest.getLeasePrice().getPaymentType().equals(leases.getLeasePrice().getType().getPaymentType())){
                 Hibernate.initialize(leases.getPayments());
