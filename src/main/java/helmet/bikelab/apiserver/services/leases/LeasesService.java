@@ -29,6 +29,7 @@ import helmet.bikelab.apiserver.utils.Senders;
 import helmet.bikelab.apiserver.utils.Utils;
 import helmet.bikelab.apiserver.workers.CommonWorker;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -291,6 +292,10 @@ public class LeasesService extends SessService {
             leasePaymentDto.setIdx(lp.getIndex());
             leasePaymentDto.setPaidType(lp.getPaidType() != null ? lp.getPaidType().getStatus() : null);
             leasePaymentDto.setDescription(lp.getDescription());
+            Clients clients = clientsRepository.findById(lp.getClientNo()).get();
+            ClientDto clientDto = new ClientDto();
+            clientDto.setClientName(clients.getClientInfo().getName());
+            clientDto.setClientId(clients.getClientId());
             totalFee += lp.getLeaseFee();
             leasePayments.add(leasePaymentDto);
         }
@@ -387,6 +392,7 @@ public class LeasesService extends SessService {
                         String paymentId = autoKey.makeGetKey("payment");
                         leasePayment.setPaymentId(paymentId);
                         leasePayment.setLeaseNo(lease.getLeaseNo());
+                        leasePayment.setClientNo(client.getClientNo());
                         leasePayment.setIndex(i + 1);
                         leasePayment.setPaymentDate(leaseInfo.getStart().plusMonths(i));
                         leasePayment.setInsertedUserNo(session.getUserNo());
@@ -400,6 +406,7 @@ public class LeasesService extends SessService {
                         String paymentId = autoKey.makeGetKey("payment");
                         leasePayment.setPaymentId(paymentId);
                         leasePayment.setLeaseNo(lease.getLeaseNo());
+                        leasePayment.setClientNo(client.getClientNo());
                         leasePayment.setIndex(i + 1);
                         leasePayment.setPaymentDate(leaseInfo.getStart().plusDays(i));
                         leasePayment.setInsertedUserNo(session.getUserNo());
@@ -477,7 +484,14 @@ public class LeasesService extends SessService {
             if(bike.getTransaction() == null) withException("850-034");
             ModelTransaction modelTransaction = bike.getTransaction();
             List<LeaseExpense> expenses = expenseRepository.findAllByLease_LeaseIdAndExpenseTypes(lease.getLeaseId(), ExpenseTypes.BIKE);
+            List<LeasePayments> payments = leasePaymentsRepository.findAllByLease_LeaseId(lease.getLeaseId());
             LeaseExpense leaseExpense;
+            for(LeasePayments lp : payments){
+                 if(lp.getPaymentDate().isAfter(LocalDate.now())){
+                     lp.setClientNo(clientsRepository.findByClientId(addUpdateLeaseRequest.getClientId()).getClientNo());
+                     leasePaymentsRepository.save(lp);
+                 }
+            }
             if (expenses.size() > 0) {
                 leaseExpense = expenses.get(0);
                 leaseExpense.setTransaction(modelTransaction);
@@ -665,6 +679,7 @@ public class LeasesService extends SessService {
                         String paymentId = autoKey.makeGetKey("payment");
                         leasePayment.setPaymentId(paymentId);
                         leasePayment.setLeaseNo(lease.getLeaseNo());
+                        leasePayment.setClientNo(client.getClientNo());
                         leasePayment.setIndex(i + 1);
                         leasePayment.setPaymentDate(leaseInfo.getStart().plusMonths(i));
                         leasePayment.setInsertedUserNo(session.getUserNo());
@@ -678,6 +693,7 @@ public class LeasesService extends SessService {
                         String paymentId = autoKey.makeGetKey("payment");
                         leasePayment.setPaymentId(paymentId);
                         leasePayment.setLeaseNo(lease.getLeaseNo());
+                        leasePayment.setClientNo(client.getClientNo());
                         leasePayment.setIndex(i + 1);
                         leasePayment.setPaymentDate(leaseInfo.getStart().plusDays(i));
                         leasePayment.setInsertedUserNo(session.getUserNo());
@@ -773,7 +789,8 @@ public class LeasesService extends SessService {
                 stringList.add("납부료를 기존 <> " + firstByLease_leaseId.getLeaseFee() + " </>원에서 <>" + leaseRequest.getLeasePrice().getLeaseFee() + " </>원으로 변경하였습니다.\n");
             }
             if(bePresent(leaseRequest.getLeasePrice().getPaymentType()) && !leaseRequest.getLeasePrice().getPaymentType().equals(leases.getLeasePrice().getType().getPaymentType())){
-                LeasePayments first = leasePaymentsRepository.findFirstByLease_LeaseId(leases.getLeaseId());
+                Hibernate.initialize(leases.getPayments());
+                List<LeasePayments> payments = leases.getPayments();
                 if(leases.getLeasePrice().getType() == PaymentTypes.DAILY) {
                     stringList.add("결제구분을 <> 일차감 </>에서 <> 월차감 </>으로 변경하였습니다.\n");
                     if(bePresent(leaseRequest.getLeaseInfo().getPeriod()) && !leaseRequest.getLeaseInfo().getPeriod().equals(leases.getLeaseInfo().getPeriod())){

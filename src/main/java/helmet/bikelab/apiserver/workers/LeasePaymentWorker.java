@@ -1,6 +1,7 @@
 package helmet.bikelab.apiserver.workers;
 
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
+import helmet.bikelab.apiserver.domain.client.Clients;
 import helmet.bikelab.apiserver.domain.lease.LeaseExtras;
 import helmet.bikelab.apiserver.domain.lease.LeasePayments;
 import helmet.bikelab.apiserver.domain.lease.Leases;
@@ -10,10 +11,7 @@ import helmet.bikelab.apiserver.domain.types.LeaseStatusTypes;
 import helmet.bikelab.apiserver.domain.types.PaidTypes;
 import helmet.bikelab.apiserver.objects.requests.RequestListDto;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
-import helmet.bikelab.apiserver.repositories.BikeUserLogRepository;
-import helmet.bikelab.apiserver.repositories.LeaseExtraRepository;
-import helmet.bikelab.apiserver.repositories.LeasePaymentsRepository;
-import helmet.bikelab.apiserver.repositories.RiderRepository;
+import helmet.bikelab.apiserver.repositories.*;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.utils.Utils;
 import helmet.bikelab.apiserver.utils.keys.ENV;
@@ -36,6 +34,7 @@ public class LeasePaymentWorker extends SessService {
     private final LeasePaymentsRepository leasePaymentsRepository;
     private final BikeUserLogRepository bikeUserLogRepository;
     private final LeaseExtraRepository leaseExtraRepository;
+    private final ClientsRepository clientsRepository;
     private final RiderRepository riderRepository;
 
     public void payLeaseExtraFeeByExtraId(String extraId, BikeUser session) {
@@ -152,4 +151,21 @@ public class LeasePaymentWorker extends SessService {
         if(leases != null)
             bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_PAYMENT, session.getUserNo(), leases.getLeaseNo().toString(), strings));
     }
+
+    public void changeClient(BikeUser session, String clientId, String paymentId) {
+        LeasePayments byPaymentId = leasePaymentsRepository.findByPaymentId(paymentId);
+        Clients preClient = byPaymentId.getClient();
+        Clients byClientId = clientsRepository.findByClientId(clientId);
+        byPaymentId.setClientNo(byClientId.getClientNo());
+        leasePaymentsRepository.save(byPaymentId);
+        if(preClient != null) {
+            String content = "<>" + byPaymentId.getIndex() + "회차</> 납부 고객정보를 <>" + preClient.getClientInfo().getName() + "</>에서 <>" + byClientId.getClientInfo().getName() + "</>으로 수정하였습니다.";
+            bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_PAYMENT, session.getUserNo(), byPaymentId.getLeaseNo().toString(), content));
+        }else{
+            String content = "<>" + byPaymentId.getIndex() + "회차</> 납부 고객정보를 <>" + byClientId.getClientInfo().getName() + "</>으로 추가하였습니다.";
+            bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_PAYMENT, session.getUserNo(), byPaymentId.getLeaseNo().toString(), content));
+        }
+
+    }
+
 }

@@ -113,6 +113,15 @@ public class LeasePaymentService  extends SessService {
     }
 
     @Transactional
+    public BikeSessionRequest changeCLient(BikeSessionRequest request){
+        Map param = request.getParam();
+        String paymentId = (String)param.get("payment_id");
+        String clientId = (String)param.get("client_id");
+        leasePaymentWorker.changeClient(request.getSessionUser(), clientId, paymentId);
+        return request;
+    }
+
+    @Transactional
     public BikeSessionRequest payLeaseFeeByPaymentId(BikeSessionRequest request){
         Map param = request.getParam();
         BikeUser session = request.getSessionUser();
