@@ -292,7 +292,12 @@ public class LeasesService extends SessService {
             leasePaymentDto.setIdx(lp.getIndex());
             leasePaymentDto.setPaidType(lp.getPaidType() != null ? lp.getPaidType().getStatus() : null);
             leasePaymentDto.setDescription(lp.getDescription());
+            if(!bePresent(lp.getClientNo())){
+                lp.setClientNo(lease.getClientNo());
+                lp.setClient(lease.getClients());
+            }
             Clients clients = clientsRepository.findById(lp.getClientNo()).get();
+
             ClientDto clientDto = new ClientDto();
             clientDto.setClientName(clients.getClientInfo().getName());
             clientDto.setClientId(clients.getClientId());
