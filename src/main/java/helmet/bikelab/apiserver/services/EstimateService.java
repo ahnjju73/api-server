@@ -45,7 +45,8 @@ public class EstimateService extends SessService {
     public BikeSessionRequest fetchEstimates(BikeSessionRequest request){
         Map param = request.getParam();
         EstimateRequestListDto requestListDto = map(param, EstimateRequestListDto.class);
-        ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "estimate.estimates.fetchEstimateList", "estimate.estimates.countEstimateList", "row_num");
+        requestListDto.setKeyword((String) param.get("keyword"));
+        ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "estimate.estimates.fetchEstimateList", "estimate.estimates.countEstimateList", "rownum");
         request.setResponse(responseListDto);
         return request;
     }
@@ -133,6 +134,7 @@ public class EstimateService extends SessService {
         Estimates byEstimateId = estimatesRepository.findByEstimateId(estimateId);
         param.put("estimate_no", byEstimateId.getEstimateNo());
         param.put("client_no", byEstimateId.getClientNo());
+        Clients client = byEstimateId.getClient();
         List parts = getList("estimate.estimates.fetchEstimatePartsById", param);
         List attachments = getList("estimate.estimates.fetchEstimateAttachmentsById", param);
         EstimateByIdResponse estimateByIdResponse = new EstimateByIdResponse();
