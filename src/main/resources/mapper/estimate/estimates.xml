@@ -141,11 +141,7 @@
 			                   e.*
                           from (select *
                                   from estimates
-                                 where 1 = 1
-                                 <if test="client_no != null and client_no != '' and client_no != 'undefined'">
-                                   and client_no = #{client_no}
-                                 </if>
-                                   and status != '1'
+                                 where status != '1'
                                  order by estimate_no desc) e,
                                (SELECT @rownum :=0) AS R) m
                  where 1 = 1
@@ -163,16 +159,23 @@
           join shop_info si on si.shop_no = s.shop_no
           join clients cc on cc.client_no = main.client_no
           join client_info ci on ci.client_no = main.client_no
+        <if test="keyword != null and keyword != '' and keyword != 'undefined'">
+            and (ci.name like concat('%', #{keyword}, '%') or b.number like concat('%', #{keyword}, '%'))
+        </if>
     </select>
 
     <select id="countEstimateList" parameterType="hmap" resultType="int">
-        select count(*)
-          from estimates
-         where 1 = 1
-         <if test="client_no != null and client_no != '' and client_no != 'undefined'">
-           and client_no = #{client_no}
-         </if>
-           and status != '1'
+        select count(ee.estimate_id)
+          from (select e.*
+                  from ((select *
+                           from estimates
+                          where status != '1')e
+                   join bikes b on b.bike_no = e.bike_no
+                   join client_info ci on ci.client_no = e.client_no
+                   <if test="keyword != null and keyword != '' and keyword != 'undefined'">
+                    and (ci.name like concat('%', #{keyword}, '%') or b.number like concat('%', #{keyword}, '%'))
+                   </if>)
+               )ee
     </select>
 
     <resultMap id="fetchEstimatePartsByIdMapItem" type="hmap">

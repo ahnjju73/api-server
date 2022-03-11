@@ -175,6 +175,7 @@ public class Estimates extends OriginObject {
     @ManyToOne
     @JoinColumn(name = "settle_no", insertable = false, updatable = false)
     private Settles settle;
+    ;
 
     @JsonIgnore
     public void payingStart(){

@@ -9,5 +9,5 @@ import lombok.Setter;
 @Setter
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class EstimateRequestListDto extends RequestListDto{
-    private Integer clientNo;
+    private String keyword;
 }
