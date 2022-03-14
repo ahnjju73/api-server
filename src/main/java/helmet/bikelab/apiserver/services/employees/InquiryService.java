@@ -47,7 +47,7 @@ public class InquiryService extends SessService {
     }
 
     public BikeSessionRequest fetchDemandLeases(BikeSessionRequest request){
-        RequestListDto requestListDto = map(request.getParam(), RequestListDto.class);
+        InquiriesDto requestListDto = map(request.getParam(), InquiriesDto.class);
         ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "bikelabs.inquiries.fetchDemandLeases", "bikelabs.inquiries.countAllDemandLeases", "demand_lease_id");
         request.setResponse(responseListDto);
         return request;

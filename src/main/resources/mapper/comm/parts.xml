@@ -53,6 +53,9 @@
                join parts_types pt on pt.parts_type_no = pc.parts_type_no
          where pc.usable = "1"
            and pt.usable = "1"
+         <if test="car_model != null and car_model != '' and car_model != 'undefined'">
+           and bike_model_cd = #{car_model}
+         </if>
          order by parts_no
     </select>
 
@@ -82,9 +85,6 @@
                join com_comm_manuf ccm on ccb.manuf_no = ccm.manuf_no
          where pc.usable = "1"
            and pt.usable = "1"
-         <if test="car_model != null and car_model != '' and car_model != 'undefined'">
-           and bike_model_cd = #{car_model}
-         </if>
          <if test="next_token != null and next_token != '' and next_token != 'undefined'">
            and parts_no <![CDATA[ > ]]> #{next_token}
          </if>
