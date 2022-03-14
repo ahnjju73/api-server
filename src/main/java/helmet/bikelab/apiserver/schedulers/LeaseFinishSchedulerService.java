@@ -46,7 +46,7 @@ public class LeaseFinishSchedulerService extends WorkspaceQuartz {
                     if(paymentDate.isBefore(LocalDate.now()) ){
                         Bikes bike = leaseByLeaseId.getBike();
                         bike.doDeclineRider();
-                        leaseByLeaseId.setLeaseStopStatus(LeaseStopStatusTypes.FINSISH);
+                        leaseByLeaseId.setLeaseStopStatus(LeaseStopStatusTypes.FINISH);
                         leaseByLeaseId.setBikeNo(emptyBikes.getBikeNo());
                         leaseByLeaseId.setStopDt(LocalDateTime.now());
                         leaseByLeaseId.setStopReason("계약만료");

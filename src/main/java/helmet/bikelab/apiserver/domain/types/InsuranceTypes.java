@@ -4,7 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum InsuranceTypes {
-    PERSONAL("504-001"), COMPANY ("504-002");
+    PERSONAL("504-001"), COMPANY ("504-002"), NONE("504-003");
 
     private String type;
 
