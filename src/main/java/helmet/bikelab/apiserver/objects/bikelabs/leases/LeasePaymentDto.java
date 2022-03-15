@@ -3,6 +3,7 @@ package helmet.bikelab.apiserver.objects.bikelabs.leases;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import helmet.bikelab.apiserver.domain.lease.LeasePayments;
+import helmet.bikelab.apiserver.objects.bikelabs.clients.ClientDto;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -20,6 +21,8 @@ public class LeasePaymentDto {
     private Integer unpaidFee;
     private String paidType;
     private String description;
+    private ClientDto payClient;
+
 
     public boolean equals(LeasePayments leasePayments){
         return paymentId.equals(leasePayments.getPaymentId());

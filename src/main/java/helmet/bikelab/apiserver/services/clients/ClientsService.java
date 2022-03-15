@@ -88,8 +88,10 @@ public class ClientsService extends SessService {
             List<String> stringList = new ArrayList<>();
             if(bePresent(requestParam.getDiscountRate()) && !requestParam.getDiscountRate().equals(clients.getDiscountRate())){
                 if(bePresent(clients.getDiscountRate()))
-                    stringList.add("고객사 <>부품할인율</>을 <>" + clients.getDiscountRate() + "</>에서 <>" + requestParam.getDiscountRate() + "</>(으)로 변경하였습니다.");
-                else stringList.add("고객사 <>부품할인율</>를 <>" +  requestParam.getDiscountRate() + "</>(으)로 등록하였습니다.");
+                    //stringList.add("고객사 <>부품할인율</>을 <>" + clients.getDiscountRate() + "</>에서 <>" + requestParam.getDiscountRate() + "</>(으)로 변경하였습니다.");
+                    stringList.add("고객사 할인율을 <>" + String.format("%.1f",clients.getDiscountRate()*100) + "%</>에서 <>" + String.format("%.1f",requestParam.getDiscountRate()*100) + "%</>(으)로 변경하였습니다.");
+                //else stringList.add("고객사 <>부품할인율</>를 <>" +  requestParam.getDiscountRate() + "</>(으)로 등록하였습니다.");
+                else stringList.add("고객사 할인율을 <>" +  String.format("%.1f",requestParam.getDiscountRate()*100) + "%</>(으)로 등록하였습니다.");
             }
             if(bePresent(stringList) && stringList.size() > 0)
                 bikeUserLogRepository.save(addLog(bikeUserLogTypes, fromUserNo, clients.getClientNo().toString(), stringList));
@@ -251,7 +253,6 @@ public class ClientsService extends SessService {
         ClientInfo clientInfo = client.getClientInfo();
         ClientAddresses clientAddresses = client.getClientAddresses();
         if(!bePresent(updateClientRequest.getUuid())) withException("400-006");
-        client.setEmail(updateClientRequest.getEmail());
         ClientGroups clientGroups = groupRepository.findByGroupId(updateClientRequest.getGroupId());
         if(!bePresent(clientGroups)) withException("400-003");
         if(!updateClientRequest.getUuid().equals(client.getUuid())){
@@ -278,6 +279,7 @@ public class ClientsService extends SessService {
         client.setBusinessNo(updateClientRequest.getBusinessNo());
         client.setBusinessType(updateClientRequest.getBusinessType());
 
+        client.setEmail(updateClientRequest.getEmail());
         client.setUuid(updateClientRequest.getUuid());
         client.setDirectType(YesNoTypes.getYesNo(updateClientRequest.getDirect()));
         client.setRegNum(updateClientRequest.getRegNo());
@@ -346,8 +348,10 @@ public class ClientsService extends SessService {
             }
             if(bePresent(updateClientRequest.getDiscountRate()) && !updateClientRequest.getDiscountRate().equals(clients.getDiscountRate())){
                 if(clients.getDiscountRate() == null){
-                    stringList.add("부품할인가를 <>" + String.format("%.2f", updateClientRequest.getDiscountRate()) + "%</>(으)로 설정하였습니다.");
-                }else stringList.add("부품할인가를 <>" + String.format("%.2f", clients.getDiscountRate()) + "%</>에서 <>" + String.format("%.2f", updateClientRequest.getDiscountRate()) + "%</>로 변경하였습니다.");
+                    //stringList.add("부품할인가를 <>" + String.format("%.2f", updateClientRequest.getDiscountRate()) + "%</>(으)로 설정하였습니다.");
+                    stringList.add("고객사 할인율을 <>" + String.format("%.1f",updateClientRequest.getDiscountRate()*100) + "%</>(으)로 설정하였습니다.");
+                //}else stringList.add("부품할인가를 <>" + String.format("%.2f", clients.getDiscountRate()) + "%</>에서 <>" + String.format("%.2f", updateClientRequest.getDiscountRate()) + "%</>로 변경하였습니다.");
+                }else stringList.add("고객사 할인율을 <>" + String.format("%.1f",clients.getDiscountRate()*100) + "%</>에서 <>" + String.format("%.1f",updateClientRequest.getDiscountRate()*100) + "%</>로 변경하였습니다.");
             }
             if(bePresent(ci)){
                 if(bePresent(ci.getDescription()) && !ci.getDescription().equals(clientInfo.getDescription())){
@@ -408,9 +412,9 @@ public class ClientsService extends SessService {
                 if(bePresent(address) && !address.getAddress().equals(modelAddress.getAddress())){
                     stringList.add("고객사 주소를 변경하였습니다.");
                 }
-                if(updateClientRequest.getDiscountRate() != clients.getDiscountRate()){
-                    stringList.add("고객사 할인율을 <>" + clients.getDiscountRate() * 100 + " %</>에서 <>"+ updateClientRequest.getDiscountRate() * 100 +" %</>로 변경하였습니다.");
-                }
+//                if(updateClientRequest.getDiscountRate() != clients.getDiscountRate()){
+//                    stringList.add("고객사 할인율을 <>" + clients.getDiscountRate() * 100 + " %</>에서 <>"+ updateClientRequest.getDiscountRate() * 100 +" %</>로 변경하였습니다.");
+//                }
             }
             if(bePresent(stringList) && stringList.size() > 0)
                 bikeUserLogRepository.save(addLog(bikeUserLogTypes, fromUserNo, clients.getClientNo().toString(), stringList));
