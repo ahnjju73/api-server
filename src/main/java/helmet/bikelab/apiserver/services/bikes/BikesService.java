@@ -399,8 +399,7 @@ public class BikesService extends SessService {
             activitiesRepository.deleteAllByBikeNo(bikes.getBikeNo());
             estimateHistoriesRepository.deleteAllByBikeNo(bikes.getBikeNo());
             bikeRiderBakRepository.deleteAllByBikeNo(bikes.getBikeNo());
-            bikeUserLogRepository.deleteAllByLogTypeAndReferenceId(BikeUserLogTypes.COMM_BIKE_ADDED, bikes.getBikeNo().toString());
-            bikeUserLogRepository.deleteAllByLogTypeAndReferenceId(BikeUserLogTypes.COMM_BIKE_UPDATED, bikes.getBikeNo().toString());
+            bikeUserLogRepository.deleteAllByReferenceId(bikes.getBikeNo().toString());
             bikeAttachmentRepository.deleteAllByBikeNo(bikes.getBikeNo());
             bikesRepository.delete(bikes);
         }
