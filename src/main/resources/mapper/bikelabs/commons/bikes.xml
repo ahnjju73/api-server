@@ -12,6 +12,7 @@
                       from bikes
                      where bike_id != (select val from system_parameters where parameter_no = 0)
                        and is_bm = #{is_bikemaster}
+                       and deleted_at is null
                     <if test="search_name != null and search_name != '' and search_name != 'undefined'">
                        and (
                             vim_num like concat('%', #{search_name}, '%')
@@ -26,6 +27,7 @@
             select count(*)
               from bikes
              where bike_id != (select val from system_parameters where parameter_no = 0)
+               and deleted_at is null
                and is_bm = #{is_bikemaster}
              <if test="search_name != null and search_name != '' and search_name != 'undefined'">
                and (
@@ -59,6 +61,7 @@
                     join leases l on c.client_no = l.client_no
                     join bikes b on l.bike_no = b.bike_no
               where 1 = 1
+                and b.deleted_at is null
                 and bike_id != (select val from system_parameters where parameter_no = 0)
                 <if test="search_name != null and search_name != '' and search_name != 'undefined'">
                 and (
@@ -90,6 +93,7 @@
         from (select *
                 from bikes b
                where 1 = 1
+                 and deleted_at is null
                  and is_bm = #{is_bikemaster}
                  and bike_id != (select val from system_parameters where parameter_no = 0)
                  <if test="search_name != null and search_name != '' and search_name != 'undefined'">

@@ -7,9 +7,9 @@
 
     <select id="fetchAllLeasesByConfirmedAndContinue" parameterType="hmap" resultType="hmap">
         select *
-        from leases
-        where status = '550-003'
-          and lease_stop_status = '506-001'
+          from leases
+         where status = '550-003'
+           and lease_stop_status = '506-001'
     </select>
 
 </mapper>
