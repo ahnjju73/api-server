@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration packagingData="true">
+    <shutdownHook class="ch.qos.logback.core.hook.DelayingShutdownHook">
+        <delay>10000</delay>
+    </shutdownHook>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+<!--            <pattern>%msg%n</pattern>-->
+            <pattern>[%thread] %level %logger{20} - %msg%n</pattern>
+        </encoder>
+    </appender>
+    <logger name="helmet.bikelab.apiserver.services.internal.SessService" level="INFO">
+        <appender-ref ref="STDOUT" />
+    </logger>
+
+<!--    <springProfile name="localhost">-->
+        <root level="INFO">
+            <appender-ref ref="STDOUT" />
+        </root>
+<!--    </springProfile>-->
+
+</configuration>
