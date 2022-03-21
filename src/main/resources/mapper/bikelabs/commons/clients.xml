@@ -110,20 +110,35 @@
                client_id,
                group_id,
                group_name,
-               if(ci.name is null, '', ci.name) as client_name,
-               if(ci.phone is null, '', ci.phone) as client_phone,
-               if(ci.manager_email is null, '', ci.manager_email) as manager_email,
+               if(c.name is null, '', c.name) as client_name,
+               if(c.phone is null, '', c.phone) as client_phone,
+               if(c.manager_email is null, '', c.manager_email) as manager_email,
                if(ord.client_no is null, 0, orders) as orders
-        from select @rownum := @rownum + 1 as rownum, c.* (select *
-              from clients
-                where status != '201-004') c,
-                 join client_info ci on c.client_no = ci.client_no
-                 join `groups` g on c.group_no = g.group_no
-                 left outer join (select client_no,
-                                         count(*) orders
-                                    from leases
-                                   group by client_no) ord on c.client_no = ord.client_no
-         order by ord.orders desc, c.client_no desc
+          from (select c.*,
+                       ci.name,
+                       ci.phone,
+                       ci.manager_email
+                  from clients c
+                       join client_info ci on c.client_no = ci.client_no
+                 where 1 = 1
+                       <if test="condition != null and condition != '' and condition != 'undefined'">
+                   and (
+                            ci.name like concat('%', #{condition}, '%')
+                         or ci.phone like concat('%', #{condition}, '%')
+                         or email like concat('%', #{condition}, '%')
+                       )
+                       </if>
+                   and c.status != '201-004'
+                       <if test="next_token != null and next_token != '' and next_token != 'undefined'">
+                   and client_id <![CDATA[ < ]]> #{next_token}
+                       </if>
+                 order by client_id desc limit 30) c
+               join `groups` g on c.group_no = g.group_no
+               left outer join (select client_no,
+                                       count(*) orders
+                                  from leases
+                                 group by client_no) ord on c.client_no = ord.client_no
+           order by c.client_id desc
     </select>
 
 </mapper>
