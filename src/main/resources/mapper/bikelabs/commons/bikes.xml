@@ -55,7 +55,8 @@
                      b.*
                from (select *
                        from clients
-                      where client_id = #{search_client_id}) c
+                      where client_id = #{search_client_id}
+                        and is_bm = #{is_bikemaster}) c
                     join leases l on c.client_no = l.client_no
                     join bikes b on l.bike_no = b.bike_no
               where 1 = 1
@@ -69,7 +70,7 @@
                 <if test="next_token != null and next_token != '' and next_token != 'undefined'">
                 and bike_id <![CDATA[ < ]]> #{next_token}
                 </if>
-              order by b.bike_id desc limit 40) ms
+              order by b.bike_id desc limit 30) ms
                  join com_comm_bikes commb on ms.car_model = commb.comm_cd
                  left outer join client_info ci on ms.client_no = ci.client_no
          order by bike_id desc
@@ -87,16 +88,16 @@
                c.client_id,
                ci.name as client_name,
                if(l.lease_no is null, false, true) as used
-        from (select *
-                from bikes b
-               where 1 = 1
-                 and is_bm = #{is_bikemaster}
-                 and bike_id != (select val from system_parameters where parameter_no = 0)
+          from (select *
+                  from bikes b
+                 where 1 = 1
+                   and is_bm = #{is_bikemaster}
+                   and bike_id != (select val from system_parameters where parameter_no = 0)
                  <if test="search_name != null and search_name != '' and search_name != 'undefined'">
-                 and (
+                   and (
                         vim_num like concat('%', #{search_name}, '%')
                         or `number` like concat('%', #{search_name}, '%')
-                    )
+                       )
                  </if>
                  <if test="next_token != null and next_token != '' and next_token != 'undefined'">
                  and bike_id <![CDATA[ < ]]> #{next_token}

@@ -160,7 +160,7 @@
           join clients cc on cc.client_no = main.client_no
           join client_info ci on ci.client_no = main.client_no
         <if test="keyword != null and keyword != '' and keyword != 'undefined'">
-            and (ci.name like concat('%', #{keyword}, '%') or b.number like concat('%', #{keyword}, '%'))
+            and (ci.name like concat('%', #{keyword}, '%') or b.number like concat('%', #{keyword}, '%') and si.name like concat('%', #{keyword}, '%'))
         </if>
     </select>
 
@@ -173,7 +173,7 @@
                    join bikes b on b.bike_no = e.bike_no
                    join client_info ci on ci.client_no = e.client_no
                    <if test="keyword != null and keyword != '' and keyword != 'undefined'">
-                    and (ci.name like concat('%', #{keyword}, '%') or b.number like concat('%', #{keyword}, '%'))
+                    and (ci.name like concat('%', #{keyword}, '%') or b.number like concat('%', #{keyword}, '%') and si.name like concat('%', #{keyword}, '%'))
                    </if>)
                )ee
     </select>
