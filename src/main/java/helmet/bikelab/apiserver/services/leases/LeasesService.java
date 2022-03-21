@@ -301,6 +301,7 @@ public class LeasesService extends SessService {
             ClientDto clientDto = new ClientDto();
             clientDto.setClientName(clients.getClientInfo().getName());
             clientDto.setClientId(clients.getClientId());
+            leasePaymentDto.setPayClient(clientDto);
             totalFee += lp.getLeaseFee();
             leasePayments.add(leasePaymentDto);
         }

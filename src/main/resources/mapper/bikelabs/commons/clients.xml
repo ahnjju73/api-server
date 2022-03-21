@@ -106,7 +106,8 @@
     </select>
 
     <select id="fetchClientList" parameterType="hmap" resultType="hmap">
-        select client_id,
+        select c.client_no,
+               client_id,
                group_id,
                group_name,
                if(c.name is null, '', c.name) as client_name,
@@ -123,8 +124,8 @@
                        <if test="condition != null and condition != '' and condition != 'undefined'">
                    and (
                             ci.name like concat('%', #{condition}, '%')
-                            or ci.phone like concat('%', #{condition}, '%')
-                            or email like concat('%', #{condition}, '%')
+                         or ci.phone like concat('%', #{condition}, '%')
+                         or email like concat('%', #{condition}, '%')
                        )
                        </if>
                    and c.status != '201-004'
