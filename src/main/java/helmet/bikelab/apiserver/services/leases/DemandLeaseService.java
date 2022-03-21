@@ -98,6 +98,13 @@ public class DemandLeaseService extends SessService {
         DemandLeaseByIdRequest demandLeaseByIdRequest = map(request.getParam(), DemandLeaseByIdRequest.class);
         DemandLeases demandLeaseById = demandLeaseWorker.getDemandLeaseById(demandLeaseByIdRequest.getDemandLeaseId());
         if(!demandLeaseById.isOneOfDemandLeaseStatusType(DemandLeaseStatusTypes.PENDING)) withException("803-002");
+        LocalDateTime contractingAt = demandLeaseById.getContractingAt();
+        if(bePresent(contractingAt)){
+            int min = (int)(ChronoUnit.MINUTES.between(contractingAt, LocalDateTime.now()));
+            if(min < 5) withException("803-002");
+        }else {
+            demandLeaseById.setContracted(DemandLeaseContractTypes.PENDING);
+        }
         if(DemandLeaseContractTypes.PENDING.equals(demandLeaseById.getContracted())
                 || DemandLeaseContractTypes.FAILED.equals(demandLeaseById.getContracted())) {
             executorService.submit(() -> {
@@ -110,6 +117,7 @@ public class DemandLeaseService extends SessService {
                 }
             });
             demandLeaseById.setContracted(DemandLeaseContractTypes.CONTRACTING);
+            demandLeaseById.setContractingAt(LocalDateTime.now());
             demandLeaseById.setFailContracted(null);
             demandLeaseById.setRejectMessage(null);
             demandLeaseById.setCompletedAt(LocalDateTime.now());

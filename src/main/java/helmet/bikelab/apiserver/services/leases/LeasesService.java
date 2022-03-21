@@ -327,7 +327,7 @@ public class LeasesService extends SessService {
             fetchLeasesResponse.setApprovalUser(approvalUser);
         }
         fetchLeasesResponse.getLeasePrice().setTotalLeaseFee(totalFee);
-        fetchLeasesResponse.getLeasePrice().setLeaseFee(leasePayments.get(0).getLeaseFee());
+        fetchLeasesResponse.getLeasePrice().setLeaseFee(!bePresent(leasePayments) ? 0 : leasePayments.get(0).getLeaseFee());
         fetchLeasesResponse.setLeasePayments(leasePayments);
         if(bePresent(lease.getDemandLeaseNo())){
             DemandLeases byDemandLeaseNo = demandLeasesRepository.findByDemandLeaseNo(lease.getDemandLeaseNo());

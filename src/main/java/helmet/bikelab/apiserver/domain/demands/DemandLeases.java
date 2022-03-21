@@ -106,6 +106,9 @@ public class DemandLeases extends OriginObject {
     @Column(name = "completed_at")
     private LocalDateTime completedAt;
 
+    @Column(name = "contracting_at")
+    private LocalDateTime contractingAt;
+
     @Column(name = "amounts")
     private Integer amounts = 0;
 

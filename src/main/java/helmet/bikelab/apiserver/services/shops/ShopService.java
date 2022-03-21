@@ -4,6 +4,8 @@ import helmet.bikelab.apiserver.domain.Banks;
 import helmet.bikelab.apiserver.domain.Estimates;
 import helmet.bikelab.apiserver.domain.Settles;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
+import helmet.bikelab.apiserver.domain.client.ClientAddresses;
+import helmet.bikelab.apiserver.domain.embeds.ModelAddress;
 import helmet.bikelab.apiserver.domain.embeds.ModelBankAccount;
 import helmet.bikelab.apiserver.domain.shops.ShopAddresses;
 import helmet.bikelab.apiserver.domain.shops.ShopInfo;
@@ -172,6 +174,7 @@ public class ShopService extends SessService {
         Shops shopByShopId = shopWorker.getShopByShopId(shopRequest.getShopId());
         ShopInfo shopInfo = shopByShopId.getShopInfo();
         ShopAddresses shopAddress = shopByShopId.getShopAddress();
+        ModelBankAccount modelBankAccount = new ModelBankAccount();
         updateShopInfoLog(BikeUserLogTypes.COMM_SHOP_UPDATED, shopByShopId, shopInfo, shopAddress, shopRequest, sessionUser);
         if(!shopByShopId.getEmail().equals(shopRequest.getEmail()) && shopWorker.checkIfEmailExists(shopRequest.getEmail())) withException("401-008");
         if(!shopByShopId.getRegNum().equals(shopRequest.getRegNum()) && shopWorker.checkIfRegNumExists(shopRequest.getRegNum())) withException("401-009");
@@ -185,7 +188,7 @@ public class ShopService extends SessService {
         shopInfo.setManagerName(shopRequest.getManagerName());
         shopInfo.setStartTime(LocalTime.parse(shopRequest.getStartTime()));
         shopInfo.setEndTime(LocalTime.parse(shopRequest.getEndTime()));
-        ModelBankAccount modelBankAccount = new ModelBankAccount();
+
         modelBankAccount.setBankCode(shopRequest.getBankCd());
         modelBankAccount.setAccount(shopRequest.getAccount());
         modelBankAccount.setDepositor(shopRequest.getDepositor());
@@ -202,6 +205,11 @@ public class ShopService extends SessService {
 
     public void updateShopInfoLog(BikeUserLogTypes bikeUserLogTypes, Shops originShop, ShopInfo originShopInfo, ShopAddresses originShopAddress, UpdateShopRequest updatedObj, BikeUser fromUser){
         List<String> stringList = new ArrayList<>();
+        Banks bankInfo = bankRepository.findByBankCode(updatedObj.getBankCd());
+        ShopAddresses shopAddresses = originShop.getShopAddress() == null ? new ShopAddresses() : originShop.getShopAddress();
+        ModelAddress modelAddress = shopAddresses.getModelAddress() == null ? new ModelAddress() : shopAddresses.getModelAddress();
+        ModelAddress address = updatedObj.getAddress();
+
         if(bePresent(updatedObj.getName()) && !updatedObj.getName().equals(originShopInfo.getName())){
             if(bePresent(originShopInfo.getName()))
                 stringList.add("정비소 이름을 <>" + originShopInfo.getName() + "</>에서 <>" + updatedObj.getName() + "</>(으)로 변경하였습니다.");
@@ -219,25 +227,55 @@ public class ShopService extends SessService {
         }
         if(bePresent(updatedObj.getRegNum()) && !updatedObj.getRegNum().equals(originShop.getRegNum())){
             if(bePresent(originShop.getRegNum()))
-                stringList.add("정비소 이메일을 <>" + originShop.getRegNum() + "</>에서 <>" + updatedObj.getRegNum() + "</>(으)로 변경하였습니다.");
-            else stringList.add("정비소 이메일을 <>" +  updatedObj.getRegNum() + "</>(으)로 등록하였습니다.");
+                stringList.add("정비소 사업자번호를 <>" + originShop.getRegNum() + "</>에서 <>" + updatedObj.getRegNum() + "</>(으)로 변경하였습니다.");
+            else stringList.add("정비소 사업자번호를 <>" +  updatedObj.getRegNum() + "</>(으)로 등록하였습니다.");
         }
         if(bePresent(updatedObj.getPhone()) && !updatedObj.getPhone().equals(originShopInfo.getPhone())){
             if(bePresent(originShopInfo.getPhone()))
                 stringList.add("정비소 연락처를 <>" + originShopInfo.getPhone() + "</>에서 <>" + updatedObj.getPhone() + "</>(으)로 변경하였습니다.");
             else stringList.add("정비소 연락처를 <>" +  updatedObj.getPhone() + "</>(으)로 등록하였습니다.");
         }
-        if(bePresent(updatedObj.getStartTime()) && !updatedObj.getStartTime().equals(originShopInfo.getStartTime())){
+//        if(bePresent(updatedObj.getStartTime()) && !updatedObj.getStartTime().equals(originShopInfo.getStartTime())){
+//            if(bePresent(originShopInfo.getStartTime()))
+//                stringList.add("정비소 영업 시작시간을 <>" + originShopInfo.getStartTime() + "</>에서 <>" + updatedObj.getStartTime() + "</>(으)로 변경하였습니다.");
+//            else stringList.add("정비소 영업 시작시간을 <>" +  updatedObj.getStartTime() + "</>(으)로 등록하였습니다.");
+//        }
+        if(bePresent(updatedObj.getStartTime()) && !LocalTime.parse(updatedObj.getStartTime()).equals(originShopInfo.getStartTime())){
             if(bePresent(originShopInfo.getStartTime()))
                 stringList.add("정비소 영업 시작시간을 <>" + originShopInfo.getStartTime() + "</>에서 <>" + updatedObj.getStartTime() + "</>(으)로 변경하였습니다.");
             else stringList.add("정비소 영업 시작시간을 <>" +  updatedObj.getStartTime() + "</>(으)로 등록하였습니다.");
         }
-        if(bePresent(updatedObj.getEndTime()) && !updatedObj.getEndTime().equals(originShopInfo.getEndTime())){
+//        if(bePresent(updatedObj.getEndTime()) && !updatedObj.getEndTime().equals(originShopInfo.getEndTime())){
+//            if(bePresent(originShopInfo.getEndTime()))
+//                stringList.add("정비소 영업 종료시간을 <>" + originShopInfo.getEndTime() + "</>에서 <>" + updatedObj.getEndTime() + "</>(으)로 변경하였습니다.");
+//            else stringList.add("정비소 영업 종료시간을 <>" +  updatedObj.getEndTime() + "</>(으)로 등록하였습니다.");
+//        }
+        if(bePresent(updatedObj.getEndTime()) && !LocalTime.parse(updatedObj.getEndTime()).equals(originShopInfo.getEndTime())){
             if(bePresent(originShopInfo.getEndTime()))
-                stringList.add("정비소 영업 시작시간을 <>" + originShopInfo.getEndTime() + "</>에서 <>" + updatedObj.getEndTime() + "</>(으)로 변경하였습니다.");
-            else stringList.add("정비소 영업 시작시간을 <>" +  updatedObj.getEndTime() + "</>(으)로 등록하였습니다.");
+                stringList.add("정비소 영업 종료시간을 <>" + originShopInfo.getEndTime() + "</>에서 <>" + updatedObj.getEndTime() + "</>(으)로 변경하였습니다.");
+            else stringList.add("정비소 영업 종료시간을 <>" +  updatedObj.getEndTime() + "</>(으)로 등록하였습니다.");
         }
-
+        if(bePresent(updatedObj.getBankCd()) && !updatedObj.getBankCd().equals(originShopInfo.getBankAccount().getBankCode())) {
+            if (bePresent(originShopInfo.getBankAccount().getBank()))
+                stringList.add("입금 은행을 <>" + originShopInfo.getBankAccount().getBank().getBankName() + "</>에서 <>" + bankInfo.getBankName() + "</>(으)로 변경하였습니다.");
+            else
+                stringList.add("입금 은행을 <>" + originShopInfo.getBankAccount().getBank().getBankName() + "</>(으)로 등록하였습니다.");
+        }
+        if(bePresent(updatedObj.getAccount()) && !updatedObj.getAccount().equals(originShopInfo.getBankAccount().getAccount())) {
+            if (bePresent(originShopInfo.getBankAccount().getAccount()))
+                stringList.add("입금 계좌번호를 <>" + originShopInfo.getBankAccount().getAccount() + "</>에서 <>" + updatedObj.getAccount() + "</>(으)로 변경하였습니다.");
+            else
+                stringList.add("입금 계좌번호를 <>" + originShopInfo.getBankAccount().getAccount() + "</>(으)로 등록하였습니다.");
+        }
+        if(bePresent(updatedObj.getDepositor()) && !updatedObj.getDepositor().equals(originShopInfo.getBankAccount().getDepositor())) {
+            if (bePresent(originShopInfo.getBankAccount().getDepositor()))
+                stringList.add("예금주를 <>" + originShopInfo.getBankAccount().getDepositor() + "</>에서 <>" + updatedObj.getDepositor() + "</>(으)로 변경하였습니다.");
+            else
+                stringList.add("예금주를 <>" + originShopInfo.getBankAccount().getDepositor() + "</>(으)로 등록하였습니다.");
+        }
+        if(bePresent(address) && !address.getAddress().equals(modelAddress.getAddress())){
+            stringList.add("고객사 주소를 변경하였습니다.");
+        }
         if(bePresent(stringList) && stringList.size() > 0)
             bikeUserLogRepository.save(addLog(bikeUserLogTypes, fromUser.getUserNo(), originShop.getShopNo().toString(), stringList));
     }

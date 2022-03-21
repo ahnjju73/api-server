@@ -59,6 +59,7 @@ public class BikesService extends SessService {
     private final AutoKey autoKey;
     private final BikeAttachmentRepository bikeAttachmentRepository;
     private final BikesRepository bikesRepository;
+    private final BikeRiderBakRepository bikeRiderBakRepository;
     private final LeaseRepository leaseRepository;
     private final BikeModelsRepository bikeModelsRepository;
     private final BikeUserLogRepository bikeUserLogRepository;
@@ -71,6 +72,7 @@ public class BikesService extends SessService {
     private final RiderPasswordRepository riderPasswordRepository;
     private final RiderAccountsRepository riderAccountsRepository;
     private final ActivitiesRepository activitiesRepository;
+    private final EstimateHistoriesRepository estimateHistoriesRepository;
 
     public BikeSessionRequest fetchHistoriesByBikeId(BikeSessionRequest request) {
         BikeListDto bikeListDto = map(request.getParam(), BikeListDto.class);
@@ -390,16 +392,17 @@ public class BikesService extends SessService {
         DeleteBikeRequest deleteBikeRequest = map(param, DeleteBikeRequest.class);
         deleteBikeRequest.checkValidation();
         Bikes bikes = bikesRepository.findByBikeId(deleteBikeRequest.getBikeId());
-        List<Leases> leases = leaseRepository.findAllByBike_BikeId(deleteBikeRequest.getBikeId());
-        if (bikes == null) withException("");
-        if (leases.size() > 0) writeMessage("리스번호 " + leases.get(0).getLeaseId() + "가 이미 연결되어 있습니다.");
-        else {
+        if(bePresent(bikes) && bikes.getIsBikemaster()){
+            List<Leases> leases = leaseRepository.findAllByBike_BikeId(deleteBikeRequest.getBikeId());
+            if (bikes == null) withException("");
+            if (leases.size() > 0) writeMessage("리스번호 " + leases.get(0).getLeaseId() + "가 이미 연결되어 있습니다.");
+            activitiesRepository.deleteAllByBikeNo(bikes.getBikeNo());
+            estimateHistoriesRepository.deleteAllByBikeNo(bikes.getBikeNo());
+            bikeRiderBakRepository.deleteAllByBikeNo(bikes.getBikeNo());
+            bikeUserLogRepository.deleteAllByReferenceId(bikes.getBikeNo().toString());
+            bikeAttachmentRepository.deleteAllByBikeNo(bikes.getBikeNo());
             bikesRepository.delete(bikes);
         }
-        bikeUserLogRepository.deleteAllByLogTypeAndReferenceId(BikeUserLogTypes.COMM_BIKE_ADDED, bikes.getBikeNo().toString());
-        bikeUserLogRepository.deleteAllByLogTypeAndReferenceId(BikeUserLogTypes.COMM_BIKE_UPDATED, bikes.getBikeNo().toString());
-        List<BikeAttachments> allByBike_bikeId = bikeAttachmentRepository.findAllByBike_BikeId(bikes.getBikeId());
-        bikeAttachmentRepository.deleteAll(allByBike_bikeId);
         return request;
     }
 
