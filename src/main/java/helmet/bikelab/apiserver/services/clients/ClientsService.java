@@ -121,7 +121,7 @@ public class ClientsService extends SessService {
 
     public BikeSessionRequest fetchListOfClients(BikeSessionRequest request){
         Map param = request.getParam();
-        RequestListDto requestListDto = map(param, RequestListDto.class);
+        ClientListByConditionRequest requestListDto = map(param, ClientListByConditionRequest.class);
         ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "bikelabs.commons.clients.fetchClientList", "bikelabs.commons.clients.countAllClientList", "client_id");
         request.setResponse(responseListDto);
         return request;
@@ -129,7 +129,6 @@ public class ClientsService extends SessService {
 
     @Deprecated
     public BikeSessionRequest bak_fetchListOfClients(BikeSessionRequest request){
-        Map param = request.getParam();
         Map response = new HashMap();
         List<Clients> clients = clientsRepository.findAll();
         List<FetchClientsResponse> responseList = new ArrayList<>();
