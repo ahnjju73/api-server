@@ -140,8 +140,14 @@
                   from (select @rownum:=@rownum+1 as row_num,
 			                   e.*
                           from (select *
-                                  from estimates
+                                  from estimates est
+                                  join shop_info si on si.shop_no = est.shop_no
+                                  join client_info ci on ci.client_no = est.client_no
+                                  join bikes b on est.bike_no = b.bike_no
                                  where status != '1'
+                                <if test="keyword != null and keyword != '' and keyword != 'undefined'">
+                                   and (ci.name like concat('%', #{keyword}, '%') or b.number like concat('%', #{keyword}, '%') or si.name like concat('%', #{keyword}, '%'))
+                                </if>
                                  order by estimate_no desc) e,
                                (SELECT @rownum :=0) AS R) m
                  where 1 = 1
@@ -149,19 +155,13 @@
                    and row_num <![CDATA[ > ]]> #{next_token}
                  </if>
                  order by row_num limit 30) main
-          join bikes b on main.bike_no = b.bike_no
           join com_comm_bikes bm on b.car_model = bm.comm_cd
           left outer join estimate_parts ep on ep.estimate_no = main.estimate_no
           left outer join parts p on p.parts_no = ep.parts_no
           left outer join riders r on r.rider_no = main.rider_no
           left outer join rider_info ri on ri.rider_no = r.rider_no
           join shops s on s.shop_no = main.shop_no
-          join shop_info si on si.shop_no = s.shop_no
           join clients cc on cc.client_no = main.client_no
-          join client_info ci on ci.client_no = main.client_no
-        <if test="keyword != null and keyword != '' and keyword != 'undefined'">
-            and (ci.name like concat('%', #{keyword}, '%') or b.number like concat('%', #{keyword}, '%') or si.name like concat('%', #{keyword}, '%'))
-        </if>
     </select>
 
     <select id="countEstimateList" parameterType="hmap" resultType="int">
