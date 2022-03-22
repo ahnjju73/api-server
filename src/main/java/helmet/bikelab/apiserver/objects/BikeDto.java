@@ -22,5 +22,6 @@ public class BikeDto {
     private Integer year;
     private Integer odometer;
     private LocalDateTime createdAt;
+    private boolean isBm;
 
 }
