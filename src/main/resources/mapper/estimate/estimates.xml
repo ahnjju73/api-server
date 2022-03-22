@@ -123,23 +123,23 @@
 
     <select id="fetchEstimateList" parameterType="hmap" resultMap="fetchEstimateListMap">
         select main.*,
-               b.car_model as model_code,
-               b.number as bike_num,
-               b.bike_id,
                bm.comm_nm as model_name,
                ep.* ,
                p.*,
                r.*,
                ri.name,
-               si.name as shop_name,
-               si.shop_no,
-               ci.name as client_name,
                cc.client_id
           from (select *,
                        convert(row_num, CHAR) as rownum
                   from (select @rownum:=@rownum+1 as row_num,
 			                   e.*
-                          from (select *
+                          from (select est.*,
+                                       si.name as shop_name,
+                                       ci.name as client_name,
+                                       b.car_model as model_code,
+                                       b.number as bike_num,
+                                       b.bike_id,
+                                       b.car_model
                                   from estimates est
                                   join shop_info si on si.shop_no = est.shop_no
                                   join client_info ci on ci.client_no = est.client_no
@@ -155,7 +155,7 @@
                    and row_num <![CDATA[ > ]]> #{next_token}
                  </if>
                  order by row_num limit 30) main
-          join com_comm_bikes bm on b.car_model = bm.comm_cd
+          join com_comm_bikes bm on main.car_model = bm.comm_cd
           left outer join estimate_parts ep on ep.estimate_no = main.estimate_no
           left outer join parts p on p.parts_no = ep.parts_no
           left outer join riders r on r.rider_no = main.rider_no
