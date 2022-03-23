@@ -392,11 +392,10 @@ public class LeasePaymentService  extends SessService {
         LeasePaymentsRequestListDto requestListDto = map(param, LeasePaymentsRequestListDto.class);
         String type = (String) param.get("type");
         ResponseListDto responseListDto;
-        if(type.equals("lease")){
-            responseListDto= commonWorker.fetchItemListByNextToken(requestListDto, "leases.leases-payments.fetchLeasesUnpaidPayments", "leases.leases-payments.countAllLeasesUnpaidPayments", "row_num");
-        }else{
-            responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "leases.leases-payments.fetchLeasesUnpaidExtras", "leases.leases-payments.countAllLeasesUnpaidExtras", "row_num");
-        }
+        if(type.equals("lease"))
+            responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "leases.leases-payments.fetchUnpaidLeaseExcel", "leases.leases-payments.countUnpaidLeaseExcel", "row_num");
+        else
+            responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "leases.leases-payments.fetchUnpaidExtraExcel", "leases.leases-payments.countUnpaidExtraExcel", "row_num");
         request.setResponse(responseListDto.getItems());
         return request;
     }
