@@ -23,7 +23,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @Table(name = "leases")
-public class Leases {
+public class   Leases {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
