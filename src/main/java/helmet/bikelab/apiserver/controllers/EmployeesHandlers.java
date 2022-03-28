@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.controllers;
 
+import helmet.bikelab.apiserver.domain.bikelab.Inquiries;
 import helmet.bikelab.apiserver.objects.bikelabs.todo.BikeUserTodoDto;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.services.BikeUserTodoService;
@@ -29,6 +30,16 @@ public class EmployeesHandlers {
                         .map(inquiryService::checkBikeSession)
                         .map(inquiryService::fetchInquiries)
                         .map(inquiryService::returnData), ResponseListDto.class);
+    }
+
+    public Mono<ServerResponse> fetchInquiryDetail(ServerRequest request){
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> inquiryService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> inquiryService.getPathVariable(row, "inquiry_no"))
+                        .map(inquiryService::checkBikeSession)
+                        .map(inquiryService::fetchInquiryDetail)
+                        .map(inquiryService::returnData), Inquiries.class);
     }
 
     public Mono<ServerResponse> confirmInquiryByInquiryNo(ServerRequest request){
