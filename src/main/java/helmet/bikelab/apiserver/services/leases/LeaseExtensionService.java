@@ -1,10 +1,12 @@
 package helmet.bikelab.apiserver.services.leases;
 
 import helmet.bikelab.apiserver.domain.bike.Bikes;
+import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.lease.LeaseExtensions;
 import helmet.bikelab.apiserver.domain.lease.LeaseInfo;
 import helmet.bikelab.apiserver.domain.lease.LeasePayments;
 import helmet.bikelab.apiserver.domain.lease.Leases;
+import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.SessionRequest;
 import helmet.bikelab.apiserver.objects.requests.LeaseByIdRequest;
 import helmet.bikelab.apiserver.objects.requests.LeaseExtensionByIdRequest;
@@ -14,15 +16,15 @@ import helmet.bikelab.apiserver.repositories.LeaseInfoRepository;
 import helmet.bikelab.apiserver.repositories.LeasePaymentsRepository;
 import helmet.bikelab.apiserver.repositories.LeaseRepository;
 import helmet.bikelab.apiserver.services.internal.SessService;
+import helmet.bikelab.apiserver.utils.AutoKey;
 import helmet.bikelab.apiserver.workers.LeasesExtensionWorker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.rmi.dgc.Lease;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -35,6 +37,7 @@ public class LeaseExtensionService extends SessService {
     private final LeaseInfoRepository leaseInfoRepository;
     private final LeaseExtensionsRepository leaseExtensionsRepository;
     private final LeasePaymentsRepository leasePaymentsRepository;
+    private final AutoKey autoKey;
 
     public SessionRequest checkIfExtension(SessionRequest request){
         LeaseByIdRequest leaseByIdRequest = map(request.getParam(), LeaseByIdRequest.class);
@@ -55,21 +58,24 @@ public class LeaseExtensionService extends SessService {
      * @return
      */
     @Transactional
-    public SessionRequest extensionLeaseById(SessionRequest request){
+    public SessionRequest extensionLeaseById(BikeSessionRequest request){
+        BikeUser sessionUser = request.getSessionUser();
         LeaseExtensionByIdRequest leaseExtensionByIdRequest = map(request.getParam(), LeaseExtensionByIdRequest.class);
         leaseExtensionByIdRequest.checkValidation();
         Leases leaseById = leasesExtensionWorker.checkExtensionEnable(leaseExtensionByIdRequest.getLeaseId());
         leasesExtensionWorker.checkBikeForExtensionByBikeNo(leaseById);
         leasesExtensionWorker.shouldStartDateGreaterThan(leaseById, leaseExtensionByIdRequest.getStartDt());
+
         setLeaseInfoForExtension(leaseById, leaseExtensionByIdRequest.getStartDt(), leaseExtensionByIdRequest.getEndDate(), leaseExtensionByIdRequest.getPeriod());
-        LeaseExtensions leaseExtension = getLeaseExtensionList(leaseById, leaseExtensionByIdRequest.getStartDt(), leaseExtensionByIdRequest.getEndDate(), leaseExtensionByIdRequest.getPeriod());
-        leaseExtensionsRepository.save(leaseExtension);
-
-        List<LeasePayments> leasePayments = getLeasePaymentList(leaseById, leaseExtensionByIdRequest.getPeriod());
-        if(bePresent(leasePayments)) leasePaymentsRepository.saveAll(leasePayments);
-
         leaseById.setExtensionLease();
         leaseRepository.save(leaseById);
+
+        LeaseExtensions leaseExtension = getLeaseExtensionList(leaseById, leaseExtensionByIdRequest.getStartDt(), leaseExtensionByIdRequest.getEndDateByLeaseInfo(), leaseExtensionByIdRequest.getPeriod());
+        leaseExtensionsRepository.save(leaseExtension);
+
+        List<LeasePayments> leasePayments = getLeasePaymentList(leaseById, leaseExtensionByIdRequest.getStartDt(), leaseExtensionByIdRequest.getPeriod(), sessionUser);
+        if(bePresent(leasePayments)) leasePaymentsRepository.saveAll(leasePayments);
+
         return request;
     }
 
@@ -87,9 +93,25 @@ public class LeaseExtensionService extends SessService {
         return leaseExtensions;
     }
 
-    private List<LeasePayments> getLeasePaymentList(Leases leases, Integer period){
-        return Stream.iterate(period, n -> n).map(e -> {
+    private List<LeasePayments> getLeasePaymentList(Leases leases, LocalDate startDate, Integer period, BikeUser session){
+        LeasePayments lastIndexByLeaseNoOrderByIndexDesc = leasePaymentsRepository.getLastIndexByLeaseNoOrderByIndexDesc(leases.getLeaseNo());
+        Bikes bike = leases.getBike();
+        Integer lastIndex = lastIndexByLeaseNoOrderByIndexDesc.getIndex();
+        lastIndex++;
+        AtomicReference<Integer> finalLastIndex = new AtomicReference<>(lastIndex);
+        return Stream.iterate(0, n -> n + 1)
+                .limit(period).map(e -> {
+            String paymentId = autoKey.makeGetKey("payment");
             LeasePayments leasePayments = new LeasePayments();
+            leasePayments.setLeaseNo(leases.getLeaseNo());
+            leasePayments.setPaymentId(paymentId);
+            leasePayments.setClientNo(leases.getClientNo());
+            leasePayments.setIndex(finalLastIndex.getAndSet(finalLastIndex.get() + 1));
+            leasePayments.setLeaseFee(lastIndexByLeaseNoOrderByIndexDesc.getLeaseFee());
+            leasePayments.setInsertedUserNo(session.getUserNo());
+            leasePayments.setBikeNo(bike.getBikeNo());
+            leasePayments.setRiderNo(bike.getRiderNo());
+            leasePayments.setPaymentDate(startDate.plusMonths(e));
             return leasePayments;
         }).collect(Collectors.toList());
     }

@@ -28,8 +28,18 @@ public class LeaseExtensionByIdRequest extends LeaseByIdRequest {
         return startDt.plusMonths(period);
     }
 
+    public LocalDate getEndDateByLeaseInfo(){
+        return startDt.plusMonths(period + 1);
+    }
+
     public void setStartDt(String startDt) {
-        LocalDate parse = LocalDate.parse(startDt);
-        this.startDt = parse;
+        if(bePresent(startDt)){
+            try{
+                LocalDate parse = LocalDate.parse(startDt);
+                this.startDt = parse;
+            }catch (Exception e){
+
+            }
+        }
     }
 }
