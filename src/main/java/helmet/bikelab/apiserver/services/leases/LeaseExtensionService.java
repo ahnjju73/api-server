@@ -42,6 +42,13 @@ public class LeaseExtensionService extends SessService {
     private final AutoKey autoKey;
     private final BikeUserLogRepository bikeUserLogRepository;
 
+    public SessionRequest getLeaseExtensionList(SessionRequest request){
+        LeaseByIdRequest leaseByIdRequest = map(request.getParam(), LeaseByIdRequest.class);
+        List<LeaseExtensions> leaseExtensions = leaseExtensionsRepository.findByLease_LeaseIdOrderByIdx(leaseByIdRequest.getLeaseId());
+        request.setResponse(leaseExtensions);
+        return request;
+    }
+
     public SessionRequest checkIfExtension(SessionRequest request){
         LeaseByIdRequest leaseByIdRequest = map(request.getParam(), LeaseByIdRequest.class);
         Leases leases = leasesExtensionWorker.checkExtensionEnable(leaseByIdRequest.getLeaseId());

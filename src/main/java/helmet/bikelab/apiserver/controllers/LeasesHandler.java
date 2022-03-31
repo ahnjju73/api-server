@@ -14,6 +14,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -23,6 +24,15 @@ public class LeasesHandler {
     private final LeasesService leasesService;
     private final BikeUserLogService bikeUserLogService;
     private final LeaseExtensionService leaseExtensionService;
+
+    public Mono<ServerResponse> getLeaseExtensionList(ServerRequest request){
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> leaseExtensionService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(leaseExtensionService::checkBikeSession)
+                        .map(leaseExtensionService::getLeaseExtensionList)
+                        .map(leaseExtensionService::returnData), List.class);
+    }
 
     public Mono<ServerResponse> checkIfExtension(ServerRequest request){
         return ServerResponse.ok().body(

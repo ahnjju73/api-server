@@ -10,6 +10,8 @@ import java.util.List;
 
 public interface LeaseExtensionsRepository extends JpaRepository<LeaseExtensions, Long> {
 
+    List<LeaseExtensions> findByLease_LeaseIdOrderByIdx(String leaseId);
+
     @Query(nativeQuery = true, value = "select count(*) from lease_extensions where lease_no = ?1")
     Integer getExtensionIndexByLeaseNo(Integer leaseNo);
 

@@ -1,5 +1,7 @@
 package helmet.bikelab.apiserver.domain.lease;
 
+import com.amazonaws.services.dynamodbv2.xspec.L;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.client.Clients;
@@ -30,7 +32,8 @@ public class LeaseExtensions {
     @Column(name = "lease_no", nullable = false)
     private Integer leaseNo;
 
-    @ManyToOne(optional = false)
+    @JsonIgnore
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "lease_no", insertable = false, updatable = false)
     private Leases lease;
 

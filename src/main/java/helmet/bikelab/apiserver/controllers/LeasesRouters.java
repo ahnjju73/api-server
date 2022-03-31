@@ -21,6 +21,7 @@ public class LeasesRouters {
         return RouterFunctions
                 .route(PUT("/contract/extension"), handler::checkIfExtension)
                 .andRoute(POST("/contract/extension"), handler::extensionLeaseById)
+                .andRoute(GET("/contract/extension"), handler::getLeaseExtensionList)
                 ;
     }
 
