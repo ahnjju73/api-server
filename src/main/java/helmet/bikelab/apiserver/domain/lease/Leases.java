@@ -124,6 +124,9 @@ public class   Leases {
     @Convert(converter = LeaseStopStatusConverter.class)
     private LeaseStopStatusTypes leaseStopStatus = LeaseStopStatusTypes.CONTINUE;
 
+    @Column(name = "lease_stop_status", insertable = false, updatable = false)
+    private String leaseStopStatusCode;
+
     @Column(name = "stop_dt")
     private LocalDateTime stopDt;
 
@@ -139,6 +142,9 @@ public class   Leases {
     @Column(name = "approval_dt")
     private LocalDateTime approvalDt;
 
+    @Column(name = "is_mt", columnDefinition = "TINYINT(1)")
+    private Boolean isMt = false;
+
     @Column(name = "demand_lease_no")
     private Long demandLeaseNo;
 
@@ -153,9 +159,6 @@ public class   Leases {
     @OneToOne(mappedBy = "lease", optional = false, fetch = FetchType.EAGER)
     private LeasePrice leasePrice;
 
-    @Column(name = "is_mt", columnDefinition = "TINYINT(1)")
-    private Boolean isMt = false;
-
     @OneToOne(mappedBy = "lease")
     private LeaseInsurances leaseInsurance;
 
@@ -167,4 +170,12 @@ public class   Leases {
     @OneToMany(mappedBy = "lease", fetch = FetchType.LAZY)
     private List<LeaseExtras> extras = new ArrayList<>();
 
+    public void setExtensionLease(){
+        setBikeNo(getBakBikeNo());
+        leaseStopStatus = LeaseStopStatusTypes.CONTINUE;
+        stopDt = null;
+        stopPaidFee = null;
+        stopFee = null;
+        stopReason = null;
+    }
 }

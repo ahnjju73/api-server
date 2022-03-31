@@ -72,7 +72,7 @@ public class LeasesService extends SessService {
     private final Senders senders;
     private final PushComponent pushComponent;
     private final ActivitiesRepository activitiesRepository;
-
+    private final LeaseExtensionsRepository leaseExtensionsRepository;
     private final SystemParameterRepository systemParameterRepository;
 
     public BikeSessionRequest fetchLeases(BikeSessionRequest request){
@@ -341,6 +341,11 @@ public class LeasesService extends SessService {
             fetchLeasesResponse.setBakRiderLeaseAttachments(riderDemandLeaseHistory.getAttachmentHistoryString());
             fetchLeasesResponse.setBakRiderLeaseSpecialTerms(riderDemandLeaseHistory.getTermsHistoryString());
         }
+
+        // extension 조회
+        Integer extensionIndexByLeaseNo = leaseExtensionsRepository.getExtensionIndexByLeaseNo(lease.getLeaseNo());
+        if(!bePresent(extensionIndexByLeaseNo)) extensionIndexByLeaseNo = 0;
+        fetchLeasesResponse.setExtension(extensionIndexByLeaseNo);
 
         response.put("lease", fetchLeasesResponse);
         request.setResponse(response);

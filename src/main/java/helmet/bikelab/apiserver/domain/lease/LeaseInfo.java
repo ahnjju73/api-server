@@ -37,4 +37,5 @@ public class LeaseInfo {
 
     @Column(name = "note", columnDefinition = "MEDIUMTEXT")
     private String note;
+
 }
