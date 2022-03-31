@@ -80,6 +80,14 @@ public class ClientsService extends SessService {
             }).collect(Collectors.toList());
             partsTypeDiscountClientRepository.saveAll(collect);
         }
+        //if(clients.getDiscountRate() == null){
+        //                    //stringList.add("부품할인가를 <>" + String.format("%.2f", updateClientRequest.getDiscountRate()) + "%</>(으)로 설정하였습니다.");
+        //                    stringList.add("고객사 할인율을 <>" + String.format("%.1f",updateClientRequest.getDiscountRate()*100) + "%</>(으)로 설정하였습니다.");
+        //                //}else stringList.add("부품할인가를 <>" + String.format("%.2f", clients.getDiscountRate()) + "%</>에서 <>" + String.format("%.2f", updateClientRequest.getDiscountRate()) + "%</>로 변경하였습니다.");
+        //                }else stringList.add("고객사 할인율을 <>" + String.format("%.1f",clients.getDiscountRate()*100) + "%</>에서 <>" + String.format("%.1f",updateClientRequest.getDiscountRate()*100) + "%</>로 변경하였습니다.");
+//        bikeUserLogRepository.save(addLog(bikeUserLogTypes, fromUserNo, clients.getClientNo().toString(), stringList));
+
+
         return request;
     }
 
@@ -282,7 +290,6 @@ public class ClientsService extends SessService {
         client.setUuid(updateClientRequest.getUuid());
         client.setDirectType(YesNoTypes.getYesNo(updateClientRequest.getDirect()));
         client.setRegNum(updateClientRequest.getRegNo());
-        client.setDiscountRate(updateClientRequest.getDiscountRate());
         clientsRepository.save(client);
 
         clientInfo.setClientNo(client.getClientNo());
@@ -345,13 +352,13 @@ public class ClientsService extends SessService {
                     stringList.add("총판코드를 <>" + updateClientRequest.getUuid() + "</>으로 변경하였습니다.");
                 }else stringList.add("총판코드를 <>" + clients.getUuid() + "</>에서 <>" + updateClientRequest.getUuid() + "</>로 변경하였습니다.");
             }
-            if(bePresent(updateClientRequest.getDiscountRate()) && !updateClientRequest.getDiscountRate().equals(clients.getDiscountRate())){
-                if(clients.getDiscountRate() == null){
-                    //stringList.add("부품할인가를 <>" + String.format("%.2f", updateClientRequest.getDiscountRate()) + "%</>(으)로 설정하였습니다.");
-                    stringList.add("고객사 할인율을 <>" + String.format("%.1f",updateClientRequest.getDiscountRate()*100) + "%</>(으)로 설정하였습니다.");
-                //}else stringList.add("부품할인가를 <>" + String.format("%.2f", clients.getDiscountRate()) + "%</>에서 <>" + String.format("%.2f", updateClientRequest.getDiscountRate()) + "%</>로 변경하였습니다.");
-                }else stringList.add("고객사 할인율을 <>" + String.format("%.1f",clients.getDiscountRate()*100) + "%</>에서 <>" + String.format("%.1f",updateClientRequest.getDiscountRate()*100) + "%</>로 변경하였습니다.");
-            }
+//            if(bePresent(updateClientRequest.getDiscountRate()) && !updateClientRequest.getDiscountRate().equals(clients.getDiscountRate())){
+//                if(clients.getDiscountRate() == null){
+//                    //stringList.add("부품할인가를 <>" + String.format("%.2f", updateClientRequest.getDiscountRate()) + "%</>(으)로 설정하였습니다.");
+//                    stringList.add("고객사 할인율을 <>" + String.format("%.1f",updateClientRequest.getDiscountRate()*100) + "%</>(으)로 설정하였습니다.");
+//                //}else stringList.add("부품할인가를 <>" + String.format("%.2f", clients.getDiscountRate()) + "%</>에서 <>" + String.format("%.2f", updateClientRequest.getDiscountRate()) + "%</>로 변경하였습니다.");
+//                }else stringList.add("고객사 할인율을 <>" + String.format("%.1f",clients.getDiscountRate()*100) + "%</>에서 <>" + String.format("%.1f",updateClientRequest.getDiscountRate()*100) + "%</>로 변경하였습니다.");
+//            }
             if(bePresent(ci)){
                 if(bePresent(ci.getDescription()) && !ci.getDescription().equals(clientInfo.getDescription())){
                     if(clientInfo.getDescription() == null){

@@ -19,6 +19,5 @@ public class PresignedURLVo extends OriginObject {
         if (!bePresent(this.bucket)) withException("500-005");
         if (!bePresent(this.fileKey)) withException("500-005");
         if (!bePresent(this.url)) withException("500-005");
-
     }
 }
