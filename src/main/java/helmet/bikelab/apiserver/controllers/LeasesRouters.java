@@ -17,6 +17,14 @@ public class LeasesRouters {
     private final LeaseExpenseHandler expenseHandler;
 
     @Bean
+    public RouterFunction<ServerResponse> leasesExtensionRouter(LeasesHandler handler){
+        return RouterFunctions
+                .route(PUT("/contract/extension"), handler::checkIfExtension)
+                .andRoute(POST("/contract/extension"), handler::extensionLeaseById)
+                ;
+    }
+
+    @Bean
     public RouterFunction<ServerResponse> leasesRouter(LeasesHandler handler){
         return RouterFunctions
                 .route(GET("/leases"), handler::fetchLeases)
