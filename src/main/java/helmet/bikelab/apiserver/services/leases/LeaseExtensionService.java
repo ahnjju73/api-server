@@ -6,15 +6,13 @@ import helmet.bikelab.apiserver.domain.lease.LeaseExtensions;
 import helmet.bikelab.apiserver.domain.lease.LeaseInfo;
 import helmet.bikelab.apiserver.domain.lease.LeasePayments;
 import helmet.bikelab.apiserver.domain.lease.Leases;
+import helmet.bikelab.apiserver.domain.types.BikeUserLogTypes;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.SessionRequest;
 import helmet.bikelab.apiserver.objects.requests.LeaseByIdRequest;
 import helmet.bikelab.apiserver.objects.requests.LeaseExtensionByIdRequest;
 import helmet.bikelab.apiserver.objects.responses.LeaseExtensionCheckedResponse;
-import helmet.bikelab.apiserver.repositories.LeaseExtensionsRepository;
-import helmet.bikelab.apiserver.repositories.LeaseInfoRepository;
-import helmet.bikelab.apiserver.repositories.LeasePaymentsRepository;
-import helmet.bikelab.apiserver.repositories.LeaseRepository;
+import helmet.bikelab.apiserver.repositories.*;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.utils.AutoKey;
 import helmet.bikelab.apiserver.workers.LeasesExtensionWorker;
@@ -23,10 +21,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import static helmet.bikelab.apiserver.domain.bikelab.BikeUserLog.addLog;
 
 @Service
 @RequiredArgsConstructor
@@ -38,6 +40,7 @@ public class LeaseExtensionService extends SessService {
     private final LeaseExtensionsRepository leaseExtensionsRepository;
     private final LeasePaymentsRepository leasePaymentsRepository;
     private final AutoKey autoKey;
+    private final BikeUserLogRepository bikeUserLogRepository;
 
     public SessionRequest checkIfExtension(SessionRequest request){
         LeaseByIdRequest leaseByIdRequest = map(request.getParam(), LeaseByIdRequest.class);
@@ -75,8 +78,21 @@ public class LeaseExtensionService extends SessService {
 
         List<LeasePayments> leasePayments = getLeasePaymentList(leaseById, leaseExtensionByIdRequest.getStartDt(), leaseExtensionByIdRequest.getPeriod(), sessionUser);
         if(bePresent(leasePayments)) leasePaymentsRepository.saveAll(leasePayments);
-
+        updateLeaseLogByExtension(leaseById, leaseExtension, sessionUser);
         return request;
+    }
+
+    private void updateLeaseLogByExtension(Leases lease, LeaseExtensions leaseExtensions, BikeUser session){
+        List<String> logList = new ArrayList<>();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일");
+        Integer extensionIndexByLeaseNo = leaseExtensionsRepository.getExtensionIndexByLeaseNo(lease.getLeaseNo());
+        if(!bePresent(extensionIndexByLeaseNo)) extensionIndexByLeaseNo = 0;
+        extensionIndexByLeaseNo++;
+        logList.add("<>[" + extensionIndexByLeaseNo + "회차]</> 리스가 연장되었습니다.\n");
+        logList.add("시작일 : <>" + leaseExtensions.getStart().format(formatter) + "</>\n");
+        logList.add("종료일 : <>" + leaseExtensions.getEndDate().format(formatter) + "</>\n");
+        logList.add("기간 : <>" + leaseExtensions.getPeriod() + "개월</>\n");
+        bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_UPDATED, session.getUserNo(), lease.getLeaseNo().toString(), logList));
     }
 
     private LeaseExtensions getLeaseExtensionList(Leases leases, LocalDate startDate, LocalDate endDate, Integer period){
