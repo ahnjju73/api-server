@@ -123,12 +123,12 @@ public class LeaseExpenseService extends SessService {
                 log += "구입 갯수는 <>" + expense.getNumber() + "</>개로 설정되었습니다.\n";
             }
             if(expense.getDescription() != null && !expense.getDescription().equals("")){
-                log += "상세설명이 <>\"" + expense.getDescription() + "\"</>로 입력되었습니다.";
+                log += "상세설명이 <>\"" + expense.getDescription() + "\"</>로 입력되었습니다.\n";
             }
             if(expense.getExpenseOptionType() != null && expense.getExpenseOptionType() == ExpenseOptionTypes.ON.getType()){
-                log += "실비 / 확보 물량 옵션을 켬으로 설정되었습니다";
+                log += "실비 / 확보 물량 옵션을 켬으로 설정되었습니다.\n";
             } else{
-                log += "실비 / 확보 물량 옵션을 끔으로 설정되었습니다";
+                log += "실비 / 확보 물량 옵션을 끔으로 설정되었습니다.\n";
             }
 
         } else {
@@ -155,7 +155,7 @@ public class LeaseExpenseService extends SessService {
                 if (expense.getRegNum() != null && !expense.getRegNum().equals("")) {
                     log += "구입처 사업자 번호가 <>" + leaseExpense.getTransaction().getRegNum() + "</>에서 <>" + expense.getRegNum() + "</>으로 변경되었습니다.\n";
                 } else {
-                    log += "구입처 사업자 번호 정보를 삭제하였습니다.";
+                    log += "구입처 사업자 번호 정보를 삭제하였습니다.\n";
                 }
             }
             if (leaseExpense.getTransaction().getPrice() != expense.getPrice()) {
@@ -172,7 +172,7 @@ public class LeaseExpenseService extends SessService {
                 if (expense.getCompanyName() != null && !expense.getCompanyName().equals("")) {
                     log += "상세 설명이 <>" + leaseExpense.getDescription() + "</>에서 <>" + expense.getDescription() + "</>으로 변경되었습니다.\n";
                 } else {
-                    log += "상세 설명을 삭제하였습니다.";
+                    log += "상세 설명을 삭제하였습니다.\n";
                 }
             }
         }
