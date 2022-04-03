@@ -75,13 +75,12 @@ public class LeaseExtensionService extends SessService {
         Leases leaseById = leasesExtensionWorker.checkExtensionEnable(leaseExtensionByIdRequest.getLeaseId());
         leasesExtensionWorker.checkBikeForExtensionByBikeNo(leaseById);
         leasesExtensionWorker.shouldStartDateGreaterThan(leaseById, leaseExtensionByIdRequest.getStartDt());
+        LeaseExtensions leaseExtension = getLeaseExtensionList(leaseById, leaseExtensionByIdRequest.getStartDt(), leaseExtensionByIdRequest.getEndDateByLeaseInfo(), leaseExtensionByIdRequest.getPeriod());
+        leaseExtensionsRepository.save(leaseExtension);
 
         setLeaseInfoForExtension(leaseById, leaseExtensionByIdRequest.getStartDt(), leaseExtensionByIdRequest.getEndDate(), leaseExtensionByIdRequest.getPeriod());
         leaseById.setExtensionLease();
         leaseRepository.save(leaseById);
-
-        LeaseExtensions leaseExtension = getLeaseExtensionList(leaseById, leaseExtensionByIdRequest.getStartDt(), leaseExtensionByIdRequest.getEndDateByLeaseInfo(), leaseExtensionByIdRequest.getPeriod());
-        leaseExtensionsRepository.save(leaseExtension);
 
         List<LeasePayments> leasePayments = getLeasePaymentList(leaseById, leaseExtensionByIdRequest.getStartDt(), leaseExtensionByIdRequest.getPeriod(), sessionUser);
         if(bePresent(leasePayments)) leasePaymentsRepository.saveAll(leasePayments);
