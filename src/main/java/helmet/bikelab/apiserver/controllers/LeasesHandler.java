@@ -2,8 +2,10 @@ package helmet.bikelab.apiserver.controllers;
 
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.bikelabs.leases.LeaseBikeUserLogs;
+import helmet.bikelab.apiserver.objects.responses.LeaseExtensionCheckedResponse;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.services.employees.BikeUserLogService;
+import helmet.bikelab.apiserver.services.leases.LeaseExtensionService;
 import helmet.bikelab.apiserver.services.leases.LeasesService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -12,6 +14,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -20,6 +23,36 @@ public class LeasesHandler {
 
     private final LeasesService leasesService;
     private final BikeUserLogService bikeUserLogService;
+    private final LeaseExtensionService leaseExtensionService;
+
+    public Mono<ServerResponse> getLeaseExtensionList(ServerRequest request){
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> leaseExtensionService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(leaseExtensionService::checkBikeSession)
+                        .map(leaseExtensionService::getLeaseExtensionList)
+                        .map(leaseExtensionService::returnData), List.class);
+    }
+
+    public Mono<ServerResponse> checkIfExtension(ServerRequest request){
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> leaseExtensionService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(leaseExtensionService::checkBikeSession)
+                        .map(leaseExtensionService::checkIfExtension)
+                        .map(leaseExtensionService::returnData), LeaseExtensionCheckedResponse.class);
+    }
+
+    public Mono<ServerResponse> extensionLeaseById(ServerRequest request){
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> leaseExtensionService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(leaseExtensionService::checkBikeSession)
+                        .map(leaseExtensionService::extensionLeaseById)
+                        .map(leaseExtensionService::returnData), Map.class);
+    }
 
     public Mono<ServerResponse> fetchLeases(ServerRequest request){
         return ServerResponse.ok().body(

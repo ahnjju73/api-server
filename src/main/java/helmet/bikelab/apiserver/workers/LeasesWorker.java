@@ -6,8 +6,6 @@ import helmet.bikelab.apiserver.services.internal.Workspace;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 @Component
 @RequiredArgsConstructor
 public class LeasesWorker extends Workspace {

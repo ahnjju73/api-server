@@ -62,8 +62,8 @@
         <if test="search_status != null and search_status != '' and search_status != 'undefined'">
             and status = #{search_status}
         </if>
-        <if test="search_company != null and search_company != '' and search_company != 'undefined'">
-            and company like concat('%', #{search_company}, '%')
+        <if test="name != null and name != '' and name != 'undefined'">
+            and name like concat('%', #{name}, '%')
         </if>
     </select>
 
@@ -91,8 +91,8 @@
                 <if test="search_status != null and search_status != '' and search_status != 'undefined'">
                 and status = #{search_status}
                 </if>
-                <if test="search_company != null and search_company != '' and search_company != 'undefined'">
-                and company like concat('%', #{search_company}, '%')
+                <if test="name != null and name != '' and name != 'undefined'">
+                and name like concat('%', #{name}, '%')
                 </if>
               order by inquiry_no desc limit 50) iq
                  left outer join bike_user_mst um on iq.confirmed_user_no = um.user_no

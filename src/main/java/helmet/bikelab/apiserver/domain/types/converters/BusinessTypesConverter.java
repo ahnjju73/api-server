@@ -8,7 +8,7 @@ import javax.persistence.AttributeConverter;
 public class BusinessTypesConverter implements AttributeConverter<BusinessTypes, String> {
     @Override
     public String convertToDatabaseColumn(BusinessTypes businessTypes) {
-        return businessTypes.getBusinessType();
+        return businessTypes == null ? BusinessTypes.PERSONAL.getBusinessType() : businessTypes.getBusinessType();
     }
 
     @Override

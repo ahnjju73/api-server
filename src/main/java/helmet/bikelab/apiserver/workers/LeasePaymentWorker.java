@@ -92,12 +92,12 @@ public class LeasePaymentWorker extends SessService {
         String content = "";
         if ((byPaymentId.getDescription() == null && description != null) || (byPaymentId.getDescription() != null && !byPaymentId.getDescription().equals(byPaymentId.getDescription()))) {
             String log = "";
-            if (byPaymentId.getDescription() == null)
-                log = "<>" + byPaymentId.getIndex() + "회차</> 설명이 " + description + "로 입력되었습니다.";
-            else
+            if (byPaymentId.getDescription() == null);
+            else {
                 log = "<>" + byPaymentId.getIndex() + "회차</> 설명이 " + byPaymentId.getDescription() + "에서 " + description + "로 변경되었습니다.";
-            byPaymentId.setDescription(description);
-            strings.add(log);
+                byPaymentId.setDescription(description);
+                strings.add(log);
+            }
         }
         if (payFee <= byPaymentId.getLeaseFee() - byPaymentId.getPaidFee()) {
             byPaymentId.setPaidFee(payFee);

@@ -32,6 +32,14 @@ public class InquiryService extends SessService {
         return request;
     }
 
+    public BikeSessionRequest fetchInquiryDetail(BikeSessionRequest request) {
+        Map param = request.getParam();
+        Long inquiryNo = Long.valueOf((String) param.get("inquiry_no"));
+        Inquiries inquiries = inquiriesRepository.findByInquiryNo(inquiryNo);
+        request.setResponse(inquiries);
+        return request;
+    }
+
     @Transactional
     public BikeSessionRequest confirmInquiryByInquiryNo(BikeSessionRequest request){
         Map param = request.getParam();

@@ -12,4 +12,5 @@ import java.util.Optional;
 
 public interface BikeUserLogRepository extends JpaRepository<BikeUserLog, Long> {
     void deleteAllByLogTypeAndReferenceId(BikeUserLogTypes logTypes, String referenceId);
+    void deleteAllByReferenceId(String referenceId);
 }

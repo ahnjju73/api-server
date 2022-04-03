@@ -233,6 +233,7 @@ public class RiderWorker extends SessService {
             bikeDto.setBikeModel(bike.getCarModel().getModel());
             bikeDto.setBikeVolume(bike.getCarModel().getVolume());
             bikeDto.setBikeType(bike.getCarModel().getBikeType().getType());
+            bikeDto.setBm(bike.getIsBikemaster());
             leasingBikes.add(bikeDto);
         }
         fetchRiderDetailResponse.setLeasingBikes(leasingBikes);

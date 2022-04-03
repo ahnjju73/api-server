@@ -395,7 +395,7 @@ public class LeasePaymentService  extends SessService {
         if(type.equals("lease"))
             responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "leases.leases-payments.fetchUnpaidLeaseExcel", "leases.leases-payments.countUnpaidLeaseExcel", "row_num");
         else
-            responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "leases.leases-payments.fetchUnpaidExtraExcel", "leases.leases-payments.countUnpaidExtraExcel", "row_num");
+            responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "leases.leases-payments.fetchUnpaidLeaseExtraExcel", "leases.leases-payments.countUnpaidLeaseExtraExcel", "row_num");
         request.setResponse(responseListDto.getItems());
         return request;
     }
@@ -447,6 +447,8 @@ public class LeasePaymentService  extends SessService {
                 if (lease.getStatus() != LeaseStatusTypes.CONFIRM || lease.getLeaseStopStatus() != LeaseStopStatusTypes.CONTINUE)
                     continue;
                 int paidFee = payLeaseRequest.getPaidFee();
+                if(paidFee == 0)
+                    continue;
                 List<LeasePayments> payments = leasePaymentsRepository.findAllByLease_LeaseIdAndPaymentDateLessThanEqual(payLeaseRequest.getLeaseId(), LocalDate.now());
                 for (int i = 0; i < payments.size(); i++) {
                     payments.get(i).setPaidType(PaidTypes.BANK);

@@ -27,7 +27,8 @@ public enum BikeUserLogTypes {
     COMM_CLIENT_OVERPAY("150-020"),
     LEASE_EXTRA_READ("150-021"),
     COMM_SHOP_ADDED("150-030"),
-    COMM_SHOP_UPDATED("150-031")
+    COMM_SHOP_UPDATED("150-031"),
+    LEASE_EXTENSION("150-032"),
     ;
 
     private String status;
