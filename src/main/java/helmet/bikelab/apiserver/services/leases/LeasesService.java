@@ -657,7 +657,7 @@ public class LeasesService extends SessService {
             //leaseInfo.setLeaseNo(lease.getLeaseNo());
             if (leaseInfoDto.getStartDt() != null) {
                 leaseInfo.setStart(LocalDate.parse(leaseInfoDto.getStartDt()));
-                leaseInfo.setEndDate(leaseInfo.getStart().plusMonths(addUpdateLeaseRequest.getLeasePayments().size()));
+                leaseInfo.setEndDate(leaseInfo.getStart().plusMonths(addUpdateLeaseRequest.getLeaseInfo().getPeriod()));
             }
             leaseInfo.setContractDate(LocalDate.parse(leaseInfoDto.getContractDt()));
             leaseInfo.setNote(leaseInfoDto.getNote());
