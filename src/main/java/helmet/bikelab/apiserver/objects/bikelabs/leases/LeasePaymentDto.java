@@ -16,6 +16,7 @@ public class LeasePaymentDto {
     private String paymentId;
     private Integer idx;
     private LocalDate paymentDate;
+    private LocalDate paymentEndDate;
     private Integer leaseFee;
     private Integer paidFee;
     private Integer unpaidFee;

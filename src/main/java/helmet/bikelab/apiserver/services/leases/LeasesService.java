@@ -28,6 +28,7 @@ import helmet.bikelab.apiserver.utils.PushComponent;
 import helmet.bikelab.apiserver.utils.Senders;
 import helmet.bikelab.apiserver.utils.Utils;
 import helmet.bikelab.apiserver.workers.CommonWorker;
+import helmet.bikelab.apiserver.workers.LeasePaymentWorker;
 import lombok.RequiredArgsConstructor;
 import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
@@ -69,11 +70,11 @@ public class LeasesService extends SessService {
     private final RiderDemandLeaseAttachmentsRepository riderDemandLeaseAttachmentsRepository;
     private final RiderDemandLeaseTermsRepository riderDemandLeaseTermsRepository;
     private final RiderRepository riderRepository;
-    private final Senders senders;
     private final PushComponent pushComponent;
     private final ActivitiesRepository activitiesRepository;
     private final LeaseExtensionsRepository leaseExtensionsRepository;
     private final SystemParameterRepository systemParameterRepository;
+    private final LeasePaymentWorker leasePaymentWorker;
 
     public BikeSessionRequest fetchLeases(BikeSessionRequest request){
         Map param = request.getParam();
@@ -182,10 +183,10 @@ public class LeasesService extends SessService {
         Leases lease = leaseRepository.findByLeaseId(leasesDto.getLeaseId());
         List<LeasePayments> payments = leasePaymentsRepository.findAllByLease_LeaseId(lease.getLeaseId());
         List<LeaseExpense> leaseExpenses = expenseRepository.findAllByLease_LeaseId(lease.getLeaseId());
-        Riders rider = lease.getBike().getRiderNo() == null ? null : riderRepository.findById(lease.getBike().getRiderNo()).get();
         RiderDemandLeaseHistories riderDemandLeaseHistory = riderDemandLeaseHistoryRepository.findByLease_LeaseId(lease.getLeaseId());
 
-        if(lease == null) withException("850-002");
+        if(!bePresent(lease)) withException("850-002");
+
         List<FetchFinesResponse> fines = new ArrayList<>();
         FetchLeasesResponse fetchLeasesResponse = new FetchLeasesResponse();
         fetchLeasesResponse.setFines(fines);
@@ -288,6 +289,7 @@ public class LeasesService extends SessService {
             leasePaymentDto.setLeaseFee(lp.getLeaseFee());
             leasePaymentDto.setPaymentId(lp.getPaymentId());
             leasePaymentDto.setPaymentDate(lp.getPaymentDate());
+            leasePaymentDto.setPaymentEndDate(lp.getPaymentEndDate());
             leasePaymentDto.setPaidFee(lp.getPaidFee());
             leasePaymentDto.setIdx(lp.getIndex());
             leasePaymentDto.setPaidType(lp.getPaidType() != null ? lp.getPaidType().getStatus() : null);
@@ -394,7 +396,7 @@ public class LeasesService extends SessService {
         leaseInfo.setContractDate(LocalDate.parse(leaseInfoDto.getContractDt()));
         leaseInfo.setNote(leaseInfoDto.getNote());
 
-        doLeasePayment(addUpdateLeaseRequest, lease, client, leaseInfo, session, leasePaymentsList);
+        leasePaymentWorker.doLeasePayment(addUpdateLeaseRequest, lease, client, leaseInfo, session, leasePaymentsList);
         leaseInfoRepository.save(leaseInfo);
 
         //lease expense-bike
@@ -437,41 +439,7 @@ public class LeasesService extends SessService {
         return request;
     }
 
-    private void setPaymentByRentLease(AddUpdateLeaseRequest addUpdateLeaseRequest, BikeUser session, Leases lease, Clients client, LeaseInfo leaseInfo, List<LeasePayments> leasePaymentsList) {
-        Integer afterDay = 30;
-        for (int i = 0; i < addUpdateLeaseRequest.getLeaseInfo().getPeriod(); i++) {
-            LeasePayments leasePayment = makePayment(addUpdateLeaseRequest, session, lease, client, leaseInfo, i, leaseInfo.getStart().plusDays(i * afterDay), leaseInfo.getStart().plusDays((i + 1) * afterDay));
-            leasePaymentsList.add(leasePayment);
-        }
-    }
-    private void setPaymentByRentLeaseNot(AddUpdateLeaseRequest addUpdateLeaseRequest, BikeUser session, Leases lease, Clients client, LeaseInfo leaseInfo, List<LeasePayments> leasePaymentsList) {
-        if(PaymentTypes.MONTHLY.equals(PaymentTypes.getPaymentType(addUpdateLeaseRequest.getLeasePrice().getPaymentType()))) {
-            for (int i = 0; i < addUpdateLeaseRequest.getLeaseInfo().getPeriod(); i++) {
-                LeasePayments leasePayment = makePayment(addUpdateLeaseRequest, session, lease, client, leaseInfo, i, leaseInfo.getStart().plusMonths(i), leaseInfo.getStart().plusMonths(i + 1));
-                leasePaymentsList.add(leasePayment);
-            }
-        }else{
-            int days = (int)(ChronoUnit.DAYS.between(leaseInfo.getStart(), leaseInfo.getStart().plusMonths(addUpdateLeaseRequest.getLeaseInfo().getPeriod())));
-            for(int i = 0 ; i < days; i++){
-                LeasePayments leasePayment = makePayment(addUpdateLeaseRequest, session, lease, client, leaseInfo, i, leaseInfo.getStart().plusDays(i), leaseInfo.getStart().plusDays(i));
-                leasePaymentsList.add(leasePayment);
-            }
-        }
-    }
 
-    private LeasePayments makePayment(AddUpdateLeaseRequest addUpdateLeaseRequest, BikeUser session, Leases lease, Clients client, LeaseInfo leaseInfo, int i, LocalDate date, LocalDate endDate) {
-        LeasePayments leasePayment = new LeasePayments();
-        String paymentId = autoKey.makeGetKey("payment");
-        leasePayment.setPaymentId(paymentId);
-        leasePayment.setLeaseNo(lease.getLeaseNo());
-        leasePayment.setClientNo(client.getClientNo());
-        leasePayment.setIndex(i + 1);
-        leasePayment.setPaymentDate(date);
-        leasePayment.setPaymentEndDate(endDate);
-        leasePayment.setInsertedUserNo(session.getUserNo());
-        leasePayment.setLeaseFee(addUpdateLeaseRequest.getLeasePrice().getLeaseFee());
-        return leasePayment;
-    }
 
     @Transactional
     public BikeSessionRequest updateLease(BikeSessionRequest request){
@@ -675,7 +643,7 @@ public class LeasesService extends SessService {
                 leaseInfo.setPeriod(leaseInfoDto.getPeriod());
                 leaseExtraRepository.deleteAllByLeaseNo(lease.getLeaseNo());
                 leasePaymentsRepository.deleteAllByLease_LeaseId(lease.getLeaseId());
-                doLeasePayment(addUpdateLeaseRequest, lease, client, leaseInfo, session, newPaymentList);
+                leasePaymentWorker.doLeasePayment(addUpdateLeaseRequest, lease, client, leaseInfo, session, newPaymentList);
                 leasePaymentsRepository.saveAll(newPaymentList);
             }
 
@@ -685,14 +653,7 @@ public class LeasesService extends SessService {
         return request;
     }
 
-    private void doLeasePayment(AddUpdateLeaseRequest addUpdateLeaseRequest, Leases lease, Clients client, LeaseInfo leaseInfo, BikeUser session, List<LeasePayments> newPaymentList) {
-        if(ContractTypes.MANAGEMENT.equals(lease.getContractTypes())){
-            setPaymentByRentLease(addUpdateLeaseRequest, session, lease, client, leaseInfo, newPaymentList);
-        }else {
-            setPaymentByRentLeaseNot(addUpdateLeaseRequest, session, lease, client, leaseInfo, newPaymentList);
-        }
-        leaseInfo.setEndDate(newPaymentList.get(newPaymentList.size() - 1).getPaymentEndDate().plusDays(1));
-    }
+
 
     @Transactional
     public void updateLeaseInfoLog(BikeUser session, AddUpdateLeaseRequest leaseRequest, Clients clientRequested, Insurances insurancesRequested, Bikes bikeRequested, Leases leases){
