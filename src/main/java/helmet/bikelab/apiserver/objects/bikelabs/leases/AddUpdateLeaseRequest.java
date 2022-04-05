@@ -37,33 +37,6 @@ public class AddUpdateLeaseRequest extends OriginObject {
     private StopLeaseDto stopLeaseInfo;
     private Boolean isMt;
 
-//    public void setTakeAt(String takeAt) {
-//        if(takeAt != null)
-//            this.takeAt = LocalDateTime.parse(takeAt);
-//    }
-//
-//    public void setReleaseAt(String releaseAt) {
-//        if(releaseAt != null)
-//            this.releaseAt = LocalDateTime.parse(releaseAt);
-//    }
-//
-//    public void setLeaseInfo(LeaseInfoDto info) {
-//        this.leaseInfo = info;
-//    }
-//
-//    public void setLeaseInfo(Map info) {
-//        ObjectMapper objectMapper = new ObjectMapper();
-//        this.leaseInfo = objectMapper.convertValue(info, LeaseInfoDto.class);
-//    }
-//    public void setLeasePrice(Map price) {
-//        ObjectMapper objectMapper = new ObjectMapper();
-//        this.leasePrice = objectMapper.convertValue(price, LeasePriceDto.class);
-//    }
-//
-//    public void setLeasePrice(LeasePriceDto leasePrice) {
-//        this.leasePrice = leasePrice;
-//    }
-
     public void validationCheck(){
         if(contractType == null) withException("850-037");
         if(managementType == null) withException("850-030");
