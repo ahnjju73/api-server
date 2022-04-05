@@ -36,4 +36,12 @@ public class LeasePaymentDto {
     public void setPaymentDate(String paymentDate) {
         this.paymentDate = LocalDate.parse(paymentDate);
     }
+
+    public void setPaymentEndDate(String paymentEndDate) {
+        this.paymentEndDate = LocalDate.parse(paymentEndDate);
+    }
+
+    public void setPaymentEndDate(LocalDate paymentEndDate) {
+        this.paymentEndDate = paymentEndDate;
+    }
 }
