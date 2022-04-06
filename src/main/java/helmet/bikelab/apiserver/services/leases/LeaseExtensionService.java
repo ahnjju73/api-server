@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.services.leases;
 
+import com.amazonaws.services.route53domains.model.ContactType;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.lease.LeaseExtensions;
@@ -7,6 +8,7 @@ import helmet.bikelab.apiserver.domain.lease.LeaseInfo;
 import helmet.bikelab.apiserver.domain.lease.LeasePayments;
 import helmet.bikelab.apiserver.domain.lease.Leases;
 import helmet.bikelab.apiserver.domain.types.BikeUserLogTypes;
+import helmet.bikelab.apiserver.domain.types.ContractTypes;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.SessionRequest;
 import helmet.bikelab.apiserver.objects.requests.LeaseByIdRequest;
@@ -75,6 +77,7 @@ public class LeaseExtensionService extends SessService {
         LeaseExtensionByIdRequest leaseExtensionByIdRequest = map(request.getParam(), LeaseExtensionByIdRequest.class);
         leaseExtensionByIdRequest.checkValidation();
         Leases leaseById = leasesExtensionWorker.checkExtensionEnable(leaseExtensionByIdRequest.getLeaseId());
+        if(!ContractTypes.MANAGEMENT.equals(leaseById.getContractTypes())) withException("");
         leasesExtensionWorker.checkBikeForExtensionByBikeNo(leaseById);
         leasesExtensionWorker.shouldStartDateGreaterThan(leaseById, leaseExtensionByIdRequest.getStartDt());
         LeaseInfo leaseInfo = leaseById.getLeaseInfo();
