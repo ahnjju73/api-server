@@ -70,6 +70,8 @@ public class InsuranceCompanyService extends SessService {
         insuranceCompanies.setLogoImageList(collect);
         insuranceCompanyRepository.save(insuranceCompanies);
         InsuranceCompanyPasswords passwords = new InsuranceCompanyPasswords();
+        passwords.setCompanyNo(insuranceCompanies.getCompanyNo());
+        passwords.setCompany(insuranceCompanies);
         passwords.makePassword();
         insuranceCompanyPasswordRepository.save(passwords);
         return request;
