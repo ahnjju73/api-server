@@ -56,6 +56,7 @@ public class LeaseExtensionService extends SessService {
     public SessionRequest checkIfExtension(SessionRequest request){
         LeaseByIdRequest leaseByIdRequest = map(request.getParam(), LeaseByIdRequest.class);
         Leases leases = leasesExtensionWorker.checkExtensionEnable(leaseByIdRequest.getLeaseId());
+        if(!ContractTypes.MANAGEMENT.equals(leases.getContractTypes())) withException("");
         Bikes bikes = leasesExtensionWorker.checkBikeForExtensionByBikeNo(leases);
         LeaseExtensionCheckedResponse response = new LeaseExtensionCheckedResponse();
         response.setBike(bikes);
