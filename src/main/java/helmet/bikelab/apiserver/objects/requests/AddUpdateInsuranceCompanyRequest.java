@@ -19,14 +19,15 @@ public class AddUpdateInsuranceCompanyRequest extends OriginObject {
     private List<PresignedURLVo> images;
 
     public void validationCheck(){
-        if(bePresent(name))
+        if(!bePresent(name))
             withException("");
-        if(bePresent(email))
+        if(!bePresent(email))
             withException("");
-        if(bePresent(phone))
+        if(!bePresent(phone))
             withException("");
-        for (PresignedURLVo pvo: images) {
-            pvo.checkValidation();
-        }
+        if(images.size() != 0)
+            for (PresignedURLVo pvo: images) {
+                pvo.checkValidation();
+            }
     }
 }
