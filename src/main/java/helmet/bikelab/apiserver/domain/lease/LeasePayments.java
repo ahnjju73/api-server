@@ -50,6 +50,9 @@ public class LeasePayments {
     @Column(name = "payment_date")
     private LocalDate paymentDate;
 
+    @Column(name = "payment_end_date")
+    private LocalDate paymentEndDate;
+
     @Column(name = "lease_fee", nullable = false)
     private Integer leaseFee = 0;
 
