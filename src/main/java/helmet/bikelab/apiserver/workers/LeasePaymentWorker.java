@@ -3,16 +3,17 @@ package helmet.bikelab.apiserver.workers;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.client.Clients;
 import helmet.bikelab.apiserver.domain.lease.LeaseExtras;
+import helmet.bikelab.apiserver.domain.lease.LeaseInfo;
 import helmet.bikelab.apiserver.domain.lease.LeasePayments;
 import helmet.bikelab.apiserver.domain.lease.Leases;
 import helmet.bikelab.apiserver.domain.riders.Riders;
-import helmet.bikelab.apiserver.domain.types.BikeUserLogTypes;
-import helmet.bikelab.apiserver.domain.types.LeaseStatusTypes;
-import helmet.bikelab.apiserver.domain.types.PaidTypes;
+import helmet.bikelab.apiserver.domain.types.*;
+import helmet.bikelab.apiserver.objects.bikelabs.leases.AddUpdateLeaseRequest;
 import helmet.bikelab.apiserver.objects.requests.RequestListDto;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.repositories.*;
 import helmet.bikelab.apiserver.services.internal.SessService;
+import helmet.bikelab.apiserver.utils.AutoKey;
 import helmet.bikelab.apiserver.utils.Utils;
 import helmet.bikelab.apiserver.utils.keys.ENV;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -35,7 +37,7 @@ public class LeasePaymentWorker extends SessService {
     private final BikeUserLogRepository bikeUserLogRepository;
     private final LeaseExtraRepository leaseExtraRepository;
     private final ClientsRepository clientsRepository;
-    private final RiderRepository riderRepository;
+    private final AutoKey autoKey;
 
     public void payLeaseExtraFeeByExtraId(String extraId, BikeUser session) {
         LeaseExtras leaseExtras = leaseExtraRepository.findByExtraId(extraId);
@@ -166,6 +168,51 @@ public class LeasePaymentWorker extends SessService {
             bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_PAYMENT, session.getUserNo(), byPaymentId.getLeaseNo().toString(), content));
         }
 
+    }
+
+    public void doLeasePayment(AddUpdateLeaseRequest addUpdateLeaseRequest, Leases lease, Clients client, LeaseInfo leaseInfo, BikeUser session, List<LeasePayments> newPaymentList) {
+        if(ContractTypes.MANAGEMENT.equals(lease.getContractTypes())){
+            setPaymentByRentLease(addUpdateLeaseRequest, session, lease, client, leaseInfo, newPaymentList);
+        }else {
+            setPaymentByRentLeaseNot(addUpdateLeaseRequest, session, lease, client, leaseInfo, newPaymentList);
+        }
+        leaseInfo.setEndDate(newPaymentList.get(newPaymentList.size() - 1).getPaymentEndDate());
+    }
+
+    private void setPaymentByRentLease(AddUpdateLeaseRequest addUpdateLeaseRequest, BikeUser session, Leases lease, Clients client, LeaseInfo leaseInfo, List<LeasePayments> leasePaymentsList) {
+        Integer afterDay = 30;
+        for (int i = 0; i < addUpdateLeaseRequest.getLeaseInfo().getPeriod(); i++) {
+            LeasePayments leasePayment = makePayment(addUpdateLeaseRequest, session, lease, client, leaseInfo, i, leaseInfo.getStart().plusDays(i * afterDay), leaseInfo.getStart().plusDays((i + 1) * afterDay).minusDays(1));
+            leasePaymentsList.add(leasePayment);
+        }
+    }
+    private void setPaymentByRentLeaseNot(AddUpdateLeaseRequest addUpdateLeaseRequest, BikeUser session, Leases lease, Clients client, LeaseInfo leaseInfo, List<LeasePayments> leasePaymentsList) {
+        if(PaymentTypes.MONTHLY.equals(PaymentTypes.getPaymentType(addUpdateLeaseRequest.getLeasePrice().getPaymentType()))) {
+            for (int i = 0; i < addUpdateLeaseRequest.getLeaseInfo().getPeriod(); i++) {
+                LeasePayments leasePayment = makePayment(addUpdateLeaseRequest, session, lease, client, leaseInfo, i, leaseInfo.getStart().plusMonths(i), leaseInfo.getStart().plusMonths(i + 1).minusDays(1));
+                leasePaymentsList.add(leasePayment);
+            }
+        }else{
+            int days = (int)(ChronoUnit.DAYS.between(leaseInfo.getStart(), leaseInfo.getStart().plusMonths(addUpdateLeaseRequest.getLeaseInfo().getPeriod())));
+            for(int i = 0 ; i < days; i++){
+                LeasePayments leasePayment = makePayment(addUpdateLeaseRequest, session, lease, client, leaseInfo, i, leaseInfo.getStart().plusDays(i), leaseInfo.getStart().plusDays(i));
+                leasePaymentsList.add(leasePayment);
+            }
+        }
+    }
+
+    private LeasePayments makePayment(AddUpdateLeaseRequest addUpdateLeaseRequest, BikeUser session, Leases lease, Clients client, LeaseInfo leaseInfo, int i, LocalDate date, LocalDate endDate) {
+        LeasePayments leasePayment = new LeasePayments();
+        String paymentId = autoKey.makeGetKey("payment");
+        leasePayment.setPaymentId(paymentId);
+        leasePayment.setLeaseNo(lease.getLeaseNo());
+        leasePayment.setClientNo(client.getClientNo());
+        leasePayment.setIndex(i + 1);
+        leasePayment.setPaymentDate(date);
+        leasePayment.setPaymentEndDate(endDate);
+        leasePayment.setInsertedUserNo(session.getUserNo());
+        leasePayment.setLeaseFee(addUpdateLeaseRequest.getLeasePrice().getLeaseFee());
+        return leasePayment;
     }
 
 }

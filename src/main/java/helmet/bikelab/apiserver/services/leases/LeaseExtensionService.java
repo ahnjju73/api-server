@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.services.leases;
 
+import com.amazonaws.services.route53domains.model.ContactType;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.lease.LeaseExtensions;
@@ -7,6 +8,7 @@ import helmet.bikelab.apiserver.domain.lease.LeaseInfo;
 import helmet.bikelab.apiserver.domain.lease.LeasePayments;
 import helmet.bikelab.apiserver.domain.lease.Leases;
 import helmet.bikelab.apiserver.domain.types.BikeUserLogTypes;
+import helmet.bikelab.apiserver.domain.types.ContractTypes;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.SessionRequest;
 import helmet.bikelab.apiserver.objects.requests.LeaseByIdRequest;
@@ -15,6 +17,7 @@ import helmet.bikelab.apiserver.objects.responses.LeaseExtensionCheckedResponse;
 import helmet.bikelab.apiserver.repositories.*;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.utils.AutoKey;
+import helmet.bikelab.apiserver.workers.LeasePaymentWorker;
 import helmet.bikelab.apiserver.workers.LeasesExtensionWorker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -41,6 +44,7 @@ public class LeaseExtensionService extends SessService {
     private final LeasePaymentsRepository leasePaymentsRepository;
     private final AutoKey autoKey;
     private final BikeUserLogRepository bikeUserLogRepository;
+    private final LeasePaymentWorker leasePaymentWorker;
 
     public SessionRequest getLeaseExtensionList(SessionRequest request){
         LeaseByIdRequest leaseByIdRequest = map(request.getParam(), LeaseByIdRequest.class);
@@ -52,6 +56,7 @@ public class LeaseExtensionService extends SessService {
     public SessionRequest checkIfExtension(SessionRequest request){
         LeaseByIdRequest leaseByIdRequest = map(request.getParam(), LeaseByIdRequest.class);
         Leases leases = leasesExtensionWorker.checkExtensionEnable(leaseByIdRequest.getLeaseId());
+        if(!ContractTypes.MANAGEMENT.equals(leases.getContractTypes())) withException("980-001");
         Bikes bikes = leasesExtensionWorker.checkBikeForExtensionByBikeNo(leases);
         LeaseExtensionCheckedResponse response = new LeaseExtensionCheckedResponse();
         response.setBike(bikes);
@@ -73,19 +78,21 @@ public class LeaseExtensionService extends SessService {
         LeaseExtensionByIdRequest leaseExtensionByIdRequest = map(request.getParam(), LeaseExtensionByIdRequest.class);
         leaseExtensionByIdRequest.checkValidation();
         Leases leaseById = leasesExtensionWorker.checkExtensionEnable(leaseExtensionByIdRequest.getLeaseId());
+        if(!ContractTypes.MANAGEMENT.equals(leaseById.getContractTypes())) withException("980-001");
         leasesExtensionWorker.checkBikeForExtensionByBikeNo(leaseById);
         leasesExtensionWorker.shouldStartDateGreaterThan(leaseById, leaseExtensionByIdRequest.getStartDt());
         LeaseInfo leaseInfo = leaseById.getLeaseInfo();
-        LeaseExtensions leaseExtension = getLeaseExtensionList(leaseById, leaseInfo.getStart(), leaseInfo.getEndDate(), leaseInfo.getPeriod());
-        leaseExtensionsRepository.save(leaseExtension);
-
-        setLeaseInfoForExtension(leaseById, leaseExtensionByIdRequest.getStartDt(), leaseExtensionByIdRequest.getEndDate(), leaseExtensionByIdRequest.getPeriod());
-        leaseById.setExtensionLease();
-        leaseRepository.save(leaseById);
-
         List<LeasePayments> leasePayments = getLeasePaymentList(leaseById, leaseExtensionByIdRequest.getStartDt(), leaseExtensionByIdRequest.getPeriod(), sessionUser);
-        if(bePresent(leasePayments)) leasePaymentsRepository.saveAll(leasePayments);
-        updateLeaseLogByExtension(leaseById, leaseExtension, sessionUser);
+        if(bePresent(leasePayments)) {
+            leasePaymentsRepository.saveAll(leasePayments);
+            leaseById.setExtensionLease();
+            leaseRepository.save(leaseById);
+            setLeaseInfoForExtension(leaseById, leaseExtensionByIdRequest.getStartDt(), leasePayments.get(leasePayments.size() - 1).getPaymentEndDate(), leaseExtensionByIdRequest.getPeriod());
+            LeaseExtensions leaseExtension = getLeaseExtensionList(leaseById, leaseInfo.getStart(), leaseInfo.getEndDate(), leaseInfo.getPeriod());
+            leaseExtensionsRepository.save(leaseExtension);
+            updateLeaseLogByExtension(leaseById, leaseExtension, sessionUser);
+        }
+
         return request;
     }
 
@@ -99,7 +106,7 @@ public class LeaseExtensionService extends SessService {
         logList.add("시작일 : <>" + leaseExtensions.getStart().format(formatter) + "</>\n");
         logList.add("종료일 : <>" + leaseExtensions.getEndDate().format(formatter) + "</>\n");
         logList.add("기간 : <>" + leaseExtensions.getPeriod() + "개월</>\n");
-        bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_UPDATED, session.getUserNo(), lease.getLeaseNo().toString(), logList));
+        bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_EXTENSION, session.getUserNo(), lease.getLeaseNo().toString(), logList));
     }
 
     private LeaseExtensions getLeaseExtensionList(Leases leases, LocalDate startDate, LocalDate endDate, Integer period){
@@ -122,6 +129,7 @@ public class LeaseExtensionService extends SessService {
         Integer lastIndex = lastIndexByLeaseNoOrderByIndexDesc.getIndex();
         lastIndex++;
         AtomicReference<Integer> finalLastIndex = new AtomicReference<>(lastIndex);
+        Integer afterDay = 30;
         return Stream.iterate(0, n -> n + 1)
                 .limit(period).map(e -> {
             String paymentId = autoKey.makeGetKey("payment");
@@ -134,7 +142,8 @@ public class LeaseExtensionService extends SessService {
             leasePayments.setInsertedUserNo(session.getUserNo());
             leasePayments.setBikeNo(bike.getBikeNo());
             leasePayments.setRiderNo(bike.getRiderNo());
-            leasePayments.setPaymentDate(startDate.plusMonths(e));
+            leasePayments.setPaymentDate(startDate.plusDays(e * afterDay));
+            leasePayments.setPaymentEndDate(startDate.plusDays((e + 1) * afterDay).minusDays(1));
             return leasePayments;
         }).collect(Collectors.toList());
     }

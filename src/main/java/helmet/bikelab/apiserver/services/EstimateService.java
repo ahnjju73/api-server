@@ -55,24 +55,26 @@ public class EstimateService extends SessService {
         Map param = request.getParam();
         String clientId = (String) param.get("client_id");
         FetchUnpaidEstimatesRequest fetchUnpaidEstimatesRequest = map(param, FetchUnpaidEstimatesRequest.class);
-        if(clientId != null)
-            fetchUnpaidEstimatesRequest.setClientNo(clientsRepository.findByClientId(clientId).getClientNo());
+        Clients client = clientsRepository.findByClientId(clientId);
+
         ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(fetchUnpaidEstimatesRequest, "estimate.estimates.fetchUnpaidEstimateList", "estimate.estimates.countUnpaidEstimateList", "rownum");
         FetchUnpaidEstimateResponse toReturn = new FetchUnpaidEstimateResponse();
         toReturn.setTotal(responseListDto.getTotal());
         toReturn.setItems(responseListDto.getItems());
         toReturn.setNextToken(responseListDto.getNextToken());
-        List<Estimates> allByClient_clientId = estimatesRepository.getUnpaidEstimates(clientsRepository.findByClientId(clientId).getClientNo());
-        Integer total = 0;
-        Integer paid = 0;
-        for(Estimates e : allByClient_clientId){
-            if(e.getTotalPrice() ==  e.getPaidFee())
-                continue;
-            total += e.getTotalPrice();
-            paid += e.getPaidFee();
+        if(bePresent(client)){
+            List<Estimates> allByClient_clientId = estimatesRepository.getUnpaidEstimates(client.getClientNo());
+            Integer total = 0;
+            Integer paid = 0;
+            for(Estimates e : allByClient_clientId){
+                if(e.getTotalPrice().equals(e.getPaidFee())) continue;
+                total += e.getTotalPrice();
+                paid += e.getPaidFee();
+            }
+            toReturn.setTotalPrice(total);
+            toReturn.setPaidFee(paid);
         }
-        toReturn.setTotalPrice(total);
-        toReturn.setPaidFee(paid);
+
         request.setResponse(toReturn);
         return request;
     }
@@ -134,7 +136,6 @@ public class EstimateService extends SessService {
         Estimates byEstimateId = estimatesRepository.findByEstimateId(estimateId);
         param.put("estimate_no", byEstimateId.getEstimateNo());
         param.put("client_no", byEstimateId.getClientNo());
-        Clients client = byEstimateId.getClient();
         List parts = getList("estimate.estimates.fetchEstimatePartsById", param);
         List attachments = getList("estimate.estimates.fetchEstimateAttachmentsById", param);
         EstimateByIdResponse estimateByIdResponse = new EstimateByIdResponse();
