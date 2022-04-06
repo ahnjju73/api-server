@@ -56,7 +56,7 @@ public class LeaseExtensionService extends SessService {
     public SessionRequest checkIfExtension(SessionRequest request){
         LeaseByIdRequest leaseByIdRequest = map(request.getParam(), LeaseByIdRequest.class);
         Leases leases = leasesExtensionWorker.checkExtensionEnable(leaseByIdRequest.getLeaseId());
-        if(!ContractTypes.MANAGEMENT.equals(leases.getContractTypes())) withException("");
+        if(!ContractTypes.MANAGEMENT.equals(leases.getContractTypes())) withException("980-001");
         Bikes bikes = leasesExtensionWorker.checkBikeForExtensionByBikeNo(leases);
         LeaseExtensionCheckedResponse response = new LeaseExtensionCheckedResponse();
         response.setBike(bikes);
@@ -78,7 +78,7 @@ public class LeaseExtensionService extends SessService {
         LeaseExtensionByIdRequest leaseExtensionByIdRequest = map(request.getParam(), LeaseExtensionByIdRequest.class);
         leaseExtensionByIdRequest.checkValidation();
         Leases leaseById = leasesExtensionWorker.checkExtensionEnable(leaseExtensionByIdRequest.getLeaseId());
-        if(!ContractTypes.MANAGEMENT.equals(leaseById.getContractTypes())) withException("");
+        if(!ContractTypes.MANAGEMENT.equals(leaseById.getContractTypes())) withException("980-001");
         leasesExtensionWorker.checkBikeForExtensionByBikeNo(leaseById);
         leasesExtensionWorker.shouldStartDateGreaterThan(leaseById, leaseExtensionByIdRequest.getStartDt());
         LeaseInfo leaseInfo = leaseById.getLeaseInfo();
