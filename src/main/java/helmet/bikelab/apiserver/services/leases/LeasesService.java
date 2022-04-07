@@ -787,10 +787,10 @@ public class LeasesService extends SessService {
             Bikes bike = lease.getBike();
             bike.setRiderNo(rider.getRiderNo());
             bike.setRiderStatus(BikeRiderStatusTypes.TAKEN);
-            bike.setRiderStartAt(lease.getLeaseInfo().getStart().atStartOfDay());
             bike.setRiderApprovalAt(LocalDateTime.now());
             bike.setRiderLeaseNo(lease.getLeaseNo());
             bike.setRiderRequestAt(riderDemandLease.getCreatedAt());
+            bike.setRiderStartAt(lease.getLeaseInfo().getStart().atStartOfDay());
             bike.setRiderEndAt(lease.getLeaseInfo().getEndDate().atStartOfDay());
             bikesRepository.save(bike);
 

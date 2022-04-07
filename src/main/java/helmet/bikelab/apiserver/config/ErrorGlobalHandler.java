@@ -9,6 +9,7 @@ import lombok.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.web.ResourceProperties;
 import org.springframework.boot.autoconfigure.web.reactive.error.AbstractErrorWebExceptionHandler;
 import org.springframework.boot.web.reactive.error.ErrorAttributes;
@@ -33,6 +34,9 @@ public class ErrorGlobalHandler<T extends BusinessException> extends AbstractErr
     @Autowired
     private Workspace workspace;
 
+    @Value("${system.is-release}")
+    private Boolean isRelease;
+
     public ErrorGlobalHandler(ErrorAttributes errorAttributes, ResourceProperties resourceProperties, ApplicationContext applicationContext, ServerCodecConfigurer configurer) {
         super(errorAttributes, resourceProperties, applicationContext);
         this.setMessageWriters(configurer.getWriters());
@@ -47,6 +51,7 @@ public class ErrorGlobalHandler<T extends BusinessException> extends AbstractErr
         Throwable error = getError(request);
         if(error instanceof BusinessException){
             BusinessException businessException = (BusinessException) getError(request);
+            if(!isRelease) businessException.printStackTrace();
             Response response = new Response();
             response.setErrCode(businessException.getErr_code());
             response.setMessage(businessException.getMsg());
@@ -54,6 +59,7 @@ public class ErrorGlobalHandler<T extends BusinessException> extends AbstractErr
             return responseTo(request, response);
         }else if(error instanceof BusinessExceptionWithMessage){
             BusinessExceptionWithMessage businessExceptionWithMessage = (BusinessExceptionWithMessage) getError(request);
+            if(!isRelease) businessExceptionWithMessage.printStackTrace();
             String messageCode = businessExceptionWithMessage.getMessageCode();
             HttpStatus errHttpStatus = businessExceptionWithMessage.getErrHttpStatus() == null ? HttpStatus.BAD_REQUEST : businessExceptionWithMessage.getErrHttpStatus();
             Map map = new HashMap();
