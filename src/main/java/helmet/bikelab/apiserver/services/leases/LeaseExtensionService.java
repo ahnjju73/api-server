@@ -87,9 +87,9 @@ public class LeaseExtensionService extends SessService {
             leasePaymentsRepository.saveAll(leasePayments);
             leaseById.setExtensionLease();
             leaseRepository.save(leaseById);
-            setLeaseInfoForExtension(leaseById, leaseExtensionByIdRequest.getStartDt(), leasePayments.get(leasePayments.size() - 1).getPaymentEndDate(), leaseExtensionByIdRequest.getPeriod());
             LeaseExtensions leaseExtension = getLeaseExtensionList(leaseById, leaseInfo.getStart(), leaseInfo.getEndDate(), leaseInfo.getPeriod());
             leaseExtensionsRepository.save(leaseExtension);
+            setLeaseInfoForExtension(leaseById, leaseExtensionByIdRequest.getStartDt(), leasePayments.get(leasePayments.size() - 1).getPaymentEndDate(), leaseExtensionByIdRequest.getPeriod());
             updateLeaseLogByExtension(leaseById, leaseExtension, sessionUser);
             Bikes bike = leaseById.getBike();
             if(bePresent(bike)){
