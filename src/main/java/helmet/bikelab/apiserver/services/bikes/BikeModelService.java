@@ -76,7 +76,6 @@ public class BikeModelService extends SessService {
         return request;
     }
 
-
     @Transactional
     public BikeSessionRequest updateCarModel(BikeSessionRequest request){
         Map param = request.getParam();
