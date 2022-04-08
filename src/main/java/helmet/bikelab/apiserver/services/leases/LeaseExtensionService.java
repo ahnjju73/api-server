@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.services.leases;
 
+import com.amazonaws.services.route53domains.model.ContactType;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.lease.LeaseExtensions;
@@ -7,6 +8,7 @@ import helmet.bikelab.apiserver.domain.lease.LeaseInfo;
 import helmet.bikelab.apiserver.domain.lease.LeasePayments;
 import helmet.bikelab.apiserver.domain.lease.Leases;
 import helmet.bikelab.apiserver.domain.types.BikeUserLogTypes;
+import helmet.bikelab.apiserver.domain.types.ContractTypes;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.SessionRequest;
 import helmet.bikelab.apiserver.objects.requests.LeaseByIdRequest;
@@ -42,7 +44,7 @@ public class LeaseExtensionService extends SessService {
     private final LeasePaymentsRepository leasePaymentsRepository;
     private final AutoKey autoKey;
     private final BikeUserLogRepository bikeUserLogRepository;
-    private final LeasePaymentWorker leasePaymentWorker;
+    private final BikesRepository bikesRepository;
 
     public SessionRequest getLeaseExtensionList(SessionRequest request){
         LeaseByIdRequest leaseByIdRequest = map(request.getParam(), LeaseByIdRequest.class);
@@ -54,6 +56,7 @@ public class LeaseExtensionService extends SessService {
     public SessionRequest checkIfExtension(SessionRequest request){
         LeaseByIdRequest leaseByIdRequest = map(request.getParam(), LeaseByIdRequest.class);
         Leases leases = leasesExtensionWorker.checkExtensionEnable(leaseByIdRequest.getLeaseId());
+        if(!ContractTypes.MANAGEMENT.equals(leases.getContractTypes())) withException("980-001");
         Bikes bikes = leasesExtensionWorker.checkBikeForExtensionByBikeNo(leases);
         LeaseExtensionCheckedResponse response = new LeaseExtensionCheckedResponse();
         response.setBike(bikes);
@@ -75,6 +78,7 @@ public class LeaseExtensionService extends SessService {
         LeaseExtensionByIdRequest leaseExtensionByIdRequest = map(request.getParam(), LeaseExtensionByIdRequest.class);
         leaseExtensionByIdRequest.checkValidation();
         Leases leaseById = leasesExtensionWorker.checkExtensionEnable(leaseExtensionByIdRequest.getLeaseId());
+        if(!ContractTypes.MANAGEMENT.equals(leaseById.getContractTypes())) withException("980-001");
         leasesExtensionWorker.checkBikeForExtensionByBikeNo(leaseById);
         leasesExtensionWorker.shouldStartDateGreaterThan(leaseById, leaseExtensionByIdRequest.getStartDt());
         LeaseInfo leaseInfo = leaseById.getLeaseInfo();
@@ -83,10 +87,16 @@ public class LeaseExtensionService extends SessService {
             leasePaymentsRepository.saveAll(leasePayments);
             leaseById.setExtensionLease();
             leaseRepository.save(leaseById);
-            setLeaseInfoForExtension(leaseById, leaseExtensionByIdRequest.getStartDt(), leasePayments.get(leasePayments.size() - 1).getPaymentEndDate(), leaseExtensionByIdRequest.getPeriod());
             LeaseExtensions leaseExtension = getLeaseExtensionList(leaseById, leaseInfo.getStart(), leaseInfo.getEndDate(), leaseInfo.getPeriod());
             leaseExtensionsRepository.save(leaseExtension);
+            setLeaseInfoForExtension(leaseById, leaseExtensionByIdRequest.getStartDt(), leasePayments.get(leasePayments.size() - 1).getPaymentEndDate(), leaseExtensionByIdRequest.getPeriod());
             updateLeaseLogByExtension(leaseById, leaseExtension, sessionUser);
+            Bikes bike = leaseById.getBike();
+            if(bePresent(bike)){
+//                bike.setRiderStartAt(leaseExtensionByIdRequest.getStartDt().atStartOfDay());
+                bike.setRiderEndAt(leaseInfo.getEndDate().atStartOfDay());
+                bikesRepository.save(bike);
+            }
         }
 
         return request;

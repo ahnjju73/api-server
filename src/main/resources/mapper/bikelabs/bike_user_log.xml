@@ -112,7 +112,7 @@
                  where lease_id = #{lease_id}) lm
                join (select *
                        from bike_user_log
-                      where log_type in ('150-011', '150-012', '150-013', '150-014', '150-015', '150-016', '150-017', '150-018', '150-019', '150-021')) bul on lm.lease_no = bul.ref_id
+                      where log_type in ('150-011', '150-012', '150-013', '150-014', '150-015', '150-016', '150-017', '150-018', '150-019', '150-021', '150-032')) bul on lm.lease_no = bul.ref_id
     </select>
 
     <select id="getBikeUserLogInLeases" parameterType="hmap" resultType="hmap">
@@ -145,7 +145,7 @@
                          where lease_id = #{lease_id}) lm
                        join (select *
                                from bike_user_log
-                              where log_type in ('150-011', '150-012', '150-013', '150-014', '150-015', '150-016', '150-017', '150-018', '150-019', '150-021')) bul on lm.lease_no = bul.ref_id
+                              where log_type in ('150-011', '150-012', '150-013', '150-014', '150-015', '150-016', '150-017', '150-018', '150-019', '150-021', '150-032')) bul on lm.lease_no = bul.ref_id
                  where 1 = 1
                 <if test="next_token != null and next_token != '' and next_token != 'undefined'">
                     and log_no <![CDATA[ < ]]> #{next_token}
