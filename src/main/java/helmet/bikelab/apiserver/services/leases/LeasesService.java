@@ -913,12 +913,13 @@ public class LeasesService extends SessService {
         leasePriceRepository.deleteAllByLease_LeaseId(lease.getLeaseId());
         leaseInsurancesRepository.deleteAllByLease_LeaseId(lease.getLeaseId());
         expenseRepository.deleteAllByLease_LeaseId(lease.getLeaseId());
-        leaseRepository.delete(lease);
         RiderDemandLease riderDemandLease = riderDemandLeaseRepository.findByLease_LeaseId(lease.getLeaseId());
         if(bePresent(riderDemandLease)){
+            riderDemandLease.setLeaseNo(null);
             riderDemandLease.setDemandLeaseStatusTypes(DemandLeaseStatusTypes.PENDING);
             riderDemandLeaseRepository.save(riderDemandLease);
         }
+        leaseRepository.delete(lease);
         return request;
     }
 
