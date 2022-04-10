@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -140,6 +141,9 @@ public class InsuranceCompanyService extends SessService {
         ModelPassword modelPassword = password.getModelPassword();
         modelPassword.modifyPassword(pw);
         insuranceCompanyPasswordRepository.save(password);
+        Map res = new HashMap();
+        res.put("password", pw);
+        request.setResponse(res);
         return request;
     }
 
