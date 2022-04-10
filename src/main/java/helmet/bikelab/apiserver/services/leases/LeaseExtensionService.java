@@ -44,7 +44,7 @@ public class LeaseExtensionService extends SessService {
     private final LeasePaymentsRepository leasePaymentsRepository;
     private final AutoKey autoKey;
     private final BikeUserLogRepository bikeUserLogRepository;
-    private final LeasePaymentWorker leasePaymentWorker;
+    private final BikesRepository bikesRepository;
 
     public SessionRequest getLeaseExtensionList(SessionRequest request){
         LeaseByIdRequest leaseByIdRequest = map(request.getParam(), LeaseByIdRequest.class);
@@ -87,10 +87,16 @@ public class LeaseExtensionService extends SessService {
             leasePaymentsRepository.saveAll(leasePayments);
             leaseById.setExtensionLease();
             leaseRepository.save(leaseById);
-            setLeaseInfoForExtension(leaseById, leaseExtensionByIdRequest.getStartDt(), leasePayments.get(leasePayments.size() - 1).getPaymentEndDate(), leaseExtensionByIdRequest.getPeriod());
             LeaseExtensions leaseExtension = getLeaseExtensionList(leaseById, leaseInfo.getStart(), leaseInfo.getEndDate(), leaseInfo.getPeriod());
             leaseExtensionsRepository.save(leaseExtension);
+            setLeaseInfoForExtension(leaseById, leaseExtensionByIdRequest.getStartDt(), leasePayments.get(leasePayments.size() - 1).getPaymentEndDate(), leaseExtensionByIdRequest.getPeriod());
             updateLeaseLogByExtension(leaseById, leaseExtension, sessionUser);
+            Bikes bike = leaseById.getBike();
+            if(bePresent(bike)){
+//                bike.setRiderStartAt(leaseExtensionByIdRequest.getStartDt().atStartOfDay());
+                bike.setRiderEndAt(leaseInfo.getEndDate().atStartOfDay());
+                bikesRepository.save(bike);
+            }
         }
 
         return request;

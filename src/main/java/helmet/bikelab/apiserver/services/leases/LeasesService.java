@@ -787,10 +787,10 @@ public class LeasesService extends SessService {
             Bikes bike = lease.getBike();
             bike.setRiderNo(rider.getRiderNo());
             bike.setRiderStatus(BikeRiderStatusTypes.TAKEN);
-            bike.setRiderStartAt(lease.getLeaseInfo().getStart().atStartOfDay());
             bike.setRiderApprovalAt(LocalDateTime.now());
             bike.setRiderLeaseNo(lease.getLeaseNo());
             bike.setRiderRequestAt(riderDemandLease.getCreatedAt());
+            bike.setRiderStartAt(lease.getLeaseInfo().getStart().atStartOfDay());
             bike.setRiderEndAt(lease.getLeaseInfo().getEndDate().atStartOfDay());
             bikesRepository.save(bike);
 
@@ -913,12 +913,13 @@ public class LeasesService extends SessService {
         leasePriceRepository.deleteAllByLease_LeaseId(lease.getLeaseId());
         leaseInsurancesRepository.deleteAllByLease_LeaseId(lease.getLeaseId());
         expenseRepository.deleteAllByLease_LeaseId(lease.getLeaseId());
-        leaseRepository.delete(lease);
         RiderDemandLease riderDemandLease = riderDemandLeaseRepository.findByLease_LeaseId(lease.getLeaseId());
         if(bePresent(riderDemandLease)){
+            riderDemandLease.setLeaseNo(null);
             riderDemandLease.setDemandLeaseStatusTypes(DemandLeaseStatusTypes.PENDING);
             riderDemandLeaseRepository.save(riderDemandLease);
         }
+        leaseRepository.delete(lease);
         return request;
     }
 

@@ -11,8 +11,10 @@
               from (select *
                       from bikes
                      where bike_id != (select val from system_parameters where parameter_no = 0)
-                       and is_bm = #{is_bikemaster}
                        and deleted_at is null
+                     <if test="is_bikemaster != null and is_bikemaster != '' and is_bikemaster != 'undefined'">
+                       and is_bm = #{is_bikemaster}
+                     </if>
                      <if test="search_name != null and search_name != '' and search_name != 'undefined'">
                        and (
                             vim_num like concat('%', #{search_name}, '%')
@@ -70,6 +72,9 @@
               where 1 = 1
                 and b.deleted_at is null
                 and bike_id != (select val from system_parameters where parameter_no = 0)
+                <if test="is_bikemaster != null and is_bikemaster != '' and is_bikemaster != 'undefined'">
+                and is_bm = #{is_bikemaster}
+                </if>
                 <if test="search_name != null and search_name != '' and search_name != 'undefined'">
                 and (
                 vim_num like concat('%', #{search_name}, '%')
@@ -100,8 +105,10 @@
         from (select *
                 from bikes b
                where 1 = 1
-                 and is_bm = #{is_bikemaster}
                  and bike_id != (select val from system_parameters where parameter_no = 0)
+               <if test="is_bikemaster != null and is_bikemaster != '' and is_bikemaster != 'undefined'">
+                 and is_bm = #{is_bikemaster}
+               </if>
                <if test="search_name != null and search_name != '' and search_name != 'undefined'">
                  and (
                         vim_num like concat('%', #{search_name}, '%')
