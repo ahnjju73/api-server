@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import helmet.bikelab.apiserver.domain.lease.LeasePayments;
 import helmet.bikelab.apiserver.objects.bikelabs.clients.ClientDto;
+import helmet.bikelab.apiserver.services.internal.OriginObject;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -12,7 +13,7 @@ import java.time.LocalDate;
 @Getter
 @Setter
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
-public class LeasePaymentDto {
+public class LeasePaymentDto extends OriginObject {
     private String paymentId;
     private Integer idx;
     private LocalDate paymentDate;
@@ -34,11 +35,11 @@ public class LeasePaymentDto {
     }
 
     public void setPaymentDate(String paymentDate) {
-        this.paymentDate = LocalDate.parse(paymentDate);
+        if(bePresent(paymentDate)) this.paymentDate = LocalDate.parse(paymentDate);
     }
 
     public void setPaymentEndDate(String paymentEndDate) {
-        this.paymentEndDate = LocalDate.parse(paymentEndDate);
+        if(bePresent(paymentEndDate)) this.paymentEndDate = LocalDate.parse(paymentEndDate);
     }
 
     public void setPaymentEndDate(LocalDate paymentEndDate) {
