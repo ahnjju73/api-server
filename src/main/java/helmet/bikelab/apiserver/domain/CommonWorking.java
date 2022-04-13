@@ -11,6 +11,11 @@ import lombok.Setter;
 
 import javax.persistence.*;
 
+
+/**
+ * 금액표시방법
+ * [초과 ~ 이하] 입력되는 volume은 '이하'의 단위가 입력된다.
+ */
 @Entity
 @Getter
 @Setter
