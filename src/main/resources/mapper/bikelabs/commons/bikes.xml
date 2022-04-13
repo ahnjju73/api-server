@@ -68,7 +68,6 @@
                     ) c
                     join leases l on c.client_no = l.client_no
                     join bikes b on l.bike_no = b.bike_no
-                                and is_bm = #{is_bikemaster}
               where 1 = 1
                 and b.deleted_at is null
                 and bike_id != (select val from system_parameters where parameter_no = 0)
