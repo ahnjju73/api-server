@@ -105,7 +105,8 @@ public class InsuranceCompanyService extends SessService {
         Map param = request.getParam();
         AddUpdateInsuranceCompanyRequest addUpdateInsuranceCompanyRequest = map(param, AddUpdateInsuranceCompanyRequest.class);
         addUpdateInsuranceCompanyRequest.validationCheck();
-        InsuranceCompanies insuranceCompanies = new InsuranceCompanies();
+        String companyId = (String) param.get("company_id");
+        InsuranceCompanies insuranceCompanies = insuranceCompanyRepository.findByCompanyId(companyId);
         insuranceCompanies.setName(addUpdateInsuranceCompanyRequest.getName());
         insuranceCompanies.setEmail(addUpdateInsuranceCompanyRequest.getEmail());
         insuranceCompanies.setPhone(addUpdateInsuranceCompanyRequest.getPhone());
