@@ -158,6 +158,12 @@
                 <if test="next_token != null and next_token != '' and next_token != 'undefined'">
                  and lease_id <![CDATA[ < ]]> #{next_token}
                 </if>
+                <if test="contract_type_code != null and contract_type_code != '' and contract_type_code != 'undefined'">
+                 and contract_type = #{contract_type_code}
+                </if>
+                <if test="lease_id != null and lease_id != '' and lease_id != 'undefined'">
+                 and lease_id like concat('%', #{lease_id}, '%')
+                </if>
                 <if test="search_client_no != null">
                     and client_no = #{search_client_no}
                 </if>
@@ -234,6 +240,12 @@
                where 1 = 1
                 <if test="next_token != null and next_token != '' and next_token != 'undefined'">
                  and lease_id <![CDATA[ < ]]> #{next_token}
+                </if>
+                <if test="contract_type_code != null and contract_type_code != '' and contract_type_code != 'undefined'">
+                 and contract_type = #{contract_type_code}
+                </if>
+                <if test="lease_id != null and lease_id != '' and lease_id != 'undefined'">
+                 and lease_id like concat('%', #{lease_id}, '%')
                 </if>
                 <if test="search_client_no != null">
                  and client_no = #{search_client_no}
