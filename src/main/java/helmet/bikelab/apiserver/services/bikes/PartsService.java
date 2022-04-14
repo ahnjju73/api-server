@@ -25,7 +25,8 @@ public class PartsService extends SessService {
     @Transactional
     public BikeSessionRequest doSavePartsCode(BikeSessionRequest request){
         Map param = request.getParam();
-        Integer partsTypeNo = (Integer)param.get("parts_type_no");
+        Map partsType = (Map)param.get("parts_type_no");
+        Integer partsTypeNo = (Integer)partsType.get("parts_type_no");
         String partsName = (String)param.get("parts_name");
         Boolean usable = (Boolean)param.get("usable");
         PartsTypes byPartsTypeNo = partsTypesRepository.findByPartsTypeNo(partsTypeNo);
@@ -43,7 +44,8 @@ public class PartsService extends SessService {
     public BikeSessionRequest updatePartsCode(BikeSessionRequest request){
         Map param = request.getParam();
         Integer partsCodeNo = (Integer)param.get("parts_code_no");
-        Integer partsTypeNo = (Integer)param.get("parts_type_no");
+        Map partsType = (Map)param.get("parts_type_no");
+        Integer partsTypeNo = (Integer)partsType.get("parts_type_no");
         String partsName = (String)param.get("parts_name");
         Boolean usable = (Boolean)param.get("usable");
         PartsTypes byPartsTypeNo = partsTypesRepository.findByPartsTypeNo(partsTypeNo);

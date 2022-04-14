@@ -9,13 +9,10 @@ import helmet.bikelab.apiserver.domain.lease.Leases;
 import helmet.bikelab.apiserver.domain.riders.Riders;
 import helmet.bikelab.apiserver.domain.types.*;
 import helmet.bikelab.apiserver.objects.bikelabs.leases.AddUpdateLeaseRequest;
-import helmet.bikelab.apiserver.objects.requests.RequestListDto;
-import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.repositories.*;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.utils.AutoKey;
 import helmet.bikelab.apiserver.utils.Utils;
-import helmet.bikelab.apiserver.utils.keys.ENV;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +20,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -182,20 +178,20 @@ public class LeasePaymentWorker extends SessService {
     private void setPaymentByRentLease(AddUpdateLeaseRequest addUpdateLeaseRequest, BikeUser session, Leases lease, Clients client, LeaseInfo leaseInfo, List<LeasePayments> leasePaymentsList) {
         Integer afterDay = 30;
         for (int i = 0; i < addUpdateLeaseRequest.getLeaseInfo().getPeriod(); i++) {
-            LeasePayments leasePayment = makePayment(addUpdateLeaseRequest, session, lease, client, leaseInfo, i, leaseInfo.getStart().plusDays(i * afterDay), leaseInfo.getStart().plusDays((i + 1) * afterDay).minusDays(1));
+            LeasePayments leasePayment = makePayment(addUpdateLeaseRequest, session, lease, client, leaseInfo, i, leaseInfo.getContractDate().plusDays(i * afterDay), leaseInfo.getContractDate().plusDays((i + 1) * afterDay).minusDays(1));
             leasePaymentsList.add(leasePayment);
         }
     }
     private void setPaymentByRentLeaseNot(AddUpdateLeaseRequest addUpdateLeaseRequest, BikeUser session, Leases lease, Clients client, LeaseInfo leaseInfo, List<LeasePayments> leasePaymentsList) {
         if(PaymentTypes.MONTHLY.equals(PaymentTypes.getPaymentType(addUpdateLeaseRequest.getLeasePrice().getPaymentType()))) {
             for (int i = 0; i < addUpdateLeaseRequest.getLeaseInfo().getPeriod(); i++) {
-                LeasePayments leasePayment = makePayment(addUpdateLeaseRequest, session, lease, client, leaseInfo, i, leaseInfo.getStart().plusMonths(i), leaseInfo.getStart().plusMonths(i + 1).minusDays(1));
+                LeasePayments leasePayment = makePayment(addUpdateLeaseRequest, session, lease, client, leaseInfo, i, leaseInfo.getContractDate().plusMonths(i), leaseInfo.getContractDate().plusMonths(i + 1).minusDays(1));
                 leasePaymentsList.add(leasePayment);
             }
         }else{
             int days = (int)(ChronoUnit.DAYS.between(leaseInfo.getStart(), leaseInfo.getStart().plusMonths(addUpdateLeaseRequest.getLeaseInfo().getPeriod())));
             for(int i = 0 ; i < days; i++){
-                LeasePayments leasePayment = makePayment(addUpdateLeaseRequest, session, lease, client, leaseInfo, i, leaseInfo.getStart().plusDays(i), leaseInfo.getStart().plusDays(i));
+                LeasePayments leasePayment = makePayment(addUpdateLeaseRequest, session, lease, client, leaseInfo, i, leaseInfo.getContractDate().plusDays(i), leaseInfo.getContractDate().plusDays(i));
                 leasePaymentsList.add(leasePayment);
             }
         }
