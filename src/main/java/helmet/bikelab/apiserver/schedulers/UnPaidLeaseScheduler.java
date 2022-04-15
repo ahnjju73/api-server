@@ -19,7 +19,7 @@ public class UnPaidLeaseScheduler extends AbstractSchedulers {
     @PostConstruct
     public void start() throws SchedulerException {
         JobDetail jobDetail = buildJobDetail(UnPaidLeaseSchedulerService.class, "UnPaidLeaseSchedulerService", "", new HashMap());
-        if(bePresent(jobDetail)) scheduler.scheduleJob(jobDetail, buildCronJobTrigger("0 0 9 * * ?"));
+//        if(bePresent(jobDetail)) scheduler.scheduleJob(jobDetail, buildCronJobTrigger("0 0 9 * * ?"));
     }
 
 }
