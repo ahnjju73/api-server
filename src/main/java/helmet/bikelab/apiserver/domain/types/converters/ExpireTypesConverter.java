@@ -9,7 +9,7 @@ public class ExpireTypesConverter implements AttributeConverter<ExpireTypes, Str
 
     @Override
     public String convertToDatabaseColumn(ExpireTypes attribute) {
-        return attribute.getStatus();
+        return attribute == null ? ExpireTypes.RETURN.getStatus() : attribute.getStatus();
     }
 
     @Override
