@@ -48,8 +48,18 @@
 
     <select id="countAllParts" parameterType="hmap" resultType="int">
         select count(*)
-          from parts p
-               join parts_codes pc on p.parts_code_no = pc.parts_code_no
+          from (select *
+                  from parts
+                  where 1 = 1
+                  <if test="parts_id != null and parts_id != '' and parts_id != 'undefined'">
+                    and parts_id like concat('%', #{parts_id}, '%')
+                  </if>) p
+               join (select *
+                       from parts_codes
+                      where 1 = 1
+                      <if test="parts_name != null and parts_name != '' and parts_name != 'undefined'">
+                        and parts_name like concat('%', #{parts_name}, '%')
+                      </if>) pc on p.parts_code_no = pc.parts_code_no
                join parts_types pt on pt.parts_type_no = pc.parts_type_no
          where pc.usable = "1"
            and pt.usable = "1"
@@ -73,8 +83,18 @@
                p.parts_id,
                ccb.comm_nm as bike_model,
                ccm.manuf as manufacturer
-          from parts p
-               join parts_codes pc on p.parts_code_no = pc.parts_code_no
+          from (select *
+                   from parts
+                  where 1 = 1
+                    <if test="parts_id != null and parts_id != '' and parts_id != 'undefined'">
+                    and parts_id like concat('%', #{parts_id}, '%')
+                    </if>) p
+               join (select *
+                       from parts_codes
+                      where 1 = 1
+                        <if test="parts_name != null and parts_name != '' and parts_name != 'undefined'">
+                        and parts_name like concat('%', #{parts_name}, '%')
+                        </if>) pc on p.parts_code_no = pc.parts_code_no
                join parts_types pt on pt.parts_type_no = pc.parts_type_no
                join (select *
                        from com_comm_bikes
