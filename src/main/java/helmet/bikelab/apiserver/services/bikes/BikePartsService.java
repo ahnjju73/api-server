@@ -14,6 +14,7 @@ import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.PresignedURLVo;
 import helmet.bikelab.apiserver.objects.bikelabs.bikes.*;
 import helmet.bikelab.apiserver.domain.bike.PartsCodes;
+import helmet.bikelab.apiserver.objects.requests.BikePartsRequest;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.repositories.CommonWorkingRepository;
 import helmet.bikelab.apiserver.repositories.PartsRepository;
@@ -130,7 +131,7 @@ public class BikePartsService extends SessService {
 
     public BikeSessionRequest fetchParts(BikeSessionRequest request) {
         Map param = request.getParam();
-        BikePartsDto bikePartsDto = map(param, BikePartsDto.class);
+        BikePartsRequest bikePartsDto = map(param, BikePartsRequest.class);
         ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(bikePartsDto, "comm.parts.fetchAllParts", "comm.parts.countAllParts", "parts_no");
         request.setResponse(responseListDto);
         return request;
