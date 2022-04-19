@@ -9,6 +9,7 @@ import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.services.bikes.BikePartsService;
 import helmet.bikelab.apiserver.services.bikes.PartsService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -72,6 +73,15 @@ public class BikePartsHandlers {
                         .map(partsTypeService::checkBikeSession)
                         .map(partsTypeService::fetchPartsTypeList)
                         .map(partsTypeService::returnData), List.class);
+    }
+
+    public Mono<ServerResponse> fetchParsCodeListByCondition(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> partsTypeService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(partsTypeService::checkBikeSession)
+                        .map(partsTypeService::fetchParsCodeListByCondition)
+                        .map(partsTypeService::returnData), Page.class);
     }
 
     public Mono<ServerResponse> fetchPartsCodeList(ServerRequest request) {

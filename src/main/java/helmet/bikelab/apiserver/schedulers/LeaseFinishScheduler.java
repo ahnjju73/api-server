@@ -18,7 +18,7 @@ public class LeaseFinishScheduler extends AbstractSchedulers {
 
     @PostConstruct
     public void start() throws SchedulerException {
-        JobDetail jobDetail = buildJobDetail(LeaseFinishSchedulerService.class, "LeaseStopSchedulerService", "", new HashMap());
+        JobDetail jobDetail = buildJobDetail(LeaseFinishSchedulerService.class, "LeaseFinishSchedulerService", "", new HashMap());
         if(bePresent(jobDetail)) scheduler.scheduleJob(jobDetail, buildCronJobTrigger("0 0 1 * * ?"));
     }
 

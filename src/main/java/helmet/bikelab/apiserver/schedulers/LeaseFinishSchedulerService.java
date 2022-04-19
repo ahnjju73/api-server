@@ -1,6 +1,7 @@
 package helmet.bikelab.apiserver.schedulers;
 
 import helmet.bikelab.apiserver.domain.bike.Bikes;
+import helmet.bikelab.apiserver.domain.lease.LeaseInfo;
 import helmet.bikelab.apiserver.domain.lease.LeasePayments;
 import helmet.bikelab.apiserver.domain.lease.Leases;
 import helmet.bikelab.apiserver.domain.types.LeaseStatusTypes;
@@ -38,20 +39,19 @@ public class LeaseFinishSchedulerService extends WorkspaceQuartz {
             Bikes emptyBikes = bikeWorker.getEmptyBikes();
             leases.forEach(elm -> {
                 String leaseId = (String)elm.get("lease_id");
+                if("LS20220410-003".equals(leaseId)){
+                    System.out.println(elm);
+                }
                 Leases leaseByLeaseId = leasesWorker.getLeaseByLeaseId(leaseId);
-                List<LeasePayments> payments = leasePaymentsRepository.findAllByLease_LeaseIdOrderByIndex(leaseId);
-                if(payments.size() > 0){
-                    LeasePayments leasePayments = payments.get(payments.size() - 1);
-                    LocalDate paymentDate = leasePayments.getPaymentDate();
-                    if(paymentDate.isBefore(LocalDate.now()) ){
-                        Bikes bike = leaseByLeaseId.getBike();
-                        bike.doDeclineRider();
-                        leaseByLeaseId.setLeaseStopStatus(LeaseStopStatusTypes.FINISH);
-                        leaseByLeaseId.setBikeNo(emptyBikes.getBikeNo());
-                        leaseByLeaseId.setStopDt(LocalDateTime.now());
-                        leaseByLeaseId.setStopReason("계약만료");
-                        leaseRepository.save(leaseByLeaseId);
-                    }
+                LeaseInfo leaseInfo = leaseByLeaseId.getLeaseInfo();
+                if(leaseInfo.getEndDate().isBefore(LocalDate.now()) ){
+                    Bikes bike = leaseByLeaseId.getBike();
+                    bike.doDeclineRider();
+                    leaseByLeaseId.setLeaseStopStatus(LeaseStopStatusTypes.FINISH);
+                    leaseByLeaseId.setBikeNo(emptyBikes.getBikeNo());
+                    leaseByLeaseId.setStopDt(LocalDateTime.now());
+                    leaseByLeaseId.setStopReason("계약만료");
+                    leaseRepository.save(leaseByLeaseId);
                 }
             });
         }
