@@ -30,11 +30,11 @@ public class InsuranceCompanies {
     @Column(name = "company_id")
     private String companyId;
 
-    @Column(name = "status")
+    @Column(name = "status", columnDefinition = "ENUM")
     @Convert(converter = InsuranceStatusTypesConverter.class)
     private InsuranceCompanyStatusTypes status;
 
-    @Column(name = "status", updatable = false, insertable = false)
+    @Column(name = "status", updatable = false, insertable = false, columnDefinition = "ENUM")
     private String statusCode;
 
     @Column(name = "name", length = 21)
