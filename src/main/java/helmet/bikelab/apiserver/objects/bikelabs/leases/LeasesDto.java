@@ -12,5 +12,6 @@ import lombok.Setter;
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class  LeasesDto extends OriginObject {
     private String leaseId;
+    private String filename;
     private String approvalUserId;
 }
