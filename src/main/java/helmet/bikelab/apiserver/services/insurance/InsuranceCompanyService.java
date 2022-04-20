@@ -51,7 +51,6 @@ public class InsuranceCompanyService extends SessService {
         insuranceCompanies.setName(addUpdateInsuranceCompanyRequest.getName());
         insuranceCompanies.setEmail(addUpdateInsuranceCompanyRequest.getEmail());
         insuranceCompanies.setPhone(addUpdateInsuranceCompanyRequest.getPhone());
-        insuranceCompanies.setStatus(InsuranceCompanyStatusTypes.COMPLETED);
         //logo
         List<ModelInsuranceImage> collect = addUpdateInsuranceCompanyRequest
                 .getImages()
@@ -141,6 +140,7 @@ public class InsuranceCompanyService extends SessService {
         InsuranceCompanyPasswords password = insuranceCompanyPasswordRepository.findByCompany_CompanyId(companyId);
         ModelPassword modelPassword = password.getModelPassword();
         modelPassword.modifyPassword(pw);
+        password.setModelPassword(modelPassword);
         insuranceCompanyPasswordRepository.save(password);
         Map res = new HashMap();
         res.put("password", pw);
