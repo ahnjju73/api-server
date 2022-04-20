@@ -301,7 +301,11 @@ public class RiderWorker extends SessService {
 
     public void changeStatus(String riderId, String status){
         Riders rider = riderRepository.findByRiderId(riderId);
-        rider.setStatus(RiderStatusTypes.getRiderStatusTypes(status));
+        if(RiderStatusTypes.DEACTIVATE.equals(RiderStatusTypes.getRiderStatusTypes(status))){
+            rider.outOfService();
+        }else {
+            rider.setStatus(RiderStatusTypes.getRiderStatusTypes(status));
+        }
         riderRepository.save(rider);
     }
 
