@@ -149,7 +149,7 @@ public class InsuranceCompanyService extends SessService {
         String pw = getRandomString();
         InsuranceCompanyPasswords password = insuranceCompanyPasswordRepository.findByCompany_CompanyId(companyId);
         ModelPassword modelPassword = password.getModelPassword();
-        modelPassword.modifyPassword(pw);
+        modelPassword.modifyPasswordWithoutSHA256(pw);
         password.setModelPassword(modelPassword);
         insuranceCompanyPasswordRepository.save(password);
         Map res = new HashMap();
