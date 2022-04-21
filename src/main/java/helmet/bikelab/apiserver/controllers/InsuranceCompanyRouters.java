@@ -20,6 +20,7 @@ public class InsuranceCompanyRouters {
                 .andRoute(POST("/insurance-companies"), handler::addInsuranceCompany)
                 .andRoute(PUT("/insurance-companies/{company_id}"), handler::updateInsCompany)
                 .andRoute(PATCH("/insurance-companies/{company_id}"), handler::resetPassword)
+                .andRoute(POST("/insurance-companies/presigned-url"), handler::generatePresignedUrl)
                 ;
     }
 }

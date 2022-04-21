@@ -108,8 +108,6 @@ public class BikePartsService extends SessService {
             partsByIdAndCarModel.setImages(images);
             partsRepository.save(partsByIdAndCarModel);
         }
-
-
         return request;
     }
 

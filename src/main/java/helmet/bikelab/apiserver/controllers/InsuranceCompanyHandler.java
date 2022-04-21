@@ -3,6 +3,7 @@ package helmet.bikelab.apiserver.controllers;
 
 import helmet.bikelab.apiserver.domain.ins_companies.InsuranceCompanies;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
+import helmet.bikelab.apiserver.objects.PresignedURLVo;
 import helmet.bikelab.apiserver.services.insurance.InsuranceCompanyService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -47,6 +48,17 @@ public class InsuranceCompanyHandler {
                         .map(insuranceCompanyService::addCompany)
                         .map(insuranceCompanyService::returnData), Map.class);
     }
+
+    public Mono<ServerResponse> generatePresignedUrl(ServerRequest request){
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> insuranceCompanyService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(insuranceCompanyService::checkBikeSession)
+                        .map(insuranceCompanyService::generatePresignedUrl)
+                        .map(insuranceCompanyService::returnData), PresignedURLVo.class);
+    }
+
 
     public Mono<ServerResponse> updateInsCompany(ServerRequest request){
         return ServerResponse.ok().body(
