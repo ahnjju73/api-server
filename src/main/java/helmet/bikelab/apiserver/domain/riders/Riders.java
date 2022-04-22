@@ -76,7 +76,7 @@ public class Riders extends OriginObject {
     private LocalDateTime deletedAt;
 
     public void outOfService(){
-        email = "bak_" + LocalDateTime.now() + "_" + email;
+        email = "bak_" + LocalDateTime.now() + "^" + email;
         status = RiderStatusTypes.DEACTIVATE;
         deletedAt = LocalDateTime.now();
         phone = riderNo + phone;
