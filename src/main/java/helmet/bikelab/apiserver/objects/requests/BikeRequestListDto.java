@@ -18,4 +18,5 @@ public class BikeRequestListDto extends RequestListDto{
     private String isBikemaster;
     private String type;
     private String carModel;
+    private String payerType;
 }
