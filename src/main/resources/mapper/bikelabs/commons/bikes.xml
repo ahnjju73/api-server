@@ -21,6 +21,9 @@
                      <if test="is_bikemaster != null and is_bikemaster != '' and is_bikemaster != 'undefined'">
                        and is_bm = #{is_bikemaster}
                      </if>
+                     <if test="payer_type != null and payer_type != '' and payer_type != 'undefined'">
+                       and payer_types = #{payer_type}
+                     </if>
                      <if test="search_name != null and search_name != '' and search_name != 'undefined'">
                        and (
                             vim_num like concat('%', #{search_name}, '%')
@@ -44,6 +47,9 @@
                and is_bm = #{is_bikemaster}
              <if test="type == 'delete'">
                and deleted_at is not null
+             </if>
+             <if test="payer_type != null and payer_type != '' and payer_type != 'undefined'">
+               and payer_types = #{payer_type}
              </if>
              <if test="type == null or type == '' or type == 'undefined'">
                and deleted_at is null
@@ -95,6 +101,9 @@
                 <if test="is_bikemaster != null and is_bikemaster != '' and is_bikemaster != 'undefined'">
                 and is_bm = #{is_bikemaster}
                 </if>
+                <if test="payer_type != null and payer_type != '' and payer_type != 'undefined'">
+                and payer_types = #{payer_type}
+                </if>
                 <if test="search_name != null and search_name != '' and search_name != 'undefined'">
                 and (
                 vim_num like concat('%', #{search_name}, '%')
@@ -136,6 +145,9 @@
                  and bike_id != (select val from system_parameters where parameter_no = 0)
                <if test="is_bikemaster != null and is_bikemaster != '' and is_bikemaster != 'undefined'">
                  and is_bm = #{is_bikemaster}
+               </if>
+               <if test="payer_type != null and payer_type != '' and payer_type != 'undefined'">
+                 and payer_types = #{payer_type}
                </if>
                <if test="search_name != null and search_name != '' and search_name != 'undefined'">
                  and (
