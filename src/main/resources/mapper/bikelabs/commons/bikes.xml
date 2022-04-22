@@ -8,8 +8,14 @@
     <select id="countAllBikeList" parameterType="hmap" resultType="int">
         <if test="search_client_id != null and search_client_id != '' and search_client_id != 'undefined'">
             select count(*)
-              from (select *
-                      from bikes
+              from (select b.*
+                      from bikes b
+                           join (select *
+                                    from com_comm_bikes
+                                    where 1 = 1
+                                    <if test="car_model != null and car_model != '' and car_model != 'undefined'">
+                                      and comm_nm like concat('%', #{car_model}, '%')
+                                    </if>) commb on b.car_model = commb.comm_cd
                      where bike_id != (select val from system_parameters where parameter_no = 0)
                        and deleted_at is null
                      <if test="is_bikemaster != null and is_bikemaster != '' and is_bikemaster != 'undefined'">
@@ -27,7 +33,13 @@
         </if>
         <if test="search_client_id == null or search_client_id == '' or search_client_id == 'undefined'">
             select count(*)
-              from bikes
+              from bikes b
+                   join (select *
+                           from com_comm_bikes
+                          where 1 = 1
+                          <if test="car_model != null and car_model != '' and car_model != 'undefined'">
+                            and comm_nm like concat('%', #{car_model}, '%')
+                          </if>) commb on b.car_model = commb.comm_cd
              where bike_id != (select val from system_parameters where parameter_no = 0)
                and is_bm = #{is_bikemaster}
              <if test="type == 'delete'">
@@ -50,8 +62,10 @@
         select bike_id,
                vim_num,
                ms.number,
+               is_bm,
+               payer_types,
                car_model as car_model_code,
-               commb.comm_nm as car_model,
+               comm_nm as car_model,
                color,
                years,
                ms.lease_id,
@@ -61,13 +75,20 @@
         from (select c.client_id,
                      c.client_no,
                      l.lease_id,
-                     b.*
+                     b.*,
+                     commb.comm_nm
                from (select *
                        from clients
                       where client_id = #{search_client_id}
                     ) c
                     join leases l on c.client_no = l.client_no
                     join bikes b on l.bike_no = b.bike_no
+                    join (select *
+                            from com_comm_bikes
+                           where 1 = 1
+                           <if test="car_model != null and car_model != '' and car_model != 'undefined'">
+                             and comm_nm like concat('%', #{car_model}, '%')
+                           </if>) commb on b.car_model = commb.comm_cd
               where 1 = 1
                 and b.deleted_at is null
                 and bike_id != (select val from system_parameters where parameter_no = 0)
@@ -84,8 +105,7 @@
                 and bike_id <![CDATA[ < ]]> #{next_token}
                 </if>
               order by b.bike_id desc limit 30) ms
-                 join com_comm_bikes commb on ms.car_model = commb.comm_cd
-                 left outer join client_info ci on ms.client_no = ci.client_no
+              left outer join client_info ci on ms.client_no = ci.client_no
          order by bike_id desc
     </select>
 
@@ -93,16 +113,25 @@
         select bike_id,
                vim_num,
                bm.number,
+               payer_types,
+               is_bm,
                car_model as car_model_code,
-               commb.comm_nm as car_model,
+               comm_nm as car_model,
                color,
                years,
                ls.lease_id,
                c.client_id,
                ci.name as client_name,
                if(l.lease_no is null, false, true) as used
-        from (select *
+        from (select b.*,
+                     commb.comm_nm
                 from bikes b
+                     join (select *
+                             from com_comm_bikes
+                            where 1 = 1
+                            <if test="car_model != null and car_model != '' and car_model != 'undefined'">
+                              and comm_nm like concat('%', #{car_model}, '%')
+                            </if>) commb on b.car_model = commb.comm_cd
                where 1 = 1
                  and bike_id != (select val from system_parameters where parameter_no = 0)
                <if test="is_bikemaster != null and is_bikemaster != '' and is_bikemaster != 'undefined'">
@@ -124,7 +153,6 @@
                  and deleted_at is null
                </if>
                order by bike_no desc limit 30) bm
-              join com_comm_bikes commb on bm.car_model = commb.comm_cd
               left outer join leases ls on bm.bike_no = ls.bike_no
               <if test="search_client_id != null and search_client_id != '' and search_client_id != 'undefined'">
               join (select *
