@@ -259,6 +259,10 @@ public class BikesService extends SessService {
         UpdateBikeRequest updateBikeRequest = map(param, UpdateBikeRequest.class);
         Bikes bike = bikesRepository.findByBikeId(updateBikeRequest.getBikeId());
         updateBikeRequest.checkValidation();
+        if(!updateBikeRequest.getIsBikemaster()){
+            Integer riderNo = bike.getRiderNo();
+            if(!bePresent(riderNo)) withException("500-012");
+        }
         ModelTransaction modelTransaction = new ModelTransaction();
         modelTransaction.setRegNum(updateBikeRequest.getRegNum());
         modelTransaction.setPrice(updateBikeRequest.getPrice());
