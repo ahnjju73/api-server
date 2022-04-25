@@ -13,5 +13,5 @@ public class BikePartsRequest extends RequestListDto {
     private String carModel;
     private String partsId;
     private String partsName;
-
+    private String partsTypeNo;
 }
