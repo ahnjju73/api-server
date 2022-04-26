@@ -76,6 +76,7 @@
                years,
                ms.lease_id,
                ms.client_id,
+               g.*,
                ci.name as client_name,
                if(ms.lease_id is null, false, true) as used
         from (select c.client_id,
@@ -114,7 +115,9 @@
                 and bike_id <![CDATA[ < ]]> #{next_token}
                 </if>
               order by b.bike_id desc limit 30) ms
-              left outer join client_info ci on ms.client_no = ci.client_no
+              left outer join clients c on c.client_no = ms.client_no
+              left outer join client_info ci on c.client_no = ci.client_no
+              left outer join `groups` g on c.group_no = g.group_no
          order by bike_id desc
     </select>
 
@@ -131,6 +134,7 @@
                ls.lease_id,
                c.client_id,
                ci.name as client_name,
+               gr.*,
                if(l.lease_no is null, false, true) as used
         from (select b.*,
                      commb.comm_nm
@@ -176,6 +180,7 @@
               </if>
               left outer join client_info ci on c.client_no = ci.client_no
               left outer join leases l on bm.bike_no = l.bike_no
+              left outer join `groups` gr on c.group_no = gr.group_no
          order by bm.bike_no desc
     </select>
 
