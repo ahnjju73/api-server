@@ -94,6 +94,8 @@
     <resultMap id="fetchLeasesMap" type="hmap">
         <result property="lease_id" column="lease_id"/>
         <result property="bike_id" column="bike_id"/>
+        <result property="group_id" column="group_id"/>
+        <result property="group_name" column="group_name"/>
         <result property="client_id" column="client_id"/>
         <result property="insurance_id" column="insurance_id"/>
         <result property="release_id" column="release_id"/>
@@ -163,7 +165,8 @@
                aum.user_id as approval_user_id,
                aum.email as approval_email,
                aui.name as approval_name,
-               bm.vim_num
+               bm.vim_num,
+               g.*
         from (select *
                 from leases
                where 1 = 1
@@ -185,6 +188,7 @@
              join bikes bm on lm.bike_no = bm.bike_no
              join clients cm on lm.client_no = cm.client_no
              join client_info ci on cm.client_no = ci.client_no
+             join groups g on g.group_no = cm.group_no
              join insurances ins on lm.insurance_no = ins.insurance_no
              join releases rls on lm.release_no = rls.release_no
              join bike_user_mst cum on cum.user_no = lm.created_user_no
@@ -241,7 +245,8 @@
                aum.user_id as approval_user_id,
                aum.email as approval_email,
                aui.name as approval_name,
-               lm.vim_num
+               lm.vim_num,
+               g.*
         from (select l.*,
                      bike_id,
                      `number`,
@@ -272,6 +277,7 @@
             join lease_price lp on lm.lease_no = lp.lease_no
             join clients cm on lm.client_no = cm.client_no
             join client_info ci on cm.client_no = ci.client_no
+            join groups g on g.group_no = cm.group_no
             join insurances ins on lm.insurance_no = ins.insurance_no
             join releases rls on lm.release_no = rls.release_no
             join bike_user_mst cum on cum.user_no = lm.created_user_no

@@ -57,11 +57,13 @@
                ms.lease_id,
                ms.client_id,
                ci.name as client_name,
-               if(ms.lease_id is null, false, true) as used
+               if(ms.lease_id is null, false, true) as used,
+               g.*
         from (select c.client_id,
                      c.client_no,
                      l.lease_id,
-                     b.*
+                     b.*,
+                     c.group_no
                from (select *
                        from clients
                       where client_id = #{search_client_id}
@@ -84,6 +86,7 @@
                 and bike_id <![CDATA[ < ]]> #{next_token}
                 </if>
               order by b.bike_id desc limit 30) ms
+                 join groups g on g.group_no = ms.group_no
                  join com_comm_bikes commb on ms.car_model = commb.comm_cd
                  left outer join client_info ci on ms.client_no = ci.client_no
          order by bike_id desc
@@ -100,7 +103,8 @@
                ls.lease_id,
                c.client_id,
                ci.name as client_name,
-               if(l.lease_no is null, false, true) as used
+               if(l.lease_no is null, false, true) as used,
+               g.*
         from (select *
                 from bikes b
                where 1 = 1
@@ -134,6 +138,7 @@
               <if test="search_client_id == null or search_client_id == '' or search_client_id == 'undefined'">
               left outer join clients c on ls.client_no = c.client_no
               </if>
+              left outer join groups g on c.group_no = g.group_no
               left outer join client_info ci on c.client_no = ci.client_no
               left outer join leases l on bm.bike_no = l.bike_no
          order by bm.bike_no desc

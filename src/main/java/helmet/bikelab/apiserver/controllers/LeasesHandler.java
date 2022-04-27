@@ -1,6 +1,7 @@
 package helmet.bikelab.apiserver.controllers;
 
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
+import helmet.bikelab.apiserver.objects.PresignedURLVo;
 import helmet.bikelab.apiserver.objects.bikelabs.leases.LeaseBikeUserLogs;
 import helmet.bikelab.apiserver.objects.responses.LeaseExtensionCheckedResponse;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
@@ -177,6 +178,26 @@ public class LeasesHandler {
                         .map(row -> leasesService.makeSessionRequest(request, row , BikeSessionRequest.class))
                         .map(leasesService::checkBikeSession)
                         .map(leasesService::updateStopLease)
+                        .map(leasesService::returnData), Map.class);
+    }
+
+    public Mono<ServerResponse> generatePresignedUrl(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> leasesService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(req -> leasesService.getPathVariable(req, "lease_id"))
+                        .map(leasesService::checkBikeSession)
+                        .map(leasesService::generatePreSignedURLToUploadLeaseFile)
+                        .map(leasesService::returnData), PresignedURLVo.class);
+    }
+
+    public Mono<ServerResponse> addLeaseAttachment(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> leasesService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(req -> leasesService.getPathVariable(req, "lease_id"))
+                        .map(leasesService::checkBikeSession)
+                        .map(leasesService::addAttachments)
                         .map(leasesService::returnData), Map.class);
     }
 }
