@@ -39,7 +39,9 @@ public class LeasesRouters {
                 .andRoute(DELETE("/leases"), handler::deleteLease)
                 .andRoute(POST("/stop-leases/stop-fee"), handler::fetchStopLeaseFee)
                 .andRoute(PUT("/stop_leases"), handler::stopLease)
-                .andRoute(PUT("/stop_leases/update"), handler::updateStopLease);
+                .andRoute(PUT("/stop_leases/update"), handler::updateStopLease)
+                .andRoute(GET("/commons/contracts/companies"), handler::fetchCompaniesByLease)
+                ;
     }
 
     @Bean

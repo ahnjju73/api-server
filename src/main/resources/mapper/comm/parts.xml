@@ -59,6 +59,9 @@
                       where 1 = 1
                       <if test="parts_name != null and parts_name != '' and parts_name != 'undefined'">
                         and parts_name like concat('%', #{parts_name}, '%')
+                      </if>
+                      <if test="parts_type_no != null and parts_type_no != '' and parts_type_no != 'undefined'">
+                        and parts_type_no = #{parts_type_no}
                       </if>) pc on p.parts_code_no = pc.parts_code_no
                join parts_types pt on pt.parts_type_no = pc.parts_type_no
          where pc.usable = "1"
@@ -94,7 +97,11 @@
                       where 1 = 1
                         <if test="parts_name != null and parts_name != '' and parts_name != 'undefined'">
                         and parts_name like concat('%', #{parts_name}, '%')
-                        </if>) pc on p.parts_code_no = pc.parts_code_no
+                        </if>
+                        <if test="parts_type_no != null and parts_type_no != '' and parts_type_no != 'undefined'">
+                        and parts_type_no = #{parts_type_no}
+                        </if>
+                   ) pc on p.parts_code_no = pc.parts_code_no
                join parts_types pt on pt.parts_type_no = pc.parts_type_no
                join (select *
                        from com_comm_bikes

@@ -4,7 +4,9 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import helmet.bikelab.apiserver.domain.embeds.ModelInsuranceImage;
+import helmet.bikelab.apiserver.domain.types.AccountStatusTypes;
 import helmet.bikelab.apiserver.domain.types.InsuranceCompanyStatusTypes;
+import helmet.bikelab.apiserver.domain.types.converters.AccountStatusConverter;
 import helmet.bikelab.apiserver.domain.types.converters.InsuranceStatusTypesConverter;
 import helmet.bikelab.apiserver.domain.types.converters.ModelInsuranceImageConverter;
 import lombok.Getter;
@@ -30,11 +32,11 @@ public class InsuranceCompanies {
     @Column(name = "company_id")
     private String companyId;
 
-    @Column(name = "status")
-    @Convert(converter = InsuranceStatusTypesConverter.class)
-    private InsuranceCompanyStatusTypes status;
+    @Column(name = "status", columnDefinition = "ENUM")
+    @Convert(converter = AccountStatusConverter.class)
+    private AccountStatusTypes status = AccountStatusTypes.PENDING;
 
-    @Column(name = "status", updatable = false, insertable = false)
+    @Column(name = "status", columnDefinition = "ENUM", updatable = false, insertable = false)
     private String statusCode;
 
     @Column(name = "name", length = 21)

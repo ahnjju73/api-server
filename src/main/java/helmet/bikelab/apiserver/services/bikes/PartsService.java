@@ -4,10 +4,15 @@ import helmet.bikelab.apiserver.domain.bike.PartsCodes;
 import helmet.bikelab.apiserver.domain.bike.PartsTypes;
 import helmet.bikelab.apiserver.domain.types.YesNoTypes;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
+import helmet.bikelab.apiserver.objects.requests.PageableRequest;
+import helmet.bikelab.apiserver.objects.requests.PartsCodeListRequest;
 import helmet.bikelab.apiserver.repositories.PartsCodesRepository;
 import helmet.bikelab.apiserver.repositories.PartsTypesRepository;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,6 +26,14 @@ public class PartsService extends SessService {
 
     private final PartsTypesRepository partsTypesRepository;
     private final PartsCodesRepository partsCodesRepository;
+
+    public BikeSessionRequest fetchParsCodeListByCondition(BikeSessionRequest request){
+        PartsCodeListRequest pageableRequest = map(request.getParam(), PartsCodeListRequest.class);
+        Pageable pageable = PageRequest.of(pageableRequest.getPage(), pageableRequest.getSize());
+        Page<PartsCodes> partsCodesList = partsCodesRepository.findAllByPartsNameContainingAndPartsType_PartsTypeContaining(pageableRequest.getPartsName(), pageableRequest.getPartsType(), pageable);
+        request.setResponse(partsCodesList);
+        return request;
+    }
 
     @Transactional
     public BikeSessionRequest doSavePartsCode(BikeSessionRequest request){

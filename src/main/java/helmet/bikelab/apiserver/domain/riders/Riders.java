@@ -72,6 +72,16 @@ public class Riders extends OriginObject {
     @OneToOne(mappedBy = "rider", fetch = FetchType.EAGER)
     private RiderInfo riderInfo;
 
+    @Column(name = "deleted_at", columnDefinition = "CURRENT_TIMESTAMP")
+    private LocalDateTime deletedAt;
+
+    public void outOfService(){
+        email = "bak_" + LocalDateTime.now() + "^" + email;
+        status = RiderStatusTypes.DEACTIVATE;
+        deletedAt = LocalDateTime.now();
+        phone = riderNo + phone;
+    }
+
 }
 
 

@@ -20,6 +20,7 @@ import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.utils.AutoKey;
 import helmet.bikelab.apiserver.utils.amazon.AmazonUtils;
 import helmet.bikelab.apiserver.utils.keys.ENV;
+import helmet.bikelab.apiserver.workers.CommonWorker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -38,6 +39,7 @@ import java.util.stream.Collectors;
 public class InsuranceCompanyService extends SessService {
     private final InsuranceCompanyRepository insuranceCompanyRepository;
     private final InsuranceCompanyPasswordRepository insuranceCompanyPasswordRepository;
+    private final CommonWorker commonWorker;
     private final AutoKey autoKey;
 
     @Transactional
@@ -51,7 +53,6 @@ public class InsuranceCompanyService extends SessService {
         insuranceCompanies.setName(addUpdateInsuranceCompanyRequest.getName());
         insuranceCompanies.setEmail(addUpdateInsuranceCompanyRequest.getEmail());
         insuranceCompanies.setPhone(addUpdateInsuranceCompanyRequest.getPhone());
-        insuranceCompanies.setStatus(InsuranceCompanyStatusTypes.COMPLETED);
         //logo
         List<ModelInsuranceImage> collect = addUpdateInsuranceCompanyRequest
                 .getImages()
@@ -75,6 +76,14 @@ public class InsuranceCompanyService extends SessService {
         passwords.setCompany(insuranceCompanies);
         passwords.makePassword();
         insuranceCompanyPasswordRepository.save(passwords);
+        return request;
+    }
+
+    public BikeSessionRequest generatePresignedUrl(BikeSessionRequest request){
+        Map param = request.getParam();
+        String fileName = (String) param.get("file_name");
+        PresignedURLVo presignedURLVo = commonWorker.generatePreSignedUrl(fileName, null);
+        request.setResponse(presignedURLVo);
         return request;
     }
 
@@ -140,7 +149,8 @@ public class InsuranceCompanyService extends SessService {
         String pw = getRandomString();
         InsuranceCompanyPasswords password = insuranceCompanyPasswordRepository.findByCompany_CompanyId(companyId);
         ModelPassword modelPassword = password.getModelPassword();
-        modelPassword.modifyPassword(pw);
+        modelPassword.modifyPasswordWithoutSHA256(pw);
+        password.setModelPassword(modelPassword);
         insuranceCompanyPasswordRepository.save(password);
         Map res = new HashMap();
         res.put("password", pw);

@@ -1,6 +1,11 @@
 package helmet.bikelab.apiserver.services.leases;
 
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.CopyObjectRequest;
 import helmet.bikelab.apiserver.domain.CommonBikes;
+import helmet.bikelab.apiserver.domain.bike.BikeAttachments;
 import helmet.bikelab.apiserver.domain.bike.BikeRidersBak;
 import helmet.bikelab.apiserver.domain.demands.DemandLeases;
 import helmet.bikelab.apiserver.domain.embeds.ModelTransaction;
@@ -12,6 +17,7 @@ import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.client.Clients;
 import helmet.bikelab.apiserver.domain.lease.*;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
+import helmet.bikelab.apiserver.objects.PresignedURLVo;
 import helmet.bikelab.apiserver.objects.bikelabs.fine.FetchFinesResponse;
 import helmet.bikelab.apiserver.objects.bikelabs.leases.*;
 import helmet.bikelab.apiserver.objects.bikelabs.release.ReleaseDto;
@@ -27,6 +33,8 @@ import helmet.bikelab.apiserver.utils.AutoKey;
 import helmet.bikelab.apiserver.utils.PushComponent;
 import helmet.bikelab.apiserver.utils.Senders;
 import helmet.bikelab.apiserver.utils.Utils;
+import helmet.bikelab.apiserver.utils.amazon.AmazonUtils;
+import helmet.bikelab.apiserver.utils.keys.ENV;
 import helmet.bikelab.apiserver.workers.CommonWorker;
 import helmet.bikelab.apiserver.workers.LeasePaymentWorker;
 import lombok.RequiredArgsConstructor;
@@ -75,6 +83,14 @@ public class LeasesService extends SessService {
     private final LeaseExtensionsRepository leaseExtensionsRepository;
     private final SystemParameterRepository systemParameterRepository;
     private final LeasePaymentWorker leasePaymentWorker;
+
+    public BikeSessionRequest fetchCompaniesByLease(BikeSessionRequest request){
+        Map param = request.getParam();
+        String query = (String)param.get("q");
+        List companies = getList("comm.common.fetchCompaniesByLease", param);
+        request.setResponse(companies);
+        return request;
+    }
 
     public BikeSessionRequest fetchLeases(BikeSessionRequest request){
         Map param = request.getParam();
@@ -353,7 +369,6 @@ public class LeasesService extends SessService {
         request.setResponse(response);
         return request;
     }
-
 
     @Transactional
     public BikeSessionRequest addLease(BikeSessionRequest request){
@@ -1010,6 +1025,59 @@ public class LeasesService extends SessService {
         bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_UPDATED, request.getSessionUser().getUserNo(), lease.getLeaseNo().toString(), log.endsWith("<br>")? log.substring(0, log.length()-4) : log));
         return request;
     }
+
+    public BikeSessionRequest generatePreSignedURLToUploadLeaseFile(BikeSessionRequest request) {
+        Map param = request.getParam();
+        LeasesDto leasesDto = map(param, LeasesDto.class);
+        Leases lease = leaseRepository.findByLeaseId(leasesDto.getLeaseId());
+        if (!bePresent(leasesDto.getFilename())) withException("");
+        String uuid = UUID.randomUUID().toString();
+        String filename = leasesDto.getFilename().substring(0, leasesDto.getFilename().lastIndexOf("."));
+        String extension = leasesDto.getFilename().substring(leasesDto.getFilename().lastIndexOf(".") + 1);
+        PresignedURLVo presignedURLVo = new PresignedURLVo();
+        presignedURLVo.setBucket(ENV.AWS_S3_QUEUE_BUCKET);
+        presignedURLVo.setFileKey("leases/" + leasesDto.getLeaseId() + "/" + uuid + "." + filename + "." + extension);
+        presignedURLVo.setFilename(filename + "." + extension);
+        presignedURLVo.setUrl(AmazonUtils.AWSGeneratePresignedURL(presignedURLVo));
+        request.setResponse(presignedURLVo);
+        return request;
+    }
+
+//    @Transactional
+//    public BikeSessionRequest checkFileUploadComplete(BikeSessionRequest request) {
+//        Map param = request.getParam();
+//        PresignedURLVo presignedURLVo = map(param, PresignedURLVo.class);
+//        String leaseId = (String) param.get("lease_id");
+//        Leases lease = leaseRepository.findByLeaseId(leaseId);
+//        Leases bikeAttachments = new BikeAttachments();
+//        bikeAttachments.setBikeNo(bike.getBikeNo());
+//        bikeAttachments.setFileName(presignedURLVo.getFilename());
+//        bikeAttachments.setFileKey("/" + presignedURLVo.getFileKey());
+//        bikeAttachments.setDomain(ENV.AWS_S3_ORIGIN_DOMAIN);
+//        bikeAttachmentRepository.save(bikeAttachments);
+//        //
+//        AmazonS3 amazonS3 = AmazonS3Client.builder()
+//                .withRegion(Regions.AP_NORTHEAST_2)
+//                .withCredentials(AmazonUtils.awsCredentialsProvider())
+//                .build();
+//        CopyObjectRequest objectRequest = new CopyObjectRequest(presignedURLVo.getBucket(), presignedURLVo.getFileKey(), ENV.AWS_S3_ORIGIN_BUCKET, presignedURLVo.getFileKey());
+//        amazonS3.copyObject(objectRequest);
+//        String log = "바이크에 <>" + presignedURLVo.getFilename() + "</> 파일명의 파일이 추가 되었습니다.";
+//        bikeUserLogRepository.save(addLog(BikeUserLogTypes.COMM_BIKE_UPDATED, request.getSessionUser().getUserNo(), bike.getBikeNo().toString(), log));
+//        Map response = new HashMap();
+//        response.put("url", bikeAttachments.getFileKey());
+//        request.setResponse(response);
+//        return request;
+//    }
+
+
+
+
+
+
+
+
+
 
     private Integer getRegistrationFee(Integer bikePrice){
         //취등록세 공식 적용 2%

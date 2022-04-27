@@ -5,6 +5,21 @@
 
 <mapper namespace="comm.common">
 
+    <select id="fetchCompaniesByLease" parameterType="hmap" resultType="hmap">
+        select reg_num,
+               max(company_name) as company_name
+          from (select *
+                  from lease_expense
+                 where 1 = 1
+                 <if test="q != null and q != '' and q != 'undefined'">
+                   and (
+                    reg_num like concat('%', #{q} ,'%')
+                    or company_name like concat('%', #{q} ,'%')
+                   )
+                 </if> ) le
+         group by reg_num
+    </select>
+
     <select id="getCodeName" parameterType="hmap" resultType="string">
         select comm_nm
           from com_comm_mst
