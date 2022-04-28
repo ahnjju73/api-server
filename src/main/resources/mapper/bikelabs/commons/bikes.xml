@@ -44,7 +44,9 @@
                             and comm_nm like concat('%', #{car_model}, '%')
                           </if>) commb on b.car_model = commb.comm_cd
              where bike_id != (select val from system_parameters where parameter_no = 0)
+             <if test="is_bikemaster != null and is_bikemaster != '' and is_bikemaster != 'undefined'">
                and is_bm = #{is_bikemaster}
+             </if>
              <if test="type == 'delete'">
                and deleted_at is not null
              </if>

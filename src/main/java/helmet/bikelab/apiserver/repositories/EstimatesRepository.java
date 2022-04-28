@@ -18,6 +18,10 @@ public interface EstimatesRepository extends JpaRepository<Estimates, Integer> {
     List<Estimates> findAllBySettle_SettleId(String settleId);
     @Query(value = "select e from Estimates e where e.clientNo = :client_no and e.totalPrice > e.paidFee")
     List<Estimates> getUnpaidEstimates(@Param("client_no") Integer clientNo);
+
+    @Query(value = "select e from Estimates e where e.estimateStatusType in :status and  e.clientNo = :client_no and e.totalPrice > e.paidFee")
+    List<Estimates> getUnpaidEstimatesByClientNo(@Param("client_no") Integer clientNo, @Param("status") EstimateStatusTypes ...status);
+
     Page<Estimates> findByShop_ShopIdAndReviewNotNullAndEstimateStatusType(String shopId, EstimateStatusTypes estimateStatusTypes, Pageable pageable);
     Page<Estimates> findAllByReviewNotNullAndEstimateStatusType(EstimateStatusTypes estimateStatusTypes, Pageable pageable);
 }

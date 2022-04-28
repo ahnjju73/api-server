@@ -56,6 +56,9 @@ public class EstimateService extends SessService {
         String clientId = (String) param.get("client_id");
         FetchUnpaidEstimatesRequest fetchUnpaidEstimatesRequest = map(param, FetchUnpaidEstimatesRequest.class);
         Clients client = clientsRepository.findByClientId(clientId);
+        if(bePresent(client)){
+            fetchUnpaidEstimatesRequest.setClientNo(client.getClientNo());
+        }
 
         ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(fetchUnpaidEstimatesRequest, "estimate.estimates.fetchUnpaidEstimateList", "estimate.estimates.countUnpaidEstimateList", "rownum");
         FetchUnpaidEstimateResponse toReturn = new FetchUnpaidEstimateResponse();
@@ -63,7 +66,7 @@ public class EstimateService extends SessService {
         toReturn.setItems(responseListDto.getItems());
         toReturn.setNextToken(responseListDto.getNextToken());
         if(bePresent(client)){
-            List<Estimates> allByClient_clientId = estimatesRepository.getUnpaidEstimates(client.getClientNo());
+            List<Estimates> allByClient_clientId = estimatesRepository.getUnpaidEstimatesByClientNo(client.getClientNo(), EstimateStatusTypes.COMPLETED, EstimateStatusTypes.PAID);
             Integer total = 0;
             Integer paid = 0;
             for(Estimates e : allByClient_clientId){
