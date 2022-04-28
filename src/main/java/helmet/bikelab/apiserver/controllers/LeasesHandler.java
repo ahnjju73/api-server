@@ -26,6 +26,15 @@ public class LeasesHandler {
     private final BikeUserLogService bikeUserLogService;
     private final LeaseExtensionService leaseExtensionService;
 
+    public Mono<ServerResponse> fetchCompaniesByLease(ServerRequest request){
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> leasesService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(leasesService::checkBikeSession)
+                        .map(leasesService::fetchCompaniesByLease)
+                        .map(leasesService::returnData), List.class);
+    }
+
     public Mono<ServerResponse> getLeaseExtensionList(ServerRequest request){
         return ServerResponse.ok().body(
                 Mono.fromSupplier(() -> leaseExtensionService.makeSessionRequest(request, BikeSessionRequest.class))

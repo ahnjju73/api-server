@@ -88,6 +88,14 @@ public class LeasesService extends SessService {
     private final SystemParameterRepository systemParameterRepository;
     private final LeasePaymentWorker leasePaymentWorker;
 
+    public BikeSessionRequest fetchCompaniesByLease(BikeSessionRequest request){
+        Map param = request.getParam();
+        String query = (String)param.get("q");
+        List companies = getList("comm.common.fetchCompaniesByLease", param);
+        request.setResponse(companies);
+        return request;
+    }
+
     public BikeSessionRequest fetchLeases(BikeSessionRequest request){
         Map param = request.getParam();
         LeasesRequestListDto requestListDto = map(param, LeasesRequestListDto.class);
@@ -365,7 +373,6 @@ public class LeasesService extends SessService {
         request.setResponse(response);
         return request;
     }
-
 
     @Transactional
     public BikeSessionRequest addLease(BikeSessionRequest request){
