@@ -8,6 +8,7 @@ import helmet.bikelab.apiserver.domain.CommonBikes;
 import helmet.bikelab.apiserver.domain.bike.BikeAttachments;
 import helmet.bikelab.apiserver.domain.bike.BikeRidersBak;
 import helmet.bikelab.apiserver.domain.demands.DemandLeases;
+import helmet.bikelab.apiserver.domain.embeds.ModelLeaseAttachment;
 import helmet.bikelab.apiserver.domain.embeds.ModelTransaction;
 import helmet.bikelab.apiserver.domain.riders.*;
 import helmet.bikelab.apiserver.domain.types.*;
@@ -23,6 +24,7 @@ import helmet.bikelab.apiserver.objects.bikelabs.leases.*;
 import helmet.bikelab.apiserver.objects.bikelabs.release.ReleaseDto;
 import helmet.bikelab.apiserver.objects.bikelabs.clients.ClientDto;
 import helmet.bikelab.apiserver.objects.bikelabs.insurance.InsuranceDto;
+import helmet.bikelab.apiserver.objects.requests.AddLeaseAttachmentRequest;
 import helmet.bikelab.apiserver.objects.requests.LeasesRequestListDto;
 import helmet.bikelab.apiserver.objects.requests.StopLeaseDto;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
@@ -47,6 +49,7 @@ import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static helmet.bikelab.apiserver.domain.bikelab.BikeUserLog.addLog;
 
@@ -58,6 +61,7 @@ public class LeasesService extends SessService {
     private final LeasePaymentsRepository leasePaymentsRepository;
     private final LeaseInfoRepository leaseInfoRepository;
     private final LeasePriceRepository leasePriceRepository;
+    private final LeaseAttachmentRepository leaseAttachmentRepository;
     private final BikesRepository bikesRepository;
     private final BikeRiderBakRepository bikeRiderBakRepository;
     private final LeaseExpenseRepository leaseExpenseRepository;
@@ -1030,16 +1034,41 @@ public class LeasesService extends SessService {
         Map param = request.getParam();
         LeasesDto leasesDto = map(param, LeasesDto.class);
         Leases lease = leaseRepository.findByLeaseId(leasesDto.getLeaseId());
-        if (!bePresent(leasesDto.getFilename())) withException("");
-        String uuid = UUID.randomUUID().toString();
         String filename = leasesDto.getFilename().substring(0, leasesDto.getFilename().lastIndexOf("."));
-        String extension = leasesDto.getFilename().substring(leasesDto.getFilename().lastIndexOf(".") + 1);
-        PresignedURLVo presignedURLVo = new PresignedURLVo();
-        presignedURLVo.setBucket(ENV.AWS_S3_QUEUE_BUCKET);
-        presignedURLVo.setFileKey("leases/" + leasesDto.getLeaseId() + "/" + uuid + "." + filename + "." + extension);
-        presignedURLVo.setFilename(filename + "." + extension);
-        presignedURLVo.setUrl(AmazonUtils.AWSGeneratePresignedURL(presignedURLVo));
+        PresignedURLVo presignedURLVo = commonWorker.generatePreSignedUrl(filename, null);
         request.setResponse(presignedURLVo);
+        return request;
+    }
+
+    @Transactional
+    public BikeSessionRequest addAttachments(BikeSessionRequest request){
+        Map param = request.getParam();
+        AddLeaseAttachmentRequest addLeaseAttachmentRequest = map(param, AddLeaseAttachmentRequest.class);
+        Leases lease = leaseRepository.findByLeaseId(addLeaseAttachmentRequest.getLeaseId());
+        LeaseAttachments leaseAttachments = lease.getAttachments();
+        if(bePresent(addLeaseAttachmentRequest.getAttachments())){
+            List<ModelLeaseAttachment> attachments = lease.getAttachments().getAttachmentsList();
+            List<ModelLeaseAttachment> toAdd = addLeaseAttachmentRequest
+                    .getAttachments()
+                    .stream().map(presignedURLVo -> {
+                        AmazonS3 amazonS3 = AmazonS3Client.builder()
+                                .withCredentials(AmazonUtils.awsCredentialsProvider())
+                                .build();
+                        String fileKey = "lease-attachment/" + lease.getLeaseNo() + "/" + presignedURLVo.getFileKey();
+                        CopyObjectRequest objectRequest = new CopyObjectRequest(presignedURLVo.getBucket(), presignedURLVo.getFileKey(), ENV.AWS_S3_ORIGIN_BUCKET, fileKey);
+                        amazonS3.copyObject(objectRequest);
+                        ModelLeaseAttachment leaseAttachment = new ModelLeaseAttachment();
+                        leaseAttachment.setDomain(ENV.AWS_S3_ORIGIN_DOMAIN);
+                        leaseAttachment.setUri("/" + fileKey);
+                        leaseAttachment.setFileName(presignedURLVo.getFilename());
+                        return leaseAttachment;
+                    }).collect(Collectors.toList());
+            if(!bePresent(attachments))
+                attachments = new ArrayList<>();
+            attachments.addAll(toAdd);
+            leaseAttachments.setAttachmentsList(attachments);
+            leaseAttachmentRepository.save(leaseAttachments);
+        }
         return request;
     }
 
