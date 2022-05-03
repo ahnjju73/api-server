@@ -92,7 +92,7 @@
                     ) c
                     join leases l on c.client_no = l.client_no
                     join bikes b on l.bike_no = b.bike_no
-                    join (select *
+                    join (select comm_cd, comm_nm
                             from com_comm_bikes
                            where 1 = 1
                            <if test="car_model != null and car_model != '' and car_model != 'undefined'">
@@ -140,7 +140,7 @@
                g.*
         from (select *
                 from bikes b
-                     join (select *
+                     join (select comm_cd, comm_nm
                              from com_comm_bikes
                             where 1 = 1
                             <if test="car_model != null and car_model != '' and car_model != 'undefined'">
