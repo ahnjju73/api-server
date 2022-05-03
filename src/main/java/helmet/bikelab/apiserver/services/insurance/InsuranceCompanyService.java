@@ -25,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -91,7 +92,8 @@ public class InsuranceCompanyService extends SessService {
         Map param = request.getParam();
         String name = (String) param.get("name");
         PageableRequest pageableRequest = map(param, PageableRequest.class);
-        Pageable pageable = PageRequest.of(pageableRequest.getPage(), pageableRequest.getSize());
+        Pageable pageable = PageRequest.of(pageableRequest.getPage(), pageableRequest.getSize(), Sort.by("companyNo").descending());
+        pageable.getSort().descending();
         Page<InsuranceCompanies> result;
         if(name != null)
             result = insuranceCompanyRepository.findAllByNameContaining(name, pageable);

@@ -170,6 +170,10 @@ public class   Leases {
     @OneToMany(mappedBy = "lease", fetch = FetchType.LAZY)
     private List<LeaseExtras> extras = new ArrayList<>();
 
+    @OneToOne(mappedBy = "lease", fetch = FetchType.EAGER)
+    private LeaseAttachments attachments;
+
+
     public void setExtensionLease(){
         setBikeNo(getBakBikeNo());
         leaseStopStatus = LeaseStopStatusTypes.CONTINUE;
