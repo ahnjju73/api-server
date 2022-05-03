@@ -6,10 +6,15 @@
 <mapper namespace="quartz.leases-stop">
 
     <select id="fetchAllLeasesByConfirmedAndContinue" parameterType="hmap" resultType="hmap">
-        select *
-          from leases
-         where status = '550-003'
-           and lease_stop_status = '506-001'
+        select lease_id,
+               li.end_dt
+          from (select *
+                  from leases
+                 where status = '550-003'
+                   and lease_stop_status = '506-001') l
+               join lease_info li on l.lease_no = li.lease_no
+         where li.end_dt <![CDATA[ < ]]> date_format(now(), '%Y-%m-%d')
+         order by end_dt desc
     </select>
 
 </mapper>
