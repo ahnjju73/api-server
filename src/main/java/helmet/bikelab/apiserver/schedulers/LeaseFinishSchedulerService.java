@@ -39,9 +39,6 @@ public class LeaseFinishSchedulerService extends WorkspaceQuartz {
             Bikes emptyBikes = bikeWorker.getEmptyBikes();
             leases.forEach(elm -> {
                 String leaseId = (String)elm.get("lease_id");
-                if("LS20220410-003".equals(leaseId)){
-                    System.out.println(elm);
-                }
                 Leases leaseByLeaseId = leasesWorker.getLeaseByLeaseId(leaseId);
                 LeaseInfo leaseInfo = leaseByLeaseId.getLeaseInfo();
                 if(leaseInfo.getEndDate().isBefore(LocalDate.now()) ){

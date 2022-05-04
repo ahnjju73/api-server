@@ -85,14 +85,14 @@
                      c.client_no,
                      l.lease_id,
                      b.*,
-                     commb.comm_nm
+                     c.group_no
                from (select *
                        from clients
                       where client_id = #{search_client_id}
                     ) c
                     join leases l on c.client_no = l.client_no
                     join bikes b on l.bike_no = b.bike_no
-                    join (select *
+                    join (select comm_cd, comm_nm
                             from com_comm_bikes
                            where 1 = 1
                            <if test="car_model != null and car_model != '' and car_model != 'undefined'">
@@ -117,9 +117,9 @@
                 and bike_id <![CDATA[ < ]]> #{next_token}
                 </if>
               order by b.bike_id desc limit 30) ms
-              left outer join clients c on c.client_no = ms.client_no
-              left outer join client_info ci on c.client_no = ci.client_no
-              left outer join `groups` g on c.group_no = g.group_no
+          join groups g on g.group_no = ms.group_no
+          join com_comm_bikes commb on ms.car_model = commb.comm_cd
+          left outer join client_info ci on ms.client_no = ci.client_no
          order by bike_id desc
     </select>
 
@@ -136,12 +136,11 @@
                ls.lease_id,
                c.client_id,
                ci.name as client_name,
-               gr.*,
-               if(l.lease_no is null, false, true) as used
-        from (select b.*,
-                     commb.comm_nm
+               if(l.lease_no is null, false, true) as used,
+               g.*
+        from (select *
                 from bikes b
-                     join (select *
+                     join (select comm_cd, comm_nm
                              from com_comm_bikes
                             where 1 = 1
                             <if test="car_model != null and car_model != '' and car_model != 'undefined'">
@@ -180,9 +179,9 @@
               <if test="search_client_id == null or search_client_id == '' or search_client_id == 'undefined'">
               left outer join clients c on ls.client_no = c.client_no
               </if>
+              left outer join groups g on c.group_no = g.group_no
               left outer join client_info ci on c.client_no = ci.client_no
               left outer join leases l on bm.bike_no = l.bike_no
-              left outer join `groups` gr on c.group_no = gr.group_no
          order by bm.bike_no desc
     </select>
 
