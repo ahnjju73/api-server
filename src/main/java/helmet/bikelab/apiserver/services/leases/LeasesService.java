@@ -467,8 +467,6 @@ public class LeasesService extends SessService {
         Leases lease = leaseRepository.findByLeaseId(addUpdateLeaseRequest.getLeaseId());
         boolean isChanged = isChanged(addUpdateLeaseRequest, lease);
         LeaseInsurances leaseInsurances = new LeaseInsurances();
-        List<Leases> leasesByBike = leaseRepository.findAllByBike_BikeId(addUpdateLeaseRequest.getBikeId());
-        addUpdateLeaseRequest.validationCheck();
         if(!bePresent(addUpdateLeaseRequest.getLeasePrice().getPrePayment())) withException("850-025");
         if(!bePresent(addUpdateLeaseRequest.getLeasePrice().getDeposit())) withException("850-026");
         if(!bePresent(addUpdateLeaseRequest.getLeasePrice().getProfitFee())) withException("850-027");
@@ -476,6 +474,8 @@ public class LeasesService extends SessService {
         if(!bePresent(addUpdateLeaseRequest.getLeasePrice().getRegisterFee())) withException("850-029");
         if(LeaseStatusTypes.PENDING.equals(lease.getStatus()) || !LeaseStopStatusTypes.CONTINUE.equals(lease.getLeaseStopStatus()))
             withException("850-004");
+        List<Leases> leasesByBike = leaseRepository.findAllByBike_BikeId(addUpdateLeaseRequest.getBikeId());
+        addUpdateLeaseRequest.validationCheck();
         if(LeaseStatusTypes.CONFIRM.equals(lease.getStatus())){
             String log = "";
             Bikes bike = bikesRepository.findByBikeId(addUpdateLeaseRequest.getBikeId());
