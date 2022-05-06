@@ -192,8 +192,9 @@ public class LeasesHandler {
 
     public Mono<ServerResponse> generatePresignedUrl(ServerRequest request) {
         return ServerResponse.ok().body(
-                Mono.fromSupplier(() -> leasesService.makeSessionRequest(request, BikeSessionRequest.class))
+                request.bodyToMono(Map.class)
                         .subscribeOn(Schedulers.elastic())
+                        .map(row -> leasesService.makeSessionRequest(request, row , BikeSessionRequest.class))
                         .map(req -> leasesService.getPathVariable(req, "lease_id"))
                         .map(leasesService::checkBikeSession)
                         .map(leasesService::generatePreSignedURLToUploadLeaseFile)

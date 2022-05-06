@@ -117,7 +117,7 @@
                 and bike_id <![CDATA[ < ]]> #{next_token}
                 </if>
               order by b.bike_id desc limit 30) ms
-          join groups g on g.group_no = ms.group_no
+          join `groups` g on g.group_no = ms.group_no
           join com_comm_bikes commb on ms.car_model = commb.comm_cd
           left outer join client_info ci on ms.client_no = ci.client_no
          order by bike_id desc
@@ -179,7 +179,7 @@
               <if test="search_client_id == null or search_client_id == '' or search_client_id == 'undefined'">
               left outer join clients c on ls.client_no = c.client_no
               </if>
-              left outer join groups g on c.group_no = g.group_no
+              left outer join `groups` g on c.group_no = g.group_no
               left outer join client_info ci on c.client_no = ci.client_no
               left outer join leases l on bm.bike_no = l.bike_no
          order by bm.bike_no desc
