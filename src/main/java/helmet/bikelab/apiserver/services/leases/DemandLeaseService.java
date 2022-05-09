@@ -16,6 +16,7 @@ import helmet.bikelab.apiserver.objects.responses.DemandLeaseDetailsByIdResponse
 import helmet.bikelab.apiserver.repositories.*;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.utils.AutoKey;
+import helmet.bikelab.apiserver.utils.CalendarUtil;
 import helmet.bikelab.apiserver.workers.DemandLeaseWorker;
 import helmet.bikelab.apiserver.workers.LeasesWorker;
 import lombok.RequiredArgsConstructor;
@@ -211,4 +212,12 @@ public class DemandLeaseService extends SessService {
         return request;
     }
 
+    public BikeSessionRequest checkHoliday(BikeSessionRequest request){
+        Map param = request.getParam();
+        String date = (String) param.get("date");
+        LocalDate parse = LocalDate.parse(date);
+        Boolean isHoliday = CalendarUtil.isHoliday(parse);
+        request.setResponse(isHoliday);
+        return request;
+    }
 }
