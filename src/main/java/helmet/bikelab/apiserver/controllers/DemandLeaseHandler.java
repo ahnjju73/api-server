@@ -71,4 +71,11 @@ public class DemandLeaseHandler {
                         .map(demandLeaseService::returnData), Map.class);
     }
 
+    public Mono<ServerResponse> checkHoliday(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> demandLeaseService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(demandLeaseService::checkHoliday)
+                        .map(demandLeaseService::returnData), Boolean.class);
+    }
 }
