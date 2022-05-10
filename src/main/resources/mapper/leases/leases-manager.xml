@@ -188,7 +188,7 @@
              join bikes bm on lm.bike_no = bm.bike_no
              join clients cm on lm.client_no = cm.client_no
              join client_info ci on cm.client_no = ci.client_no
-             join groups g on g.group_no = cm.group_no
+             join `groups` g on g.group_no = cm.group_no
              join insurances ins on lm.insurance_no = ins.insurance_no
              join releases rls on lm.release_no = rls.release_no
              join bike_user_mst cum on cum.user_no = lm.created_user_no
@@ -277,7 +277,7 @@
             join lease_price lp on lm.lease_no = lp.lease_no
             join clients cm on lm.client_no = cm.client_no
             join client_info ci on cm.client_no = ci.client_no
-            join groups g on g.group_no = cm.group_no
+            join `groups` g on g.group_no = cm.group_no
             join insurances ins on lm.insurance_no = ins.insurance_no
             join releases rls on lm.release_no = rls.release_no
             join bike_user_mst cum on cum.user_no = lm.created_user_no
