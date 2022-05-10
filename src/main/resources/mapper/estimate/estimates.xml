@@ -144,7 +144,7 @@
                                   join shop_info si on si.shop_no = est.shop_no
                                   join client_info ci on ci.client_no = est.client_no
                                   join bikes b on est.bike_no = b.bike_no
-                                 where status != '1'
+                                 where 1 = 1
                                 <if test="keyword != null and keyword != '' and keyword != 'undefined'">
                                    and (ci.name like concat('%', #{keyword}, '%') or b.number like concat('%', #{keyword}, '%') or si.name like concat('%', #{keyword}, '%'))
                                 </if>
@@ -168,8 +168,7 @@
         select count(ee.estimate_id)
           from (select e.*
                   from ((select *
-                           from estimates
-                          where status != '1')e
+                           from estimates)e
                    join bikes b on b.bike_no = e.bike_no
                    join client_info ci on ci.client_no = e.client_no
                    join shop_info si on si.shop_no = e.shop_no
