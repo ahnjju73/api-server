@@ -152,7 +152,6 @@
                                        left outer join `groups` g on c.group_no = g.group_no
                                        join bikes b on est.bike_no = b.bike_no
                                  where 1 = 1
-                                   and est.deleted_at is null
                                 <if test="keyword != null and keyword != '' and keyword != 'undefined'">
                                    and (ci.name like concat('%', #{keyword}, '%') or b.number like concat('%', #{keyword}, '%') or si.name like concat('%', #{keyword}, '%'))
                                 </if>
@@ -258,6 +257,7 @@
                           from (select *
                                   from estimates
                                  where 1 = 1
+                                   and est.deleted_at is null
                                  <if test="client_no != null">
                                    and client_no = ${client_no}
                                  </if>
