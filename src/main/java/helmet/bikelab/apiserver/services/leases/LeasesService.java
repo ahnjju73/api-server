@@ -1058,6 +1058,7 @@ public class LeasesService extends SessService {
                         CopyObjectRequest objectRequest = new CopyObjectRequest(presignedURLVo.getBucket(), presignedURLVo.getFileKey(), ENV.AWS_S3_ORIGIN_BUCKET, fileKey);
                         amazonS3.copyObject(objectRequest);
                         ModelLeaseAttachment leaseAttachment = new ModelLeaseAttachment();
+                        leaseAttachment.setUuid(UUID.randomUUID().toString().replaceAll("-", ""));
                         leaseAttachment.setDomain(ENV.AWS_S3_ORIGIN_DOMAIN);
                         leaseAttachment.setUri("/" + fileKey);
                         leaseAttachment.setFileName(presignedURLVo.getFilename());
@@ -1100,7 +1101,18 @@ public class LeasesService extends SessService {
 //    }
 
 
+    @Transactional
+    public BikeSessionRequest deleteAttachments(BikeSessionRequest request){
+        Map param = request.getParam();
+        String leaseId = (String) param.get("lease_id");
+        LeaseAttachments attachments = leaseAttachmentRepository.findByLease_LeaseId(leaseId);
+        for (ModelLeaseAttachment modelLeaseAttachment : attachments.getAttachmentsList()) {
 
+        }
+
+
+        return request;
+    }
 
 
 

@@ -19,6 +19,7 @@ import java.util.UUID;
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 @Embeddable
 public class ModelLeaseAttachment {
+    private String uuid;
     private String uri;
     private String domain;
     private String fileName;

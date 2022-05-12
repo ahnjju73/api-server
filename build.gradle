@@ -82,6 +82,8 @@ dependencies {
 
     compile group: 'commons-io', name: 'commons-io', version: '2.4'
 
+    implementation group: 'com.ibm.icu', name: 'icu4j', version: '51.1'
+
 
     /*
      * Test Compile
