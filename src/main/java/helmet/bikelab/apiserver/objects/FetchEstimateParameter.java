@@ -41,6 +41,7 @@ public class FetchEstimateParameter extends RequestListDto {
     private String searchBikeNo;
     private String searchStartAt;
     private String searchEndAt;
+    private String limited = "limited";
 
     public void setSearchShopNo(Shops shop) {
         if(bePresent(shop)) this.searchShopNo = shop.getShopNo().toString();

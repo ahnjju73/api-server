@@ -147,8 +147,10 @@
           from (select *
                   from estimates
                  where 1 = 1
-                <if test="next_token != null and next_token != '' and next_token != 'undefined'">
-                   and estimate_no <![CDATA[ < ]]> #{next_token}
+                <if test="limited != null and limited != '' and limited != 'undefined' and limited = 'limited'">
+                    <if test="next_token != null and next_token != '' and next_token != 'undefined'">
+                        and estimate_no <![CDATA[ < ]]> #{next_token}
+                    </if>
                 </if>
                 <if test="search_estimate_id != null and search_estimate_id != '' and search_estimate_id != 'undefined'">
                     and estimate_id like concat("%", #{search_estimate_id}, "%")
@@ -171,7 +173,10 @@
                 <if test="search_start_at != null and search_start_at != '' and search_start_at != 'undefined' and search_end_at != null and search_end_at != '' and search_end_at != 'undefined'">
                     and created_at between concat(#{search_start_at}, ' 00:00:00') and concat(#{search_end_at}, ' 23:59:59')
                 </if>
-                order by estimate_no desc limit 30
+                order by estimate_no desc
+                <if test="limited != null and limited != '' and limited != 'undefined' and limited = 'limited'">
+                    limit 30
+                </if>
                ) e
                join shops s on e.shop_no = s.shop_no
                join shop_info si on s.shop_no = si.shop_no

@@ -44,6 +44,16 @@ public class EstimateService extends SessService {
     private final ShopsRepository shopsRepository;
     private final BikesRepository bikesRepository;
 
+    public BikeSessionRequest excelDownloadEstimates(BikeSessionRequest request){
+        Map param = request.getParam();
+        EstimateRequestListDto estimateRequestListDto = map(param, EstimateRequestListDto.class);
+        FetchEstimateParameter fetchEstimateParameter = setRequestParamOfFetchingEstimate(estimateRequestListDto);
+        Map data = map(fetchEstimateParameter, HashMap.class);
+        List list = getList("estimate.estimates.fetchEstimateList", data);
+        request.setResponse(list);
+        return request;
+    }
+
     public BikeSessionRequest fetchEstimates(BikeSessionRequest request){
         Map param = request.getParam();
         EstimateRequestListDto estimateRequestListDto = map(param, EstimateRequestListDto.class);
