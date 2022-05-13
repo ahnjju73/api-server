@@ -181,8 +181,8 @@
                     limit 30
                 </if>
                ) e
-               join riders r on r.rider_no = e.rider_no
-               join rider_info ri on ri.rider_no = e.rider_no
+               left outer join riders r on r.rider_no = e.rider_no
+               left outer join rider_info ri on ri.rider_no = e.rider_no
                join shops s on e.shop_no = s.shop_no
                join shop_info si on s.shop_no = si.shop_no
                left outer join clients c on e.client_no = c.client_no
