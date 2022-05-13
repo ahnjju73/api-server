@@ -114,7 +114,6 @@ public class BikePartsService extends SessService {
     public BikeSessionRequest generatePresignedUrl(BikeSessionRequest request){
         Map param = request.getParam();
         String filename = (String)param.get("filename");
-        String extension = (String)param.get("extension");
         PresignedURLVo presignedURLVo = commonWorker.generatePreSignedUrl(filename, null);
         request.setResponse(presignedURLVo);
         return request;
