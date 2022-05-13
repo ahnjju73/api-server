@@ -69,6 +69,16 @@ public class EstimatesHandler {
                         .map(estimateService::fetchEstimates)
                         .map(estimateService::returnData), ResponseListDto.class);
     }
+
+    public Mono<ServerResponse> excelDownloadEstimates(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> estimateService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(estimateService::checkBikeSession)
+                        .map(estimateService::excelDownloadEstimates)
+                        .map(estimateService::returnData), List.class);
+    }
+
     public Mono<ServerResponse> fetchReviewList(ServerRequest request) {
         return ServerResponse.ok().body(
                 Mono.fromSupplier(() -> estimateService.makeSessionRequest(request, BikeSessionRequest.class))
