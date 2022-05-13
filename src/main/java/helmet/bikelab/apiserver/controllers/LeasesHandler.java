@@ -210,4 +210,15 @@ public class LeasesHandler {
                         .map(leasesService::addAttachments)
                         .map(leasesService::returnData), Map.class);
     }
+
+    public Mono<ServerResponse> deleteAttachment(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> leasesService.makeSessionRequest(request, row , BikeSessionRequest.class))
+                        .map(req -> leasesService.getPathVariable(req, "lease_id"))
+                        .map(leasesService::checkBikeSession)
+                        .map(leasesService::deleteAttachments)
+                        .map(leasesService::returnData), Map.class);
+    }
 }

@@ -369,6 +369,9 @@ public class LeasesService extends SessService {
         if(!bePresent(extensionIndexByLeaseNo)) extensionIndexByLeaseNo = 0;
         fetchLeasesResponse.setExtension(extensionIndexByLeaseNo);
 
+        LeaseAttachments byLease_leaseId = leaseAttachmentRepository.findByLease_LeaseId(lease.getLeaseId());
+        fetchLeasesResponse.setAttachments(byLease_leaseId.getAttachmentsList());
+
         response.put("lease", fetchLeasesResponse);
         request.setResponse(response);
         return request;
@@ -1033,9 +1036,9 @@ public class LeasesService extends SessService {
     public BikeSessionRequest generatePreSignedURLToUploadLeaseFile(BikeSessionRequest request) {
         Map param = request.getParam();
         LeasesDto leasesDto = map(param, LeasesDto.class);
-        Leases lease = leaseRepository.findByLeaseId(leasesDto.getLeaseId());
         String filename = leasesDto.getFilename().substring(0, leasesDto.getFilename().lastIndexOf("."));
-        PresignedURLVo presignedURLVo = commonWorker.generatePreSignedUrl(filename, null);
+        String extension = leasesDto.getFilename().substring(leasesDto.getFilename().lastIndexOf(".") + 1);
+        PresignedURLVo presignedURLVo = commonWorker.generatePreSignedUrl(filename, extension);
         request.setResponse(presignedURLVo);
         return request;
     }
@@ -1105,12 +1108,25 @@ public class LeasesService extends SessService {
     public BikeSessionRequest deleteAttachments(BikeSessionRequest request){
         Map param = request.getParam();
         String leaseId = (String) param.get("lease_id");
+        String uuid = (String) param.get("uuid");
         LeaseAttachments attachments = leaseAttachmentRepository.findByLease_LeaseId(leaseId);
-        for (ModelLeaseAttachment modelLeaseAttachment : attachments.getAttachmentsList()) {
-
+        List<ModelLeaseAttachment> attachmentsList = attachments.getAttachmentsList();
+        String removedUrl = "";
+        for (int i = 0; i < attachmentsList.size(); i++) {
+            if(attachmentsList.get(i).getUuid().equals(uuid)){
+                ModelLeaseAttachment remove = attachmentsList.remove(i);
+                removedUrl = remove.getDomain() + remove.getUri();
+                break;
+            }
         }
-
-
+        if(!"".equals(removedUrl)) {
+            AmazonS3 amazonS3 = AmazonS3Client.builder()
+                    .withRegion(Regions.AP_NORTHEAST_2)
+                    .withCredentials(AmazonUtils.awsCredentialsProvider())
+                    .build();
+            amazonS3.deleteObject(ENV.AWS_S3_ORIGIN_BUCKET, removedUrl);
+            leaseAttachmentRepository.save(attachments);
+        }
         return request;
     }
 
