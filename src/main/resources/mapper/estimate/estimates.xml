@@ -146,7 +146,7 @@
                si.name as shop_name
           from (select *
                   from estimates
-                 where 1 = 1
+                 where 1=1 and deleted_at is null
                 <if test="limited != null and limited != '' and limited != 'undefined' and limited = 'limited'">
                     <if test="next_token != null and next_token != '' and next_token != 'undefined'">
                         and estimate_no <![CDATA[ < ]]> #{next_token}
@@ -177,6 +177,7 @@
                 <if test="limited != null and limited != '' and limited != 'undefined' and limited = 'limited'">
                     limit 30
                 </if>
+
                ) e
                join shops s on e.shop_no = s.shop_no
                join shop_info si on s.shop_no = si.shop_no
@@ -191,7 +192,7 @@
         select count(*)
           from (select *
                   from estimates
-                 where 1 = 1
+                 where 1=1 and deleted_at is null
                 <if test="next_token != null and next_token != '' and next_token != 'undefined'">
                     and estimate_no <![CDATA[ < ]]> #{next_token}
                 </if>
@@ -321,7 +322,7 @@
     <select id="countUnpaidEstimateList" parameterType="hmap" resultType="int">
         select count(*)
           from estimates
-        where 1 = 1
+        where deleted_at is null
         <if test="client_no != null">
           and client_no = ${client_no}
         </if>
