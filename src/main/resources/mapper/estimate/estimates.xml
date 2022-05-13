@@ -76,6 +76,7 @@
     </resultMap>
     <resultMap id="riderMap" type="hmap">
         <result property="rider_no" column="rider_no"/>
+        <result property="rider_id" column="rider_id"/>
         <result property="rider_name" column="name"/>
         <result property="rider_phone" column="phone"/>
     </resultMap>
@@ -143,7 +144,9 @@
                e.status,
                e.deleted_at,
                shop_id,
-               si.name as shop_name
+               si.name as shop_name,
+               r.rider_id,
+               ri.name as name
           from (select *
                   from estimates
                  where 1 = 1
@@ -178,6 +181,8 @@
                     limit 30
                 </if>
                ) e
+               join riders r on r.rider_no = e.rider_no
+               join rider_info ri on ri.rider_no = e.rider_no
                join shops s on e.shop_no = s.shop_no
                join shop_info si on s.shop_no = si.shop_no
                left outer join clients c on e.client_no = c.client_no

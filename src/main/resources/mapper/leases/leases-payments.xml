@@ -226,7 +226,7 @@
                                              from lease_payments
                                             where 1 = 1
                                             <if test="start_at != null and start_at != '' and start_at != 'undefined' and end_at != null and end_at != '' and end_at != 'undefined'">
-                                              and payment_date between #{end_at} and #{start_at}
+                                              and payment_date between #{start_at} and #{end_at}
                                             </if>) lp on lm.lease_no = lp.lease_no
                                      join (select *
                                              from lease_extra
