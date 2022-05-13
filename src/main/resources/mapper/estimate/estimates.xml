@@ -192,9 +192,6 @@
           from (select *
                   from estimates
                  where 1 = 1
-                <if test="next_token != null and next_token != '' and next_token != 'undefined'">
-                    and estimate_no <![CDATA[ < ]]> #{next_token}
-                </if>
                 <if test="search_estimate_id != null and search_estimate_id != '' and search_estimate_id != 'undefined'">
                     and estimate_id like concat("%", #{search_estimate_id}, "%")
                 </if>
