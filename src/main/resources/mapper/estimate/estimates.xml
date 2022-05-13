@@ -103,7 +103,9 @@
         <result property="client_id" column="client_id"/>
         <result property="client_name" column="client_name"/>
         <result property="client_no" column="client_no"/>
+        <result property="deleted_at" column="deleted_at"/>
         <result property="group_name" column="group_name"/>
+        <result property="group_id" column="group_id"/>
         <collection property="bike" javaType="hmap" resultMap="bikeMap"/>
         <collection property="rider" javaType="hmap" resultMap="riderMap"/>
         <collection property="shop" javaType="hmap" resultMap="shopMap"/>
@@ -141,11 +143,15 @@
                                        b.car_model as model_code,
                                        b.number as bike_num,
                                        b.bike_id,
-                                       b.car_model
+                                       b.car_model,
+                                       g.group_name,
+                                       g.group_id
                                   from estimates est
-                                  join shop_info si on si.shop_no = est.shop_no
-                                  join client_info ci on ci.client_no = est.client_no
-                                  join bikes b on est.bike_no = b.bike_no
+                                       join shop_info si on si.shop_no = est.shop_no
+                                       left outer join clients c on est.client_no = c.client_no
+                                       left outer join client_info ci on ci.client_no = c.client_no
+                                       left outer join `groups` g on c.group_no = g.group_no
+                                       join bikes b on est.bike_no = b.bike_no
                                  where 1 = 1
                                 <if test="keyword != null and keyword != '' and keyword != 'undefined'">
                                    and (ci.name like concat('%', #{keyword}, '%') or b.number like concat('%', #{keyword}, '%') or si.name like concat('%', #{keyword}, '%'))
@@ -244,13 +250,16 @@
                ri.name,
                si.name as shop_name,
                si.shop_no,
-               ci.name as client_name
+               ci.name as client_name,
+               g.group_name,
+               g.group_id
           from (select *
                   from (select @rownum:=@rownum+1 as rownum,
                                e.*
                           from (select *
                                   from estimates
                                  where 1 = 1
+                                   and est.deleted_at is null
                                  <if test="client_no != null">
                                    and client_no = ${client_no}
                                  </if>
@@ -263,7 +272,9 @@
                                    and rownum <![CDATA[ > ]]> #{next_token}
                                  </if>
                                  order by rownum limit 30) main
-          join client_info ci on ci.client_no = main.client_no
+          join clients c on c.client_no = main.client_no
+          join client_info ci on ci.client_no = c.client_no
+          join `groups` g on g.group_no = c.group_no
           join bikes b on main.bike_no = b.bike_no
           join com_comm_bikes bm on b.car_model = bm.comm_cd
           left outer join estimate_parts ep on ep.estimate_no = main.estimate_no
