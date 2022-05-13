@@ -1,25 +1,24 @@
 package helmet.bikelab.apiserver.services;
 
-import helmet.bikelab.apiserver.domain.CommonBikes;
-import helmet.bikelab.apiserver.domain.EstimateParts;
 import helmet.bikelab.apiserver.domain.Estimates;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.client.Clients;
+import helmet.bikelab.apiserver.domain.riders.Riders;
+import helmet.bikelab.apiserver.domain.shops.Shops;
 import helmet.bikelab.apiserver.domain.types.EstimateStatusTypes;
-import helmet.bikelab.apiserver.objects.BikeDto;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
-import helmet.bikelab.apiserver.objects.EstimateDto;
+import helmet.bikelab.apiserver.objects.FetchEstimateParameter;
 import helmet.bikelab.apiserver.objects.bikelabs.clients.ClientDto;
 import helmet.bikelab.apiserver.objects.requests.EstimateRequestListDto;
 import helmet.bikelab.apiserver.objects.requests.FetchUnpaidEstimatesRequest;
 import helmet.bikelab.apiserver.objects.requests.PageableRequest;
-import helmet.bikelab.apiserver.objects.requests.RequestListDto;
 import helmet.bikelab.apiserver.objects.responses.EstimateByIdResponse;
 import helmet.bikelab.apiserver.objects.responses.FetchUnpaidEstimateResponse;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.repositories.*;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.workers.BikeWorker;
+import helmet.bikelab.apiserver.workers.ClientWorker;
 import helmet.bikelab.apiserver.workers.CommonWorker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -35,20 +34,48 @@ import java.util.*;
 @RequiredArgsConstructor
 public class EstimateService extends SessService {
     private final EstimatesRepository estimatesRepository;
-    private final EstimateAttachmentRepository estimateAttachmentRepository;
     private final ClientsRepository clientsRepository;
     private final CommonWorker commonWorker;
     private final EstimatePartsRepository estimatePartsRepository;
     private final LeaseRepository leaseRepository;
     private final BikeWorker bikeWorker;
+    private final ClientWorker clientWorker;
+    private final RiderRepository riderRepository;
+    private final ShopsRepository shopsRepository;
+    private final BikesRepository bikesRepository;
 
     public BikeSessionRequest fetchEstimates(BikeSessionRequest request){
         Map param = request.getParam();
-        EstimateRequestListDto requestListDto = map(param, EstimateRequestListDto.class);
-        requestListDto.setKeyword((String) param.get("keyword"));
-        ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "estimate.estimates.fetchEstimateList", "estimate.estimates.countEstimateList", "rownum");
+        EstimateRequestListDto estimateRequestListDto = map(param, EstimateRequestListDto.class);
+        FetchEstimateParameter fetchEstimateParameter = setRequestParamOfFetchingEstimate(estimateRequestListDto);
+        ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(fetchEstimateParameter, "estimate.estimates.fetchEstimateList", "estimate.estimates.countEstimateList", "rownum");
         request.setResponse(responseListDto);
         return request;
+    }
+
+    private FetchEstimateParameter setRequestParamOfFetchingEstimate(EstimateRequestListDto estimateRequestListDto) {
+        FetchEstimateParameter fetchEstimateParameter = new FetchEstimateParameter(estimateRequestListDto);
+        if(bePresent(estimateRequestListDto.getGroupId())){
+            List<Clients> clientListByGroupId = clientWorker.getClientListByGroupId(estimateRequestListDto.getGroupId());
+            fetchEstimateParameter.setSearchClientNo(clientListByGroupId);
+        }
+        if(bePresent(estimateRequestListDto.getClientId())){
+            Clients byClientId = clientsRepository.findByClientId(estimateRequestListDto.getClientId());
+            fetchEstimateParameter.setSearchClientNo(byClientId);
+        }
+        if(bePresent(estimateRequestListDto.getRiderId())){
+            Riders byRiderId = riderRepository.findByRiderId(estimateRequestListDto.getRiderId());
+            fetchEstimateParameter.setSearchRiderNo(byRiderId);
+        }
+        if(bePresent(estimateRequestListDto.getShopId())){
+            Shops byShopId = shopsRepository.findByShopId(estimateRequestListDto.getShopId());
+            fetchEstimateParameter.setSearchShopNo(byShopId);
+        }
+        if(bePresent(estimateRequestListDto.getBikeNumber())){
+            Bikes byCarNum = bikesRepository.findByCarNum(estimateRequestListDto.getBikeNumber());
+            fetchEstimateParameter.setSearchBikeNo(byCarNum);
+        }
+        return fetchEstimateParameter;
     }
 
     public BikeSessionRequest fetchUnpaidEstimates(BikeSessionRequest request){
