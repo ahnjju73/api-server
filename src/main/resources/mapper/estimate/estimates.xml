@@ -103,6 +103,7 @@
         <result property="client_id" column="client_id"/>
         <result property="client_name" column="client_name"/>
         <result property="client_no" column="client_no"/>
+        <result property="group_name" column="group_name"/>
         <collection property="bike" javaType="hmap" resultMap="bikeMap"/>
         <collection property="rider" javaType="hmap" resultMap="riderMap"/>
         <collection property="shop" javaType="hmap" resultMap="shopMap"/>
@@ -128,7 +129,8 @@
                p.*,
                r.*,
                ri.name,
-               cc.client_id
+               cc.client_id,
+               g.group_name
           from (select *,
                        convert(row_num, CHAR) as rownum
                   from (select @rownum:=@rownum+1 as row_num,
@@ -162,6 +164,7 @@
           left outer join rider_info ri on ri.rider_no = r.rider_no
           join shops s on s.shop_no = main.shop_no
           join clients cc on cc.client_no = main.client_no
+          join groups g on g.group_no = cc.group_no
     </select>
 
     <select id="countEstimateList" parameterType="hmap" resultType="int">
