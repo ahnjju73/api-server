@@ -416,7 +416,7 @@
                   order by rownum limit 30) main
                 join clients c on main.client_no = c.client_no
                 join client_info ci on c.client_no = ci.client_no
-                join bikes b on main.bike_no = b.bike_no and b.bike_id not in (SELECT val FROM system_parameters where parameter_no = 0)
+                join bikes b on main.bike_no = b.bike_no
                 join com_comm_bikes bm on b.car_model = bm.comm_cd
          order by main.rownum
     </select>
@@ -478,9 +478,6 @@
               join clients c on main.client_no = c.client_no
               join client_info ci on c.client_no = ci.client_no
               join bikes b on main.bike_no = b.bike_no
-                          and b.bike_id not in (SELECT val
-                                                  FROM system_parameters
-                                                 where parameter_no = 0)
               join com_comm_bikes bm on b.car_model = bm.comm_cd
         order by main.rownum
     </select>
@@ -636,7 +633,6 @@
           join clients c on main.client_no = c.client_no
           join client_info ci on c.client_no = ci.client_no
           join bikes b on main.bike_no = b.bike_no
-                      and b.bike_id not in (SELECT val FROM system_parameters where parameter_no = 0)
           join com_comm_bikes bm on b.car_model = bm.comm_cd
          order by main.rownum
     </select>
