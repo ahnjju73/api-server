@@ -7,7 +7,8 @@
 
     <select id="countAllRiders" parameterType="hmap" resultType="int">
         select count(*)
-          from riders
+          from riders r
+          join rider_info ri on r.rider_no = ri.rider_no
          where 1 = 1
         <if test="condition_status != null and condition_status != '' and condition_status != 'undefined'">
            and status = #{condition_status}
@@ -17,13 +18,15 @@
            email like concat('%', #{condition}, '%')
            or phone like concat('%', #{condition}, '%')
            or rider_id like concat('%', #{condition}, '%')
+           or ri.name like concat('%', #{condition}, '%')
            )
         </if>
     </select>
 
     <select id="countAllRidersVerified" parameterType="hmap" resultType="int">
         select count(*)
-          from riders
+          from riders r
+          join rider_info ri on ri.rider_no = r.rider_no
          where verified_request_at is not null
         <if test="condition_status != null and condition_status != '' and condition_status != 'undefined'">
            and status = #{condition_status}
@@ -33,6 +36,7 @@
            email like concat('%', #{condition}, '%')
            or phone like concat('%', #{condition}, '%')
            or rider_id like concat('%', #{condition}, '%')
+           or name like concat('%', #{condition}, '%')
            )
         </if>
     </select>
@@ -40,6 +44,7 @@
     <select id="countAllRidersLeaseRequested" parameterType="hmap" resultType="int">
         select count(*)
           from riders r
+          join rider_info ri on ri.rider_no = r.rider_no
           join rider_demand_leases rdl on rdl.rider_no = r.rider_no
         <if test="condition_status != null and condition_status != '' and condition_status != 'undefined'">
            and status = #{condition_status}
@@ -52,7 +57,8 @@
            email like concat('%', #{condition}, '%')
            or phone like concat('%', #{condition}, '%')
            or rider_id like concat('%', #{condition}, '%')
-           )
+           or name like concat('%', #{condition}, '%')
+            )
         </if>
     </select>
 
@@ -61,14 +67,16 @@
                status as rider_status,
                email as rider_email,
                phone as rider_phone,
-               ri.name as rider_name,
+               r.name as rider_name,
                r.rider_no,
                r.created_at,
                r.uuid as edp_id,
                r.front_ssn as birth_date,
                if(b.rider_no is null, 0, bikes) bikes_count
-        from (select *
-              from riders
+        from (select rid.*,
+                     ri.name
+              from riders rid
+              join rider_info ri on ri.rider_no = rid.rider_no
              where 1 = 1
             <if test="next_token != null and next_token != '' and next_token != 'undefined'">
                and rider_id <![CDATA[ < ]]> #{next_token}
@@ -81,10 +89,10 @@
                 email like concat('%', #{condition}, '%')
                 or phone like concat('%', #{condition}, '%')
                 or rider_id like concat('%', #{condition}, '%')
-               )
+                or name like concat('%', #{condition}, '%')
+                )
             </if>
              order by rider_id desc) r
-             join rider_info ri on r.rider_no = ri.rider_no
              join rider_demand_leases rdl on rdl.rider_no = r.rider_no
                                       <if test="status != null and status != '' and status != 'undefined'">
                                          and rdl.demand_lease_status = #{status}
@@ -101,14 +109,15 @@
                status as rider_status,
                email as rider_email,
                phone as rider_phone,
-               ri.name as rider_name,
+               r.name as rider_name,
                r.rider_no,
                r.created_at,
                r.uuid as edp_id,
                r.front_ssn as birth_date,
                if(b.rider_no is null, 0, bikes) bikes_count
         from (select *
-              from riders
+              from riders rid
+              join rider_info ri on rid.rider_no = ri.rider_no
               where verified_request_at is not null
             <if test="next_token != null and next_token != '' and next_token != 'undefined'">
                 and rider_id <![CDATA[ < ]]> #{next_token}
@@ -121,10 +130,10 @@
                 email like concat('%', #{condition}, '%')
                 or phone like concat('%', #{condition}, '%')
                 or rider_id like concat('%', #{condition}, '%')
+                or name like concat('%', #{condition}, '%')
                 )
             </if>
               order by rider_id desc limit 30) r
-                 join rider_info ri on r.rider_no = ri.rider_no
                  left outer join (select rider_no,
                                          count(*) bikes
                                   from bikes
@@ -137,14 +146,16 @@
                status as rider_status,
                email as rider_email,
                phone as rider_phone,
-               ri.name as rider_name,
+               r.name as rider_name,
                r.rider_no,
                r.created_at,
                r.uuid as edp_id,
                r.front_ssn as birth_date,
                if(b.rider_no is null, 0, bikes) bikes_count
-          from (select *
-                  from riders
+          from (select rid.*,
+                       ri.name
+                  from riders rid
+                  join rider_info ri on rid.rider_no = ri.rider_no
                  where 1 = 1
                  <if test="next_token != null and next_token != '' and next_token != 'undefined'">
                    and rider_id <![CDATA[ < ]]> #{next_token}
@@ -157,10 +168,10 @@
                     email like concat('%', #{condition}, '%')
                     or phone like concat('%', #{condition}, '%')
                     or rider_id like concat('%', #{condition}, '%')
+                    or name like concat('%', #{condition}, '%')
                    )
                  </if>
                  order by rider_id desc limit 30) r
-               join rider_info ri on r.rider_no = ri.rider_no
                left outer join (select rider_no,
                                        count(*) bikes
                                   from bikes
