@@ -370,7 +370,8 @@ public class LeasesService extends SessService {
         fetchLeasesResponse.setExtension(extensionIndexByLeaseNo);
 
         LeaseAttachments byLease_leaseId = leaseAttachmentRepository.findByLease_LeaseId(lease.getLeaseId());
-        fetchLeasesResponse.setAttachments(byLease_leaseId.getAttachmentsList());
+        if(bePresent(byLease_leaseId))
+            fetchLeasesResponse.setAttachments(byLease_leaseId.getAttachmentsList());
 
         response.put("lease", fetchLeasesResponse);
         request.setResponse(response);
