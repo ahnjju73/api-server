@@ -115,7 +115,8 @@
                r.uuid as edp_id,
                r.front_ssn as birth_date,
                if(b.rider_no is null, 0, bikes) bikes_count
-        from (select *
+        from (select rid.*,
+                     ri.name
               from riders rid
               join rider_info ri on rid.rider_no = ri.rider_no
               where verified_request_at is not null
