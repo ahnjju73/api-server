@@ -161,7 +161,7 @@
                              from lease_payments
                             where 1 = 1
                             <if test="start_at != null and start_at != '' and start_at != 'undefined' and end_at != null and end_at != '' and end_at != 'undefined'">
-                                and payment_date between #{end_at} and #{start_at}
+                                and payment_date between #{start_at} and #{end_at}
                             </if>) lp on lm.lease_no = lp.lease_no
                      join (select *
                            from lease_extra
@@ -226,7 +226,7 @@
                                              from lease_payments
                                             where 1 = 1
                                             <if test="start_at != null and start_at != '' and start_at != 'undefined' and end_at != null and end_at != '' and end_at != 'undefined'">
-                                              and payment_date between #{end_at} and #{start_at}
+                                              and payment_date between #{start_at} and #{end_at}
                                             </if>) lp on lm.lease_no = lp.lease_no
                                      join (select *
                                              from lease_extra
@@ -272,7 +272,7 @@
                          and `read_yn` = false
                         </if>
                         <if test="start_at != null and start_at != '' and start_at != 'undefined' and end_at != null and end_at != '' and end_at != 'undefined'">
-                         and payment_date between #{end_at} and #{start_at}
+                         and payment_date between #{start_at} and #{end_at}
                         </if>
                          and lease_fee <![CDATA[ > ]]> paid_fee) lp on l.lease_no = lp.lease_no
                 <if test="search_bike != null and search_bike != '' and search_bike != 'undefined'">
@@ -345,7 +345,7 @@
                                               and `read_yn` = false
                                             </if>
                                             <if test="start_at != null and start_at != '' and start_at != 'undefined' and end_at != null and end_at != '' and end_at != 'undefined'">
-                                              and payment_date between #{end_at} and #{start_at}
+                                              and payment_date between #{start_at} and #{end_at}
                                             </if>
                                               and lease_fee <![CDATA[ > ]]> paid_fee) lp on l.lease_no = lp.lease_no
                                order by lp.payment_date desc, lp.payment_id desc) main,
@@ -370,7 +370,7 @@
                   from (select *
                           from leases
                          where status = '550-003'
-                           and lease_stop_status in ('506-001', '506-003')
+                           -- and lease_stop_status in ('506-001', '506-003')
                            and contract_type in ('500-001')) l
                   join (select payment_id, lease_no
                           from lease_payments
@@ -401,7 +401,7 @@
                                                 client_no
                                            from leases
                                           where `status` = '550-003'
-                                            and lease_stop_status in ('506-001', '506-003')
+                                            -- and lease_stop_status in ('506-001', '506-003')
                                             and contract_type in ('500-001')) l
                                         join lease_payments lp on lp.lease_no = l.lease_no
                                                               and payment_date <![CDATA[ <= ]]> #{now}
@@ -416,7 +416,7 @@
                   order by rownum limit 30) main
                 join clients c on main.client_no = c.client_no
                 join client_info ci on c.client_no = ci.client_no
-                join bikes b on main.bike_no = b.bike_no and b.bike_id not in (SELECT val FROM system_parameters where parameter_no = 0)
+                join bikes b on main.bike_no = b.bike_no
                 join com_comm_bikes bm on b.car_model = bm.comm_cd
          order by main.rownum
     </select>
@@ -427,7 +427,7 @@
                   from (select *
                           from leases
                          where status = '550-003'
-                           and lease_stop_status in ('506-001', '506-003')
+                           -- and lease_stop_status in ('506-001', '506-003')
                            and contract_type in ('500-001')) l
                        join (select payment_id,
                                     lease_no,
@@ -460,7 +460,7 @@
                                                 client_no
                                            from leases
                                           where `status` = '550-003'
-                                            and lease_stop_status in ('506-001', '506-003')
+                                            -- and lease_stop_status in ('506-001', '506-003')
                                             and contract_type in ('500-001')) l
                                 join lease_payments lp on lp.lease_no = l.lease_no
                                                       and payment_date <![CDATA[ <= ]]> #{now}
@@ -478,9 +478,6 @@
               join clients c on main.client_no = c.client_no
               join client_info ci on c.client_no = ci.client_no
               join bikes b on main.bike_no = b.bike_no
-                          and b.bike_id not in (SELECT val
-                                                  FROM system_parameters
-                                                 where parameter_no = 0)
               join com_comm_bikes bm on b.car_model = bm.comm_cd
         order by main.rownum
     </select>
@@ -491,7 +488,7 @@
                   from (select *
                           from leases
                          where `status` = '550-003'
-                           and lease_stop_status in ('506-001', '506-003')
+                           -- and lease_stop_status in ('506-001', '506-003')
                            and contract_type in ('500-001'))l
                        join (select *
                                from lease_payments) lp on lp.lease_no = l.lease_no
@@ -517,7 +514,7 @@
                   from (select *
                           from leases
                          where `status` = '550-003'
-                           and lease_stop_status in ('506-001', '506-003')
+                           -- and lease_stop_status in ('506-001', '506-003')
                            and contract_type in ('500-001'))l
                        join lease_payments lp on l.lease_no = lp.lease_no
                                              and lease_fee <![CDATA[ > ]]> paid_fee
@@ -535,7 +532,7 @@
                   from (select *
                           from leases
                          where `status` = '550-003'
-                           and lease_stop_status in ('506-001', '506-003')
+                           -- and lease_stop_status in ('506-001', '506-003')
                            and contract_type in ('500-001'))l
                         join (select payment_no,
                                      payment_id,
@@ -568,7 +565,7 @@
                   from (select *
                  from  leases
                  where `status` = '550-003'
-                   and lease_stop_status in ('506-001', '506-003')
+                   -- and lease_stop_status in ('506-001', '506-003')
                    and contract_type in ('500-001'))l
                  join lease_extra le on l.lease_no = le.lease_no
                                     and le.extra_fee <![CDATA[ > ]]> le.paid_fee
@@ -588,7 +585,7 @@
               from (select *
                     from leases
                     where status = '550-003'
-                      and lease_stop_status in ('506-001', '506-003')
+                      -- and lease_stop_status in ('506-001', '506-003')
                       and contract_type = '500-002') l
               join (select payment_id, lease_no
                       from lease_payments
@@ -617,7 +614,7 @@
                                                 client_no
                                            from leases
                                           where `status` = '550-003'
-                                            and lease_stop_status in ('506-001', '506-003')
+                                            -- and lease_stop_status in ('506-001', '506-003')
                                             and contract_type = '500-002') l
                                            join lease_payments lp on lp.lease_no = l.lease_no
                                                                  and payment_date <![CDATA[ <= ]]> #{now}
@@ -636,7 +633,6 @@
           join clients c on main.client_no = c.client_no
           join client_info ci on c.client_no = ci.client_no
           join bikes b on main.bike_no = b.bike_no
-                      and b.bike_id not in (SELECT val FROM system_parameters where parameter_no = 0)
           join com_comm_bikes bm on b.car_model = bm.comm_cd
          order by main.rownum
     </select>
@@ -646,7 +642,7 @@
           from (select *
           from leases
          where status = '550-003'
-           and lease_stop_status in ('506-001', '506-003')
+           -- and lease_stop_status in ('506-001', '506-003')
            and contract_type in ('500-002')
          <if test="search_client_no != null">
            and client_no = #{search_client_no}
@@ -655,7 +651,7 @@
                   from lease_payments
                  where 1 = 1
                  <if test="start_at != null and start_at != '' and start_at != 'undefined' and end_at != null and end_at != '' and end_at != 'undefined'">
-                   and payment_date between #{end_at} and #{start_at}
+                   and payment_date between #{start_at} and #{end_at}
                  </if>) lp on lm.lease_no = lp.lease_no
           join (select *
                   from lease_extra
@@ -707,7 +703,7 @@
                                           from leases
                                          where status = '550-003'
                                            and contract_type in ('500-002')
-                                           and lease_stop_status in ('506-001', '506-003')
+                                           -- and lease_stop_status in ('506-001', '506-003')
                                          <if test="search_client_no != null">
                                            and client_no = #{search_client_no}
                                          </if>) lm
@@ -715,7 +711,7 @@
                                           from lease_payments
                                          where 1 = 1
                                          <if test="start_at != null and start_at != '' and start_at != 'undefined' and end_at != null and end_at != '' and end_at != 'undefined'">
-                                           and payment_date between #{end_at} and #{start_at}
+                                           and payment_date between #{start_at} and #{end_at}
                                          </if>) lp on lm.lease_no = lp.lease_no
                                   join (select *
                                           from lease_extra
