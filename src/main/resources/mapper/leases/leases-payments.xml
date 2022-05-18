@@ -577,7 +577,7 @@
                        lease_id,
                        l.client_no,
                        l.bike_no,
-                       l.bak_bike_no
+                       l.bak_bike_no,
                        sum(le.extra_fee) as extrafee,
                        sum(le.paid_fee) as paidfee,
                        sum(le.extra_fee - le.paid_fee) as unpaidfee
