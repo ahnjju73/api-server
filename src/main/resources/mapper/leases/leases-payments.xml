@@ -9,6 +9,8 @@
         <result property="bike_id" column="bike_id"/>
         <result property="bike_model" column="bike_model"/>
         <result property="bike_num" column="bike_num"/>
+        <result property="bak_bike_id" column="bak_bike_id"/>
+        <result property="bak_bike_num" column="bak_bike_num"/>
     </resultMap>
 
     <resultMap id="clientMap" type="hmap">
@@ -188,9 +190,9 @@
                c.reg_no as client_reg_no,
                if(ci.name is null, '', ci.name) as client_name,
                if(ci.phone is null, '', ci.phone) as client_phone,
-               b.bike_id,
+               if(b.bike_id in (SELECT val FROM system_parameters where parameter_no = 0), bak.bike_id, b.bike_id) as bike_id,
                b.vim_num,
-               b.number,
+               if(b.bike_id in (SELECT val FROM system_parameters where parameter_no = 0), bak.number, b.number) as number,
                cb.comm_nm as car_model,
                lp.payment_type,
                et.comm_nm as extra_type,
@@ -205,6 +207,7 @@
                                      lm.lease_no,
                                      lm.client_no,
                                      lm.bike_no,
+                                     lm.bak_bike_no,
                                      lp.payment_date,
                                      lp.payment_id,
                                      le.extra_id,
@@ -246,6 +249,7 @@
                  join clients c on main.client_no = c.client_no
                  join client_info ci on c.client_no = ci.client_no
                  join bikes b on main.bike_no = b.bike_no
+                 join bikes bak on bak.bike_no = main.bak_bike_no
                  join com_comm_bikes cb on b.car_model = cb.comm_cd
                  join (select *
                          from com_comm_mst
@@ -387,6 +391,8 @@
                c.client_id,
                ci.name as client_name,
                b.bike_id,
+               bak.bike_id as bak_bike_id,
+               bak.number as bak_bike_num,
                b.number as bike_num,
                bm.comm_cd as bike_model,
                bm.comm_cd as bike_model
@@ -398,7 +404,8 @@
                                    from (select lease_no,
                                                 lease_id,
                                                 bike_no,
-                                                client_no
+                                                client_no,
+                                                bak_bike_no
                                            from leases
                                           where `status` = '550-003'
                                             -- and lease_stop_status in ('506-001', '506-003')
@@ -417,6 +424,7 @@
                 join clients c on main.client_no = c.client_no
                 join client_info ci on c.client_no = ci.client_no
                 join bikes b on main.bike_no = b.bike_no
+                join bikes bak on bak.bike_no = main.bak_bike_no
                 join com_comm_bikes bm on b.car_model = bm.comm_cd
          order by main.rownum
     </select>
@@ -447,6 +455,8 @@
                ci.name as client_name,
                b.bike_id,
                b.number as bike_num,
+               bak.bike_id as bak_bike_id,
+               bak.number as bak_bike_num,
                bm.comm_cd as bike_model,
                bm.comm_cd as bike_model
           from (select *
@@ -457,7 +467,8 @@
                                    from (select lease_no,
                                                 lease_id,
                                                 bike_no,
-                                                client_no
+                                                client_no,
+                                                bak_bike_no
                                            from leases
                                           where `status` = '550-003'
                                             -- and lease_stop_status in ('506-001', '506-003')
@@ -478,6 +489,7 @@
               join clients c on main.client_no = c.client_no
               join client_info ci on c.client_no = ci.client_no
               join bikes b on main.bike_no = b.bike_no
+              join bikes bak on bak.bike_no = main.bak_bike_no
               join com_comm_bikes bm on b.car_model = bm.comm_cd
         order by main.rownum
     </select>
@@ -502,12 +514,15 @@
                b.bike_id,
                c.client_id,
                b.bike_id,
+               bak.bike_id as bak_bike_id,
+               bak.number as bak_bike_num,
                b.number,
                ci.name
           from (select l.lease_no,
                        lease_id,
                        l.client_no,
                        l.bike_no,
+                       l.bak_bike_no,
                        sum(lease_fee) as leasefee,
                        sum(paid_fee) as paidfee,
                        sum(lease_fee - paid_fee) as unpaidfee
@@ -524,6 +539,7 @@
               join clients c on c.client_no = lm.client_no
               join client_info ci on ci.client_no = c.client_no
               join bikes b on lm.bike_no = b.bike_no
+              join bikes bak on bak.bike_no = lm.bak_bike_no
     </select>
 
     <select id="countUnpaidExtraExcel" parameterType="hmap" resultType="int">
@@ -554,11 +570,14 @@
                c.client_id,
                b.bike_id,
                b.number,
+               bak.bike_id as bak_bike_id,
+               bak.number as bak_bike_num,
                ci.name
           from (select l.lease_no,
                        lease_id,
                        l.client_no,
                        l.bike_no,
+                       l.bak_bike_no
                        sum(le.extra_fee) as extrafee,
                        sum(le.paid_fee) as paidfee,
                        sum(le.extra_fee - le.paid_fee) as unpaidfee
@@ -577,6 +596,7 @@
                join clients c on c.client_no = lm.client_no
                join client_info ci on ci.client_no = c.client_no
                join bikes b on lm.bike_no = b.bike_no
+               join bikes bak on bak.bike_no = lm.bak_bike_no
     </select>
 
     <select id="countAllManagementLeasesUnpaidPayments" parameterType="hmap" resultType="int">
@@ -601,6 +621,8 @@
                ci.name as client_name,
                b.bike_id,
                b.number as bike_num,
+               bak.bike_id as bak_bike_id,
+               bak.number as bak_bike_num,
                bm.comm_cd as bike_model,
                bm.comm_cd as bike_model
           from (select *
@@ -611,7 +633,8 @@
                                    from (select lease_no,
                                                 lease_id,
                                                 bike_no,
-                                                client_no
+                                                client_no,
+                                                bak_bike_no
                                            from leases
                                           where `status` = '550-003'
                                             -- and lease_stop_status in ('506-001', '506-003')
@@ -633,6 +656,7 @@
           join clients c on main.client_no = c.client_no
           join client_info ci on c.client_no = ci.client_no
           join bikes b on main.bike_no = b.bike_no
+          join bikes bak on bak.bike_no = main.bak_bike_no
           join com_comm_bikes bm on b.car_model = bm.comm_cd
          order by main.rownum
     </select>
@@ -676,6 +700,8 @@
                b.bike_id,
                b.vim_num,
                b.number,
+               bak.bike_id as bak_bike_id,
+               bak.number as bak_bike_num,
                cb.comm_nm as car_model,
                lp.payment_type,
                et.comm_nm as extra_type,
@@ -690,6 +716,7 @@
                                        lm.lease_no,
                                        lm.client_no,
                                        lm.bike_no,
+                                       lm.bak_bike_no,
                                        lp.payment_date,
                                        lp.payment_id,
                                        le.extra_id,
@@ -731,6 +758,7 @@
           join clients c on main.client_no = c.client_no
           join client_info ci on c.client_no = ci.client_no
           join bikes b on main.bike_no = b.bike_no
+          join bikes bak on main.bak_bike_no = bak.bike_no
           join com_comm_bikes cb on b.car_model = cb.comm_cd
           join (select *
                   from com_comm_mst

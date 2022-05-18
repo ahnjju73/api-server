@@ -997,6 +997,7 @@ public class LeasesService extends SessService {
         lease.setStopFee(Math.round(stopFee));
         lease.setStopPaidFee(0L);
         lease.setStopReason(stopLeaseDto.getStopReason());
+        leasePaymentWorker.deletePaymentsFrom(lease.getLeaseId(), lease.getStopDt());
         if(lease.getBike().getRiderNo() != null)
             detachRiderFromBike(lease.getBike().getBikeId());
         leaseRepository.save(lease);
