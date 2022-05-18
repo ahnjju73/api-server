@@ -17,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -209,6 +210,14 @@ public class LeasePaymentWorker extends SessService {
         leasePayment.setInsertedUserNo(session.getUserNo());
         leasePayment.setLeaseFee(addUpdateLeaseRequest.getLeasePrice().getLeaseFee());
         return leasePayment;
+    }
+
+    public void deletePaymentsFrom(String leaseId, LocalDateTime date){
+        List<LeasePayments> payments = leasePaymentsRepository.findAllByLease_LeaseId(leaseId);
+        for(int i = 0; i < payments.size(); i++){
+            if(payments.get(i).getPaymentDate().isAfter(date.toLocalDate()))
+                leasePaymentsRepository.delete(payments.get(i));
+        }
     }
 
 }
