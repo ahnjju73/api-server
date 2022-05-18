@@ -227,7 +227,7 @@ public class LeasePaymentWorker extends SessService {
                     calendar.set(leasePayments.getPaymentEndDate().getYear(), leasePayments.getPaymentEndDate().getMonthValue() - 2 % 12, 1);
                     int numDays = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
                     if (diffDays <= numDays) {
-                        payments.get(i).setLeaseFee(payments.get(i).getLeaseFee() * diffDays / numDays);
+                        payments.get(i).setLeaseFee(payments.get(i).getLeaseFee() * getDiffDays(date.toLocalDate(), leasePayments.getPaymentDate()) / numDays);
                     } else
                         payments.get(i).setLeaseFee(0);
                 } else {
