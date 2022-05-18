@@ -166,7 +166,7 @@ public class ErrorGlobalHandler<T extends BusinessException> extends AbstractErr
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(new MediaType("application", "json", Charset.forName("UTF-8")));
                 HttpEntity entity = new HttpEntity(body, headers);
-                restTemplate.postForEntity(isMonitoring ? "https://hooks.slack.com/services/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" : "https://hooks.slack.com/services/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", entity, String.class);
+                restTemplate.postForEntity(isMonitoring ? "https://hooks.slack.com/services/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" : "https://hooks.slack.com/services/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", entity, String.class);
             }
         } catch (Exception e) {
             e.printStackTrace();
