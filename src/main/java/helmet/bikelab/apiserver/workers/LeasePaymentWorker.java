@@ -21,6 +21,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.Map;
 
@@ -34,6 +35,7 @@ public class LeasePaymentWorker extends SessService {
     private final BikeUserLogRepository bikeUserLogRepository;
     private final LeaseExtraRepository leaseExtraRepository;
     private final ClientsRepository clientsRepository;
+    private final LeaseRepository leaseRepository;
     private final AutoKey autoKey;
 
     public void payLeaseExtraFeeByExtraId(String extraId, BikeUser session) {
@@ -212,12 +214,34 @@ public class LeasePaymentWorker extends SessService {
         return leasePayment;
     }
 
-    public void deletePaymentsFrom(String leaseId, LocalDateTime date){
+    public void changeByStopLease(String leaseId, LocalDateTime date){
         List<LeasePayments> payments = leasePaymentsRepository.findAllByLease_LeaseId(leaseId);
+        Leases lease = leaseRepository.findByLeaseId(leaseId);
+        PaymentTypes type = lease.getLeasePrice().getType();
         for(int i = 0; i < payments.size(); i++){
-            if(payments.get(i).getPaymentDate().isAfter(date.toLocalDate()))
-                leasePaymentsRepository.delete(payments.get(i));
+            LeasePayments leasePayments = payments.get(i);
+            if(leasePayments.getPaymentDate().isAfter(date.toLocalDate())) {
+                if (type == PaymentTypes.MONTHLY) {
+                    int diffDays = getDiffDays(date.toLocalDate(), leasePayments.getPaymentDate());
+                    if (diffDays <= 31) {
+                        Calendar calendar = Calendar.getInstance();
+                        calendar.set(leasePayments.getPaymentDate().getYear(), leasePayments.getPaymentDate().getMonthValue() - 2 % 12, 1);
+                        int numDays = calendar.getActualMaximum(Calendar.DAY_OF_MONTH);
+                        payments.get(i).setLeaseFee(payments.get(i).getLeaseFee() * diffDays / numDays);
+                    } else
+                        payments.get(i).setLeaseFee(0);
+                } else {
+                    payments.get(i).setLeaseFee(0);
+                }
+            }
+            leasePaymentsRepository.save(payments.get(i));
         }
+    }
+
+    private int getDiffDays(LocalDate start, LocalDate end){
+        Long dayDiffL = ChronoUnit.DAYS.between(start,end);
+        int dayDiff = dayDiffL.intValue();
+        return dayDiff;
     }
 
 }

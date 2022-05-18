@@ -5,7 +5,6 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CopyObjectRequest;
 import helmet.bikelab.apiserver.domain.CommonBikes;
-import helmet.bikelab.apiserver.domain.bike.BikeAttachments;
 import helmet.bikelab.apiserver.domain.bike.BikeRidersBak;
 import helmet.bikelab.apiserver.domain.demands.DemandLeases;
 import helmet.bikelab.apiserver.domain.embeds.ModelLeaseAttachment;
@@ -33,7 +32,6 @@ import helmet.bikelab.apiserver.services.BikeUserTodoService;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.utils.AutoKey;
 import helmet.bikelab.apiserver.utils.PushComponent;
-import helmet.bikelab.apiserver.utils.Senders;
 import helmet.bikelab.apiserver.utils.Utils;
 import helmet.bikelab.apiserver.utils.amazon.AmazonUtils;
 import helmet.bikelab.apiserver.utils.keys.ENV;
@@ -44,7 +42,6 @@ import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.SimpleDateFormat;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -997,7 +994,7 @@ public class LeasesService extends SessService {
         lease.setStopFee(Math.round(stopFee));
         lease.setStopPaidFee(0L);
         lease.setStopReason(stopLeaseDto.getStopReason());
-        leasePaymentWorker.deletePaymentsFrom(lease.getLeaseId(), lease.getStopDt());
+        leasePaymentWorker.changeByStopLease(lease.getLeaseId(), lease.getStopDt());
         if(lease.getBike().getRiderNo() != null)
             detachRiderFromBike(lease.getBike().getBikeId());
         leaseRepository.save(lease);

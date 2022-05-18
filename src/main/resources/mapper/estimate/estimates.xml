@@ -294,7 +294,7 @@
                           from (select *
                                   from estimates
                                  where 1 = 1
-                                   and est.deleted_at is null
+                                   and deleted_at is null
                                  <if test="client_no != null">
                                    and client_no = ${client_no}
                                  </if>
