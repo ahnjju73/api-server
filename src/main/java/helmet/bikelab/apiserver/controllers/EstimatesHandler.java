@@ -87,4 +87,13 @@ public class EstimatesHandler {
                         .map(estimateService::fetchReviewsByShop)
                         .map(estimateService::returnData), Page.class);
     }
+
+    public Mono<ServerResponse> fetchEstimateAll(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> estimateService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(estimateService::checkBikeSession)
+                        .map(estimateService::fetchEstimateAll)
+                        .map(estimateService::returnData), List.class);
+    }
 }
