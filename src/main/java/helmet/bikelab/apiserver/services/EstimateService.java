@@ -48,6 +48,7 @@ public class EstimateService extends SessService {
         Map param = request.getParam();
         EstimateRequestListDto estimateRequestListDto = map(param, EstimateRequestListDto.class);
         FetchEstimateParameter fetchEstimateParameter = setRequestParamOfFetchingEstimate(estimateRequestListDto);
+        fetchEstimateParameter.setLimited(null);
         Map data = map(fetchEstimateParameter, HashMap.class);
         List list = getList("estimate.estimates.fetchEstimateList", data);
         request.setResponse(list);

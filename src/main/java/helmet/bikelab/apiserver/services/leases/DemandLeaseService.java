@@ -17,6 +17,7 @@ import helmet.bikelab.apiserver.repositories.*;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.utils.AutoKey;
 import helmet.bikelab.apiserver.utils.CalendarUtil;
+import helmet.bikelab.apiserver.workers.BikeWorker;
 import helmet.bikelab.apiserver.workers.DemandLeaseWorker;
 import helmet.bikelab.apiserver.workers.LeasesWorker;
 import lombok.RequiredArgsConstructor;
@@ -54,6 +55,7 @@ public class DemandLeaseService extends SessService {
     private final ExecutorService executorService;
     private final DemandLeaseSpecialTermsRepository demandLeaseSpecialTermsRepository;
     private final InsurancesRepository insurancesRepository;
+    private final BikeWorker bikeWorker;
 
     public BikeSessionRequest fetchAttachmentsByDemandLeaseId(BikeSessionRequest request){
         DemandLeaseByIdRequest demandLeaseByIdRequest = map(request.getParam(), DemandLeaseByIdRequest.class);
@@ -102,7 +104,7 @@ public class DemandLeaseService extends SessService {
         LocalDateTime contractingAt = demandLeaseById.getContractingAt();
         if(bePresent(contractingAt)){
             int min = (int)(ChronoUnit.MINUTES.between(contractingAt, LocalDateTime.now()));
-            if(min < 5) withException("803-002");
+//            if(min < 5) withException("803-002");
         }else {
             demandLeaseById.setContracted(DemandLeaseContractTypes.PENDING);
         }
@@ -132,8 +134,7 @@ public class DemandLeaseService extends SessService {
 
     @Transactional
     public void createLeaseContractsFromDemandLeases(DemandLeases demandLeaseById, BikeUser sessionUser, Map param){
-        String bikeId = (String)getItem("comm.common.getEmptyCar", param);
-        Bikes bike = bikesRepository.findByBikeId(bikeId);
+        Bikes bike = bikeWorker.getEmptyBikes();
         String insuranceId = (String)getItem("comm.common.getDefaultInsurance", param);
         Insurances insurance = insurancesRepository.findByInsuranceId(insuranceId);
         Integer cycleToLease = demandLeaseById.getAmounts();
