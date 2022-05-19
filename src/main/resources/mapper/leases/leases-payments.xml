@@ -249,7 +249,7 @@
                  join clients c on main.client_no = c.client_no
                  join client_info ci on c.client_no = ci.client_no
                  join bikes b on main.bike_no = b.bike_no
-                 join bikes bak on bak.bike_no = main.bak_bike_no
+                 left outer join bikes bak on bak.bike_no = main.bak_bike_no
                  join com_comm_bikes cb on b.car_model = cb.comm_cd
                  join (select *
                          from com_comm_mst
@@ -424,7 +424,7 @@
                 join clients c on main.client_no = c.client_no
                 join client_info ci on c.client_no = ci.client_no
                 join bikes b on main.bike_no = b.bike_no
-                join bikes bak on bak.bike_no = main.bak_bike_no
+                left outer join bikes bak on bak.bike_no = main.bak_bike_no
                 join com_comm_bikes bm on b.car_model = bm.comm_cd
          order by main.rownum
     </select>
@@ -539,7 +539,7 @@
               join clients c on c.client_no = lm.client_no
               join client_info ci on ci.client_no = c.client_no
               join bikes b on lm.bike_no = b.bike_no
-              join bikes bak on bak.bike_no = lm.bak_bike_no
+              left outer join bikes bak on bak.bike_no = lm.bak_bike_no
     </select>
 
     <select id="countUnpaidExtraExcel" parameterType="hmap" resultType="int">
@@ -596,7 +596,7 @@
                join clients c on c.client_no = lm.client_no
                join client_info ci on ci.client_no = c.client_no
                join bikes b on lm.bike_no = b.bike_no
-               join bikes bak on bak.bike_no = lm.bak_bike_no
+               left outer join bikes bak on bak.bike_no = lm.bak_bike_no
     </select>
 
     <select id="countAllManagementLeasesUnpaidPayments" parameterType="hmap" resultType="int">
@@ -656,7 +656,7 @@
           join clients c on main.client_no = c.client_no
           join client_info ci on c.client_no = ci.client_no
           join bikes b on main.bike_no = b.bike_no
-          join bikes bak on bak.bike_no = main.bak_bike_no
+          left outer join bikes bak on bak.bike_no = main.bak_bike_no
           join com_comm_bikes bm on b.car_model = bm.comm_cd
          order by main.rownum
     </select>
@@ -758,7 +758,7 @@
           join clients c on main.client_no = c.client_no
           join client_info ci on c.client_no = ci.client_no
           join bikes b on main.bike_no = b.bike_no
-          join bikes bak on main.bak_bike_no = bak.bike_no
+          left outer join bikes bak on main.bak_bike_no = bak.bike_no
           join com_comm_bikes cb on b.car_model = cb.comm_cd
           join (select *
                   from com_comm_mst
