@@ -22,7 +22,6 @@ public class EstimatesRouters {
                 .andRoute(PATCH("/estimates/pay-unpaid/{client_id}"), estimatesHandler::payUnpaidEstimatesByClients)
                 .andRoute(GET("/estimate/{estimate_id}"), estimatesHandler::fetchEstimate)
                 .andRoute(GET("/estimates"), estimatesHandler::fetchEstimateList)
-                .andRoute(GET("/estimates-all"), estimatesHandler::fetchEstimateAll)
                 .andRoute(GET("/estimates/excel"), estimatesHandler::excelDownloadEstimates)
                 ;
     }
