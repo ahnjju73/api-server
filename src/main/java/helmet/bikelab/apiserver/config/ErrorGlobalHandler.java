@@ -22,11 +22,13 @@ import org.springframework.http.codec.ServerCodecConfigurer;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.server.*;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Mono;
 
 import java.nio.charset.Charset;
 import java.time.LocalDateTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Component
 @Order(-2)
@@ -104,24 +106,27 @@ public class ErrorGlobalHandler<T extends BusinessException> extends AbstractErr
                 .body(Mono.just(response), Response.class);
     }
 
-    private <T extends Throwable> void errorToSlack(T exception){
-        StackTraceElement[] stackTrace = exception.getStackTrace();
-        StackTraceElement stackTraceElement =null;
-        if(stackTrace != null && stackTrace.length > 0){
-            stackTraceElement = stackTrace[0];
+    private <K extends Throwable> void errorToSlack(K exception){
+        if(exception instanceof ResponseStatusException){
+            ResponseStatusException responseStatusException = (ResponseStatusException) exception;
+            if(responseStatusException.getStatus().equals(HttpStatus.NOT_FOUND)) return;
         }
+        StackTraceElement[] stackTrace = exception.getStackTrace();
+
+        String className = Arrays.stream(stackTrace).map(elm -> elm.getFileName() + "(" + elm.getMethodName() + "::" + elm.getLineNumber() + ")").collect(Collectors.joining(" >\n"));
+
         Map<String, Object> params = new HashMap<>();
-        List block = new ArrayList<>();
+        List blocks = new ArrayList<>();
         Throwable[] suppressed = exception.getSuppressed();
-        block.add(ImmutableMap.of(
+        blocks.add(ImmutableMap.of(
                 "type", "section",
                 "text", ImmutableMap.of(
                         "type", "mrkdwn",
-                        "text", "[BACKOFFICE-API] *<https://backoffice.onus-biz.com/exception?q=" + stackTraceElement + "|" + exception.getClass().getSimpleName() + ">*\n" + (suppressed != null && suppressed.length > 0 ? suppressed[0].getMessage() : exception)
+                        "text", "[SERVICE-API] *<https://backoffice.onus-biz.com/exception?q=" + exception + "|" + exception.getClass().getSimpleName() + ">*\n" + (suppressed != null && suppressed.length > 0 ? suppressed[0].getMessage() : exception)
                 )
         ));
         List blockSecond = new ArrayList();
-        if(exception != null && exception.getMessage() != null && exception.getMessage() != ""){
+        if(exception != null && exception.getMessage() != null && !"".equals(exception.getMessage()) ){
             blockSecond.add(ImmutableMap.of(
                     "type", "section",
                     "text", ImmutableMap.of(
@@ -130,32 +135,24 @@ public class ErrorGlobalHandler<T extends BusinessException> extends AbstractErr
                     )
             ));
         }
-        List fieldList = new ArrayList();
-        fieldList.add(ImmutableMap.of(
-                "type", "mrkdwn",
-                "text", "* Class:*\n"+ (stackTraceElement != null ? stackTraceElement.getClassName() : "")
-        ));
-        fieldList.add(ImmutableMap.of(
-                "type", "mrkdwn",
-                "text", "* Method:*\n"+ (stackTraceElement != null ? stackTraceElement.getMethodName() : "")
-        ));
-        fieldList.add(ImmutableMap.of(
-                "type", "mrkdwn",
-                "text", "* Line num:*\n" + (stackTraceElement != null ? stackTraceElement.getLineNumber() : "")
-        ));
-        fieldList.add(ImmutableMap.of(
-                "type", "mrkdwn",
-                "text", "* Update:*\n" + LocalDateTime.now()
-        ));
-
         blockSecond.add(ImmutableMap.of(
                 "type", "section",
-                "fields", fieldList
+                "text", ImmutableMap.of(
+                        "type", "mrkdwn",
+                        "text", "* ClassName(Method):*\n" + className
+                )
+        ));
+        blockSecond.add(ImmutableMap.of(
+                "type", "section",
+                "text", ImmutableMap.of(
+                        "type", "mrkdwn",
+                        "text", "* Update:*\n" + LocalDateTime.now()
+                )
         ));
         blockSecond.add(ImmutableMap.of(
                 "type", "divider"
         ));
-        params.put("blocks", block);
+        params.put("blocks", blocks);
         params.put("attachments", Arrays.asList(ImmutableMap.of("blocks", blockSecond)));
         String body = "";
         try {
