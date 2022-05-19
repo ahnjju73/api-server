@@ -133,6 +133,7 @@
                b.number as bike_num,
                bm.comm_cd as model_code,
                bm.comm_nm as model_name,
+<<<<<<< HEAD
                client_id,
                ci.name as client_name,
                e.created_at,
@@ -149,6 +150,34 @@
                ri.name as name
           from (select *
                   from estimates
+=======
+               ep.* ,
+               p.*,
+               r.*,
+               ri.name,
+               cc.client_id
+          from (select *,
+                       convert(row_num, CHAR) as rownum
+                  from (select @rownum:=@rownum+1 as row_num,
+			                   e.*
+                          from (select est.*,
+                                       si.name as shop_name,
+                                       ci.name as client_name,
+                                       b.car_model as model_code,
+                                       b.number as bike_num,
+                                       b.bike_id,
+                                       b.car_model
+                                  from estimates est
+                                  join shop_info si on si.shop_no = est.shop_no
+                                  join client_info ci on ci.client_no = est.client_no
+                                  join bikes b on est.bike_no = b.bike_no
+                                 where 1 = 1
+                                <if test="keyword != null and keyword != '' and keyword != 'undefined'">
+                                   and (ci.name like concat('%', #{keyword}, '%') or b.number like concat('%', #{keyword}, '%') or si.name like concat('%', #{keyword}, '%'))
+                                </if>
+                                 order by estimate_no desc) e,
+                               (SELECT @rownum :=0) AS R) m
+>>>>>>> 34dba2ea4b1262145de2afdf73f612509630a112
                  where 1 = 1
                    and deleted_at is null
                     <if test="limited != null and limited != '' and limited != 'undefined' and limited = 'limited'">
