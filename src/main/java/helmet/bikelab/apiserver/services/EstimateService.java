@@ -207,8 +207,5 @@ public class EstimateService extends SessService {
     }
 
 
-    public BikeSessionRequest fetchEstimateAll(BikeSessionRequest request) {
-        request.setResponse(estimatesRepository.findAll());
-        return request;
-    }
+
 }
