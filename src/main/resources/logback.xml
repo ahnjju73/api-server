@@ -15,9 +15,8 @@
 
 <!--    <springProfile name="localhost">-->
         <root level="INFO">
-            <appender-ref ref="STDOUT" />
-
-	</root>
+<!--            <appender-ref ref="STDOUT" />-->
+        </root>
 <!--    </springProfile>-->
 
 </configuration>

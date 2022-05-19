@@ -20,6 +20,7 @@ public class EstimateRequestListDto extends RequestListDto{
     private String bikeNumber;
     private String startAt;
     private String endAt;
+    private String limited;
 
     public void setStatus(String status) {
         this.status = EstimateStatusTypes.getEstimateStatusTypes(status);
