@@ -5,7 +5,6 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CopyObjectRequest;
 import helmet.bikelab.apiserver.domain.CommonBikes;
-import helmet.bikelab.apiserver.domain.bike.BikeAttachments;
 import helmet.bikelab.apiserver.domain.bike.BikeRidersBak;
 import helmet.bikelab.apiserver.domain.demands.DemandLeases;
 import helmet.bikelab.apiserver.domain.embeds.ModelLeaseAttachment;
@@ -33,7 +32,6 @@ import helmet.bikelab.apiserver.services.BikeUserTodoService;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.utils.AutoKey;
 import helmet.bikelab.apiserver.utils.PushComponent;
-import helmet.bikelab.apiserver.utils.Senders;
 import helmet.bikelab.apiserver.utils.Utils;
 import helmet.bikelab.apiserver.utils.amazon.AmazonUtils;
 import helmet.bikelab.apiserver.utils.keys.ENV;
@@ -44,7 +42,6 @@ import org.hibernate.Hibernate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.text.SimpleDateFormat;
 import java.time.*;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
@@ -368,6 +365,10 @@ public class LeasesService extends SessService {
         Integer extensionIndexByLeaseNo = leaseExtensionsRepository.getExtensionIndexByLeaseNo(lease.getLeaseNo());
         if(!bePresent(extensionIndexByLeaseNo)) extensionIndexByLeaseNo = 0;
         fetchLeasesResponse.setExtension(extensionIndexByLeaseNo);
+
+        LeaseAttachments byLease_leaseId = leaseAttachmentRepository.findByLease_LeaseId(lease.getLeaseId());
+        if(bePresent(byLease_leaseId))
+            fetchLeasesResponse.setAttachments(byLease_leaseId.getAttachmentsList());
 
         response.put("lease", fetchLeasesResponse);
         request.setResponse(response);
@@ -993,6 +994,7 @@ public class LeasesService extends SessService {
         lease.setStopFee(Math.round(stopFee));
         lease.setStopPaidFee(0L);
         lease.setStopReason(stopLeaseDto.getStopReason());
+        leasePaymentWorker.changeByStopLease(lease.getLeaseId(), lease.getStopDt());
         if(lease.getBike().getRiderNo() != null)
             detachRiderFromBike(lease.getBike().getBikeId());
         leaseRepository.save(lease);
@@ -1033,9 +1035,9 @@ public class LeasesService extends SessService {
     public BikeSessionRequest generatePreSignedURLToUploadLeaseFile(BikeSessionRequest request) {
         Map param = request.getParam();
         LeasesDto leasesDto = map(param, LeasesDto.class);
-        Leases lease = leaseRepository.findByLeaseId(leasesDto.getLeaseId());
         String filename = leasesDto.getFilename().substring(0, leasesDto.getFilename().lastIndexOf("."));
-        PresignedURLVo presignedURLVo = commonWorker.generatePreSignedUrl(filename, null);
+        String extension = leasesDto.getFilename().substring(leasesDto.getFilename().lastIndexOf(".") + 1);
+        PresignedURLVo presignedURLVo = commonWorker.generatePreSignedUrl(filename, extension);
         request.setResponse(presignedURLVo);
         return request;
     }
@@ -1058,6 +1060,7 @@ public class LeasesService extends SessService {
                         CopyObjectRequest objectRequest = new CopyObjectRequest(presignedURLVo.getBucket(), presignedURLVo.getFileKey(), ENV.AWS_S3_ORIGIN_BUCKET, fileKey);
                         amazonS3.copyObject(objectRequest);
                         ModelLeaseAttachment leaseAttachment = new ModelLeaseAttachment();
+                        leaseAttachment.setUuid(UUID.randomUUID().toString().replaceAll("-", ""));
                         leaseAttachment.setDomain(ENV.AWS_S3_ORIGIN_DOMAIN);
                         leaseAttachment.setUri("/" + fileKey);
                         leaseAttachment.setFileName(presignedURLVo.getFilename());
@@ -1100,7 +1103,31 @@ public class LeasesService extends SessService {
 //    }
 
 
-
+    @Transactional
+    public BikeSessionRequest deleteAttachments(BikeSessionRequest request){
+        Map param = request.getParam();
+        String leaseId = (String) param.get("lease_id");
+        String uuid = (String) param.get("uuid");
+        LeaseAttachments attachments = leaseAttachmentRepository.findByLease_LeaseId(leaseId);
+        List<ModelLeaseAttachment> attachmentsList = attachments.getAttachmentsList();
+        String removedUrl = "";
+        for (int i = 0; i < attachmentsList.size(); i++) {
+            if(attachmentsList.get(i).getUuid().equals(uuid)){
+                ModelLeaseAttachment remove = attachmentsList.remove(i);
+                removedUrl = remove.getDomain() + remove.getUri();
+                break;
+            }
+        }
+        if(!"".equals(removedUrl)) {
+            AmazonS3 amazonS3 = AmazonS3Client.builder()
+                    .withRegion(Regions.AP_NORTHEAST_2)
+                    .withCredentials(AmazonUtils.awsCredentialsProvider())
+                    .build();
+            amazonS3.deleteObject(ENV.AWS_S3_ORIGIN_BUCKET, removedUrl);
+            leaseAttachmentRepository.save(attachments);
+        }
+        return request;
+    }
 
 
 

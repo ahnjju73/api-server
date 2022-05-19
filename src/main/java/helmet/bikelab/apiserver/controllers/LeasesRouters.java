@@ -40,8 +40,9 @@ public class LeasesRouters {
                 .andRoute(POST("/stop-leases/stop-fee"), handler::fetchStopLeaseFee)
                 .andRoute(PUT("/stop_leases"), handler::stopLease)
                 .andRoute(PUT("/stop_leases/update"), handler::updateStopLease)
-                .andRoute(POST("/leases/{lease_id}/lease-attachments/generate-presigned"), handler::generatePresignedUrl)
+                .andRoute(POST("/leases/lease-attachments/generate-presigned"), handler::generatePresignedUrl)
                 .andRoute(POST("/leases/{lease_id}/lease-attachments"), handler::addLeaseAttachment)
+                .andRoute(DELETE("/leases/{lease_id}/lease-attachments"), handler::deleteAttachment)
                 .andRoute(GET("/commons/contracts/companies"), handler::fetchCompaniesByLease)
                 ;
     }

@@ -68,7 +68,7 @@
     </select>
 
     <select id="fetchInquiries" parameterType="hmap" resultType="hmap">
-        select cast(inquiry_no as char) as inquiry_no,
+        select iq.inquiry_no,
                iq.status,
                iq.business_type,
                iq.email as inquiry_email,

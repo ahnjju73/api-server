@@ -2,6 +2,7 @@ package helmet.bikelab.apiserver.objects.bikelabs.leases;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import helmet.bikelab.apiserver.domain.embeds.ModelLeaseAttachment;
 import helmet.bikelab.apiserver.domain.lease.LeaseExpense;
 import helmet.bikelab.apiserver.objects.BikeDto;
 import helmet.bikelab.apiserver.objects.bikelabs.fine.FetchFinesResponse;
@@ -52,4 +53,5 @@ public class FetchLeasesResponse {
     private BikeDto bakBike;
     private Boolean isMt = false;
     private Integer extension;
+    private List<ModelLeaseAttachment> attachments;
 }

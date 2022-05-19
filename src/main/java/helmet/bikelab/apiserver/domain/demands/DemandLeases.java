@@ -68,6 +68,9 @@ public class DemandLeases extends OriginObject {
     @Column(name = "period")
     private Integer period;
 
+    @Column(name = "age")
+    private Integer age;
+
     @Column(name = "expire_type", columnDefinition = "ENUM")
     @Convert(converter = ExpireTypesConverter.class)
     private ExpireTypes expireTypes = ExpireTypes.TAKE_OVER;

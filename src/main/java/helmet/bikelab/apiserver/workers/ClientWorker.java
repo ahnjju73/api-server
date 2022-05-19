@@ -1,18 +1,12 @@
 package helmet.bikelab.apiserver.workers;
 
-import helmet.bikelab.apiserver.domain.client.ClientAccounts;
 import helmet.bikelab.apiserver.domain.client.Clients;
-import helmet.bikelab.apiserver.objects.requests.RequestListDto;
-import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.repositories.*;
 import helmet.bikelab.apiserver.services.internal.SessService;
-import helmet.bikelab.apiserver.utils.keys.ENV;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +21,11 @@ public class ClientWorker extends SessService {
     private final ClientOverpayRepository clientOverpayRepository;
     private final ClientManagersRepository clientManagersRepository;
     private final ClientAttachmentsRepository clientAttachmentsRepository;
+
+    public List<Clients> getClientListByGroupId(String groupId){
+        List<Clients> allByGroupId = clientsRepository.findByClientGroup_GroupId(groupId);
+        return allByGroupId;
+    }
 
     public Clients getClientByClientId(String clientId){
         Clients byClientId = clientsRepository.findByClientId(clientId);
