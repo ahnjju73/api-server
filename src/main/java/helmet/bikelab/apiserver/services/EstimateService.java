@@ -86,8 +86,10 @@ public class EstimateService extends SessService {
             Bikes byCarNum = bikesRepository.findByCarNum(estimateRequestListDto.getBikeNumber());
             fetchEstimateParameter.setSearchBikeNo(byCarNum);
         }
-        fetchEstimateParameter.setLimited(estimateRequestListDto.getLimited());
-
+        if(bePresent(estimateRequestListDto.getLimited()))
+            fetchEstimateParameter.setLimited(estimateRequestListDto.getLimited());
+        else
+            fetchEstimateParameter.setLimited("limited");
         return fetchEstimateParameter;
     }
 
