@@ -141,7 +141,7 @@ public class LeaseExpenseService extends SessService {
                     log += "구입처는 <>" + expense.getCompanyName() + "</>로 설정되었습니다.\n";
                 }
             } else {
-                if (expense.getCompanyName() != null && !expense.getCompanyName().equals("")) {
+                if (expense.getCompanyName() != null && !expense.getCompanyName().equals("") && !leaseExpense.getTransaction().getCompanyName().equals(expense.getCompanyName())) {
                     log += "구입처는 <>" + leaseExpense.getTransaction().getCompanyName() + "</>에서 <>" + expense.getCompanyName() + "</>으로 변경되었습니다.\n";
                 } else {
                     log += "구입처 정보를 삭제하였습니다.";

@@ -57,7 +57,7 @@ public class LeaseExtraService extends SessService {
         leaseExtras.setExtraTypes(ExtraTypes.getExtraType(addUpdateExtraRequest.getExtraType()));
         leaseExtras.setPaidFee(addUpdateExtraRequest.getPaidFee());
         leaseExtras.setDescription(addUpdateExtraRequest.getDescription());
-        String log = leasePayment.getIndex() + "회차에 " + leaseExtras.getExtraTypes().getReason() + "으로 " + Utils.getCurrencyFormat(leaseExtras.getExtraFee()) + "원의 추가금이 발생하였습니다.";
+        String log = leasePayment.getIndex() + "회차에 <>" + leaseExtras.getExtraTypes().getReason() + "</>이(가) <>" + Utils.getCurrencyFormat(leaseExtras.getExtraFee()) + "원</>의 추가금이 발생하였습니다.";
         logList.add(log);
         leaseExtraRepository.save(leaseExtras);
         bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_UPDATED, request.getSessionUser().getUserNo(), lease.getLeaseNo().toString(), logList));
