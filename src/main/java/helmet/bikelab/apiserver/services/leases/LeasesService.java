@@ -1052,11 +1052,16 @@ public class LeasesService extends SessService {
         Leases lease = leaseRepository.findByLeaseId(addLeaseAttachmentRequest.getLeaseId());
         LeaseAttachments leaseAttachments = lease.getAttachments();
         if(bePresent(addLeaseAttachmentRequest.getAttachments())){
-            List<ModelLeaseAttachment> attachments = lease.getAttachments().getAttachmentsList();
+            if(!bePresent(leaseAttachments)){
+                leaseAttachments = new LeaseAttachments();
+                leaseAttachments.setLeaseNo(lease.getLeaseNo());
+            }
+            List<ModelLeaseAttachment> attachments = leaseAttachments.getAttachmentsList();
             List<ModelLeaseAttachment> toAdd = addLeaseAttachmentRequest
                     .getAttachments()
                     .stream().map(presignedURLVo -> {
                         AmazonS3 amazonS3 = AmazonS3Client.builder()
+                                .withRegion(Regions.AP_NORTHEAST_2)
                                 .withCredentials(AmazonUtils.awsCredentialsProvider())
                                 .build();
                         String fileKey = "lease-attachment/" + lease.getLeaseNo() + "/" + presignedURLVo.getFileKey();
