@@ -11,5 +11,6 @@ public interface BikeModelsRepository extends JpaRepository<CommonBikes, String>
     CommonBikes findByModel(String model);
 
     List<CommonBikes> findByManufacturerNo(Integer manufacturerNo);
+    void deleteByCode(String code);
 
 }
