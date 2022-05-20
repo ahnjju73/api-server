@@ -221,4 +221,14 @@ public class LeasesHandler {
                         .map(leasesService::deleteAttachments)
                         .map(leasesService::returnData), Map.class);
     }
+
+    public Mono<ServerResponse> getAttachments(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> leasesService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(req -> leasesService.getPathVariable(req, "lease_id"))
+                        .map(leasesService::checkBikeSession)
+                        .map(leasesService::getLeaseAttachments)
+                        .map(leasesService::returnData), List.class);
+    }
 }
