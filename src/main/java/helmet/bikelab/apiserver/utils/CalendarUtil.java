@@ -134,6 +134,19 @@ public class CalendarUtil {
         return false;
     }
 
+    public static boolean isAfterBusDays(LocalDate date){
+        LocalDate now = LocalDate.now();
+        int busDays = 0;
+        while(!now.isEqual(date)){
+            now = now.plusDays(1L);
+            if(!isHoliday(now))
+                busDays++;
+            if(busDays >= 3)
+                return true;
+        }
+        return false;
+    }
+
     private String SolarDays(String yyyy, String date){
         return Lunar2Solar(yyyy+date).substring(4);
     }

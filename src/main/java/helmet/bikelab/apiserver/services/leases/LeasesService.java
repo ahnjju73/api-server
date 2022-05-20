@@ -1174,4 +1174,10 @@ public class LeasesService extends SessService {
     }
 
 
+    public BikeSessionRequest getLeaseAttachments(BikeSessionRequest request) {
+        LeasesDto leasesDto = map(request.getParam(), LeasesDto.class);
+        List<ModelLeaseAttachment> attachmentsList = leaseRepository.findByLeaseId(leasesDto.getLeaseId()).getAttachments().getAttachmentsList();
+        request.setResponse(attachmentsList);
+        return request;
+    }
 }
