@@ -321,6 +321,9 @@ public class LeasesService extends SessService {
             clientDto.setClientName(clients.getClientInfo().getName());
             clientDto.setClientId(clients.getClientId());
             leasePaymentDto.setPayClient(clientDto);
+            List<LeaseExtras> allByPayment_paymentId = leaseExtraRepository.findAllByPayment_PaymentId(lp.getPaymentId());
+            allByPayment_paymentId = allByPayment_paymentId == null ? new ArrayList<>() : allByPayment_paymentId;
+            leasePaymentDto.setHasExtra(!allByPayment_paymentId.isEmpty());
             totalFee += lp.getLeaseFee();
             leasePayments.add(leasePaymentDto);
         }
