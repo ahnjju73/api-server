@@ -195,7 +195,6 @@ public class LeasesHandler {
                 request.bodyToMono(Map.class)
                         .subscribeOn(Schedulers.elastic())
                         .map(row -> leasesService.makeSessionRequest(request, row , BikeSessionRequest.class))
-                        .map(req -> leasesService.getPathVariable(req, "lease_id"))
                         .map(leasesService::checkBikeSession)
                         .map(leasesService::generatePreSignedURLToUploadLeaseFile)
                         .map(leasesService::returnData), PresignedURLVo.class);
@@ -230,6 +229,6 @@ public class LeasesHandler {
                         .map(req -> leasesService.getPathVariable(req, "lease_id"))
                         .map(leasesService::checkBikeSession)
                         .map(leasesService::getLeaseAttachments)
-                        .map(leasesService::returnData), Map.class);
+                        .map(leasesService::returnData), List.class);
     }
 }
