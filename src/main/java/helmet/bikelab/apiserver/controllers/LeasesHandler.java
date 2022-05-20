@@ -229,6 +229,6 @@ public class LeasesHandler {
                         .map(req -> leasesService.getPathVariable(req, "lease_id"))
                         .map(leasesService::checkBikeSession)
                         .map(leasesService::getLeaseAttachments)
-                        .map(leasesService::returnData), List.class);
+                        .map(leasesService::returnData), Map.class);
     }
 }
