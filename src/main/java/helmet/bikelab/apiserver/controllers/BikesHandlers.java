@@ -141,6 +141,16 @@ public class BikesHandlers {
                         .map(bikesService::returnData), ResponseListDto.class);
     }
 
+    public Mono<ServerResponse> deleteBikeModel(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> bikesService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(req -> bikesService.getPathVariable(req, "client_id"))
+                        .map(bikesService::checkBikeSession)
+                        .map(bikesService::deleteBikeModel)
+                        .map(bikesService::returnData), Map.class);
+    }
+
     public Mono<ServerResponse> fetchBikesByClient(ServerRequest request) {
         return ServerResponse.ok().body(
                 Mono.fromSupplier(() -> bikesService.makeSessionRequest(request, BikeSessionRequest.class))

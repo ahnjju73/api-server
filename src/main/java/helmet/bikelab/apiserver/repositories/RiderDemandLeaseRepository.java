@@ -10,5 +10,6 @@ public interface RiderDemandLeaseRepository extends JpaRepository<RiderDemandLea
     Boolean existsByRiderNo(Integer riderNo);
     RiderDemandLease findByLease_LeaseId(String leaseId);
     void deleteAllByRiderNo(Integer riderNo);
+    RiderDemandLease findByCarModelCode(String carModelCode);
 
 }
