@@ -8,9 +8,11 @@ import helmet.bikelab.apiserver.domain.CommonBikes;
 import helmet.bikelab.apiserver.domain.Manufacturers;
 import helmet.bikelab.apiserver.domain.bike.BikeAttachments;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
+import helmet.bikelab.apiserver.domain.bike.Parts;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.bikelab.SystemParameter;
 import helmet.bikelab.apiserver.domain.client.Clients;
+import helmet.bikelab.apiserver.domain.demands.DemandLeases;
 import helmet.bikelab.apiserver.domain.embeds.ModelTransaction;
 import helmet.bikelab.apiserver.domain.lease.LeaseExpense;
 import helmet.bikelab.apiserver.domain.lease.Leases;
@@ -73,6 +75,9 @@ public class BikesService extends SessService {
     private final RiderAccountsRepository riderAccountsRepository;
     private final ActivitiesRepository activitiesRepository;
     private final EstimateHistoriesRepository estimateHistoriesRepository;
+    private final PartsRepository partsRepository;
+    private final DemandLeasesRepository demandLeasesRepository;
+    private final RiderDemandLeaseRepository riderDemandLeaseRepository;
 
     public BikeSessionRequest fetchHistoriesByBikeId(BikeSessionRequest request) {
         BikeListDto bikeListDto = map(request.getParam(), BikeListDto.class);
@@ -451,6 +456,31 @@ public class BikesService extends SessService {
         return request;
     }
 
+    /**
+     * 차량 모델 삭제하기
+     * Bike에 존재할 경우 있으면 삭제 불가능
+     * Parts에 존재할 경우 삭제 불가능
+     * DemandLease에 존재할 경우
+     * RiderDemandLease에 존재할 경우
+     * @param request
+     * @return
+     */
+    @Transactional
+    public BikeSessionRequest deleteBikeModel(BikeSessionRequest request) {
+        BikeModelDto bikeModelDto = map(request.getParam(), BikeModelDto.class);
+        bikeWorker.getCommonCodeBikesById(bikeModelDto.getCode());
+        List<Bikes> byCarModelCode = bikesRepository.findByCarModelCode(bikeModelDto.getCode());
+        if(bePresent(byCarModelCode)) withException("505-001");
+        List<Parts> allByBikeModelCode = partsRepository.findAllByBikeModelCode(bikeModelDto.getCode());
+        if(bePresent(allByBikeModelCode)) withException("505-002");
+        List<DemandLeases> allByCarModelCode = demandLeasesRepository.findAllByCarModelCode(bikeModelDto.getCode());
+        if(bePresent(allByCarModelCode)) withException("505-003");
+        RiderDemandLease riderDemandLeaseByCarModelCode = riderDemandLeaseRepository.findByCarModelCode(bikeModelDto.getCode());
+        if(bePresent(riderDemandLeaseByCarModelCode)) withException("505-004");
+        bikeModelsRepository.deleteByCode(bikeModelDto.getCode());
+        return request;
+    }
+
     @Transactional
     public BikeSessionRequest addBikeModel(BikeSessionRequest request) {
         Map param = request.getParam();
@@ -477,13 +507,6 @@ public class BikesService extends SessService {
         CommonBikes codeBike = bikeModelsRepository.findByCode(bikeModelDto.getCode());
         codeBike.updateData(bikeModelDto);
         bikeModelsRepository.save(codeBike);
-        return request;
-    }
-
-    @Transactional
-    public BikeSessionRequest deleteBikeModel(BikeSessionRequest request) {
-        Map param = request.getParam();
-
         return request;
     }
 
