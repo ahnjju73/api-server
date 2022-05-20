@@ -24,6 +24,7 @@ public class LeasePaymentDto extends OriginObject {
     private String paidType;
     private String description;
     private ClientDto payClient;
+    private Boolean hasExtra;
 
 
     public boolean equals(LeasePayments leasePayments){
