@@ -126,6 +126,9 @@ public class CalendarUtil {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
         String formattedDate = date.format(formatter);
         Set<String> strings = calendarUtil.holidayArray("" +  year);
+        int childDayChk = date.getDayOfWeek().getValue();
+        if(childDayChk == LD_SUNDAY || childDayChk == LD_SATURDAY)
+            return true;
         for(String holidays : strings){
             if(formattedDate.equals(holidays)){
                 return true;
