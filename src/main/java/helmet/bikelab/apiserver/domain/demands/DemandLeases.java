@@ -128,6 +128,9 @@ public class DemandLeases extends OriginObject {
     @OneToMany(mappedBy = "demandLeases", fetch = FetchType.EAGER)
     private List<DemandLeaseAttachments> attachments = new ArrayList<>();
 
+    @Column(name = "release_wish_dt")
+    private LocalDateTime releaseDt;
+
     public Boolean isOneOfDemandLeaseStatusType(DemandLeaseStatusTypes ...demandLeaseStatusTypes){
         Boolean flag = false;
         if(bePresent(demandLeaseStatusTypes)){
