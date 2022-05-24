@@ -24,4 +24,19 @@ public class LeaseExtrasRouters {
 //                .andRoute(PUT("/lease-extra"), handler::updateExtra)
 //                .andRoute(DELETE("/lease-extra"), handler::deleteExtra);
     }
+
+    @Bean
+    public RouterFunction<ServerResponse> findRouters(LeaseFinesHandlers handler){
+        return RouterFunctions
+                .route(GET("/lease-fines"), handler::fetchFines)
+                .andRoute(GET("/lease-fines/{fine_id}"), handler::addFine)
+                .andRoute(POST("/lease-fines"), handler::addFine)
+                .andRoute(PUT("/lease-fines"), handler::updateFine)
+                .andRoute(DELETE("/lease-fines"), handler::deleteFine)
+                .andRoute(POST("/lease-fines/generate-presigned"), handler::generatePresignedUrl)
+                .andRoute(GET("/lease-fines/attachments"), handler::fetchAttachments)
+                .andRoute(POST("/lease-fines/attachments"), handler::addFineAttachment)
+                .andRoute(DELETE("/lease-fines/attachments"), handler::deleteFineAttachment)
+                ;
+    }
 }
