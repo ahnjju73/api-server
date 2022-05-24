@@ -1,6 +1,7 @@
 package helmet.bikelab.apiserver.domain.lease;
 
-import helmet.bikelab.apiserver.domain.embeds.ModelLeaseAttachment;
+import helmet.bikelab.apiserver.domain.embeds.ModelAttachment;
+import helmet.bikelab.apiserver.domain.types.converters.ModelAttachmentConverter;
 import helmet.bikelab.apiserver.domain.types.converters.ModelReviewImageConverter;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,8 +26,8 @@ public class LeaseAttachments {
     private Leases lease;
 
     @Column(name = "attachments", columnDefinition = "JSON")
-    @Convert(converter = ModelReviewImageConverter.class)
-    private List<ModelLeaseAttachment> attachmentsList;
+    @Convert(converter = ModelAttachmentConverter.class)
+    private List<ModelAttachment> attachmentsList;
 
     @Column(name = "attachments", columnDefinition = "JSON", updatable = false, insertable = false)
     private String attachments;
