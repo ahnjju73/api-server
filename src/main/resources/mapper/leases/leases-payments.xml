@@ -26,6 +26,7 @@
         <result property="unpaid_lease_fee" column="unpaid_lease_fee"/>
         <result property="unpaid_extra_fee" column="unpaid_extra_fee"/>
         <result property="unpaid_paid_fee" column="unpaid_paid_fee"/>
+        <result property="lease_status" column="lease_stop_status"/>
         <collection property="bike" javaType="hmap" resultMap="bikeMap" />
         <collection property="client" javaType="hmap" resultMap="clientMap" />
     </resultMap>
@@ -404,6 +405,7 @@
                                         sum(paid_fee) as unpaid_paid_fee
                                    from (select lease_no,
                                                 lease_id,
+                                                lease_stop_status,
                                                 bike_no,
                                                 client_no,
                                                 bak_bike_no
@@ -467,6 +469,7 @@
                                         sum(le.paid_fee) as unpaid_paid_fee
                                    from (select lease_no,
                                                 lease_id,
+                                                lease_stop_status,
                                                 bike_no,
                                                 client_no,
                                                 bak_bike_no
