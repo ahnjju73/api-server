@@ -40,12 +40,12 @@ public class Fines {
 
     @Column(name = "fine_expire_date")
     private LocalDateTime fineExpireDate;
-
-    @Column(name = "attachments", columnDefinition = "JSON")
-    @Convert(converter = ModelReviewImageConverter.class)
-    private List<ModelAttachment> attachmentsList;
-
-    @Column(name = "attachments", columnDefinition = "JSON", updatable = false, insertable = false)
-    private String attachments;
+//
+//    @Column(name = "attachments", columnDefinition = "JSON")
+//    @Convert(converter = ModelReviewImageConverter.class)
+//    private List<ModelAttachment> attachmentsList;
+//
+//    @Column(name = "attachments", columnDefinition = "JSON", updatable = false, insertable = false)
+//    private String attachments;
 
 }
