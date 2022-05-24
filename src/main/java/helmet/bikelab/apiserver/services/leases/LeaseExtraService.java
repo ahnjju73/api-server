@@ -226,8 +226,10 @@ public class LeaseExtraService extends SessService {
         Map param = request.getParam();
         FetchLeaseExtraRequest fetchLeaseExtraRequest = map(param, FetchLeaseExtraRequest.class);
         LeaseExtras extra = leaseExtraRepository.findByExtraId(fetchLeaseExtraRequest.getExtraId());
-        if(extra != null)
+        if(extra != null) {
+
             leaseExtraRepository.delete(extra);
+        }
         return request;
     }
 
@@ -253,5 +255,7 @@ public class LeaseExtraService extends SessService {
         bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_PAYMENT, user.getUserNo(), payment.getPaymentNo().toString(), logList));
     }
 
-
+    private void deleteExtraLog(){
+        String log = "<>" ;
+    }
 }

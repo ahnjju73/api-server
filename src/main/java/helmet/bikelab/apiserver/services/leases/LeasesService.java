@@ -7,7 +7,7 @@ import com.amazonaws.services.s3.model.CopyObjectRequest;
 import helmet.bikelab.apiserver.domain.CommonBikes;
 import helmet.bikelab.apiserver.domain.bike.BikeRidersBak;
 import helmet.bikelab.apiserver.domain.demands.DemandLeases;
-import helmet.bikelab.apiserver.domain.embeds.ModelLeaseAttachment;
+import helmet.bikelab.apiserver.domain.embeds.ModelAttachment;
 import helmet.bikelab.apiserver.domain.embeds.ModelTransaction;
 import helmet.bikelab.apiserver.domain.riders.*;
 import helmet.bikelab.apiserver.domain.types.*;
@@ -1056,8 +1056,8 @@ public class LeasesService extends SessService {
                 leaseAttachments = new LeaseAttachments();
                 leaseAttachments.setLeaseNo(lease.getLeaseNo());
             }
-            List<ModelLeaseAttachment> attachments = leaseAttachments.getAttachmentsList();
-            List<ModelLeaseAttachment> toAdd = addLeaseAttachmentRequest
+            List<ModelAttachment> attachments = leaseAttachments.getAttachmentsList();
+            List<ModelAttachment> toAdd = addLeaseAttachmentRequest
                     .getAttachments()
                     .stream().map(presignedURLVo -> {
                         AmazonS3 amazonS3 = AmazonS3Client.builder()
@@ -1067,7 +1067,7 @@ public class LeasesService extends SessService {
                         String fileKey = "lease-attachment/" + lease.getLeaseNo() + "/" + presignedURLVo.getFileKey();
                         CopyObjectRequest objectRequest = new CopyObjectRequest(presignedURLVo.getBucket(), presignedURLVo.getFileKey(), ENV.AWS_S3_ORIGIN_BUCKET, fileKey);
                         amazonS3.copyObject(objectRequest);
-                        ModelLeaseAttachment leaseAttachment = new ModelLeaseAttachment();
+                        ModelAttachment leaseAttachment = new ModelAttachment();
                         leaseAttachment.setUuid(UUID.randomUUID().toString().replaceAll("-", ""));
                         leaseAttachment.setDomain(ENV.AWS_S3_ORIGIN_DOMAIN);
                         leaseAttachment.setUri("/" + fileKey);
@@ -1117,11 +1117,11 @@ public class LeasesService extends SessService {
         String leaseId = (String) param.get("lease_id");
         String uuid = (String) param.get("uuid");
         LeaseAttachments attachments = leaseAttachmentRepository.findByLease_LeaseId(leaseId);
-        List<ModelLeaseAttachment> attachmentsList = attachments.getAttachmentsList();
+        List<ModelAttachment> attachmentsList = attachments.getAttachmentsList();
         String removedUrl = "";
         for (int i = 0; i < attachmentsList.size(); i++) {
             if(attachmentsList.get(i).getUuid().equals(uuid)){
-                ModelLeaseAttachment remove = attachmentsList.remove(i);
+                ModelAttachment remove = attachmentsList.remove(i);
                 removedUrl = remove.getDomain() + remove.getUri();
                 break;
             }
@@ -1184,7 +1184,7 @@ public class LeasesService extends SessService {
 
     public BikeSessionRequest getLeaseAttachments(BikeSessionRequest request) {
         LeasesDto leasesDto = map(request.getParam(), LeasesDto.class);
-        List<ModelLeaseAttachment> attachmentsList = leaseRepository.findByLeaseId(leasesDto.getLeaseId()).getAttachments() == null ? null : leaseRepository.findByLeaseId(leasesDto.getLeaseId()).getAttachments().getAttachmentsList();
+        List<ModelAttachment> attachmentsList = leaseRepository.findByLeaseId(leasesDto.getLeaseId()).getAttachments() == null ? null : leaseRepository.findByLeaseId(leasesDto.getLeaseId()).getAttachments().getAttachmentsList();
         request.setResponse(attachmentsList);
         return request;
     }
