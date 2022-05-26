@@ -520,7 +520,6 @@ public class LeasePaymentService  extends SessService {
         UploadExcelDto uploadExcelDto = map(param, UploadExcelDto.class);
         List<PayLeaseRequest> paymentList = uploadExcelDto.getPayments();
         for(PayLeaseRequest payLeaseRequest : paymentList) {
-            Clients client = clientsRepository.findByClientId(payLeaseRequest.getClientId());
             List<Leases> leaseList = leaseRepository.findAllByClients_ClientIdAndStatusOrderByLeaseInfo_ContractDate(payLeaseRequest.getClientId(), LeaseStatusTypes.CONFIRM);
             int paidFee = payLeaseRequest.getPaidFee();
             for (Leases lease : leaseList) {
@@ -530,8 +529,8 @@ public class LeasePaymentService  extends SessService {
                     continue;
                 List<LeasePayments> payments = leasePaymentsRepository.findAllByLeaseNo(lease.getLeaseNo());
                 ArrayList<String> logList = new ArrayList<>();
-                if (payLeaseRequest.getPayType().equals("lease")) {
-                    for (int i = 0; i < payments.size() && payments.get(i).getPaymentDate().isBefore(LocalDate.parse(payLeaseRequest.getEndDt()).plusDays(1)); i++) {
+                if (uploadExcelDto.getPayType().equals("lease")) {
+                    for (int i = 0; i < payments.size() && payments.get(i).getPaymentDate().isBefore(LocalDate.parse(uploadExcelDto.getEndDt()).plusDays(1)); i++) {
                         int unpaidFee = payments.get(i).getLeaseFee() - payments.get(i).getPaidFee();
                         payments.get(i).setPaidType(PaidTypes.BANK);
                         payments.get(i).setRiderNo(lease.getBike().getRiderNo());
@@ -556,6 +555,8 @@ public class LeasePaymentService  extends SessService {
                 } else {
                     List<LeaseExtras> extras = leaseExtraRepository.findAllByPayment_Lease_Clients_ClientIdOrderByPaymentNo(payLeaseRequest.getClientId());
                     for (LeaseExtras le : extras) {
+                        if(le.getPayment().getPaymentDate().isBefore(LocalDate.parse(uploadExcelDto.getEndDt()).plusDays(1)))
+                            continue;
                         le.setRead(true);
                         if (le.getReadUserNo() == null)
                             le.setReadUserNo(request.getSessionUser().getUserNo());
@@ -589,6 +590,7 @@ public class LeasePaymentService  extends SessService {
         return request;
     }
 
+    @Deprecated
     @Transactional
     public BikeSessionRequest payByClientWithExcel(BikeSessionRequest request) {
         Map param = request.getParam();
