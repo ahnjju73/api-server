@@ -45,7 +45,7 @@
                        join (select *
                                from lease_payments
                               where 1 = 1
-                              <if test="start_at != null and start_at != '' and start_at != 'undefined' and end_at != null and end_at != '' and end_at != 'undefined'">
+                              <if test="end_at != null and end_at != '' and end_at != 'undefined'">
                                 and payment_date <![CDATA[ <= ]]> #{end_at}
                               </if>) lp on lm.lease_no = lp.lease_no
                        join (select *
@@ -380,8 +380,8 @@
                            and contract_type = '500-001') l
                   join (select payment_id, lease_no
                           from lease_payments
-                         where date_format(payment_date, '%Y-%m-%d') <![CDATA[ <= ]]> #{now}
-                           and lease_fee <![CDATA[ > ]]> paid_fee
+                         where lease_fee <![CDATA[ > ]]> paid_fee
+                           and payment_date <![CDATA[ <= ]]> now()
                         ) lp on l.lease_no = lp.lease_no
         group by l.lease_id) c
 
@@ -414,7 +414,7 @@
                                             -- and lease_stop_status in ('506-001', '506-003')
                                             and contract_type = '500-001') l
                                         join lease_payments lp on lp.lease_no = l.lease_no
-                                                              and payment_date <![CDATA[ <= ]]> #{now}
+                                                              and payment_date <![CDATA[ <= ]]> now()
                                                               and lease_fee <![CDATA[ > ]]> paid_fee
                                   group by lease_id) m ,
                                 (select @rownum:=0) as r
@@ -444,7 +444,8 @@
                                     lease_no,
                                     payment_no
                                from lease_payments
-                              where date_format(payment_date, '%Y-%m-%d') <![CDATA[ <= ]]> #{now}) lp on l.lease_no = lp.lease_no
+                              where payment_date <![CDATA[ <= ]]> now()
+                            ) lp on l.lease_no = lp.lease_no
                            join (select *
                                    from lease_extra) le on lp.payment_no = le.payment_no
                                                        and extra_fee <![CDATA[ > ]]> le.paid_fee
@@ -478,7 +479,7 @@
                                             -- and lease_stop_status in ('506-001', '506-003')
                                             and contract_type = '500-001') l
                                 join lease_payments lp on lp.lease_no = l.lease_no
-                                                      and payment_date <![CDATA[ <= ]]> #{now}
+                                                      and payment_date <![CDATA[ <= ]]> now()
                                 join lease_extra le on le.payment_no = lp.payment_no
                                                       and extra_fee <![CDATA[ > ]]> le.paid_fee
                           group by lease_id) m ,
@@ -509,8 +510,13 @@
                        join (select *
                                from lease_payments) lp on lp.lease_no = l.lease_no
                                                       and lease_fee <![CDATA[ > ]]> paid_fee
-                                                      and payment_date <![CDATA[ <= ]]> #{now}
-                       group by lease_id) lm
+                                                    <if test="end_at != null and end_at != '' and end_at != 'undefined'">
+                                                      and payment_date <![CDATA[ <= ]]> #{end_at}
+                                                    </if>
+                                                    <if test="end_at == null or end_at == '' or end_at == 'undefined'">
+                                                      and payment_date <![CDATA[ <= ]]> now()
+                                                    </if>
+                              group by lease_id) lm
     </select>
 
     <select id="fetchUnpaidLeaseExcel" parameterType="hmap" resultType="hmap">
@@ -537,7 +543,12 @@
                            and contract_type = '500-001')l
                        join lease_payments lp on l.lease_no = lp.lease_no
                                              and lease_fee <![CDATA[ > ]]> paid_fee
-                                             and payment_date <![CDATA[ <= ]]> #{now}
+                                           <if test="end_at != null and end_at != '' and end_at != 'undefined'">
+                                             and payment_date <![CDATA[ <= ]]> #{end_at}
+                                           </if>
+                                           <if test="end_at == null or end_at == '' or end_at == 'undefined'">
+                                             and payment_date <![CDATA[ <= ]]> now()
+                                           </if>
                 group by lease_no
                 order by unpaidfee desc) lm
               join clients c on c.client_no = lm.client_no
@@ -559,7 +570,12 @@
                                      lease_no,
                                      payment_date
                                 from lease_payments) lp on lp.lease_no = l.lease_no
-                                                       and payment_date <![CDATA[ <= ]]> #{now}
+                                                     <if test="end_at != null and end_at != '' and end_at != 'undefined'">
+                                                       and payment_date <![CDATA[ <= ]]> #{end_at}
+                                                     </if>
+                                                     <if test="end_at == null or end_at == '' or end_at == 'undefined'">
+                                                       and payment_date <![CDATA[ <= ]]> now()
+                                                     </if>
                         join (select extra_fee,
                                      payment_no,
                                      paid_fee
@@ -593,7 +609,12 @@
                  join lease_extra le on l.lease_no = le.lease_no
                                     and le.extra_fee <![CDATA[ > ]]> le.paid_fee
                  join lease_payments lp on l.lease_no = lp.lease_no
-                                       and payment_date <![CDATA[ <= ]]> #{now}
+                                     <if test="end_at != null and end_at != '' and end_at != 'undefined'">
+                                       and payment_date <![CDATA[ <= ]]> #{end_at}
+                                     </if>
+                                     <if test="end_at == null or end_at == '' or end_at == 'undefined'">
+                                       and payment_date <![CDATA[ <= ]]> now()
+                                     </if>
                                        and lp.payment_no = le.payment_no
                  group by lease_no
                  order by unpaidfee desc) lm
