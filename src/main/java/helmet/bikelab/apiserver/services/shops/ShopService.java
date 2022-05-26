@@ -255,7 +255,7 @@ public class ShopService extends SessService {
                 stringList.add("정비소 영업 종료시간을 <>" + originShopInfo.getEndTime() + "</>에서 <>" + updatedObj.getEndTime() + "</>(으)로 변경하였습니다.");
             else stringList.add("정비소 영업 종료시간을 <>" +  updatedObj.getEndTime() + "</>(으)로 등록하였습니다.");
         }
-        if(bePresent(updatedObj.getBankCd()) && !updatedObj.getBankCd().equals(originShopInfo.getBankAccount().getBankCode())) {
+        if(bePresent(updatedObj.getBankCd()) && (bePresent(originShopInfo.getBankAccount()) || !updatedObj.getBankCd().equals(originShopInfo.getBankAccount().getBankCode()))) {
             if (bePresent(originShopInfo.getBankAccount().getBank()))
                 stringList.add("입금 은행을 <>" + originShopInfo.getBankAccount().getBank().getBankName() + "</>에서 <>" + bankInfo.getBankName() + "</>(으)로 변경하였습니다.");
             else
