@@ -261,9 +261,10 @@ public class ShopService extends SessService {
             if(bePresent(originShopInfo.getBankAccount())) {
                 if (!updatedObj.getBankCd().equals(originShopInfo.getBankAccount().getBankCode()))
                     stringList.add("입금 은행을 <>" + originShopInfo.getBankAccount().getBank().getBankName() + "</>에서 <>" + bankInfo.getBankName() + "</>(으)로 변경하였습니다.");
-            }else
-                //stringList.add("입금 은행을 <>" + originShopInfo.getBankAccount().getBank().getBankName() + "</>(으)로 등록하였습니다.");
-                stringList.add("입금 은행을 <>" + bankInfo.getBankName() + "</>(으)로 등록하였습니다.");
+                else if(bePresent(updatedObj.getBankCd()))
+                    stringList.add("입금 은행을 <>" + bankInfo.getBankName() + "</>(으)로 등록하였습니다.");
+            }
+                //stringList.add("입금 은행을 <>" + originShopInfo.getBankAccount().getBank().getBankName() + "</>(으)로 등록하였습니다.")
         }
         //if(bePresent(updatedObj.getAccount()) && !updatedObj.getAccount().equals(originShopInfo.getBankAccount().getAccount())) {
         if(bePresent(updatedObj.getAccount()) || !bePresent(originShopInfo.getBankAccount())){
@@ -271,21 +272,22 @@ public class ShopService extends SessService {
             if(bePresent(originShopInfo.getBankAccount())){
                 if(!updatedObj.getAccount().equals(originShopInfo.getBankAccount().getAccount()))
                     stringList.add("입금 계좌번호를 <>" + originShopInfo.getBankAccount().getAccount() + "</>에서 <>" + updatedObj.getAccount() + "</>(으)로 변경하였습니다.");
+                else if(bePresent(updatedObj.getAccount()))
+                    stringList.add("입금 계좌번호를 <>" + updatedObj.getAccount() + "</>(으)로 등록하였습니다.");
             }
-            else
                 //stringList.add("입금 계좌번호를 <>" + originShopInfo.getBankAccount().getAccount() + "</>(으)로 등록하였습니다.");
-                stringList.add("입금 계좌번호를 <>" + updatedObj.getAccount() + "</>(으)로 등록하였습니다.");
         }
         //if(bePresent(updatedObj.getDepositor()) && !updatedObj.getDepositor().equals(originShopInfo.getBankAccount().getDepositor())) {
         if(bePresent(updatedObj.getDepositor()) || !bePresent(originShopInfo.getBankAccount())){
             //if (bePresent(originShopInfo.getBankAccount().getDepositor()))
             if (bePresent(originShopInfo.getBankAccount())){
-                if(updatedObj.getDepositor().equals(originShopInfo.getBankAccount().getDepositor()))
+                if(!updatedObj.getDepositor().equals(originShopInfo.getBankAccount().getDepositor()))
                     stringList.add("예금주를 <>" + originShopInfo.getBankAccount().getDepositor() + "</>에서 <>" + updatedObj.getDepositor() + "</>(으)로 변경하였습니다.");
+                else if(bePresent(updatedObj.getDepositor()))
+                    stringList.add("예금주를 <>" + updatedObj.getDepositor() + "</>(으)로 등록하였습니다.");
             }
-            else
                 //stringList.add("예금주를 <>" + originShopInfo.getBankAccount().getDepositor() + "</>(으)로 등록하였습니다.");
-                stringList.add("예금주를 <>" + updatedObj.getDepositor() + "</>(으)로 등록하였습니다.");
+
         }
         if(bePresent(address) && !address.getAddress().equals(modelAddress.getAddress())){
             stringList.add("고객사 주소를 변경하였습니다.");
