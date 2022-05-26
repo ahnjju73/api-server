@@ -77,7 +77,7 @@
                        join (select *
                                from lease_payments
                               where 1 = 1
-                              <if test="start_at != null and start_at != '' and start_at != 'undefined' and end_at != null and end_at != '' and end_at != 'undefined'">
+                              <if test="end_at != null and end_at != '' and end_at != 'undefined'">
                                 and payment_date <![CDATA[ <= ]]> #{end_at}
                               </if>) lp on lm.lease_no = lp.lease_no
                        join (select *
@@ -101,10 +101,10 @@
                                 join (select *
                                         from lease_payments
                                        where 1 = 1
-                                    <if test="start_at != null and start_at != '' and start_at != 'undefined' and end_at != null and end_at != '' and end_at != 'undefined'">
+                                    <if test="end_at != null and end_at != '' and end_at != 'undefined'">
                                         and payment_date <![CDATA[ <= ]]> #{end_at}
                                     </if>
-                                    <if test="start_at == null or start_at == '' or start_at == 'undefined' or end_at == null or end_at == '' or end_at == 'undefined'">
+                                    <if test="end_at == null or end_at == '' or end_at == 'undefined'">
                                         and date_format(payment_date, '%Y-%m-%d') <![CDATA[ <= ]]> #{now}
                                     </if>
                                          and lease_fee != paid_fee) lp on l.lease_no = lp.lease_no) l
@@ -139,10 +139,10 @@
                       join (select *
                              from lease_payments
                              where 1 = 1
-                             <if test="start_at != null and start_at != '' and start_at != 'undefined' and end_at != null and end_at != '' and end_at != 'undefined'">
+                             <if test="end_at != null and end_at != '' and end_at != 'undefined'">
                                and payment_date <![CDATA[ <= ]]> #{end_at}
                              </if>
-                             <if test="start_at == null or start_at == '' or start_at == 'undefined' or end_at == null or end_at == '' or end_at == 'undefined'">
+                             <if test="end_at == null or end_at == '' or end_at == 'undefined'">
                                 and date_format(payment_date, '%Y-%m-%d') <![CDATA[ <= ]]> #{now}
                              </if>
                                and lease_fee != paid_fee) lp on l.lease_no = lp.lease_no
