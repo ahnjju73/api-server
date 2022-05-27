@@ -1185,6 +1185,8 @@ public class LeasesService extends SessService {
     public BikeSessionRequest getLeaseAttachments(BikeSessionRequest request) {
         LeasesDto leasesDto = map(request.getParam(), LeasesDto.class);
         List<ModelAttachment> attachmentsList = leaseRepository.findByLeaseId(leasesDto.getLeaseId()).getAttachments() == null ? null : leaseRepository.findByLeaseId(leasesDto.getLeaseId()).getAttachments().getAttachmentsList();
+        if(!bePresent(attachmentsList))
+            attachmentsList = new ArrayList<>();
         request.setResponse(attachmentsList);
         return request;
     }
