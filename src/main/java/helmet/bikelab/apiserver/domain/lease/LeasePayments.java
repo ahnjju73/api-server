@@ -40,7 +40,7 @@ public class LeasePayments {
     @Column(name = "client_no")
     private Integer clientNo;
 
-    @ManyToOne(optional = false)
+    @ManyToOne
     @JoinColumn(name = "client_no", insertable = false, updatable = false)
     private Clients client;
 
