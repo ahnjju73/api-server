@@ -203,80 +203,112 @@ public class ShopService extends SessService {
         return request;
     }
 
-    public void updateShopInfoLog(BikeUserLogTypes bikeUserLogTypes, Shops originShop, ShopInfo originShopInfo, ShopAddresses originShopAddress, UpdateShopRequest updatedObj, BikeUser fromUser){
+    public void updateShopInfoLog(BikeUserLogTypes bikeUserLogTypes, Shops originShop, ShopInfo originShopInfo, ShopAddresses originShopAddress, UpdateShopRequest updatedObj, BikeUser fromUser) {
         List<String> stringList = new ArrayList<>();
         Banks bankInfo = bankRepository.findByBankCode(updatedObj.getBankCd());
         ShopAddresses shopAddresses = originShop.getShopAddress() == null ? new ShopAddresses() : originShop.getShopAddress();
         ModelAddress modelAddress = shopAddresses.getModelAddress() == null ? new ModelAddress() : shopAddresses.getModelAddress();
         ModelAddress address = updatedObj.getAddress();
 
-        if(bePresent(updatedObj.getName()) && !updatedObj.getName().equals(originShopInfo.getName())){
-            if(bePresent(originShopInfo.getName()))
+        if (bePresent(updatedObj.getName()) && !updatedObj.getName().equals(originShopInfo.getName())) {
+            if (bePresent(originShopInfo.getName()))
                 stringList.add("정비소 이름을 <>" + originShopInfo.getName() + "</>에서 <>" + updatedObj.getName() + "</>(으)로 변경하였습니다.");
-            else stringList.add("정비소 이름을 <>" +  updatedObj.getName() + "</>(으)로 등록하였습니다.");
+            else stringList.add("정비소 이름을 <>" + updatedObj.getName() + "</>(으)로 등록하였습니다.");
         }
-        if(bePresent(updatedObj.getManagerName()) && !updatedObj.getManagerName().equals(originShopInfo.getManagerName())){
-            if(bePresent(originShopInfo.getManagerName()))
+        if (bePresent(updatedObj.getManagerName()) && !updatedObj.getManagerName().equals(originShopInfo.getManagerName())) {
+            if (bePresent(originShopInfo.getManagerName()))
                 stringList.add("정비소 담당자 이름을 <>" + originShopInfo.getManagerName() + "</>에서 <>" + updatedObj.getManagerName() + "</>(으)로 변경하였습니다.");
-            else stringList.add("정비소 이름을 <>" +  updatedObj.getManagerName() + "</>(으)로 등록하였습니다.");
+            else stringList.add("정비소 이름을 <>" + updatedObj.getManagerName() + "</>(으)로 등록하였습니다.");
         }
-        if(bePresent(updatedObj.getEmail()) && !updatedObj.getEmail().equals(originShop.getEmail())){
-            if(bePresent(originShop.getEmail()))
+        if (bePresent(updatedObj.getEmail()) && !updatedObj.getEmail().equals(originShop.getEmail())) {
+            if (bePresent(originShop.getEmail()))
                 stringList.add("정비소 이메일을 <>" + originShop.getEmail() + "</>에서 <>" + updatedObj.getEmail() + "</>(으)로 변경하였습니다.");
-            else stringList.add("정비소 이메일을 <>" +  updatedObj.getEmail() + "</>(으)로 등록하였습니다.");
+            else stringList.add("정비소 이메일을 <>" + updatedObj.getEmail() + "</>(으)로 등록하였습니다.");
         }
-        if(bePresent(updatedObj.getRegNum()) && !updatedObj.getRegNum().equals(originShop.getRegNum())){
-            if(bePresent(originShop.getRegNum()))
+        if (bePresent(updatedObj.getRegNum()) && !updatedObj.getRegNum().equals(originShop.getRegNum())) {
+            if (bePresent(originShop.getRegNum()))
                 stringList.add("정비소 사업자번호를 <>" + originShop.getRegNum() + "</>에서 <>" + updatedObj.getRegNum() + "</>(으)로 변경하였습니다.");
-            else stringList.add("정비소 사업자번호를 <>" +  updatedObj.getRegNum() + "</>(으)로 등록하였습니다.");
+            else stringList.add("정비소 사업자번호를 <>" + updatedObj.getRegNum() + "</>(으)로 등록하였습니다.");
         }
-        if(bePresent(updatedObj.getPhone()) && !updatedObj.getPhone().equals(originShopInfo.getPhone())){
-            if(bePresent(originShopInfo.getPhone()))
+        if (bePresent(updatedObj.getPhone()) && !updatedObj.getPhone().equals(originShopInfo.getPhone())) {
+            if (bePresent(originShopInfo.getPhone()))
                 stringList.add("정비소 연락처를 <>" + originShopInfo.getPhone() + "</>에서 <>" + updatedObj.getPhone() + "</>(으)로 변경하였습니다.");
-            else stringList.add("정비소 연락처를 <>" +  updatedObj.getPhone() + "</>(으)로 등록하였습니다.");
+            else stringList.add("정비소 연락처를 <>" + updatedObj.getPhone() + "</>(으)로 등록하였습니다.");
         }
 //        if(bePresent(updatedObj.getStartTime()) && !updatedObj.getStartTime().equals(originShopInfo.getStartTime())){
 //            if(bePresent(originShopInfo.getStartTime()))
 //                stringList.add("정비소 영업 시작시간을 <>" + originShopInfo.getStartTime() + "</>에서 <>" + updatedObj.getStartTime() + "</>(으)로 변경하였습니다.");
 //            else stringList.add("정비소 영업 시작시간을 <>" +  updatedObj.getStartTime() + "</>(으)로 등록하였습니다.");
 //        }
-        if(bePresent(updatedObj.getStartTime()) && !LocalTime.parse(updatedObj.getStartTime()).equals(originShopInfo.getStartTime())){
-            if(bePresent(originShopInfo.getStartTime()))
+        if (bePresent(updatedObj.getStartTime()) && !LocalTime.parse(updatedObj.getStartTime()).equals(originShopInfo.getStartTime())) {
+            if (bePresent(originShopInfo.getStartTime()))
                 stringList.add("정비소 영업 시작시간을 <>" + originShopInfo.getStartTime() + "</>에서 <>" + updatedObj.getStartTime() + "</>(으)로 변경하였습니다.");
-            else stringList.add("정비소 영업 시작시간을 <>" +  updatedObj.getStartTime() + "</>(으)로 등록하였습니다.");
+            else stringList.add("정비소 영업 시작시간을 <>" + updatedObj.getStartTime() + "</>(으)로 등록하였습니다.");
         }
 //        if(bePresent(updatedObj.getEndTime()) && !updatedObj.getEndTime().equals(originShopInfo.getEndTime())){
 //            if(bePresent(originShopInfo.getEndTime()))
 //                stringList.add("정비소 영업 종료시간을 <>" + originShopInfo.getEndTime() + "</>에서 <>" + updatedObj.getEndTime() + "</>(으)로 변경하였습니다.");
 //            else stringList.add("정비소 영업 종료시간을 <>" +  updatedObj.getEndTime() + "</>(으)로 등록하였습니다.");
 //        }
-        if(bePresent(updatedObj.getEndTime()) && !LocalTime.parse(updatedObj.getEndTime()).equals(originShopInfo.getEndTime())){
-            if(bePresent(originShopInfo.getEndTime()))
+        if (bePresent(updatedObj.getEndTime()) && !LocalTime.parse(updatedObj.getEndTime()).equals(originShopInfo.getEndTime())) {
+            if (bePresent(originShopInfo.getEndTime()))
                 stringList.add("정비소 영업 종료시간을 <>" + originShopInfo.getEndTime() + "</>에서 <>" + updatedObj.getEndTime() + "</>(으)로 변경하였습니다.");
-            else stringList.add("정비소 영업 종료시간을 <>" +  updatedObj.getEndTime() + "</>(으)로 등록하였습니다.");
+            else stringList.add("정비소 영업 종료시간을 <>" + updatedObj.getEndTime() + "</>(으)로 등록하였습니다.");
         }
-        if(bePresent(updatedObj.getBankCd()) && (bePresent(originShopInfo.getBankAccount()) || !updatedObj.getBankCd().equals(originShopInfo.getBankAccount().getBankCode()))) {
-            if (bePresent(originShopInfo.getBankAccount().getBank()))
-                stringList.add("입금 은행을 <>" + originShopInfo.getBankAccount().getBank().getBankName() + "</>에서 <>" + bankInfo.getBankName() + "</>(으)로 변경하였습니다.");
-            else
-                stringList.add("입금 은행을 <>" + originShopInfo.getBankAccount().getBank().getBankName() + "</>(으)로 등록하였습니다.");
+
+        if (bePresent(updatedObj.getBankCd()) && !bePresent(originShopInfo.getBankAccount())) { // 기존정보 없고, 업데이트가 있을 때
+            stringList.add("입금 은행을 <>" + bankInfo.getBankName() + "</>(으)로 등록하였습니다.");
+        }else if (bePresent(updatedObj.getBankCd()) && bePresent(originShopInfo.getBankAccount())){ // 기존 정보는 있고, 업데이트 있을 때
+            if (originShopInfo.getBankAccount().getBankCode() == null) {  // 업데이트된 은행 정보가 null 이 아니고, 기존 은행코드가 없으면
+                stringList.add("입금 은행을 <>" + bankInfo.getBankName() + "</>(으)로 등록하였습니다.");
+            }else if (bePresent(updatedObj.getBankCd()) && bePresent(originShopInfo.getBankAccount().getBankCode())) { // 기본정보와 업데이트 정보가 모두 있을 때
+                if (!updatedObj.getBankCd().equals(originShopInfo.getBankAccount().getBankCode())) { // 기존과 업데이트 정보가 서로 다를 때
+                    stringList.add("입금 은행을 <>" + originShopInfo.getBankAccount().getBank().getBankName() + "</>에서 <>" + bankInfo.getBankName() + "</>(으)로 변경하였습니다.");
+                }
+            }
+        }else if (!bePresent(updatedObj.getBankCd())){ // 업데이트 정보가 null 일 때
+            if (bePresent(originShopInfo.getBankAccount())){
+                if (bePresent(originShopInfo.getBankAccount().getBankCode()))
+                    stringList.add("입금 은행 정보를 삭제했습니다.");
+            }
         }
-        if(bePresent(updatedObj.getAccount()) && !updatedObj.getAccount().equals(originShopInfo.getBankAccount().getAccount())) {
-            if (bePresent(originShopInfo.getBankAccount().getAccount()))
+
+        if (bePresent(updatedObj.getAccount()) && !bePresent(originShopInfo.getBankAccount())) { // 기존정보 없거나, 업데이트가 있을 때
+            stringList.add("입금 계좌번호를 <>" + updatedObj.getAccount() + "</>(으)로 등록하였습니다.");
+        }else if (bePresent(updatedObj.getAccount()) && bePresent(originShopInfo.getBankAccount())){ // 기존정보는 있고, 업데이트 있을 때
+            if (!bePresent(originShopInfo.getBankAccount().getAccount())) { // 업데이트 정보가 null 아니고, 기존계좌정보가 null일 때
+                stringList.add("입금 계좌번호를 <>" + updatedObj.getAccount() + "</>(으)로 등록하였습니다.");
+            }else if (!updatedObj.getAccount().equals(originShopInfo.getBankAccount().getAccount())) { // 업데이트 정보와 기존정보가 다를 때)
                 stringList.add("입금 계좌번호를 <>" + originShopInfo.getBankAccount().getAccount() + "</>에서 <>" + updatedObj.getAccount() + "</>(으)로 변경하였습니다.");
-            else
-                stringList.add("입금 계좌번호를 <>" + originShopInfo.getBankAccount().getAccount() + "</>(으)로 등록하였습니다.");
+            }
+        }else if (!bePresent(updatedObj.getAccount())){
+            if (bePresent(originShopInfo.getBankAccount())) { // 업데이트 계좌정보 null 이고, 기존 정보 있을 때
+                if (bePresent(originShopInfo.getBankAccount().getAccount()))
+                    stringList.add("입금 계좌 정보를 삭제했습니다.");
+            }
         }
-        if(bePresent(updatedObj.getDepositor()) && !updatedObj.getDepositor().equals(originShopInfo.getBankAccount().getDepositor())) {
-            if (bePresent(originShopInfo.getBankAccount().getDepositor()))
+
+
+        if (bePresent(updatedObj.getDepositor()) && !bePresent(originShopInfo.getBankAccount())) { // 기존정보 없거나, 업데이트가 있을 때
+            stringList.add("예금주를 <>" + updatedObj.getDepositor() + "</>(으)로 등록하였습니다.");
+        }else if(bePresent(updatedObj.getDepositor()) && bePresent(originShopInfo.getBankAccount())){ // 기존정보는 있고, 업데이트 있을 때
+            if(!bePresent(originShopInfo.getBankAccount().getDepositor())) { // 업데이트 정보가 null 아니고, 기존계좌정보가 null일 때
+                stringList.add("예금주를 <>" + updatedObj.getDepositor() + "</>(으)로 등록하였습니다.");
+            }else if(!updatedObj.getDepositor().equals(originShopInfo.getBankAccount().getDepositor())) { // 업데이트 정보와 기존정보가 다를 때)
                 stringList.add("예금주를 <>" + originShopInfo.getBankAccount().getDepositor() + "</>에서 <>" + updatedObj.getDepositor() + "</>(으)로 변경하였습니다.");
-            else
-                stringList.add("예금주를 <>" + originShopInfo.getBankAccount().getDepositor() + "</>(으)로 등록하였습니다.");
+            }
+        }else if(!bePresent(updatedObj.getDepositor())){
+            if(bePresent(originShopInfo.getBankAccount())) {
+                if (bePresent(originShopInfo.getBankAccount().getDepositor()))
+                    stringList.add("예금주 정보를 삭제했습니다.");
+            }
         }
-        if(bePresent(address) && !address.getAddress().equals(modelAddress.getAddress())){
+
+        if (bePresent(address) && !address.getAddress().equals(modelAddress.getAddress())) {
             stringList.add("고객사 주소를 변경하였습니다.");
         }
-        if(bePresent(stringList) && stringList.size() > 0)
+
+        if (bePresent(stringList) && stringList.size() > 0)
             bikeUserLogRepository.save(addLog(bikeUserLogTypes, fromUser.getUserNo(), originShop.getShopNo().toString(), stringList));
     }
 
