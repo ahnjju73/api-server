@@ -13,4 +13,6 @@ import java.util.List;
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class UploadExcelDto extends OriginObject {
     List<PayLeaseRequest> payments;
+    private String payType;
+    private String endDt;
 }
