@@ -255,47 +255,53 @@ public class ShopService extends SessService {
                 stringList.add("정비소 영업 종료시간을 <>" + originShopInfo.getEndTime() + "</>에서 <>" + updatedObj.getEndTime() + "</>(으)로 변경하였습니다.");
             else stringList.add("정비소 영업 종료시간을 <>" + updatedObj.getEndTime() + "</>(으)로 등록하였습니다.");
         }
-// getBankAccount() 가 없을 때 마지막 테스트해야함
+
         if (bePresent(updatedObj.getBankCd()) && !bePresent(originShopInfo.getBankAccount())) { // 기존정보 없고, 업데이트가 있을 때
-            if (bePresent(updatedObj.getBankCd())) // 업데이트된 은행 정보가 null 이 아니면
-                stringList.add("입금 은행을 <>" + bankInfo.getBankName() + "</>(으)로 등록하였습니다.");
-        }else if(bePresent(updatedObj.getBankCd()) && bePresent(originShopInfo.getBankAccount())){ // 기존 정보는 있고, 업데이트 있을 때
-            if (bePresent(updatedObj.getBankCd()) && originShopInfo.getBankAccount().getBankCode() == null) {  // 업데이트된 은행 정보가 null 이 아니고, 기존 은행코드가 없으면
+            stringList.add("입금 은행을 <>" + bankInfo.getBankName() + "</>(으)로 등록하였습니다.");
+        }else if (bePresent(updatedObj.getBankCd()) && bePresent(originShopInfo.getBankAccount())){ // 기존 정보는 있고, 업데이트 있을 때
+            if (originShopInfo.getBankAccount().getBankCode() == null) {  // 업데이트된 은행 정보가 null 이 아니고, 기존 은행코드가 없으면
                 stringList.add("입금 은행을 <>" + bankInfo.getBankName() + "</>(으)로 등록하였습니다.");
             }else if (bePresent(updatedObj.getBankCd()) && bePresent(originShopInfo.getBankAccount().getBankCode())) { // 기본정보와 업데이트 정보가 모두 있을 때
                 if (!updatedObj.getBankCd().equals(originShopInfo.getBankAccount().getBankCode())) { // 기존과 업데이트 정보가 서로 다를 때
                     stringList.add("입금 은행을 <>" + originShopInfo.getBankAccount().getBank().getBankName() + "</>에서 <>" + bankInfo.getBankName() + "</>(으)로 변경하였습니다.");
                 }
             }
-        }else if (!bePresent(updatedObj.getBankCd()) && bePresent(originShopInfo.getBankAccount().getBankCode())) { // 기존정보 있고 업데이트 정보가 null 일 때
-            stringList.add("입금 은행 정보를 삭제했습니다.");
+        }else if (!bePresent(updatedObj.getBankCd())){ // 업데이트 정보가 null 일 때
+            if (bePresent(originShopInfo.getBankAccount())){
+                if (bePresent(originShopInfo.getBankAccount().getBankCode()))
+                    stringList.add("입금 은행 정보를 삭제했습니다.");
+            }
         }
 
         if (bePresent(updatedObj.getAccount()) && !bePresent(originShopInfo.getBankAccount())) { // 기존정보 없거나, 업데이트가 있을 때
-            if (bePresent(updatedObj.getAccount()))
+            stringList.add("입금 계좌번호를 <>" + updatedObj.getAccount() + "</>(으)로 등록하였습니다.");
+        }else if (bePresent(updatedObj.getAccount()) && bePresent(originShopInfo.getBankAccount())){ // 기존정보는 있고, 업데이트 있을 때
+            if (!bePresent(originShopInfo.getBankAccount().getAccount())) { // 업데이트 정보가 null 아니고, 기존계좌정보가 null일 때
                 stringList.add("입금 계좌번호를 <>" + updatedObj.getAccount() + "</>(으)로 등록하였습니다.");
-        }else if(bePresent(updatedObj.getAccount()) && bePresent(originShopInfo.getBankAccount())){ // 기존정보는 있고, 업데이트 있을 때
-            if(bePresent(updatedObj.getAccount()) && !bePresent(originShopInfo.getBankAccount().getAccount())) { // 업데이트 정보가 null 아니고, 기존계좌정보가 null일 때
-                stringList.add("입금 계좌번호를 <>" + updatedObj.getAccount() + "</>(으)로 등록하였습니다.");
-            }else if(!updatedObj.getAccount().equals(originShopInfo.getBankAccount().getAccount())) { // 업데이트 정보와 기존정보가 다를 때)
+            }else if (!updatedObj.getAccount().equals(originShopInfo.getBankAccount().getAccount())) { // 업데이트 정보와 기존정보가 다를 때)
                 stringList.add("입금 계좌번호를 <>" + originShopInfo.getBankAccount().getAccount() + "</>에서 <>" + updatedObj.getAccount() + "</>(으)로 변경하였습니다.");
             }
-        }else if (!bePresent(updatedObj.getAccount()) && bePresent(originShopInfo.getBankAccount().getAccount())) { // 업데이트 계좌정보 null 이고, 기존 정보 있을 때
-            stringList.add("입금 계좌 정보를 삭제했습니다.");
+        }else if (!bePresent(updatedObj.getAccount())){
+            if (bePresent(originShopInfo.getBankAccount())) { // 업데이트 계좌정보 null 이고, 기존 정보 있을 때
+                if (bePresent(originShopInfo.getBankAccount().getAccount()))
+                    stringList.add("입금 계좌 정보를 삭제했습니다.");
+            }
         }
 
 
         if (bePresent(updatedObj.getDepositor()) && !bePresent(originShopInfo.getBankAccount())) { // 기존정보 없거나, 업데이트가 있을 때
-            if (bePresent(updatedObj.getDepositor()))
-                stringList.add("예금주를 <>" + updatedObj.getDepositor() + "</>(으)로 등록하였습니다.");
+            stringList.add("예금주를 <>" + updatedObj.getDepositor() + "</>(으)로 등록하였습니다.");
         }else if(bePresent(updatedObj.getDepositor()) && bePresent(originShopInfo.getBankAccount())){ // 기존정보는 있고, 업데이트 있을 때
-            if(bePresent(updatedObj.getDepositor()) && !bePresent(originShopInfo.getBankAccount().getDepositor())) { // 업데이트 정보가 null 아니고, 기존계좌정보가 null일 때
+            if(!bePresent(originShopInfo.getBankAccount().getDepositor())) { // 업데이트 정보가 null 아니고, 기존계좌정보가 null일 때
                 stringList.add("예금주를 <>" + updatedObj.getDepositor() + "</>(으)로 등록하였습니다.");
             }else if(!updatedObj.getDepositor().equals(originShopInfo.getBankAccount().getDepositor())) { // 업데이트 정보와 기존정보가 다를 때)
                 stringList.add("예금주를 <>" + originShopInfo.getBankAccount().getDepositor() + "</>에서 <>" + updatedObj.getDepositor() + "</>(으)로 변경하였습니다.");
             }
-        } else if (!bePresent(updatedObj.getDepositor()) && bePresent(originShopInfo.getBankAccount().getDepositor())) { // 업데이트 계좌정보 null 이고, 기존 정보 있을 때
-            stringList.add("예금주 정보를 삭제했습니다.");
+        }else if(!bePresent(updatedObj.getDepositor())){
+            if(bePresent(originShopInfo.getBankAccount())) {
+                if (bePresent(originShopInfo.getBankAccount().getDepositor()))
+                    stringList.add("예금주 정보를 삭제했습니다.");
+            }
         }
 
         if (bePresent(address) && !address.getAddress().equals(modelAddress.getAddress())) {
