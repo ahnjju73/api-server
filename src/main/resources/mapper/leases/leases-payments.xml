@@ -663,7 +663,7 @@
                                            from leases
                                           where `status` = '550-003'
                                             -- and lease_stop_status in ('506-001', '506-003')
-                                            and contract_type = '500-002') l
+                                            and contract_type = '`500-002`') l
                                            join lease_payments lp on lp.lease_no = l.lease_no
                                                                  and payment_date <![CDATA[ <= ]]> #{now}
                                                                  and lease_fee <![CDATA[ > ]]> paid_fee
