@@ -525,11 +525,11 @@ public class LeasePaymentService  extends SessService {
             for (Leases lease : leaseList) {
                 if (lease.getContractTypes() != ContractTypes.LEASE)
                     continue;
-                if (lease.getStatus() != LeaseStatusTypes.CONFIRM && lease.getLeaseStopStatus() != LeaseStopStatusTypes.CONTINUE)
-                    continue;
                 List<LeasePayments> payments = leasePaymentsRepository.findAllByLeaseNo(lease.getLeaseNo());
                 ArrayList<String> logList = new ArrayList<>();
                 if (uploadExcelDto.getPayType().equals("lease")) {
+                    if (lease.getStatus() != LeaseStatusTypes.CONFIRM && lease.getLeaseStopStatus() != LeaseStopStatusTypes.CONTINUE)
+                        continue;
                     for (int i = 0; i < payments.size() && payments.get(i).getPaymentDate().isBefore(LocalDate.parse(uploadExcelDto.getEndDt()).plusDays(1)); i++) {
                         int unpaidFee = payments.get(i).getLeaseFee() - payments.get(i).getPaidFee();
                         payments.get(i).setPaidType(PaidTypes.BANK);
