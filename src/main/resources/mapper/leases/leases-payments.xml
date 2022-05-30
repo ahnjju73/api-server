@@ -648,7 +648,6 @@
                b.number as bike_num,
                bak.bike_id as bak_bike_id,
                bak.number as bak_bike_num,
-               bm.comm_cd as bike_model,
                bm.comm_cd as bike_model
           from (select *
                   from (select  @rownum:=@rownum+1 as rownum, m.*
@@ -663,7 +662,7 @@
                                            from leases
                                           where `status` = '550-003'
                                             -- and lease_stop_status in ('506-001', '506-003')
-                                            and contract_type = '`500-002`') l
+                                            and contract_type = '500-002') l
                                            join lease_payments lp on lp.lease_no = l.lease_no
                                                                  and payment_date <![CDATA[ <= ]]> #{now}
                                                                  and lease_fee <![CDATA[ > ]]> paid_fee
