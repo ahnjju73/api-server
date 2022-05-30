@@ -553,7 +553,7 @@ public class LeasePaymentService  extends SessService {
                         }
                     }
                 } else {
-                    List<LeaseExtras> extras = leaseExtraRepository.findAllByPayment_Lease_Clients_ClientIdOrderByPaymentNo(payLeaseRequest.getClientId());
+                    List<LeaseExtras> extras = leaseExtraRepository.findAllByLease_LeaseId(lease.getLeaseId());
                     for (LeaseExtras le : extras) {
                         if(!le.getPayment().getPaymentDate().isBefore(LocalDate.parse(uploadExcelDto.getEndDt()).plusDays(1)))
                             continue;

@@ -33,9 +33,7 @@
 
     <select id="countAllLeaseExtrasGroupByClient" parameterType="hmap" resultType="int">
         select count(*)
-          from (select sum(le.extra_fee) as extra_fee,
-                       sum(le.paid_fee) as paid_fee,
-                       lm.client_no
+          from (select lm.client_no
                   from (select *
                           from leases
                          where status = '550-003'
@@ -54,7 +52,7 @@
                        join (select *
                                from lease_extra
                               where 1 = 1
-                                and extra_fee != paid_fee) le on lp.payment_no = le.payment_no
+                                and extra_fee > paid_fee) le on lp.payment_no = le.payment_no
                  group by client_no) c
     </select>
 
@@ -88,8 +86,7 @@
                               </if>) lp on lm.lease_no = lp.lease_no
                        join (select *
                                from lease_extra
-                              where 1 = 1
-                                and extra_fee != paid_fee) le on lp.payment_no = le.payment_no
+                              where extra_fee != paid_fee) le on lp.payment_no = le.payment_no
                  group by client_no) m
              join clients c on m.client_no = c.client_no
              join client_info ci on ci.client_no = c.client_no
