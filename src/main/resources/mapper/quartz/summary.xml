@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding= "UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="quartz.summary">
+
+    <select id="getTodayEstimateSummary" parameterType="hmap" resultType="int">
+        select count(*)
+          from estimates
+         where (
+           date_format(created_at, '%Y-%m-%d') = date_format(date_sub(now(), interval 1 day), '%Y-%m-%d')
+           or date_format(pending1_at, '%Y-%m-%d') = date_format(date_sub(now(), interval 1 day), '%Y-%m-%d')
+           or date_format(pending2_at, '%Y-%m-%d') = date_format(date_sub(now(), interval 1 day), '%Y-%m-%d')
+           or date_format(declined1_at, '%Y-%m-%d') = date_format(date_sub(now(), interval 1 day), '%Y-%m-%d')
+           or date_format(declined2_at, '%Y-%m-%d') = date_format(date_sub(now(), interval 1 day), '%Y-%m-%d')
+           or date_format(confirm_at, '%Y-%m-%d') = date_format(date_sub(now(), interval 1 day), '%Y-%m-%d')
+           or date_format(paid_at, '%Y-%m-%d') = date_format(date_sub(now(), interval 1 day), '%Y-%m-%d')
+           or date_format(completed_at, '%Y-%m-%d') = date_format(date_sub(now(), interval 1 day), '%Y-%m-%d')
+           or date_format(released_at, '%Y-%m-%d') = date_format(date_sub(now(), interval 1 day), '%Y-%m-%d')
+         )
+    </select>
+
+    <select id="getTodayEstimateSummaryCreatedAt" parameterType="hmap" resultType="int">
+        select count(*) as createdAt
+          from estimates
+         where date_format(created_at, '%Y-%m-%d') = date_format(date_sub(now(), interval 1 day), '%Y-%m-%d')
+    </select>
+
+    <select id="getTodayEstimateSummaryPaidAt" parameterType="hmap" resultType="hmap">
+        select count(*) as paid_at,
+               suM(total_price) as total_price
+          from estimates
+         where date_format(paid_at, '%Y-%m-%d') = date_format(date_sub(now(), interval 1 day), '%Y-%m-%d')
+    </select>
+
+    <select id="getTodayEstimateSummaryCompletedAt" parameterType="hmap" resultType="int">
+        select count(*) as completedAt
+          from estimates
+         where date_format(completed_at, '%Y-%m-%d') = date_format(date_sub(now(), interval 1 day), '%Y-%m-%d')
+    </select>
+
+</mapper>

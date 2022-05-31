@@ -1,26 +1,15 @@
 package helmet.bikelab.apiserver.schedulers;
 
-import helmet.bikelab.apiserver.domain.lease.LeasePayments;
-import helmet.bikelab.apiserver.domain.lease.Leases;
 import helmet.bikelab.apiserver.domain.types.BikeTypes;
-import helmet.bikelab.apiserver.domain.types.LeaseStatusTypes;
-import helmet.bikelab.apiserver.domain.types.LeaseStopStatusTypes;
-import helmet.bikelab.apiserver.repositories.LeaseRepository;
-import helmet.bikelab.apiserver.schedulers.internal.AbstractSchedulers;
 import helmet.bikelab.apiserver.schedulers.internal.WorkspaceQuartz;
 import helmet.bikelab.apiserver.utils.PushComponent;
 import helmet.bikelab.apiserver.utils.Senders;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
-import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.PostConstruct;
-import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
