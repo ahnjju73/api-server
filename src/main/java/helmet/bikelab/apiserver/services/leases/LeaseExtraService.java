@@ -226,8 +226,10 @@ public class LeaseExtraService extends SessService {
         Map param = request.getParam();
         FetchLeaseExtraRequest fetchLeaseExtraRequest = map(param, FetchLeaseExtraRequest.class);
         LeaseExtras extra = leaseExtraRepository.findByExtraId(fetchLeaseExtraRequest.getExtraId());
-        if(extra != null)
+        if(extra != null){
+            deleteExtraLog(request.getSessionUser(), leasePaymentsRepository.findById(extra.getPaymentNo()).get(), extra.getExtraId());
             leaseExtraRepository.delete(extra);
+        }
         return request;
     }
 
@@ -241,17 +243,21 @@ public class LeaseExtraService extends SessService {
         if(bePresent(request.getExtraFee()) && request.getExtraFee() != extraFee){
             logList.add(head + "추가금을 <>" + extraFee+ "</>에서 <>" + request.getExtraFee() + "</>로 변경하였습니다.");
         }
-        if(bePresent(request.getExtraType()) && request.getExtraType().equals(extraTypes.getExtra())){
+        if(bePresent(request.getExtraType()) && !request.getExtraType().equals(extraTypes.getExtra())){
             logList.add(head + "추가금 타입을 <>" + extraTypes.getReason() + "</>에서 <>" + ExtraTypes.getExtraType(request.getExtraType()).getReason() + "</>으로 변경하였습니다.");
         }
         if(bePresent(request.getPaidFee()) && request.getPaidFee() != paidFee){
             logList.add(head + "납부금을 <>" + paidFee + "</>에서 <>" + request.getPaidFee() + "<>로 변경하였습니다.");
         }
-        if(bePresent(request.getDescription()) && request.getDescription().equals(description)){
+        if(bePresent(request.getDescription()) && !request.getDescription().equals(description)){
             logList.add(head + "설명을 <>\"" + description + "\"</>에서 <>\"" + request.getDescription() + "\"</>로 변경하였습니다.");
         }
-        bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_PAYMENT, user.getUserNo(), payment.getPaymentNo().toString(), logList));
+        bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_PAYMENT, user.getUserNo(), payment.getLeaseNo().toString(), logList));
     }
 
-
+    private void deleteExtraLog(BikeUser user, LeasePayments payment, String extraId){
+        String log = "<>" + user.getBikeUserInfo().getName() +
+                "</>님이 <>" + payment.getIndex()+"</>회차에 있는 추가금<>(" + extraId + ")</>을 삭제 하였습니다.";
+        bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_PAYMENT, user.getUserNo(), payment.getLeaseNo().toString(), log));
+    }
 }

@@ -22,7 +22,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class CommonWorker extends SessService {
 
-    public PresignedURLVo generatePreSignedUrl(String filename, String extension){
+    public PresignedURLVo  generatePreSignedUrl(String filename, String extension){
         PresignedURLVo presignedURLVo = new PresignedURLVo();
         presignedURLVo.setBucket(ENV.AWS_S3_QUEUE_BUCKET);
         if(bePresent(extension)){

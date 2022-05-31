@@ -140,7 +140,7 @@ public class CalendarUtil {
     public static boolean isAfterBusDays(LocalDate date){
         LocalDate now = LocalDate.now();
         int busDays = 0;
-        while(!now.isEqual(date)){
+        while(!now.isAfter(date)){
             now = now.plusDays(1L);
             if(!isHoliday(now))
                 busDays++;
