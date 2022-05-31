@@ -160,6 +160,10 @@
               </if>
               <if test="search_status_code != null and search_status_code != '' and search_status_code != 'undefined'">
                    and status = #{search_status_code}
+                   and deleted_at is null
+              </if>
+              <if test="is_deleted != null and is_deleted != '' and is_deleted != 'undefined'">
+                   and deleted_at is not null
               </if>
               <if test="search_client_no != null and search_client_no != '' and search_client_no != 'undefined'">
                    and client_no in (${search_client_no})
@@ -201,6 +205,10 @@
                  </if>
                  <if test="search_status_code != null and search_status_code != '' and search_status_code != 'undefined'">
                    and status = #{search_status_code}
+                   and deleted_at is null
+                 </if>
+                 <if test="is_deleted != null and is_deleted != '' and is_deleted != 'undefined'">
+                   and deleted_at is not null
                  </if>
                  <if test="search_client_no != null and search_client_no != '' and search_client_no != 'undefined'">
                    and client_no in (${search_client_no})
