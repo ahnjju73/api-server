@@ -661,7 +661,8 @@
                                                 lease_id,
                                                 bike_no,
                                                 client_no,
-                                                bak_bike_no
+                                                bak_bike_no,
+                                                lease_stop_status
                                            from leases
                                           where `status` = '550-003'
                                             -- and lease_stop_status in ('506-001', '506-003')
@@ -718,6 +719,7 @@
                main.extra_fee,
                main.paid_fee,
                main.extra_id,
+               main.lease_stop_status as lease_status,
                c.client_id,
                c.email as client_email,
                c.uuid as cleint_uuid,
@@ -744,6 +746,7 @@
                                        lm.client_no,
                                        lm.bike_no,
                                        lm.bak_bike_no,
+                                       lm.lease_stop_status,
                                        lp.payment_date,
                                        lp.payment_id,
                                        le.extra_id,
