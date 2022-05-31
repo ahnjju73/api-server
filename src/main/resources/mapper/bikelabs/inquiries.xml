@@ -32,6 +32,8 @@
                dl.pending_at,
                dl.rejected_at,
                dl.completed_at,
+               dl.age,
+               dl.release_wish_dt as release_dt,
                c.client_id,
                c.business_type as client_business_type,
                c.email as client_email,

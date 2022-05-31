@@ -126,10 +126,26 @@ public class CalendarUtil {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
         String formattedDate = date.format(formatter);
         Set<String> strings = calendarUtil.holidayArray("" +  year);
+        int childDayChk = date.getDayOfWeek().getValue();
+        if(childDayChk == LD_SUNDAY || childDayChk == LD_SATURDAY)
+            return true;
         for(String holidays : strings){
             if(formattedDate.equals(holidays)){
                 return true;
             }
+        }
+        return false;
+    }
+
+    public static boolean isAfterBusDays(LocalDate date){
+        LocalDate now = LocalDate.now();
+        int busDays = 0;
+        while(!now.isAfter(date)){
+            now = now.plusDays(1L);
+            if(!isHoliday(now))
+                busDays++;
+            if(busDays >= 3)
+                return true;
         }
         return false;
     }

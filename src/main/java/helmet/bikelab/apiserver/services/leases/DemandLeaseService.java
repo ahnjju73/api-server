@@ -218,7 +218,8 @@ public class DemandLeaseService extends SessService {
         String date = (String) param.get("date");
         LocalDate parse = LocalDate.parse(date);
         Boolean isHoliday = CalendarUtil.isHoliday(parse);
-        request.setResponse(isHoliday);
+        Boolean afterBusDays = CalendarUtil.isAfterBusDays(parse);
+        request.setResponse(isHoliday || !afterBusDays);
         return request;
     }
 }

@@ -17,4 +17,5 @@ public interface BikesRepository extends JpaRepository<Bikes, Integer> {
     List<Bikes> findAllByRiderNo(Integer riderNo);
     List<Bikes> findByRiderNoIsNotNull(Pageable pageable);
     Integer countAllByRiderNoIsNotNull();
+    List<Bikes> findByCarModelCode(String carModelCode);
 }

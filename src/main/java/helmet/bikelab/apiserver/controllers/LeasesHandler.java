@@ -195,7 +195,6 @@ public class LeasesHandler {
                 request.bodyToMono(Map.class)
                         .subscribeOn(Schedulers.elastic())
                         .map(row -> leasesService.makeSessionRequest(request, row , BikeSessionRequest.class))
-                        .map(req -> leasesService.getPathVariable(req, "lease_id"))
                         .map(leasesService::checkBikeSession)
                         .map(leasesService::generatePreSignedURLToUploadLeaseFile)
                         .map(leasesService::returnData), PresignedURLVo.class);
@@ -203,8 +202,9 @@ public class LeasesHandler {
 
     public Mono<ServerResponse> addLeaseAttachment(ServerRequest request) {
         return ServerResponse.ok().body(
-                Mono.fromSupplier(() -> leasesService.makeSessionRequest(request, BikeSessionRequest.class))
+                request.bodyToMono(Map.class)
                         .subscribeOn(Schedulers.elastic())
+                        .map(row -> leasesService.makeSessionRequest(request, row , BikeSessionRequest.class))
                         .map(req -> leasesService.getPathVariable(req, "lease_id"))
                         .map(leasesService::checkBikeSession)
                         .map(leasesService::addAttachments)
@@ -220,5 +220,15 @@ public class LeasesHandler {
                         .map(leasesService::checkBikeSession)
                         .map(leasesService::deleteAttachments)
                         .map(leasesService::returnData), Map.class);
+    }
+
+    public Mono<ServerResponse> getAttachments(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> leasesService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(req -> leasesService.getPathVariable(req, "lease_id"))
+                        .map(leasesService::checkBikeSession)
+                        .map(leasesService::getLeaseAttachments)
+                        .map(leasesService::returnData), List.class);
     }
 }
