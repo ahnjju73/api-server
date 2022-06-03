@@ -65,7 +65,9 @@
                    or `number` like concat('%', #{search_name}, '%')
                    )
              </if>
-
+             <if test="search_bike_id != null and search_bike_id != '' and search_bike_id != 'undefined'">
+               and bike_id like concat('%', #{search_bike_id}, '%')
+             </if>
         </if>
     </select>
 
@@ -115,6 +117,9 @@
                 vim_num like concat('%', #{search_name}, '%')
                 or `number` like concat('%', #{search_name}, '%')
                 )
+                </if>
+                <if test="search_bike_id != null and search_bike_id != '' and search_bike_id != 'undefined'">
+                and bike_id like concat('%', #{search_bike_id}, '%')
                 </if>
                 <if test="next_token != null and next_token != '' and next_token != 'undefined'">
                 and bike_id <![CDATA[ < ]]> #{next_token}
