@@ -193,7 +193,7 @@
           left outer join `groups` g on c.group_no = g.group_no
           join bikes b on e.bike_no = b.bike_no
           join com_comm_bikes bm on bm.comm_cd = b.car_model
-          join (select estimate_no,
+          left outer join (select estimate_no,
                        sum((parts_price +
                        if (working_price is null, 0, working_price) * hours * number) *
                        if (parts_type_discount_rate is not null, parts_type_discount_rate, if(client_discount_rate is null, 1, client_discount_rate))) as estimate_price
