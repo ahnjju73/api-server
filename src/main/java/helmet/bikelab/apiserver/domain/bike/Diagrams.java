@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import helmet.bikelab.apiserver.domain.CommonBikes;
 import helmet.bikelab.apiserver.domain.types.MediaTypes;
 import helmet.bikelab.apiserver.domain.types.converters.PartsImagesConverter;
+import helmet.bikelab.apiserver.objects.PresignedURLVo;
 import helmet.bikelab.apiserver.objects.requests.DiagramInfoRequest;
 import helmet.bikelab.apiserver.services.internal.OriginObject;
 import lombok.Getter;
@@ -31,16 +32,14 @@ public class Diagrams extends OriginObject {
         this.carModelCode = diagramInfoRequest.getCarModel();
         this.name = diagramInfoRequest.getName();
         if(bePresent(diagramInfoRequest.getImages())){
-            this.imageList = diagramInfoRequest.getImages().stream().map(elm -> {
-                elm.copyObjectToOrigin();
-                return new ImageVo(MediaTypes.IMAGE, elm.getFilename(), elm.getFileKey());
-            }).collect(Collectors.toList());
+            this.imageList = extractImageVo(diagramInfoRequest.getImages());
         }
     }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "diagram_no")
+    @JsonIgnore
     private Integer diagramNo;
 
     @Column(name = "diagram_id", unique = true)
@@ -67,5 +66,36 @@ public class Diagrams extends OriginObject {
     @Column(name = "deleted_at", columnDefinition = "DATETIME")
     private LocalDateTime deletedAt;
 
+    public List<ImageVo> extractImageVo(List<PresignedURLVo> image){
+        if(bePresent(image)){
+            List<ImageVo> imageVos = image.stream().map(elm -> {
+                elm.copyObjectToOrigin();
+                return new ImageVo(MediaTypes.IMAGE, elm.getFilename(), elm.getFileKey());
+            }).collect(Collectors.toList());
+            return imageVos;
+        }else return null;
+    }
+
+    public void setImageList(List<PresignedURLVo> image){
+        List<ImageVo> imageVos = extractImageVo(image);
+        if(bePresent(imageVos)){
+            if(bePresent(imageList)){
+                imageList.addAll(imageVos);
+            }else {
+                imageList = imageVos;
+            }
+        }
+
+    }
+
+    public Diagrams deleteImageById(String id){
+        if(bePresent(imageList)){
+            List<ImageVo> collect = imageList.stream()
+                    .filter(elm -> elm.getId().equals(id))
+                    .collect(Collectors.toList());
+            imageList.removeAll(collect);
+        }
+        return this;
+    }
 
 }

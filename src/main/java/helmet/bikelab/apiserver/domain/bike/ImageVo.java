@@ -27,8 +27,10 @@ public class ImageVo {
     }
 
     private String id = UUID.randomUUID().toString().replaceAll("-", "");
+
     @Convert(converter = MediaTypesConverter.class)
     private MediaTypes mediaType;
+
     private String mediaTypeCode;
     private String uri;
     private String domain;

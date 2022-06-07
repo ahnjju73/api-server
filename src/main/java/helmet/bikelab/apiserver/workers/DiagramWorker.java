@@ -2,6 +2,7 @@ package helmet.bikelab.apiserver.workers;
 
 import helmet.bikelab.apiserver.domain.CommonBikes;
 import helmet.bikelab.apiserver.domain.CommonWorking;
+import helmet.bikelab.apiserver.domain.EstimateParts;
 import helmet.bikelab.apiserver.domain.Manufacturers;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.bike.Diagrams;
@@ -19,6 +20,7 @@ import java.util.List;
 public class DiagramWorker extends Workspace {
 
     private final DiagramsRepository diagramsRepository;
+    private final EstimatePartsRepository estimatePartsRepository;
 
     public Diagrams getDiagramById(String diagramId){
         Diagrams byDiagramId = diagramsRepository.findByDiagramId(diagramId);

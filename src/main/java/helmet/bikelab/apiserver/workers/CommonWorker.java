@@ -29,7 +29,7 @@ public class CommonWorker extends SessService {
             presignedURLVo.setFileKey(LocalDate.now() + "/" + filename + "." + extension);
             presignedURLVo.setFilename(filename + "." + extension);
         }else {
-            presignedURLVo.setFileKey(LocalDate.now() + "/" + filename);
+            presignedURLVo.setFileKey(filename);
             presignedURLVo.setFilename(filename);
         }
 
