@@ -96,11 +96,7 @@ public class BikePartsService extends SessService {
                         String fileKey = "parts/" + partsByIdAndCarModel.getPartNo() + "/" + presignedURLVo.getFileKey();
                         CopyObjectRequest objectRequest = new CopyObjectRequest(presignedURLVo.getBucket(), presignedURLVo.getFileKey(), ENV.AWS_S3_ORIGIN_BUCKET, fileKey);
                         amazonS3.copyObject(objectRequest);
-                        ImageVo partsImage = new ImageVo();
-                        partsImage.setMediaType(MediaTypes.IMAGE.getStatus());
-                        partsImage.setFileName(presignedURLVo.getFilename());
-                        partsImage.setUri("/" + fileKey);
-                        partsImage.setDomain(ENV.AWS_S3_ORIGIN_DOMAIN);
+                        ImageVo partsImage = new ImageVo(MediaTypes.IMAGE, presignedURLVo.getFilename(), fileKey);
                         return partsImage;
                     }).collect(Collectors.toList());
             if(!bePresent(images)) images = new ArrayList<>();
