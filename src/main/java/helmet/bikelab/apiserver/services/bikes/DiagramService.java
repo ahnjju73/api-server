@@ -89,7 +89,10 @@ public class DiagramService extends SessService {
     public BikeSessionRequest generatePreSigned(BikeSessionRequest request){
         Map param = request.getParam();
         String filename = (String)param.get("filename");
-        PresignedURLVo presignedURLVo = commonWorker.generatePreSignedUrl("diagrams/" + filename, null);
+        if(!bePresent(filename)) withException("");
+        DiagramByIdRequest diagramByIdRequest = map(request.getParam(), DiagramByIdRequest.class);
+        Diagrams diagramById = diagramWorker.getDiagramById(diagramByIdRequest.getDiagramId());
+        PresignedURLVo presignedURLVo = commonWorker.generatePreSignedUrl("diagrams/" + diagramById.getDiagramId() + "/" + filename, null);
         request.setResponse(presignedURLVo);
         return request;
     }
@@ -107,7 +110,7 @@ public class DiagramService extends SessService {
     public BikeSessionRequest deleteImageByDiagramId(BikeSessionRequest request){
         DiagramImageDeleteByIdRequest diagramByIdRequest = map(request.getParam(), DiagramImageDeleteByIdRequest.class);
         Diagrams diagramById = diagramWorker.getDiagramById(diagramByIdRequest.getDiagramId());
-        diagramById.deleteImageById(diagramById.getDiagramId());
+        diagramById.deleteImageById(diagramByIdRequest.getId());
         diagramsRepository.save(diagramById);
         return request;
     }

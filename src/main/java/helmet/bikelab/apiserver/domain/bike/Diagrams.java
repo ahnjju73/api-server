@@ -85,7 +85,6 @@ public class Diagrams extends OriginObject {
                 imageList = imageVos;
             }
         }
-
     }
 
     public Diagrams deleteImageById(String id){
