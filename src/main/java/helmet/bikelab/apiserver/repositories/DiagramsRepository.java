@@ -9,4 +9,6 @@ import java.util.List;
 
 public interface DiagramsRepository extends JpaRepository<Diagrams, Integer> {
 
+    Diagrams findByDiagramId(String diagramId);
+
 }
