@@ -1,23 +1,14 @@
 package helmet.bikelab.apiserver.domain.bike;
 
-import com.amazonaws.regions.Regions;
-import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.AmazonS3Client;
-import com.amazonaws.services.s3.model.CopyObjectRequest;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import helmet.bikelab.apiserver.domain.CommonBikes;
 import helmet.bikelab.apiserver.domain.types.MediaTypes;
-import helmet.bikelab.apiserver.domain.types.converters.PartsBackUpConverter;
 import helmet.bikelab.apiserver.domain.types.converters.PartsImagesConverter;
-import helmet.bikelab.apiserver.objects.bikelabs.bikes.PartsBackUpDto;
 import helmet.bikelab.apiserver.objects.requests.DiagramInfoRequest;
 import helmet.bikelab.apiserver.services.internal.OriginObject;
-import helmet.bikelab.apiserver.utils.amazon.AmazonUtils;
-import helmet.bikelab.apiserver.utils.keys.ENV;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
@@ -30,7 +21,6 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 @Table(name = "diagrams")
-@NoArgsConstructor
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class Diagrams extends OriginObject {
 
