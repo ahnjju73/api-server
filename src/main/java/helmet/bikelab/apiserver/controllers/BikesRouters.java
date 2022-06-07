@@ -15,7 +15,7 @@ public class BikesRouters {
 
     private final BikesModelHandlers bikesModelHandlers;
     private final BikePartsHandlers partsHandler;
-
+    private final DiagramHandlers diagramHandlers;
 
     @Bean
     public RouterFunction<ServerResponse> bikeRouter(BikesHandlers handler){
@@ -96,6 +96,30 @@ public class BikesRouters {
         return RouterFunctions
                 .route(GET("/bike-working"), handler::fetchWorkingPriceByModel)
                 .andRoute(PUT("/bike-working"), handler::updateWorkingPriceByModel)
+                ;
+    }
+
+    @Bean
+    public RouterFunction<ServerResponse> diagramRouter(){
+        return RouterFunctions
+                .route(POST("/diagrams"), diagramHandlers::addNewDiagram)
+                .andRoute(PUT("/diagrams"), diagramHandlers::updateDiagram)
+                .andRoute(DELETE("/diagrams"), diagramHandlers::deleteDiagram)
+                .andRoute(GET("/diagrams"), diagramHandlers::fetchAllDiagramList)
+                .andRoute(GET("/diagrams/details"), diagramHandlers::fetchDiagramDetailsById)
+                .andRoute(PUT("/diagrams/images/signed"), diagramHandlers::generatePreSigned)
+                .andRoute(POST("/diagrams/images"), diagramHandlers::updateImageByDiagramId)
+                .andRoute(DELETE("/diagrams/images"), diagramHandlers::deleteImageByDiagramId)
+                ;
+    }
+
+    @Bean
+    public RouterFunction<ServerResponse> diagramPartsRouter(){
+        return RouterFunctions
+                .route(POST("/diagrams/parts"), diagramHandlers::addPartsByDiagramId)
+                .andRoute(DELETE("/diagrams/parts"), diagramHandlers::removePartsByDiagramId)
+                .andRoute(GET("/diagrams/parts"), diagramHandlers::fetchPartListByDiagramId)
+                .andRoute(GET("/diagrams/parts/by-all"), diagramHandlers::fetchAllPartListOfDiagramId)
                 ;
     }
 
