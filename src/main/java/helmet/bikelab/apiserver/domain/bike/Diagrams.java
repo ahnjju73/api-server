@@ -12,6 +12,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -44,5 +45,8 @@ public class Diagrams {
 
     @Column(name = "images", columnDefinition = "json", insertable = false, updatable = false)
     private String images;
+
+    @Column(name = "deleted_at", columnDefinition = "DATETIME")
+    private LocalDateTime deletedAt;
 
 }

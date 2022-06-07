@@ -5,6 +5,7 @@ import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.PresignedURLVo;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.services.bikes.BikePartsService;
+import helmet.bikelab.apiserver.services.bikes.DiagramPartsService;
 import helmet.bikelab.apiserver.services.bikes.DiagramService;
 import helmet.bikelab.apiserver.services.bikes.PartsService;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ import java.util.Map;
 public class DiagramHandlers {
 
     private final DiagramService diagramService;
+    private final DiagramPartsService diagramPartsService;
 
     public Mono<ServerResponse> addNewDiagram(ServerRequest request) {
         return ServerResponse.ok().body(
@@ -82,13 +84,59 @@ public class DiagramHandlers {
                         .map(diagramService::returnData), Page.class);
     }
 
+    public Mono<ServerResponse> fetchAllDiagramList(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> diagramService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(diagramService::checkBikeSession)
+                        .map(diagramService::fetchAllDiagramList)
+                        .map(diagramService::returnData), Page.class);
+    }
+
     public Mono<ServerResponse> deleteImageByDiagramId(ServerRequest request) {
         return ServerResponse.ok().body(
                 Mono.fromSupplier(() -> diagramService.makeSessionRequest(request, BikeSessionRequest.class))
                         .subscribeOn(Schedulers.elastic())
                         .map(diagramService::checkBikeSession)
                         .map(diagramService::deleteImageByDiagramId)
-                        .map(diagramService::returnData), List.class);
+                        .map(diagramService::returnData), Map.class);
+    }
+
+    public Mono<ServerResponse> addPartsByDiagramId(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> diagramPartsService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(diagramPartsService::checkBikeSession)
+                        .map(diagramPartsService::addPartsByDiagramId)
+                        .map(diagramPartsService::returnData), Map.class);
+    }
+
+    public Mono<ServerResponse> removePartsByDiagramId(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> diagramPartsService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(diagramPartsService::checkBikeSession)
+                        .map(diagramPartsService::removePartsByDiagramId)
+                        .map(diagramPartsService::returnData), Map.class);
+    }
+
+    public Mono<ServerResponse> fetchPartListByDiagramId(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> diagramPartsService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(diagramPartsService::checkBikeSession)
+                        .map(diagramPartsService::fetchPartListByDiagramId)
+                        .map(diagramPartsService::returnData), List.class);
+    }
+
+    public Mono<ServerResponse> fetchAllPartListOfDiagramId(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> diagramPartsService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(diagramPartsService::checkBikeSession)
+                        .map(diagramPartsService::fetchAllPartListOfDiagramId)
+                        .map(diagramPartsService::returnData), Page.class);
     }
 
 }

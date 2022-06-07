@@ -1,6 +1,7 @@
 package helmet.bikelab.apiserver.services.bikes;
 
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
+import helmet.bikelab.apiserver.objects.requests.DiagramInfoRequest;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,7 @@ public class DiagramService extends SessService {
 
     @Transactional
     public BikeSessionRequest addNewDiagram(BikeSessionRequest request){
+        DiagramInfoRequest diagramInfoRequest = map(request.getParam(), DiagramInfoRequest.class);
         return request;
     }
 
@@ -26,6 +28,10 @@ public class DiagramService extends SessService {
     }
 
     public BikeSessionRequest fetchDiagramDetailsById(BikeSessionRequest request){
+        return request;
+    }
+
+    public BikeSessionRequest fetchAllDiagramList(BikeSessionRequest request){
         return request;
     }
 

@@ -10,4 +10,22 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 public class DiagramPartsService extends SessService {
 
+
+    @Transactional
+    public BikeSessionRequest addPartsByDiagramId(BikeSessionRequest request){
+        return request;
+    }
+
+    @Transactional
+    public BikeSessionRequest removePartsByDiagramId(BikeSessionRequest request){
+        return request;
+    }
+
+    public BikeSessionRequest fetchPartListByDiagramId(BikeSessionRequest request){
+        return request;
+    }
+
+    public BikeSessionRequest fetchAllPartListOfDiagramId(BikeSessionRequest request){
+        return request;
+    }
 }
