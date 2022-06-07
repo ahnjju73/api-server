@@ -6,7 +6,7 @@ import com.amazonaws.services.s3.model.CopyObjectRequest;
 import helmet.bikelab.apiserver.domain.CommonBikes;
 import helmet.bikelab.apiserver.domain.CommonWorking;
 import helmet.bikelab.apiserver.domain.bike.Parts;
-import helmet.bikelab.apiserver.domain.bike.PartsImages;
+import helmet.bikelab.apiserver.domain.bike.ImageVo;
 import helmet.bikelab.apiserver.domain.bike.PartsTypes;
 import helmet.bikelab.apiserver.domain.types.BikeTypes;
 import helmet.bikelab.apiserver.domain.types.MediaTypes;
@@ -55,7 +55,7 @@ public class BikePartsService extends SessService {
     public BikeSessionRequest fetchPartImageByPartsId(BikeSessionRequest request){
         PartsByIdRequest partsByIdRequest = map(request.getParam(), PartsByIdRequest.class);
         Parts partsById = bikeWorker.getPartsById(partsByIdRequest.getPartsNo());
-        List<PartsImages> images = partsById.getImages();
+        List<ImageVo> images = partsById.getImages();
         request.setResponse(!bePresent(images) ? new ArrayList() : images);
         return request;
     }
@@ -64,10 +64,10 @@ public class BikePartsService extends SessService {
     public BikeSessionRequest deletePartsImage(BikeSessionRequest request){
         DeletePartsImageRequest partsByIdRequest = map(request.getParam(), DeletePartsImageRequest.class);
         Parts partsById = bikeWorker.getPartsById(partsByIdRequest.getPartsNo());
-        List<PartsImages> images = partsById.getImages();
+        List<ImageVo> images = partsById.getImages();
         if(bePresent(images)){
             for(int i = 0; i < images.size(); i++){
-                PartsImages partsImages = images.get(i);
+                ImageVo partsImages = images.get(i);
                 if(partsImages.getId().equals(partsByIdRequest.getId())){
                     images.remove(i);
                     break;
@@ -86,8 +86,8 @@ public class BikePartsService extends SessService {
         Parts partsByIdAndCarModel = bikeWorker.getPartsById(addPartsImageRequest.getPartsNo());
 
         if(bePresent(addPartsImageRequest.getImages())){
-            List<PartsImages> images = partsByIdAndCarModel.getImages();
-            List<PartsImages> collect = addPartsImageRequest
+            List<ImageVo> images = partsByIdAndCarModel.getImages();
+            List<ImageVo> collect = addPartsImageRequest
                     .getImages()
                     .stream().map(presignedURLVo -> {
                         AmazonS3 amazonS3 = AmazonS3Client.builder()
@@ -96,7 +96,7 @@ public class BikePartsService extends SessService {
                         String fileKey = "parts/" + partsByIdAndCarModel.getPartNo() + "/" + presignedURLVo.getFileKey();
                         CopyObjectRequest objectRequest = new CopyObjectRequest(presignedURLVo.getBucket(), presignedURLVo.getFileKey(), ENV.AWS_S3_ORIGIN_BUCKET, fileKey);
                         amazonS3.copyObject(objectRequest);
-                        PartsImages partsImage = new PartsImages();
+                        ImageVo partsImage = new ImageVo();
                         partsImage.setMediaType(MediaTypes.IMAGE.getStatus());
                         partsImage.setFileName(presignedURLVo.getFilename());
                         partsImage.setUri("/" + fileKey);

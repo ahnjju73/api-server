@@ -13,7 +13,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
-public class PartsImages {
+public class ImageVo {
 
     private String id = UUID.randomUUID().toString().replaceAll("-", "");
     @Convert(converter = MediaTypesConverter.class)

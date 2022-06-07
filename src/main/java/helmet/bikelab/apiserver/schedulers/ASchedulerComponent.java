@@ -21,7 +21,7 @@ public class ASchedulerComponent extends AbstractSchedulers {
         JobDetail leaseFinishSchedulerService = buildJobDetail(LeaseFinishSchedulerService.class, "LeaseFinishSchedulerService", "", new HashMap());
         doScheduler(leaseFinishSchedulerService, "0 0 1 * * ?");
 
-        JobDetail unPaidLeaseSchedulerService = buildJobDetail(UnPaidLeaseSchedulerService.class, "UnPaidLeaseSchedulerService", "", new HashMap());
+//        JobDetail unPaidLeaseSchedulerService = buildJobDetail(UnPaidLeaseSchedulerService.class, "UnPaidLeaseSchedulerService", "", new HashMap());
 //        doScheduler(unPaidLeaseSchedulerService, "0 0 9 * * ?");
 
         JobDetail summarySchedulerService = buildJobDetail(SummarySchedulerService.class, "SummarySchedulerService", "", new HashMap());
