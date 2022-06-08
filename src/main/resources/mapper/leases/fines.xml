@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding= "UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="leases.fines">
+    <select id="countAllFines" parameterType="hmap" resultType="int">
+        select count(*)
+          from fines
+    </select>
+
+    <select id="fetchAllFines" parameterType="hmap" resultType="hmap">
+        select
+
+    </select>
+
+</mapper>
