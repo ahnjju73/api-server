@@ -2,6 +2,7 @@ package helmet.bikelab.apiserver.services.bikes;
 
 import helmet.bikelab.apiserver.domain.bike.Diagrams;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
+import helmet.bikelab.apiserver.objects.requests.DiagramByIdRequest;
 import helmet.bikelab.apiserver.objects.requests.DiagramInfoRequest;
 import helmet.bikelab.apiserver.repositories.DiagramsRepository;
 import helmet.bikelab.apiserver.services.internal.SessService;
@@ -31,6 +32,10 @@ public class DiagramService extends SessService {
 
     @Transactional
     public BikeSessionRequest updateDiagram(BikeSessionRequest request){
+        DiagramByIdRequest diagramByIdRequest = map(request.getParam(), DiagramByIdRequest.class);
+        DiagramInfoRequest diagramInfoRequest = map(request.getParam(), DiagramInfoRequest.class);
+        Diagrams diagrams = diagramWorker.setDiagramById(diagramInfoRequest, diagramByIdRequest.getDiagramId());
+        diagramsRepository.save(diagrams);
         return request;
     }
 
