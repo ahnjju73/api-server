@@ -12,13 +12,6 @@ import java.util.List;
 @Getter
 @Setter
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
-public class DiagramInfoRequest extends OriginObject {
-    private String carModel;
-    private String name;
+public class DiagramImageByIdRequest extends DiagramByIdRequest {
     private List<PresignedURLVo> images;
-
-    public void checkValidation(){
-        if(!bePresent(name)) withException("550-002");
-        if(!bePresent(carModel)) withException("550-003");
-    }
 }

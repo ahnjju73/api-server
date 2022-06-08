@@ -23,13 +23,14 @@ import java.util.UUID;
 public class CommonWorker extends SessService {
 
     public PresignedURLVo  generatePreSignedUrl(String filename, String extension){
+        if(!bePresent(filename)) writeMessage("needs filename");
         PresignedURLVo presignedURLVo = new PresignedURLVo();
         presignedURLVo.setBucket(ENV.AWS_S3_QUEUE_BUCKET);
         if(bePresent(extension)){
             presignedURLVo.setFileKey(LocalDate.now() + "/" + filename + "." + extension);
             presignedURLVo.setFilename(filename + "." + extension);
         }else {
-            presignedURLVo.setFileKey(LocalDate.now() + "/" + filename);
+            presignedURLVo.setFileKey(filename);
             presignedURLVo.setFilename(filename);
         }
 

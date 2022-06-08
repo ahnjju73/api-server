@@ -19,16 +19,17 @@ public class ImageVo {
     public ImageVo(){}
 
     public ImageVo(MediaTypes mediaType, String filename, String fileKey){
-        ImageVo partsImage = new ImageVo();
-        partsImage.setMediaType(mediaType.getStatus());
-        partsImage.setFileName(filename);
-        partsImage.setUri("/" + fileKey);
-        partsImage.setDomain(ENV.AWS_S3_ORIGIN_DOMAIN);
+        setMediaType(mediaType.getStatus());
+        setFileName(filename);
+        setUri("/" + fileKey);
+        setDomain(ENV.AWS_S3_ORIGIN_DOMAIN);
     }
 
     private String id = UUID.randomUUID().toString().replaceAll("-", "");
+
     @Convert(converter = MediaTypesConverter.class)
     private MediaTypes mediaType;
+
     private String mediaTypeCode;
     private String uri;
     private String domain;

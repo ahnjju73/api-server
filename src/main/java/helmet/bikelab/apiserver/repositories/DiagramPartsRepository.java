@@ -7,4 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface DiagramPartsRepository extends JpaRepository<DiagramParts, DiagramPartsPK> {
 
+    void deleteByDiagramNo(Integer diagramNo);
+
 }

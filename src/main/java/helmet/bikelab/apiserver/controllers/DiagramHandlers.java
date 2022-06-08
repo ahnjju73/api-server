@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.controllers;
 
+import helmet.bikelab.apiserver.domain.bike.Diagrams;
 import helmet.bikelab.apiserver.domain.bike.Parts;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.PresignedURLVo;
@@ -53,7 +54,7 @@ public class DiagramHandlers {
                         .map(row -> diagramService.makeSessionRequest(request, row, BikeSessionRequest.class))
                         .map(diagramService::checkBikeSession)
                         .map(diagramService::generatePreSigned)
-                        .map(diagramService::returnData), Map.class);
+                        .map(diagramService::returnData), PresignedURLVo.class);
     }
 
     public Mono<ServerResponse> updateImageByDiagramId(ServerRequest request) {
@@ -81,7 +82,7 @@ public class DiagramHandlers {
                         .subscribeOn(Schedulers.elastic())
                         .map(diagramService::checkBikeSession)
                         .map(diagramService::fetchDiagramDetailsById)
-                        .map(diagramService::returnData), Page.class);
+                        .map(diagramService::returnData), Diagrams.class);
     }
 
     public Mono<ServerResponse> fetchAllDiagramList(ServerRequest request) {

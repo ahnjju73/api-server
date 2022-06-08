@@ -2,6 +2,8 @@ package helmet.bikelab.apiserver.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import helmet.bikelab.apiserver.domain.bike.Parts;
+import helmet.bikelab.apiserver.domain.embeds.ModelDiagramParts;
+import helmet.bikelab.apiserver.domain.embeds.ModelPassword;
 import helmet.bikelab.apiserver.domain.types.EstimateTypes;
 import helmet.bikelab.apiserver.domain.types.YesNoTypes;
 import helmet.bikelab.apiserver.domain.types.converters.EstimateTypeConverter;
@@ -73,6 +75,9 @@ public class EstimateParts {
 
     @Column(name = "parts_type_name", length = 45)
     private String partsTypeName;
+
+    @Embedded
+    private ModelDiagramParts diagramParts = new ModelDiagramParts();
 
     public Integer getNumber() {
         return number == null ? 1 : number;

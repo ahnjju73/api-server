@@ -18,4 +18,5 @@ public interface EstimatePartsRepository extends JpaRepository<EstimateParts, Es
     void deleteAllByEstimate_EstimateId(String estimateId);
     EstimateParts findByPartsNameAndPartsTypeNameAndPartsNoAndEstimateType(String partName, String partTypeName, Long partNo, EstimateTypes estimateTypes);
     EstimateParts findByPartsNoAndEstimate_EstimateIdAndEstimateType(Long partNo, String estimateId, EstimateTypes estimateTypes);
+    List<EstimateParts> findAllByDiagramParts_DiagramNo(Integer diagramNo);
 }
