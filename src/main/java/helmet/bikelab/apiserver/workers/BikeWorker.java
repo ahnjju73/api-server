@@ -34,6 +34,12 @@ public class BikeWorker extends Workspace {
         return byBikeNo;
     }
 
+    public Bikes getBikeById(String bikeId){
+        Bikes bike = bikesRepository.findByBikeId(bikeId);
+        if(!bePresent(bike)) withException("512-001");
+        return bike;
+    }
+
     public Bikes getEmptyBikes(){
         String emptyBikeId = (String)getItem("comm.common.getEmptyCar", null);
         Bikes byBikeId = bikesRepository.findByBikeId(emptyBikeId);

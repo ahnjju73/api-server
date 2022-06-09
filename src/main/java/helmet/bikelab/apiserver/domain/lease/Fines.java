@@ -50,7 +50,7 @@ public class Fines {
     private Integer riderNo;
 
     @JsonIgnore
-    @Column(name = "rider_no")
+    @JoinColumn(name = "rider_no", updatable = false, insertable = false)
     @ManyToOne
     private Riders rider;
 
@@ -58,7 +58,7 @@ public class Fines {
     private Integer clientNo;
 
     @JsonIgnore
-    @Column(name = "client_no")
+    @JoinColumn(name = "client_no", updatable = false, insertable = false)
     @ManyToOne
     private Clients client;
 
@@ -66,7 +66,7 @@ public class Fines {
     private Integer bikeNo;
 
     @JsonIgnore
-    @Column(name = "bike_no")
+    @JoinColumn(name = "bike_no", updatable = false, insertable = false)
     @ManyToOne
     private Bikes bike;
 

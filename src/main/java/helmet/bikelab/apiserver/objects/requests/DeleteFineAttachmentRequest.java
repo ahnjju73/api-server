@@ -2,14 +2,15 @@ package helmet.bikelab.apiserver.objects.requests;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import helmet.bikelab.apiserver.services.internal.OriginObject;
 import lombok.Getter;
 import lombok.Setter;
 
 @Getter
 @Setter
 @JsonNaming(value = PropertyNamingStrategy.SnakeCaseStrategy.class)
-public class FetchFineRequest extends RequestListDto {
-
+public class DeleteFineAttachmentRequest extends OriginObject {
     private String fineId;
+    private String uuid;
 
 }

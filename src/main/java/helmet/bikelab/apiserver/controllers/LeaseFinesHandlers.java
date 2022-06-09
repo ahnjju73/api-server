@@ -19,7 +19,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class LeaseFinesHandlers {
 
-    private FineService fineService;
+    private final FineService fineService;
 
     public Mono<ServerResponse> fetchFines(ServerRequest request) {
         return ServerResponse.ok().body(
@@ -33,6 +33,7 @@ public class LeaseFinesHandlers {
     public Mono<ServerResponse> fetchFineDetail(ServerRequest request) {
         return ServerResponse.ok().body(
                 Mono.fromSupplier(() -> fineService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .map(row -> fineService.getPathVariable(row, "fine_id"))
                         .subscribeOn(Schedulers.elastic())
                         .map(fineService::checkBikeSession)
                         .map(fineService::fetchFineDetail)
@@ -54,6 +55,7 @@ public class LeaseFinesHandlers {
                 request.bodyToMono(Map.class)
                         .subscribeOn(Schedulers.elastic())
                         .map(row -> fineService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(row -> fineService.getPathVariable(row, "fine_id"))
                         .map(fineService::checkBikeSession)
                         .map(fineService::updateFine)
                         .map(fineService::returnData), Map.class);
@@ -61,9 +63,9 @@ public class LeaseFinesHandlers {
 
     public Mono<ServerResponse> deleteFine(ServerRequest request){
         return ServerResponse.ok().body(
-                request.bodyToMono(Map.class)
+                Mono.fromSupplier(() -> fineService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .map(row -> fineService.getPathVariable(row, "fine_id"))
                         .subscribeOn(Schedulers.elastic())
-                        .map(row -> fineService.makeSessionRequest(request, row, BikeSessionRequest.class))
                         .map(fineService::checkBikeSession)
                         .map(fineService::deleteFine)
                         .map(fineService::returnData), Map.class);
@@ -85,17 +87,29 @@ public class LeaseFinesHandlers {
                         .subscribeOn(Schedulers.elastic())
                         .map(row -> fineService.makeSessionRequest(request, row, BikeSessionRequest.class))
                         .map(fineService::checkBikeSession)
-                        .map(fineService::addAttachments)
+                        .map(fineService::fetchAttachments)
                         .map(fineService::returnData), Map.class);
     }
 
 
     public Mono<ServerResponse> addFineAttachment(ServerRequest request){
-        return null;
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> fineService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(fineService::checkBikeSession)
+                        .map(fineService::addAttachments)
+                        .map(fineService::returnData), List.class);
     }
 
     public Mono<ServerResponse> deleteFineAttachment(ServerRequest request){
-        return null;
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> fineService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(fineService::checkBikeSession)
+                        .map(fineService::deleteAttachment)
+                        .map(fineService::returnData), Map.class);
     }
 
 }

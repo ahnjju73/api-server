@@ -10,29 +10,28 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-@JsonNaming(value = PropertyNamingStrategy.SnakeCaseStrategy.class)
+@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class AddUpdateFineRequest extends OriginObject {
 
     private Integer fee;
     private Integer paidFee;
     private String fineNum;
-    private LocalDateTime fineDate;
-    private LocalDateTime fineExpireDate;
+    private String fineDate;
+    private String fineExpireDate;
     private String riderId;
     private String clientId;
     private String bikeId;
 
     public void checkValidation(){
         if(!bePresent(bikeId))
-            withException("");
+            withException("710-001");
         if(!bePresent(fineNum))
-            withException("");
+            withException("710-002");
         if(!bePresent(fee))
-            withException("");
+            withException("710-003");
         if(!bePresent(fineDate))
-            withException("");
+            withException("710-004");
         if(!bePresent(fineExpireDate))
-            withException("");
-
+            withException("710-005");
     }
 }
