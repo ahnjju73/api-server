@@ -97,4 +97,10 @@ public class Diagrams extends OriginObject {
         return this;
     }
 
+    public Diagrams updateInfo(DiagramInfoRequest diagramInfoRequest){
+        this.name = diagramInfoRequest.getName();
+        this.carModelCode = diagramInfoRequest.getCarModel();
+        return this;
+    }
+
 }

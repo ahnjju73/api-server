@@ -22,10 +22,17 @@ import java.util.List;
 @IdClass(DiagramPartsPK.class)
 public class DiagramParts {
 
+    public DiagramParts(Diagrams diagram, Parts part, Integer orderNo){
+        this.diagramNo = diagram.getDiagramNo();
+        this.partNo = part.getPartNo();
+        this.orderNo = orderNo;
+    }
+
     @Id
     @Column(name = "diagram_no")
     private Integer diagramNo;
 
+    @JsonIgnore
     @ManyToOne
     @JoinColumn(name = "diagram_no", insertable = false, updatable = false)
     private Diagrams diagram;
