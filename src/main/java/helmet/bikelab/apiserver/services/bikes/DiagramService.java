@@ -47,6 +47,13 @@ public class DiagramService extends SessService {
 
     @Transactional
     public BikeSessionRequest updateDiagram(BikeSessionRequest request){
+        DiagramByIdRequest diagramByIdRequest = map(request.getParam(), DiagramByIdRequest.class);
+        DiagramInfoRequest diagramInfoRequest = map(request.getParam(), DiagramInfoRequest.class);
+        diagramInfoRequest.checkValidation();
+        bikeWorker.getCommonCodeBikesById(diagramInfoRequest.getCarModel());
+        Diagrams diagramById = diagramWorker.getDiagramById(diagramByIdRequest.getDiagramId());
+        diagramById.updateInfo(diagramInfoRequest);
+        diagramsRepository.save(diagramById);
         return request;
     }
 
