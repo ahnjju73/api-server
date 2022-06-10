@@ -5,9 +5,15 @@ import helmet.bikelab.apiserver.domain.client.Clients;
 import helmet.bikelab.apiserver.domain.embeds.ModelAttachment;
 import helmet.bikelab.apiserver.domain.lease.Fines;
 import helmet.bikelab.apiserver.domain.riders.Riders;
+import helmet.bikelab.apiserver.objects.BikeDto;
+import helmet.bikelab.apiserver.objects.RiderInfoDto;
+import helmet.bikelab.apiserver.objects.bikelabs.clients.ClientDto;
 import helmet.bikelab.apiserver.objects.requests.AddUpdateFineRequest;
+import helmet.bikelab.apiserver.objects.responses.FetchFineDetailResponse;
 import helmet.bikelab.apiserver.repositories.BikesRepository;
+import helmet.bikelab.apiserver.repositories.ClientsRepository;
 import helmet.bikelab.apiserver.repositories.FinesRepository;
+import helmet.bikelab.apiserver.repositories.RiderRepository;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.utils.AutoKey;
 import lombok.RequiredArgsConstructor;
@@ -20,6 +26,8 @@ import java.time.LocalDateTime;
 public class FineWorker extends SessService {
 
     private final FinesRepository finesRepository;
+    private final RiderRepository riderRepository;
+    private final ClientsRepository clientsRepository;
     private final CommonWorker commonWorker;
     private final BikesRepository bikesRepository;
     private final ClientWorker clientWorker;
@@ -83,6 +91,34 @@ public class FineWorker extends SessService {
             }
         }
         return fine;
+    }
+
+    public FetchFineDetailResponse getFineInfo(Fines fine){
+        FetchFineDetailResponse fetchFineDetailResponse = new FetchFineDetailResponse();
+        fetchFineDetailResponse.setFineInfo(fine);
+        BikeDto bikeDto = new BikeDto();
+        Bikes bikeByNo = bikeWorker.getBikeByNo(fine.getBikeNo());
+        bikeDto.setBikeId(bikeByNo.getBikeId());
+        bikeDto.setBikeNum(bikeByNo.getCarNum());
+        bikeDto.setVimNum(bikeByNo.getVimNum());
+        bikeDto.setBikeModel(bikeByNo.getCarModel().getModel());
+        fetchFineDetailResponse.setBike(bikeDto);
+        if(bePresent(fine.getRiderNo())){
+            Riders byRiderNo = riderRepository.findByRiderNo(fine.getRiderNo());
+            RiderInfoDto riderInfoDto = new RiderInfoDto();
+            riderInfoDto.setRiderId(byRiderNo.getRiderId());
+            riderInfoDto.setRiderName(byRiderNo.getRiderInfo().getName());
+            riderInfoDto.setRiderStatus(byRiderNo.getStatus().getRiderStatusType());
+            fetchFineDetailResponse.setRider(riderInfoDto);
+        }
+        if (bePresent(fine.getClientNo())){
+            Clients clients = clientsRepository.findById(fine.getClientNo()).get();
+            ClientDto clientDto = new ClientDto();
+            clientDto.setClientId(clients.getClientId());
+            clientDto.setClientName(clients.getClientInfo().getName());
+            fetchFineDetailResponse.setClient(clientDto);
+        }
+        return fetchFineDetailResponse;
     }
 
 }

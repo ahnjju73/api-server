@@ -11,5 +11,8 @@ import lombok.Setter;
 public class FetchFineRequest extends RequestListDto {
 
     private String fineId;
+    private String bikeId;
+    private String clientId;
+    private String riderId;
 
 }

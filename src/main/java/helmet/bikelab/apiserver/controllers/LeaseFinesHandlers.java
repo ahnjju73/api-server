@@ -3,6 +3,7 @@ package helmet.bikelab.apiserver.controllers;
 import helmet.bikelab.apiserver.domain.lease.Fines;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.PresignedURLVo;
+import helmet.bikelab.apiserver.objects.responses.FetchFineDetailResponse;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.services.leases.FineService;
 import lombok.RequiredArgsConstructor;
@@ -37,7 +38,7 @@ public class LeaseFinesHandlers {
                         .subscribeOn(Schedulers.elastic())
                         .map(fineService::checkBikeSession)
                         .map(fineService::fetchFineDetail)
-                        .map(fineService::returnData), Fines.class);
+                        .map(fineService::returnData), FetchFineDetailResponse.class);
     }
 
     public Mono<ServerResponse> addFine(ServerRequest request){

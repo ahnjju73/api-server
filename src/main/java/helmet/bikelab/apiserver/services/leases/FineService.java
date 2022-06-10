@@ -14,6 +14,7 @@ import helmet.bikelab.apiserver.objects.requests.AddFineAttachmentRequest;
 import helmet.bikelab.apiserver.objects.requests.AddUpdateFineRequest;
 import helmet.bikelab.apiserver.objects.requests.DeleteFineAttachmentRequest;
 import helmet.bikelab.apiserver.objects.requests.FetchFineRequest;
+import helmet.bikelab.apiserver.objects.responses.FetchFineDetailResponse;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.repositories.FinesRepository;
 import helmet.bikelab.apiserver.services.internal.SessService;
@@ -47,7 +48,7 @@ public class FineService extends SessService {
     public BikeSessionRequest fetchFineList(BikeSessionRequest request){
         Map param = request.getParam();
         FetchFineRequest fetchFineRequest = map(param, FetchFineRequest.class);
-        ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(fetchFineRequest, "leases.fines.fetchAllFines", "leases.fines.countAllFines", "rownum");
+        ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(fetchFineRequest, "leases.fines.fetchAllFines", "leases.fines.countAllFines", "fine_id");
         request.setResponse(responseListDto);
         return request;
     }
@@ -56,7 +57,8 @@ public class FineService extends SessService {
         Map param = request.getParam();
         FetchFineRequest fetchFineRequest = map(param, FetchFineRequest.class);
         Fines fineById = fineWorker.getFineById(fetchFineRequest.getFineId());
-        request.setResponse(fineById);
+        FetchFineDetailResponse fetchFineDetailResponse = fineWorker.getFineInfo(fineById);
+        request.setResponse(fetchFineDetailResponse);
         return request;
     }
 
