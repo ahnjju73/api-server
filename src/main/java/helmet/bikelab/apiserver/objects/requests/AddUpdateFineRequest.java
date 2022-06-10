@@ -16,6 +16,7 @@ public class AddUpdateFineRequest extends OriginObject {
     private Integer fee;
     private Integer paidFee;
     private String fineNum;
+    private String fineType;
     private String fineDate;
     private String fineExpireDate;
     private String riderId;
@@ -27,6 +28,8 @@ public class AddUpdateFineRequest extends OriginObject {
             withException("710-001");
         if(!bePresent(fineNum))
             withException("710-002");
+        if(!bePresent(fineType))
+            withException("710-006");
         if(!bePresent(fee))
             withException("710-003");
         if(!bePresent(fineDate))

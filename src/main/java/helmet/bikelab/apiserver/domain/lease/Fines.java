@@ -40,6 +40,9 @@ public class Fines {
     @Column(name = "fine_num")
     private String fineNum;
 
+    @Column(name = "fine_type")
+    private String fineType;
+
     @Column(name = "fine_date")
     private LocalDateTime fineDate;
 

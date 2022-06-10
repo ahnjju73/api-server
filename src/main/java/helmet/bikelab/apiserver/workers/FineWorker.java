@@ -46,6 +46,7 @@ public class FineWorker extends SessService {
         fines.setFee(request.getFee());
         fines.setPaidFee(0);
         fines.setFineNum(request.getFineNum());
+        fines.setFineType(request.getFineType());
         fines.setFineDate(LocalDateTime.parse(request.getFineDate()));
         fines.setFineExpireDate(LocalDateTime.parse(request.getFineExpireDate()));
         Bikes bike = bikeWorker.getBikeById(request.getBikeId());
@@ -65,6 +66,7 @@ public class FineWorker extends SessService {
         fines.setFee(request.getFee());
         fines.setPaidFee(bePresent(request.getPaidFee()) ? request.getPaidFee() : 0);
         fines.setFineNum(request.getFineNum());
+        fines.setFineType(request.getFineType());
         fines.setFineDate(LocalDateTime.parse(request.getFineDate()));
         fines.setFineExpireDate(LocalDateTime.parse(request.getFineExpireDate()));
         Bikes bike = bikesRepository.findByBikeId(request.getBikeId());
