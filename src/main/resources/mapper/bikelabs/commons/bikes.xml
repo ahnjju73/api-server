@@ -24,6 +24,9 @@
                      <if test="payer_type != null and payer_type != '' and payer_type != 'undefined'">
                        and payer_types = #{payer_type}
                      </if>
+                     <if test="search_bike_id != null and search_bike_id != '' and search_bike_id != 'undefined'">
+                       and bike_id like concat('%', #{search_bike_id}, '%')
+                     </if>
                      <if test="search_name != null and search_name != '' and search_name != 'undefined'">
                        and (
                             vim_num like concat('%', #{search_name}, '%')
@@ -62,7 +65,9 @@
                    or `number` like concat('%', #{search_name}, '%')
                    )
              </if>
-
+             <if test="search_bike_id != null and search_bike_id != '' and search_bike_id != 'undefined'">
+               and bike_id like concat('%', #{search_bike_id}, '%')
+             </if>
         </if>
     </select>
 
@@ -113,6 +118,9 @@
                 or `number` like concat('%', #{search_name}, '%')
                 )
                 </if>
+                <if test="search_bike_id != null and search_bike_id != '' and search_bike_id != 'undefined'">
+                and bike_id like concat('%', #{search_bike_id}, '%')
+                </if>
                 <if test="next_token != null and next_token != '' and next_token != 'undefined'">
                 and bike_id <![CDATA[ < ]]> #{next_token}
                 </if>
@@ -162,6 +170,9 @@
                </if>
                <if test="next_token != null and next_token != '' and next_token != 'undefined'">
                  and bike_id <![CDATA[ < ]]> #{next_token}
+               </if>
+               <if test="search_bike_id != null and search_bike_id != '' and search_bike_id != 'undefined'">
+                 and bike_id like concat('%', #{search_bike_id}, '%')
                </if>
                <if test="type == 'delete'">
                  and deleted_at is not null

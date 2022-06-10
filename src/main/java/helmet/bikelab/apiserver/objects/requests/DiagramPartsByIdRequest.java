@@ -1,4 +1,4 @@
-package helmet.bikelab.apiserver.objects.bikelabs.leases;
+package helmet.bikelab.apiserver.objects.requests;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -11,8 +11,6 @@ import java.util.List;
 @Getter
 @Setter
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
-public class UploadExcelDto extends OriginObject {
-    List<PayLeaseRequest> payments;
-    private String payType;
-    private String endDt;
+public class DiagramPartsByIdRequest extends DiagramByIdRequest {
+    private List<Long> parts;
 }

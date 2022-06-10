@@ -181,20 +181,20 @@ public class LeasePaymentWorker extends SessService {
     private void setPaymentByRentLease(AddUpdateLeaseRequest addUpdateLeaseRequest, BikeUser session, Leases lease, Clients client, LeaseInfo leaseInfo, List<LeasePayments> leasePaymentsList) {
         Integer afterDay = 30;
         for (int i = 0; i < addUpdateLeaseRequest.getLeaseInfo().getPeriod(); i++) {
-            LeasePayments leasePayment = makePayment(addUpdateLeaseRequest, session, lease, client, leaseInfo, i, leaseInfo.getContractDate().plusDays(i * afterDay), leaseInfo.getContractDate().plusDays((i + 1) * afterDay).minusDays(1));
+            LeasePayments leasePayment = makePayment(addUpdateLeaseRequest, session, lease, client, leaseInfo, i, leaseInfo.getStart().plusDays(i * afterDay), leaseInfo.getStart().plusDays((i + 1) * afterDay).minusDays(1));
             leasePaymentsList.add(leasePayment);
         }
     }
     private void setPaymentByRentLeaseNot(AddUpdateLeaseRequest addUpdateLeaseRequest, BikeUser session, Leases lease, Clients client, LeaseInfo leaseInfo, List<LeasePayments> leasePaymentsList) {
         if(PaymentTypes.MONTHLY.equals(PaymentTypes.getPaymentType(addUpdateLeaseRequest.getLeasePrice().getPaymentType()))) {
             for (int i = 0; i < addUpdateLeaseRequest.getLeaseInfo().getPeriod(); i++) {
-                LeasePayments leasePayment = makePayment(addUpdateLeaseRequest, session, lease, client, leaseInfo, i, leaseInfo.getContractDate().plusMonths(i), leaseInfo.getContractDate().plusMonths(i + 1).minusDays(1));
+                LeasePayments leasePayment = makePayment(addUpdateLeaseRequest, session, lease, client, leaseInfo, i, leaseInfo.getStart().plusMonths(i), leaseInfo.getStart().plusMonths(i + 1).minusDays(1));
                 leasePaymentsList.add(leasePayment);
             }
         }else{
             int days = (int)(ChronoUnit.DAYS.between(leaseInfo.getStart(), leaseInfo.getStart().plusMonths(addUpdateLeaseRequest.getLeaseInfo().getPeriod())));
             for(int i = 0 ; i < days; i++){
-                LeasePayments leasePayment = makePayment(addUpdateLeaseRequest, session, lease, client, leaseInfo, i, leaseInfo.getContractDate().plusDays(i), leaseInfo.getContractDate().plusDays(i));
+                LeasePayments leasePayment = makePayment(addUpdateLeaseRequest, session, lease, client, leaseInfo, i, leaseInfo.getStart().plusDays(i), leaseInfo.getStart().plusDays(i));
                 leasePaymentsList.add(leasePayment);
             }
         }

@@ -2,9 +2,7 @@ package helmet.bikelab.apiserver.schedulers;
 
 import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.lease.LeaseInfo;
-import helmet.bikelab.apiserver.domain.lease.LeasePayments;
 import helmet.bikelab.apiserver.domain.lease.Leases;
-import helmet.bikelab.apiserver.domain.types.LeaseStatusTypes;
 import helmet.bikelab.apiserver.domain.types.LeaseStopStatusTypes;
 import helmet.bikelab.apiserver.repositories.LeasePaymentsRepository;
 import helmet.bikelab.apiserver.repositories.LeaseRepository;
@@ -14,7 +12,6 @@ import helmet.bikelab.apiserver.workers.LeasesWorker;
 import lombok.RequiredArgsConstructor;
 import org.quartz.JobExecutionContext;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
@@ -27,7 +24,6 @@ import java.util.Map;
 public class LeaseFinishSchedulerService extends WorkspaceQuartz {
 
     private final LeaseRepository leaseRepository;
-    private final LeasePaymentsRepository leasePaymentsRepository;
     private final BikeWorker bikeWorker;
     private final LeasesWorker leasesWorker;
 
