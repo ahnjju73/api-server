@@ -39,6 +39,9 @@ public class ClientGroups {
     @Column(name = "reg_no")
     private String regNum;
 
+    @Column(name = "email", nullable = false)
+    private String groupEmail;
+
     @OneToOne(mappedBy = "group", fetch = FetchType.EAGER)
     private GroupAddresses groupAddresses;
 

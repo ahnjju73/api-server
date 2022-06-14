@@ -86,6 +86,7 @@
                group_id,
                group_name,
                ceo_name,
+               email as group_email,
                ceo_phone,
                ceo_email,
                reg_no as reg_num,

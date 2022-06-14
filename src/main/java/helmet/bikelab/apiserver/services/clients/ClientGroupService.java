@@ -80,6 +80,7 @@ public class ClientGroupService extends SessService {
       group.setCeoName(addGroupRequest.getCeoName());
       group.setCeoPhone(addGroupRequest.getCeoPhone());
       group.setRegNum(addGroupRequest.getRegNo());
+      group.setGroupEmail(addGroupRequest.getEmail());
       groupRepository.save(group);
 
       GroupAddresses groupAddresses = group.getGroupAddresses();
@@ -132,6 +133,7 @@ public class ClientGroupService extends SessService {
          group.setCeoName(updateGroupRequest.getCeoName());
          group.setCeoPhone(updateGroupRequest.getCeoPhone());
          group.setRegNum(updateGroupRequest.getRegNo());
+         group.setGroupEmail(updateGroupRequest.getEmail());
          GroupAddresses groupAddresses = group.getGroupAddresses();
          if(!bePresent(groupAddresses)) {
             groupAddresses = new GroupAddresses();
@@ -151,6 +153,9 @@ public class ClientGroupService extends SessService {
       }
       if(bePresent(updateGroupRequest.getCeoEmail()) && !updateGroupRequest.getCeoEmail().equals(group.getCeoEmail())){
          stringList.add("담당자 이메일을 <>" + group.getCeoEmail() + "</>에서 <>" + updateGroupRequest.getCeoEmail() + "</>으로 변경하였습니다.");
+      }
+      if(bePresent(updateGroupRequest.getEmail()) && !updateGroupRequest.getEmail().equals(group.getGroupEmail())){
+         stringList.add("그룹 이메일을 <>" + group.getCeoEmail() + "</>에서 <>" + updateGroupRequest.getCeoEmail() + "</>으로 변경하였습니다.");
       }
       if(bePresent(updateGroupRequest.getCeoName()) && !updateGroupRequest.getCeoName().equals(group.getCeoName())){
          stringList.add("담당자 이름을 <>" + group.getCeoName() + "</>에서 <>" + updateGroupRequest.getCeoName() + "</>으로 변경하였습니다.");
@@ -485,5 +490,11 @@ public class ClientGroupService extends SessService {
             leasePaymentsRepository.saveAll(leasePaymentsList);
          }
       }
+   }
+
+   @Transactional
+   public BikeSessionRequest resetPassword(BikeSessionRequest request) {
+
+      return request;
    }
 }
