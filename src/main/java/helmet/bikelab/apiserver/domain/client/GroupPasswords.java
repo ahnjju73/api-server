@@ -51,4 +51,7 @@ public class GroupPasswords extends OriginObject {
         String crypedPassword = modelPassword.getPassword();
         if(!bePresent(requestedPassword) || !bePresent(crypedPassword) || !requestedPassword.equals(crypedPassword)) withException("1001-106");
     }
+
+    public void updatePasswordWithoutSHA256(String pass){ modelPassword.modifyPasswordWithoutSHA256(pass); }
+
 }

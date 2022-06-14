@@ -3,9 +3,7 @@ package helmet.bikelab.apiserver.services.clients;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUserLog;
-import helmet.bikelab.apiserver.domain.client.ClientGroups;
-import helmet.bikelab.apiserver.domain.client.Clients;
-import helmet.bikelab.apiserver.domain.client.GroupAddresses;
+import helmet.bikelab.apiserver.domain.client.*;
 import helmet.bikelab.apiserver.domain.lease.*;
 import helmet.bikelab.apiserver.domain.types.BikeUserLogTypes;
 import helmet.bikelab.apiserver.domain.types.LeaseStatusTypes;
@@ -37,6 +35,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 import static helmet.bikelab.apiserver.domain.bikelab.BikeUserLog.addLog;
+import static helmet.bikelab.apiserver.utils.Utils.randomPassword;
 
 @RequiredArgsConstructor
 @Service
@@ -49,6 +48,7 @@ public class ClientGroupService extends SessService {
    private final LeasePaymentsRepository leasePaymentsRepository;
    private final LeaseInfoRepository leaseInfoRepository;
    private final LeasePriceRepository leasePriceRepository;
+   private final GroupPasswordRepository groupPasswordRepository;
    private final BikesRepository bikesRepository;
    private final BikeLabUserRepository bikeLabUserRepository;
    private final ReleaseRepository releaseRepository;
@@ -96,6 +96,11 @@ public class ClientGroupService extends SessService {
       userLog.setFromUserNo(session.getUserNo());
       userLog.setReferenceId(group.getGroupNo().toString());
       bikeUserLogRepository.save(addLog(BikeUserLogTypes.COMM_GROUP_ADDED, session.getUserNo(), group.getGroupNo().toString()));
+
+      GroupPasswords groupPasswords = new GroupPasswords();
+      groupPasswords.updatePasswordWithoutSHA256(group.getGroupEmail());
+      groupPasswords.setGroupNo(group.getGroupNo());
+      groupPasswordRepository.save(groupPasswords);
       return request;
    }
 
