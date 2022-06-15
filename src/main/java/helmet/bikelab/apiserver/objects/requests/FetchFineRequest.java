@@ -14,5 +14,6 @@ public class FetchFineRequest extends RequestListDto {
     private String bikeId;
     private String clientId;
     private String riderId;
+    private String fineType;
 
 }

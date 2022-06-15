@@ -15,6 +15,15 @@
             join riders r on r.rider_no = f.rider_no
             and r.rider_id = #{rider_id}
         </if>
+        where 1 = 1
+        <if test="fine_type != null and fine_type != '' and fine_type != 'undefined'">
+         <if test="fine_type == '기타'">
+          and fine_type not in ('범칙금', '과태료', '면책금')
+         </if>
+         <if test="fine_type != '기타'">
+          and fine_type = #{fine_type}
+         </if>
+        </if>
     </select>
 
     <select id="fetchAllFines" parameterType="hmap" resultType="hmap">
@@ -33,6 +42,14 @@
                  where 1 = 1
                  <if test="next_token != null and next_token != '' and next_token != 'undefined'">
                    and fine_id <![CDATA[ < ]]> #{next_token}
+                 </if>
+                 <if test="fine_type != null and fine_type != '' and fine_type != 'undefined'">
+                     <if test="fine_type == '기타'">
+                         and fine_type not in ('범칙금', '과태료', '면책금')
+                     </if>
+                     <if test="fine_type != '기타'">
+                         and fine_type = #{fine_type}
+                     </if>
                  </if>
                  <if test="rider_id != null and rider_id != '' and rider_id != 'undefined'">
                    and r.rider_id = #{rider_id}
