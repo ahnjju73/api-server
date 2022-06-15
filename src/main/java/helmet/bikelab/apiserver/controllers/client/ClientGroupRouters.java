@@ -27,6 +27,8 @@ public class ClientGroupRouters {
                 .andRoute(PUT("/client/groups"), clientGroupHandlers::updateClientGroup)
                 .andRoute(DELETE("/client/groups"), clientGroupHandlers::deleteClientGroup)
                 .andRoute(POST("/client/groups/excel"), clientGroupHandlers::uploadExcel)
-                .andRoute(DELETE("/client/groups/force"), clientGroupHandlers::forceDeleteClientGroup);
+                .andRoute(DELETE("/client/groups/force"), clientGroupHandlers::forceDeleteClientGroup)
+                .andRoute(PUT("/groups/password-reset"), clientGroupHandlers::resetGroupPassword)
+                ;
     }
 }

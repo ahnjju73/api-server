@@ -26,13 +26,13 @@ public class LeaseExtrasRouters {
     }
 
     @Bean
-    public RouterFunction<ServerResponse> findRouters(LeaseFinesHandlers handler){
+    public RouterFunction<ServerResponse> fineRouters(LeaseFinesHandlers handler){
         return RouterFunctions
                 .route(GET("/lease-fines"), handler::fetchFines)
-                .andRoute(GET("/lease-fines/{fine_id}"), handler::addFine)
+                .andRoute(GET("/lease-fines/{fine_id}"), handler::fetchFineDetail)
                 .andRoute(POST("/lease-fines"), handler::addFine)
-                .andRoute(PUT("/lease-fines"), handler::updateFine)
-                .andRoute(DELETE("/lease-fines"), handler::deleteFine)
+                .andRoute(PUT("/lease-fines/{fine_id}"), handler::updateFine)
+                .andRoute(DELETE("/lease-fines/{fine_id}"), handler::deleteFine)
                 .andRoute(POST("/lease-fines/generate-presigned"), handler::generatePresignedUrl)
                 .andRoute(GET("/lease-fines/attachments"), handler::fetchAttachments)
                 .andRoute(POST("/lease-fines/attachments"), handler::addFineAttachment)
