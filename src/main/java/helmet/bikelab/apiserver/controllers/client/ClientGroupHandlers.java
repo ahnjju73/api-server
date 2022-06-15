@@ -92,4 +92,13 @@ public class ClientGroupHandlers {
                 );
     }
 
+    public Mono<ServerResponse> resetGroupPassword(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> groupService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(groupService::checkBikeSession)
+                        .map(groupService::resetPassword)
+                        .map(groupService::returnData), Map.class);
+    }
 }
