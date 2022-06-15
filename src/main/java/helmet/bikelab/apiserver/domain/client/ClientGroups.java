@@ -1,6 +1,9 @@
 package helmet.bikelab.apiserver.domain.client;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import helmet.bikelab.apiserver.domain.types.AccountStatusTypes;
 import helmet.bikelab.apiserver.domain.types.InsuranceTypes;
+import helmet.bikelab.apiserver.domain.types.converters.AccountStatusConverter;
 import helmet.bikelab.apiserver.domain.types.converters.InsuranceTypesConverter;
 import helmet.bikelab.apiserver.utils.keys.SESSION;
 import lombok.Getter;
@@ -25,6 +28,11 @@ public class ClientGroups {
 
     @Column(name = "group_name")
     private String groupName;
+
+    @JsonIgnore
+    @Column(name = "status", columnDefinition = "ENUM", nullable = false)
+    @Convert(converter = AccountStatusConverter.class)
+    private AccountStatusTypes status = AccountStatusTypes.PENDING;
 
     //대표
     @Column(name = "ceo_name")
