@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding= "UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="leases.fines">
+    <select id="countAllFines" parameterType="hmap" resultType="int">
+        select count(*)
+          from fines f
+        <if test="client_id != null and client_id != '' and client_id != 'undefined'">
+          join clients c on c.client_no = f.client_no
+           and c.client_id = #{client_id}
+        </if>
+        <if test="rider_id != null and rider_id != '' and rider_id != 'undefined'">
+            join riders r on r.rider_no = f.rider_no
+            and r.rider_id = #{rider_id}
+        </if>
+    </select>
+
+    <select id="fetchAllFines" parameterType="hmap" resultType="hmap">
+        select mst.*,
+               ci.name as client_name,
+               ri.name as rider_name
+          from (select f.*,
+                       b.number
+                  from fines f
+                  left outer join clients c on c.client_no = f.client_no
+
+                  left outer join riders r on r.rider_no = f.rider_no
+
+                  join bikes b on b.bike_no = f.bike_no
+
+                 where 1 = 1
+                 <if test="next_token != null and next_token != '' and next_token != 'undefined'">
+                   and fine_id <![CDATA[ < ]]> #{next_token}
+                 </if>
+                 <if test="rider_id != null and rider_id != '' and rider_id != 'undefined'">
+                   and r.rider_id = #{rider_id}
+                 </if>
+                 <if test="bike_id != null and bike_id != '' and bike_id != 'undefined'">
+                   and b.bike_id = #{bike_id}
+                 </if>
+                 <if test="client_id != null and client_id != '' and client_id != 'undefined'">
+                   and c.client_id = #{client_id}
+                 </if> limit 30) mst
+            left outer join client_info ci on ci.client_no = mst.client_no
+            left outer join rider_info ri on ri.rider_no = mst.rider_no
+
+
+
+    </select>
+
+</mapper>
