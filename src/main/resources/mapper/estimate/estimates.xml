@@ -96,7 +96,6 @@
         <result property="rownum" column="rownum"/>
         <result property="estimate_id" column="estimate_id"/>
         <result property="estimate_status" column="status"/>
-        <result property="total_price" column="total_price"/>
         <result property="total_hour" column="total_hour"/>
         <result property="created_at" column="created_at"/>
         <result property="is_released" column="is_released"/>
@@ -107,6 +106,7 @@
         <result property="deleted_at" column="deleted_at"/>
         <result property="group_name" column="group_name"/>
         <result property="group_id" column="group_id"/>
+        <result property="total_price" column="total_price"/>
         <collection property="bike" javaType="hmap" resultMap="bikeMap"/>
         <collection property="rider" javaType="hmap" resultMap="riderMap"/>
         <collection property="shop" javaType="hmap" resultMap="shopMap"/>
@@ -127,7 +127,7 @@
 
     <select id="fetchEstimateList" parameterType="hmap" resultMap="fetchEstimateListMap">
         select estimate_id,
-               estimate_no as rownum,
+               e.estimate_no as rownum,
                e.status as estimate_status,
                bike_id,
                b.number as bike_num,
@@ -140,13 +140,13 @@
                group_name,
                is_released,
                paid_fee,
-               total_price,
                e.status,
                e.deleted_at,
                shop_id,
                si.name as shop_name,
                r.rider_id,
-               ri.name as name
+               ri.name as name,
+               if (e.total_price = 0 or e.total_price is null, ep.estimate_price, e.total_price) as total_price
           from (select *
                   from estimates
                  where 1 = 1
@@ -193,6 +193,15 @@
           left outer join `groups` g on c.group_no = g.group_no
           join bikes b on e.bike_no = b.bike_no
           join com_comm_bikes bm on bm.comm_cd = b.car_model
+          left outer join (select estimate_no,
+                       sum((parts_price +
+                       if (working_price is null, 0, working_price) * hours * number) *
+                       if (parts_type_discount_rate is not null, parts_type_discount_rate, if(client_discount_rate is null, 1, client_discount_rate))) as estimate_price
+                  from estimate_parts
+                 where estimate_type = if ((select count(*)
+                                              from estimate_parts
+                                             where estimate_type = '2') > 0, '2', '1')
+                 group by estimate_no)ep on ep.estimate_no = e.estimate_no
     </select>
 
     <select id="countEstimateList" parameterType="hmap" resultType="int">

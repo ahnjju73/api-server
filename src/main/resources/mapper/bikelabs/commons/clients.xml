@@ -38,6 +38,7 @@
     </resultMap>
     <resultMap id="groupDetailMap" type="hmap">
         <result property="group_id" column="group_id"/>
+        <result property="group_email" column="group_email"/>
         <result property="group_name" column="group_name"/>
         <result property="ceo_name" column="ceo_name"/>
         <result property="ceo_phone" column="ceo_phone"/>
@@ -48,6 +49,7 @@
     </resultMap>
     <select id="fetchGroupDetailsByGroupId" parameterType="hmap" resultMap="groupDetailMap">
         select group_id,
+               email as group_email,
                if(group_name is null, '', group_name) as group_name,
                if(ceo_name is null, '', ceo_name) as ceo_name,
                if(ceo_phone is null, '', ceo_phone) as ceo_phone,
@@ -86,6 +88,7 @@
                group_id,
                group_name,
                ceo_name,
+               email as group_email,
                ceo_phone,
                ceo_email,
                reg_no as reg_num,

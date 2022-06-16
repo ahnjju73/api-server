@@ -1,6 +1,11 @@
 package helmet.bikelab.apiserver.domain.lease;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import helmet.bikelab.apiserver.domain.bike.Bikes;
+import helmet.bikelab.apiserver.domain.client.Clients;
 import helmet.bikelab.apiserver.domain.embeds.ModelAttachment;
+import helmet.bikelab.apiserver.domain.riders.Riders;
+import helmet.bikelab.apiserver.domain.types.converters.ModelAttachmentConverter;
 import helmet.bikelab.apiserver.domain.types.converters.ModelReviewImageConverter;
 import helmet.bikelab.apiserver.utils.keys.SESSION;
 import lombok.Getter;
@@ -35,17 +40,48 @@ public class Fines {
     @Column(name = "fine_num")
     private String fineNum;
 
+    @Column(name = "fine_type")
+    private String fineType;
+
     @Column(name = "fine_date")
     private LocalDateTime fineDate;
 
     @Column(name = "fine_expire_date")
     private LocalDateTime fineExpireDate;
-//
-//    @Column(name = "attachments", columnDefinition = "JSON")
-//    @Convert(converter = ModelReviewImageConverter.class)
-//    private List<ModelAttachment> attachmentsList;
-//
-//    @Column(name = "attachments", columnDefinition = "JSON", updatable = false, insertable = false)
-//    private String attachments;
+
+    @Column(name = "rider_no")
+    private Integer riderNo;
+
+    @JsonIgnore
+    @JoinColumn(name = "rider_no", updatable = false, insertable = false)
+    @ManyToOne
+    private Riders rider;
+
+    @Column(name = "client_no")
+    private Integer clientNo;
+
+    @JsonIgnore
+    @JoinColumn(name = "client_no", updatable = false, insertable = false)
+    @ManyToOne
+    private Clients client;
+
+    @Column(name = "bike_no")
+    private Integer bikeNo;
+
+    @JsonIgnore
+    @JoinColumn(name = "bike_no", updatable = false, insertable = false)
+    @ManyToOne
+    private Bikes bike;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
+
+    @JsonIgnore
+    @Column(name = "attachments", columnDefinition = "JSON")
+    @Convert(converter = ModelAttachmentConverter.class)
+    private List<ModelAttachment> attachmentsList;
+
+    @Column(name = "attachments", columnDefinition = "JSON", updatable = false, insertable = false)
+    private String attachments;
 
 }

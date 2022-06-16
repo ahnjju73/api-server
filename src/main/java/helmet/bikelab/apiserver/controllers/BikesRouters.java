@@ -105,10 +105,21 @@ public class BikesRouters {
                 .route(POST("/diagrams"), diagramHandlers::addNewDiagram)
                 .andRoute(PUT("/diagrams"), diagramHandlers::updateDiagram)
                 .andRoute(DELETE("/diagrams"), diagramHandlers::deleteDiagram)
+                .andRoute(GET("/diagrams"), diagramHandlers::fetchAllDiagramList)
                 .andRoute(GET("/diagrams/details"), diagramHandlers::fetchDiagramDetailsById)
                 .andRoute(PUT("/diagrams/images/signed"), diagramHandlers::generatePreSigned)
                 .andRoute(POST("/diagrams/images"), diagramHandlers::updateImageByDiagramId)
                 .andRoute(DELETE("/diagrams/images"), diagramHandlers::deleteImageByDiagramId)
+                ;
+    }
+
+    @Bean
+    public RouterFunction<ServerResponse> diagramPartsRouter(){
+        return RouterFunctions
+                .route(POST("/diagrams/parts"), diagramHandlers::addPartsByDiagramId)
+                .andRoute(DELETE("/diagrams/parts"), diagramHandlers::removePartsByDiagramId)
+                .andRoute(GET("/diagrams/parts"), diagramHandlers::fetchPartListByDiagramId)
+                .andRoute(GET("/diagrams/parts/by-all"), diagramHandlers::fetchAllPartListOfDiagramId)
                 ;
     }
 
