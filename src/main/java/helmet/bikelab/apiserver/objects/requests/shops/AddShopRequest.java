@@ -18,6 +18,7 @@ public class AddShopRequest extends OriginObject {
 
     private String name;
     private String managerName;
+    private String businessType;
     private String regNum;
     private String phone;
     private String email;
@@ -38,6 +39,7 @@ public class AddShopRequest extends OriginObject {
     public void checkValidation(){
         if(!bePresent(name)) withException("401-001");
         if(!bePresent(managerName)) withException("401-002");
+        if(!bePresent(businessType)) withException("401-012");
         if(!bePresent(regNum)) withException("401-003");
         if(!bePresent(email)) withException("401-007");
         if(!bePresent(phone)) withException("401-004");
