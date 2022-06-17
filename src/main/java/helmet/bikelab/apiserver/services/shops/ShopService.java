@@ -15,6 +15,7 @@ import helmet.bikelab.apiserver.domain.embeds.ModelBankAccount;
 import helmet.bikelab.apiserver.domain.lease.Fines;
 import helmet.bikelab.apiserver.domain.shops.*;
 import helmet.bikelab.apiserver.domain.types.BikeUserLogTypes;
+import helmet.bikelab.apiserver.domain.types.BusinessTypes;
 import helmet.bikelab.apiserver.domain.types.SettleStatusTypes;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.PresignedURLVo;
@@ -128,6 +129,7 @@ public class ShopService extends SessService {
         shop.setEmail(addShopRequest.getEmail());
         shop.setShopId(shopId);
         shop.setRegNum(addShopRequest.getRegNum());
+        shop.setBusinessType(BusinessTypes.getBusinessTypes(addShopRequest.getBusinessType()));
         shopsRepository.save(shop);
 
         ShopInfo shopInfo = new ShopInfo();
@@ -185,6 +187,7 @@ public class ShopService extends SessService {
         if (!shopByShopId.getRegNum().equals(shopRequest.getRegNum()) && shopWorker.checkIfRegNumExists(shopRequest.getRegNum()))
             withException("401-009");
 
+        shopByShopId.setBusinessType(BusinessTypes.getBusinessTypes(shopRequest.getBusinessType()));
         shopByShopId.setEmail(shopRequest.getEmail());
         shopByShopId.setRegNum(shopRequest.getRegNum());
         shopsRepository.save(shopByShopId);
@@ -235,6 +238,12 @@ public class ShopService extends SessService {
             if (bePresent(originShop.getRegNum()))
                 stringList.add("정비소 사업자번호를 <>" + originShop.getRegNum() + "</>에서 <>" + updatedObj.getRegNum() + "</>(으)로 변경하였습니다.");
             else stringList.add("정비소 사업자번호를 <>" + updatedObj.getRegNum() + "</>(으)로 등록하였습니다.");
+        }
+        if (bePresent(updatedObj.getBusinessType()) && !updatedObj.getBusinessType().equals(originShop.getBusinessTypeCode())) {
+            BusinessTypes businessTypes = BusinessTypes.getBusinessTypes(updatedObj.getBusinessType());
+            if (bePresent(originShop.getBusinessType()))
+                stringList.add("정비소 사업 타입을 <>" + originShop.getBusinessType().getBusiness() + "</>에서 <>" + businessTypes.getBusiness() + "</>(으)로 변경하였습니다.");
+            else stringList.add("정비소 사업 타입을 <>" + businessTypes.getBusiness() + "</>(으)로 등록하였습니다.");
         }
         if (bePresent(updatedObj.getPhone()) && !updatedObj.getPhone().equals(originShopInfo.getPhone())) {
             if (bePresent(originShopInfo.getPhone()))
