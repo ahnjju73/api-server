@@ -1,7 +1,10 @@
 package helmet.bikelab.apiserver.domain.shops;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import helmet.bikelab.apiserver.domain.types.BusinessTypes;
 import helmet.bikelab.apiserver.domain.types.ShopStatusTypes;
+import helmet.bikelab.apiserver.domain.types.converters.BusinessTypeTaxConverter;
+import helmet.bikelab.apiserver.domain.types.converters.BusinessTypesConverter;
 import helmet.bikelab.apiserver.domain.types.converters.ShopStatusTypesConverter;
 import helmet.bikelab.apiserver.utils.keys.SESSION;
 import lombok.Getter;
@@ -48,6 +51,17 @@ public class Shops {
 
     @Column(name = "created_at", columnDefinition = "CURRENT_TIMESTAMP")
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    @Column(name = "business_type", columnDefinition = "ENUM", nullable = false, insertable = false, updatable = false)
+    private String businessTypeCode;
+
+    @Column(name = "business_type", columnDefinition = "ENUM", nullable = false)
+    @Convert(converter = BusinessTypesConverter.class)
+    private BusinessTypes businessType = BusinessTypes.CORPORATE;
+
+    @Column(name = "business_type", columnDefinition = "ENUM", nullable = false, insertable = false, updatable = false)
+    @Convert(converter = BusinessTypeTaxConverter.class)
+    private Double businessTax = BusinessTypes.CORPORATE.getTaxRate();
 
     @OneToOne(mappedBy = "shop", fetch = FetchType.EAGER)
     private ShopInfo shopInfo;
