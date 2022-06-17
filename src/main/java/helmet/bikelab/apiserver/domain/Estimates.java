@@ -129,6 +129,9 @@ public class Estimates extends OriginObject {
     @Column(name = "total_price")
     private Integer totalPrice = 0;
 
+    @Column(name = "supply_price")
+    private Integer supplyPrice = 0;
+
     @JsonIgnore
     @Column(name = "bm_support_fee")
     private Integer bmSupportFee = 0;
