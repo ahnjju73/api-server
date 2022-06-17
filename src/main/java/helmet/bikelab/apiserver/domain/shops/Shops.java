@@ -49,6 +49,9 @@ public class Shops {
     @Column(name = "created_at", columnDefinition = "CURRENT_TIMESTAMP")
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    @OneToOne(mappedBy = "shop")
+    private ShopAttachments shopAttachments;
+
     @OneToOne(mappedBy = "shop", fetch = FetchType.EAGER)
     private ShopInfo shopInfo;
 

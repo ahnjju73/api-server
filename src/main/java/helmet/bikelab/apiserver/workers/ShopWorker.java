@@ -1,5 +1,7 @@
 package helmet.bikelab.apiserver.workers;
 
+import helmet.bikelab.apiserver.domain.embeds.ModelAttachment;
+import helmet.bikelab.apiserver.domain.shops.ShopAttachments;
 import helmet.bikelab.apiserver.domain.shops.Shops;
 import helmet.bikelab.apiserver.objects.requests.PageableRequest;
 import helmet.bikelab.apiserver.repositories.BikeUserTodoRepository;
@@ -48,6 +50,15 @@ public class ShopWorker extends SessService {
         Shops byShopId = shopsRepository.findByShopId(shopId);
         if(!bePresent(byShopId)) withException("401-101");
         return byShopId;
+    }
+
+    public ShopAttachments removeAttachment(ShopAttachments shopAttachments, String uuid){
+        for(ModelAttachment ma : shopAttachments.getAttachmentsList()){
+            if(ma.getUuid().equals(uuid)){
+                shopAttachments.getAttachmentsList().remove(ma);
+            }
+        }
+        return shopAttachments;
     }
 
 }
