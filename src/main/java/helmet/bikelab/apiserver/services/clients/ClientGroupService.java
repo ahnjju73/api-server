@@ -499,7 +499,29 @@ public class ClientGroupService extends SessService {
 
    @Transactional
    public BikeSessionRequest resetPassword(BikeSessionRequest request) {
-
+      Map param = request.getParam();
+      Map response = new HashMap();
+      ResetGroupPasswordRequest resetGroupPasswordRequest = map(param, ResetGroupPasswordRequest.class);
+      ClientGroups clientGroups = groupRepository.findByGroupId(resetGroupPasswordRequest.getGroup_id());
+      String newPassword = getRandomString();
+      GroupPasswords groupPasswords = groupPasswordRepository.findByGroup_GroupId(clientGroups.getGroupId());
+      groupPasswords.updatePasswordWithoutSHA256(newPassword);
+      groupPasswordRepository.save(groupPasswords);
+      response.put("password", newPassword);
+      request.setResponse(response);
       return request;
+   }
+
+   private String getRandomString(){
+      char[] tmp = new char[10];
+      for(int i=0; i<tmp.length; i++) {
+         boolean div = Math.random()*2<1;
+         if(div) {
+            tmp[i] = (char) (Math.random() * 10 + '0') ;
+         }else {
+            tmp[i] = (char) (Math.random() * 26 + 'A') ;
+         }
+      }
+      return new String(tmp);
    }
 }

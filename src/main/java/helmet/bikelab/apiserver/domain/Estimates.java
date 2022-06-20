@@ -8,9 +8,11 @@ import helmet.bikelab.apiserver.domain.client.Clients;
 import helmet.bikelab.apiserver.domain.embeds.ModelReview;
 import helmet.bikelab.apiserver.domain.riders.Riders;
 import helmet.bikelab.apiserver.domain.shops.Shops;
+import helmet.bikelab.apiserver.domain.types.BusinessTypes;
 import helmet.bikelab.apiserver.domain.types.EstimateStatusTypes;
 import helmet.bikelab.apiserver.domain.types.PayerTypes;
 import helmet.bikelab.apiserver.domain.types.YesNoTypes;
+import helmet.bikelab.apiserver.domain.types.converters.BusinessTypesConverter;
 import helmet.bikelab.apiserver.domain.types.converters.EstimateStatusTypesConverter;
 import helmet.bikelab.apiserver.domain.types.converters.PayerTypesConverter;
 import helmet.bikelab.apiserver.domain.types.converters.YesNoTypeConverter;
@@ -127,6 +129,9 @@ public class Estimates extends OriginObject {
     @Column(name = "total_price")
     private Integer totalPrice = 0;
 
+    @Column(name = "supply_price")
+    private Integer supplyPrice = 0;
+
     @JsonIgnore
     @Column(name = "bm_support_fee")
     private Integer bmSupportFee = 0;
@@ -165,6 +170,16 @@ public class Estimates extends OriginObject {
 
     @Column(name = "odometer")
     private Integer odometer;
+
+    @Column(name = "business_type", columnDefinition = "ENUM", nullable = false)
+    @Convert(converter = BusinessTypesConverter.class)
+    private BusinessTypes businessType = BusinessTypes.CORPORATE;
+
+    @Column(name = "business_type", columnDefinition = "ENUM", nullable = false, insertable = false, updatable = false)
+    private String businessTypeCode;
+
+    @Column(name = "reg_no", length = 45)
+    private String regNum;
 
     @Embedded
     private ModelReview review;
