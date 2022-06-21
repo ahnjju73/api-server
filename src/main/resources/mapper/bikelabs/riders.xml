@@ -180,6 +180,18 @@
          order by rider_id desc
     </select>
 
+    <select id="countAllRiderListByBike" parameterType="hmap" resultType="int">
+        select count(*)
+        from bikes bi
+        join riders r on bi.rider_no = r.rider_no
+        join rider_info ri on r.rider_no = ri.rider_no
+        join com_comm_bikes ccb on b.car_model = ccb.comm_cd
+        join com_comm_manuf ccm on ccb.manuf_no = ccm.manuf_no
+       where bike_id != (select val
+                           from system_parameters
+                          where parameter_no = 0)
+    </select>
+
     <select id="fetchRiderListByBike" parameterType="hmap" resultType="hmap">
         select b.bike_id,
                vim_num as bike_vim_num,
@@ -195,27 +207,46 @@
                b.rider_end_at,
                b.rider_request_at,
                b.rider_approval_at,
-               r.rider_id,
-               r.email as rider_email,
-               r.phone as rider_phone,
-               r.uuid as edp_id,
-               r.front_ssn as birth_date,
+               b.rider_id,
+               b.email as rider_email,
+               b.phone as rider_phone,
+               b.uuid as edp_id,
+               b.front_ssn as birth_date,
                ri.name as rider_name,
                l.lease_id,
                l.contract_type,
                c.client_id,
                ci.name as client_name
-          from (select *
-                  from bikes
-                 where rider_no is not null
-                 order by rider_request_at desc) b
-               join riders r on b.rider_no = r.rider_no
-               join rider_info ri on r.rider_no = ri.rider_no
-               join com_comm_bikes ccb on b.car_model = ccb.comm_cd
-               join com_comm_manuf ccm on ccb.manuf_no = ccm.manuf_no
-               left outer join leases l on b.bike_no = l.bike_no
-               left outer join clients c on l.client_no = c.client_no
-               left outer join client_info ci on c.client_no = ci.client_no
+          from (select bi.*,
+                       r.rider_id,
+                       r.email,
+                       r.phone,
+                       r.uuid,
+                       r.front_ssn
+                  from bikes bi
+                  join riders r on bi.rider_no = r.rider_no
+                  join rider_info ri on r.rider_no = ri.rider_no
+                  join com_comm_bikes ccb on b.car_model = ccb.comm_cd
+                  join com_comm_manuf ccm on ccb.manuf_no = ccm.manuf_no
+                 where bi.rider_no is not null
+                   and bike_id != (select val
+                                     from system_parameters
+                                    where parameter_no = 0)
+                 <if test="next_token != null and next_token != '' and next_token != 'undefined'">
+                   and bike_id <![CDATA[ < ]]> #{next_token}
+                 </if>
+                 <if test="next_token != null and next_token != '' and next_token != 'undefined'">
+                   and <![CDATA[ < ]]> #{next_token}
+                 </if>
+                 <if test="next_token != null and next_token != '' and next_token != 'undefined'">
+                   and <![CDATA[ < ]]> #{next_token}
+                 </if>
+                 <if test="next_token != null and next_token != '' and next_token != 'undefined'">
+                   and <![CDATA[ < ]]> #{next_token}
+                 </if>limit 30) b
+          left outer join leases l on b.bike_no = l.bike_no
+          left outer join clients c on l.client_no = c.client_no
+          left outer join client_info ci on c.client_no = ci.client_no
          order by rider_request_at desc
     </select>
 
