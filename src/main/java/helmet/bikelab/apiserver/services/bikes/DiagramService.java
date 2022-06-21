@@ -2,6 +2,7 @@ package helmet.bikelab.apiserver.services.bikes;
 
 import helmet.bikelab.apiserver.domain.CommonBikes;
 import helmet.bikelab.apiserver.domain.EstimateParts;
+import helmet.bikelab.apiserver.domain.bike.DiagramParts;
 import helmet.bikelab.apiserver.domain.bike.Diagrams;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.PresignedURLVo;
@@ -52,6 +53,12 @@ public class DiagramService extends SessService {
         diagramInfoRequest.checkValidation();
         bikeWorker.getCommonCodeBikesById(diagramInfoRequest.getCarModel());
         Diagrams diagramById = diagramWorker.getDiagramById(diagramByIdRequest.getDiagramId());
+        if(!diagramInfoRequest.getCarModel().equals(diagramById.getCarModelCode())){
+            List<DiagramParts> allByDiagramPartsDiagramNo = diagramPartsRepository.findAllByDiagramNo(diagramById.getDiagramNo());
+            if(bePresent(allByDiagramPartsDiagramNo)){
+                diagramPartsRepository.deleteByDiagramNo(diagramById.getDiagramNo());
+            }
+        }
         diagramById.updateInfo(diagramInfoRequest);
         diagramsRepository.save(diagramById);
         return request;
