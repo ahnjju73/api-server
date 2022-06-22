@@ -146,7 +146,7 @@
                si.name as shop_name,
                r.rider_id,
                ri.name as name,
-               if (e.total_price = 0 or e.total_price is null, ep.estimate_price, e.total_price) as total_price
+               FLOOR(if (e.total_price = 0 or e.total_price is null, ep.estimate_price, e.total_price)) as total_price
           from (select *
                   from estimates
                  where 1 = 1
@@ -197,10 +197,11 @@
                        sum((parts_price +
                        if (working_price is null, 0, working_price) * hours * number) *
                        if (parts_type_discount_rate is not null, parts_type_discount_rate, if(client_discount_rate is null, 1, client_discount_rate))) as estimate_price
-                  from estimate_parts
+                  from estimate_parts a
                  where estimate_type = if ((select count(*)
-                                              from estimate_parts
-                                             where estimate_type = '2') > 0, '2', '1')
+                                              from estimate_parts b
+                                             where estimate_type = '1'
+                                               and a.estimate_no = b.estimate_no) > 0, '1', '0')
                  group by estimate_no)ep on ep.estimate_no = e.estimate_no
     </select>
 
