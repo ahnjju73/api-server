@@ -151,6 +151,7 @@ public class FineService extends SessService {
         return request;
     }
 
+    @Transactional
     public BikeSessionRequest deleteAttachment(BikeSessionRequest request) {
         Map param = request.getParam();
         DeleteFineAttachmentRequest deleteFineAttachmentRequest = map(param, DeleteFineAttachmentRequest.class);
