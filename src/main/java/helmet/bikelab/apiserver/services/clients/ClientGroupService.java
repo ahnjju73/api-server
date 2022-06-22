@@ -42,6 +42,7 @@ import static helmet.bikelab.apiserver.utils.Utils.randomPassword;
 public class ClientGroupService extends SessService {
 
    private final ClientsRepository clientsRepository;
+   private final GroupSessionRepository groupSessionRepository;
    private final ClientGroupRepository groupRepository;
    private final ClientGroupAddressRepository clientGroupAddressRepository;
    private final LeaseRepository leaseRepository;
@@ -183,6 +184,8 @@ public class ClientGroupService extends SessService {
       Integer count = clientsRepository.countAllByClientGroup_GroupId(deleteGroupRequest.getGroupId());
       if(count > 0) withException("300-006");
       ClientGroups group = groupRepository.findByGroupId(deleteGroupRequest.getGroupId());
+      groupPasswordRepository.deleteById(group.getGroupNo());
+      groupSessionRepository.deleteByGroup_GroupId(group.getGroupId());
       clientGroupAddressRepository.delete(group.getGroupAddresses());
       groupRepository.delete(group);
       return request;
