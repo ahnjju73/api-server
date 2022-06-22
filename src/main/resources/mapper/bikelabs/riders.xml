@@ -181,15 +181,26 @@
     </select>
 
     <select id="countAllRiderListByBike" parameterType="hmap" resultType="int">
-        select count(*)
-        from bikes bi
-        join riders r on bi.rider_no = r.rider_no
-        join rider_info ri on r.rider_no = ri.rider_no
-        join com_comm_bikes ccb on b.car_model = ccb.comm_cd
-        join com_comm_manuf ccm on ccb.manuf_no = ccm.manuf_no
-       where bike_id != (select val
-                           from system_parameters
-                          where parameter_no = 0)
+       select count(*)
+         from bikes bi
+         join riders r on bi.rider_no = r.rider_no
+         join rider_info ri on r.rider_no = ri.rider_no
+         join com_comm_bikes ccb on bi.car_model = ccb.comm_cd
+         join com_comm_manuf ccm on ccb.manuf_no = ccm.manuf_no
+         left outer join leases l on bi.bike_no = l.bike_no
+         left outer join clients c on l.client_no = c.client_no
+        where bike_id != (select val
+                            from system_parameters
+                           where parameter_no = 0)
+        <if test="car_num != null and car_num != '' and car_num != 'undefined'">
+          and car_num = #{car_num}
+        </if>
+        <if test="rider_name != null and rider_name != '' and rider_name != 'undefined'">
+          and ri.name #{rider_name}
+        </if>
+        <if test="client_id != null and client_id != '' and client_id != 'undefined'">
+          and c.client_id #{client_id}
+        </if>
     </select>
 
     <select id="fetchRiderListByBike" parameterType="hmap" resultType="hmap">
@@ -197,8 +208,8 @@
                vim_num as bike_vim_num,
                b.number as bike_number,
                b.car_model as bike_car_model_code,
-               ccb.comm_nm as bike_car_model,
-               ccm.manuf as bike_manufacturer,
+               b.comm_nm as bike_car_model,
+               b.manuf as bike_manufacturer,
                b.color,
                b.usable,
                b.payer_types,
@@ -212,7 +223,7 @@
                b.phone as rider_phone,
                b.uuid as edp_id,
                b.front_ssn as birth_date,
-               ri.name as rider_name,
+               b.rider_name,
                l.lease_id,
                l.contract_type,
                c.client_id,
@@ -222,27 +233,32 @@
                        r.email,
                        r.phone,
                        r.uuid,
-                       r.front_ssn
+                       r.front_ssn,
+                       ccb.comm_nm,
+                       ccm.manuf,
+                       ri.name as rider_name
                   from bikes bi
                   join riders r on bi.rider_no = r.rider_no
                   join rider_info ri on r.rider_no = ri.rider_no
-                  join com_comm_bikes ccb on b.car_model = ccb.comm_cd
+                  join com_comm_bikes ccb on bi.car_model = ccb.comm_cd
                   join com_comm_manuf ccm on ccb.manuf_no = ccm.manuf_no
-                 where bi.rider_no is not null
+                  left outer join leases l on bi.bike_no = l.bike_no
+                  left outer join clients c on l.client_no = c.client_no
+                  where bi.rider_no is not null
                    and bike_id != (select val
                                      from system_parameters
                                     where parameter_no = 0)
                  <if test="next_token != null and next_token != '' and next_token != 'undefined'">
-                   and bike_id <![CDATA[ < ]]> #{next_token}
+                   and bike_id <![CDATA[ > ]]> #{next_token}
                  </if>
-                 <if test="next_token != null and next_token != '' and next_token != 'undefined'">
-                   and <![CDATA[ < ]]> #{next_token}
+                 <if test="car_num != null and car_num != '' and car_num != 'undefined'">
+                   and car_num = #{car_num}
                  </if>
-                 <if test="next_token != null and next_token != '' and next_token != 'undefined'">
-                   and <![CDATA[ < ]]> #{next_token}
+                 <if test="rider_name != null and rider_name != '' and rider_name != 'undefined'">
+                   and ri.name #{rider_name}
                  </if>
-                 <if test="next_token != null and next_token != '' and next_token != 'undefined'">
-                   and <![CDATA[ < ]]> #{next_token}
+                 <if test="client_id != null and client_id != '' and client_id != 'undefined'">
+                   and c.client_id #{client_id}
                  </if>limit 30) b
           left outer join leases l on b.bike_no = l.bike_no
           left outer join clients c on l.client_no = c.client_no
