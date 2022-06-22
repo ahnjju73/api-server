@@ -427,8 +427,11 @@ public class ShopService extends SessService {
     }
 
     public BikeSessionRequest deleteAttachment(BikeSessionRequest request) {
-
-
+        Map param = request.getParam();
+        DeleteShopAttachmentRequest deleteShopAttachmentRequest = map(param, DeleteShopAttachmentRequest.class);
+        Shops shopByShopId = shopWorker.getShopByShopId(deleteShopAttachmentRequest.getShopId());
+        ShopAttachments shopAttachments = shopWorker.removeAttachment(shopByShopId.getShopAttachments(), deleteShopAttachmentRequest.getUuid());
+        shopAttachmentRepository.save(shopAttachments);
         return request;
     }
 }

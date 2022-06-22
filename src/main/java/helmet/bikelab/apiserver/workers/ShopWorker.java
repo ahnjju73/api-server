@@ -4,7 +4,6 @@ import helmet.bikelab.apiserver.domain.embeds.ModelAttachment;
 import helmet.bikelab.apiserver.domain.shops.ShopAttachments;
 import helmet.bikelab.apiserver.domain.shops.Shops;
 import helmet.bikelab.apiserver.objects.requests.PageableRequest;
-import helmet.bikelab.apiserver.repositories.BikeUserTodoRepository;
 import helmet.bikelab.apiserver.repositories.ShopsRepository;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import lombok.RequiredArgsConstructor;
@@ -12,8 +11,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
