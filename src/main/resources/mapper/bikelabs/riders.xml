@@ -193,13 +193,13 @@
                             from system_parameters
                            where parameter_no = 0)
         <if test="car_num != null and car_num != '' and car_num != 'undefined'">
-          and car_num = #{car_num}
+          and car_num like #{car_num}
         </if>
         <if test="rider_name != null and rider_name != '' and rider_name != 'undefined'">
           and ri.name like #{rider_name}
         </if>
         <if test="client_id != null and client_id != '' and client_id != 'undefined'">
-          and c.client_id like #{client_id}
+          and c.client_id = #{client_id}
         </if>
     </select>
 
@@ -258,7 +258,7 @@
                    and ri.name like #{rider_name}
                  </if>
                  <if test="client_id != null and client_id != '' and client_id != 'undefined'">
-                   and c.client_id #{client_id}
+                   and c.client_id = #{client_id}
                  </if>order by bike_id desc limit 30) b
           left outer join leases l on b.bike_no = l.bike_no
           left outer join clients c on l.client_no = c.client_no
