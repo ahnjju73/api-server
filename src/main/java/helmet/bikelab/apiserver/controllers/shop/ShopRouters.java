@@ -28,6 +28,10 @@ public class ShopRouters {
                 .andRoute(GET("/repairshop/no-page"), shopHandler::fetchAllShopsWithoutPage)
                 .andRoute(PUT("/repairshop/password"), shopHandler::updatePasswordByShopId)
                 .andRoute(GET("/repairshop/histories"), shopHandler::fetchHistoryOfShop)
+                .andRoute(POST("/repairshop/generate-presigned"), shopHandler::generatePresignedUrl)
+                .andRoute(GET("/repairshop/attachments"), shopHandler::fetchAttachments)
+                .andRoute(POST("/repairshop/attachments"), shopHandler::addFineAttachment)
+                .andRoute(DELETE("/repairshop/attachments"), shopHandler::deleteFineAttachment)
                 ;
     }
 

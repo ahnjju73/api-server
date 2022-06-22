@@ -52,6 +52,9 @@ public class Shops {
     @Column(name = "created_at", columnDefinition = "CURRENT_TIMESTAMP")
     private LocalDateTime createdAt = LocalDateTime.now();
 
+    @OneToOne(mappedBy = "shop")
+    private ShopAttachments shopAttachments;
+
     @Column(name = "business_type", columnDefinition = "ENUM", nullable = false, insertable = false, updatable = false)
     private String businessTypeCode;
 
