@@ -186,7 +186,7 @@ public class ClientGroupService extends SessService {
       ClientGroups group = groupRepository.findByGroupId(deleteGroupRequest.getGroupId());
       groupPasswordRepository.deleteByGroup_GroupId(group.getGroupId());
       groupSessionRepository.deleteByGroup_GroupId(group.getGroupId());
-      clientGroupAddressRepository.delete(group.getGroupAddresses());
+      clientGroupAddressRepository.deleteByGroup_GroupId(group.getGroupId());
       groupRepository.delete(group);
       return request;
    }
