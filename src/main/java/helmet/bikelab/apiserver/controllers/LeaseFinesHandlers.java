@@ -89,7 +89,7 @@ public class LeaseFinesHandlers {
                         .map(row -> fineService.makeSessionRequest(request, row, BikeSessionRequest.class))
                         .map(fineService::checkBikeSession)
                         .map(fineService::fetchAttachments)
-                        .map(fineService::returnData), Map.class);
+                        .map(fineService::returnData), List.class);
     }
 
 
@@ -100,7 +100,7 @@ public class LeaseFinesHandlers {
                         .map(row -> fineService.makeSessionRequest(request, row, BikeSessionRequest.class))
                         .map(fineService::checkBikeSession)
                         .map(fineService::addAttachments)
-                        .map(fineService::returnData), List.class);
+                        .map(fineService::returnData), Map.class);
     }
 
     public Mono<ServerResponse> deleteFineAttachment(ServerRequest request){
