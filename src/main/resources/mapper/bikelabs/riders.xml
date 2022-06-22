@@ -193,7 +193,7 @@
                             from system_parameters
                            where parameter_no = 0)
         <if test="car_num != null and car_num != '' and car_num != 'undefined'">
-          and car_num like #{car_num}
+          and number like #{car_num}
         </if>
         <if test="rider_name != null and rider_name != '' and rider_name != 'undefined'">
           and ri.name like #{rider_name}
@@ -252,7 +252,7 @@
                    and bike_id <![CDATA[ < ]]> #{next_token}
                  </if>
                  <if test="car_num != null and car_num != '' and car_num != 'undefined'">
-                   and car_num like #{car_num}
+                   and number like #{car_num}
                  </if>
                  <if test="rider_name != null and rider_name != '' and rider_name != 'undefined'">
                    and ri.name like #{rider_name}
