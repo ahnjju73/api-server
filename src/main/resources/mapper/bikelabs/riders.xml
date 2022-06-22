@@ -193,10 +193,10 @@
                             from system_parameters
                            where parameter_no = 0)
         <if test="car_num != null and car_num != '' and car_num != 'undefined'">
-          and number like #{car_num}
+          and number like concat('%', #{car_num}, '%')
         </if>
         <if test="rider_name != null and rider_name != '' and rider_name != 'undefined'">
-          and ri.name like #{rider_name}
+          and ri.name like concat('%', #{rider_name}, '%')
         </if>
         <if test="client_id != null and client_id != '' and client_id != 'undefined'">
           and c.client_id = #{client_id}
@@ -252,10 +252,10 @@
                    and bike_id <![CDATA[ < ]]> #{next_token}
                  </if>
                  <if test="car_num != null and car_num != '' and car_num != 'undefined'">
-                   and number like #{car_num}
+                   and number like concat('%', #{car_num}, '%')
                  </if>
                  <if test="rider_name != null and rider_name != '' and rider_name != 'undefined'">
-                   and ri.name like #{rider_name}
+                   and ri.name like concat('%', #{rider_name}, '%')
                  </if>
                  <if test="client_id != null and client_id != '' and client_id != 'undefined'">
                    and c.client_id = #{client_id}
