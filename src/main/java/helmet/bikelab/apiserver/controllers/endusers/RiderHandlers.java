@@ -31,7 +31,7 @@ public class RiderHandlers {
                         .subscribeOn(Schedulers.elastic())
                         .map(riderService::checkBikeSession)
                         .map(riderService::fetchRiderListByBike)
-                        .map(riderService::returnData), List.class);
+                        .map(riderService::returnData), ResponseListDto.class);
     }
 
     public Mono<ServerResponse> fetchRidersLeaseRequested(ServerRequest request) {
