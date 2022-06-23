@@ -50,9 +50,10 @@ public class ShopWorker extends SessService {
     }
 
     public ShopAttachments removeAttachment(ShopAttachments shopAttachments, String uuid){
-        for(ModelAttachment ma : shopAttachments.getAttachmentsList()){
-            if(ma.getUuid().equals(uuid)){
-                shopAttachments.getAttachmentsList().remove(ma);
+
+        for(int i = 0; i < shopAttachments.getAttachmentsList().size(); i++){
+            if(shopAttachments.getAttachmentsList().get(i).getUuid().equals(uuid)){
+                shopAttachments.getAttachmentsList().remove(i--);
             }
         }
         return shopAttachments;
