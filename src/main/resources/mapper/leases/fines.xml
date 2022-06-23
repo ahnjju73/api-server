@@ -41,7 +41,7 @@
 
                  where 1 = 1
                  <if test="next_token != null and next_token != '' and next_token != 'undefined'">
-                   and fine_id <![CDATA[ > ]]> #{next_token}
+                   and fine_id <![CDATA[ < ]]> #{next_token}
                  </if>
                  <if test="fine_type != null and fine_type != '' and fine_type != 'undefined'">
                      <if test="fine_type == '기타'">
