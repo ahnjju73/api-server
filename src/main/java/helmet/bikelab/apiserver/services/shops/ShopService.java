@@ -392,7 +392,8 @@ public class ShopService extends SessService {
         Map param = request.getParam();
         AddShopAttachmentRequest addShopAttachmentRequest = map(param, AddShopAttachmentRequest.class);
         Shops shopByShopId = shopWorker.getShopByShopId(addShopAttachmentRequest.getShopId());
-        ShopAttachments shopAttachments = shopByShopId.getShopAttachments();
+        ShopAttachments shopAttachments = shopByShopId.getShopAttachments() == null ? new ShopAttachments() : shopByShopId.getShopAttachments();
+        shopAttachments.setShopNo(shopByShopId.getShopNo());
         List<ModelAttachment> attachmentsList = shopAttachments.getAttachmentsList();
         if(!bePresent(attachmentsList))
             attachmentsList = new ArrayList<>();

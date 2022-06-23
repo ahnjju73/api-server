@@ -156,7 +156,7 @@ public class ShopHandler {
                         .map(row -> shopService.makeSessionRequest(request, row, BikeSessionRequest.class))
                         .map(shopService::checkBikeSession)
                         .map(shopService::addAttachments)
-                        .map(shopService::returnData), List.class);
+                        .map(shopService::returnData), Map.class);
     }
 
     public Mono<ServerResponse> deleteFineAttachment(ServerRequest request){
