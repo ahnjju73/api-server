@@ -140,9 +140,8 @@ public class ShopHandler {
 
     public Mono<ServerResponse> fetchAttachments(ServerRequest request){
         return ServerResponse.ok().body(
-                request.bodyToMono(Map.class)
+                Mono.fromSupplier(() -> shopService.makeSessionRequest(request, BikeSessionRequest.class))
                         .subscribeOn(Schedulers.elastic())
-                        .map(row -> shopService.makeSessionRequest(request, row, BikeSessionRequest.class))
                         .map(shopService::checkBikeSession)
                         .map(shopService::fetchAttachments)
                         .map(shopService::returnData), List.class);
