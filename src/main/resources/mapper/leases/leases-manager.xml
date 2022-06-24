@@ -18,6 +18,9 @@
         <if test="lease_id != null and lease_id != '' and lease_id != 'undefined'">
             and lease_id like concat('%', #{lease_id}, '%')
         </if>
+        <if test="lease_stop_status_code != null and lease_stop_status_code != '' and lease_stop_status_code != 'undefined'">
+            and lease_stop_status = #{lease_stop_status_code}
+        </if>
     </select>
 
     <select id="countAllLeasesByBike" parameterType="hmap" resultType="int">
@@ -34,6 +37,9 @@
          <if test="lease_id != null and lease_id != '' and lease_id != 'undefined'">
            and lease_id like concat('%', #{lease_id}, '%')
           </if>
+        <if test="lease_stop_status_code != null and lease_stop_status_code != '' and lease_stop_status_code != 'undefined'">
+            and lease_stop_status = #{lease_stop_status_code}
+        </if>
          <if test="search_bike != null">
            and (
             `number` like concat('%', #{search_bike}, '%') or `vim_num` like concat('%', #{search_bike}, '%')
@@ -176,6 +182,9 @@
                 <if test="contract_type_code != null and contract_type_code != '' and contract_type_code != 'undefined'">
                  and contract_type = #{contract_type_code}
                 </if>
+                <if test="lease_stop_status_code != null and lease_stop_status_code != '' and lease_stop_status_code != 'undefined'">
+                 and lease_stop_status = #{lease_stop_status_code}
+                </if>
                 <if test="lease_id != null and lease_id != '' and lease_id != 'undefined'">
                  and lease_id like concat('%', #{lease_id}, '%')
                 </if>
@@ -260,6 +269,9 @@
                 </if>
                 <if test="contract_type_code != null and contract_type_code != '' and contract_type_code != 'undefined'">
                  and contract_type = #{contract_type_code}
+                </if>
+                <if test="lease_stop_status_code != null and lease_stop_status_code != '' and lease_stop_status_code != 'undefined'">
+                 and lease_stop_status = #{lease_stop_status_code}
                 </if>
                 <if test="lease_id != null and lease_id != '' and lease_id != 'undefined'">
                  and lease_id like concat('%', #{lease_id}, '%')
