@@ -16,13 +16,14 @@ public class AddGroupRequest extends OriginObject {
     private String ceoEmail;
     private String ceoPhone;
     private String regNo;
+    private String email;
     private ModelAddress address;
 
     public void checkValidation(){
         if(!bePresent(this.groupName)) withException("300-003");
         if(!bePresent(this.regNo)) withException("300-008");
         if(!bePresent(this.ceoName)) withException("300-009");
-        if(!bePresent(this.ceoEmail)) withException("300-010");
+        if(!bePresent(this.email)) withException("300-010");
         if(!bePresent(this.ceoPhone)) withException("300-011");
         if(!bePresent(this.address)) withException("300-012");
     }

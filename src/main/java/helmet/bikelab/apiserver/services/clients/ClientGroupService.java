@@ -3,9 +3,7 @@ package helmet.bikelab.apiserver.services.clients;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUserLog;
-import helmet.bikelab.apiserver.domain.client.ClientGroups;
-import helmet.bikelab.apiserver.domain.client.Clients;
-import helmet.bikelab.apiserver.domain.client.GroupAddresses;
+import helmet.bikelab.apiserver.domain.client.*;
 import helmet.bikelab.apiserver.domain.lease.*;
 import helmet.bikelab.apiserver.domain.types.BikeUserLogTypes;
 import helmet.bikelab.apiserver.domain.types.LeaseStatusTypes;
@@ -37,18 +35,21 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 import static helmet.bikelab.apiserver.domain.bikelab.BikeUserLog.addLog;
+import static helmet.bikelab.apiserver.utils.Utils.randomPassword;
 
 @RequiredArgsConstructor
 @Service
 public class ClientGroupService extends SessService {
 
    private final ClientsRepository clientsRepository;
+   private final GroupSessionRepository groupSessionRepository;
    private final ClientGroupRepository groupRepository;
    private final ClientGroupAddressRepository clientGroupAddressRepository;
    private final LeaseRepository leaseRepository;
    private final LeasePaymentsRepository leasePaymentsRepository;
    private final LeaseInfoRepository leaseInfoRepository;
    private final LeasePriceRepository leasePriceRepository;
+   private final GroupPasswordRepository groupPasswordRepository;
    private final BikesRepository bikesRepository;
    private final BikeLabUserRepository bikeLabUserRepository;
    private final ReleaseRepository releaseRepository;
@@ -80,6 +81,7 @@ public class ClientGroupService extends SessService {
       group.setCeoName(addGroupRequest.getCeoName());
       group.setCeoPhone(addGroupRequest.getCeoPhone());
       group.setRegNum(addGroupRequest.getRegNo());
+      group.setGroupEmail(addGroupRequest.getEmail());
       groupRepository.save(group);
 
       GroupAddresses groupAddresses = group.getGroupAddresses();
@@ -95,6 +97,11 @@ public class ClientGroupService extends SessService {
       userLog.setFromUserNo(session.getUserNo());
       userLog.setReferenceId(group.getGroupNo().toString());
       bikeUserLogRepository.save(addLog(BikeUserLogTypes.COMM_GROUP_ADDED, session.getUserNo(), group.getGroupNo().toString()));
+
+      GroupPasswords groupPasswords = new GroupPasswords();
+      groupPasswords.updatePasswordWithoutSHA256(group.getGroupEmail());
+      groupPasswords.setGroupNo(group.getGroupNo());
+      groupPasswordRepository.save(groupPasswords);
       return request;
    }
 
@@ -132,6 +139,7 @@ public class ClientGroupService extends SessService {
          group.setCeoName(updateGroupRequest.getCeoName());
          group.setCeoPhone(updateGroupRequest.getCeoPhone());
          group.setRegNum(updateGroupRequest.getRegNo());
+         group.setGroupEmail(updateGroupRequest.getEmail());
          GroupAddresses groupAddresses = group.getGroupAddresses();
          if(!bePresent(groupAddresses)) {
             groupAddresses = new GroupAddresses();
@@ -151,6 +159,9 @@ public class ClientGroupService extends SessService {
       }
       if(bePresent(updateGroupRequest.getCeoEmail()) && !updateGroupRequest.getCeoEmail().equals(group.getCeoEmail())){
          stringList.add("담당자 이메일을 <>" + group.getCeoEmail() + "</>에서 <>" + updateGroupRequest.getCeoEmail() + "</>으로 변경하였습니다.");
+      }
+      if(bePresent(updateGroupRequest.getEmail()) && !updateGroupRequest.getEmail().equals(group.getGroupEmail())){
+         stringList.add("그룹 이메일을 <>" + group.getCeoEmail() + "</>에서 <>" + updateGroupRequest.getCeoEmail() + "</>으로 변경하였습니다.");
       }
       if(bePresent(updateGroupRequest.getCeoName()) && !updateGroupRequest.getCeoName().equals(group.getCeoName())){
          stringList.add("담당자 이름을 <>" + group.getCeoName() + "</>에서 <>" + updateGroupRequest.getCeoName() + "</>으로 변경하였습니다.");
@@ -173,6 +184,9 @@ public class ClientGroupService extends SessService {
       Integer count = clientsRepository.countAllByClientGroup_GroupId(deleteGroupRequest.getGroupId());
       if(count > 0) withException("300-006");
       ClientGroups group = groupRepository.findByGroupId(deleteGroupRequest.getGroupId());
+      groupPasswordRepository.deleteByGroup_GroupId(group.getGroupId());
+      groupSessionRepository.deleteByGroup_GroupId(group.getGroupId());
+      clientGroupAddressRepository.deleteByGroup_GroupId(group.getGroupId());
       groupRepository.delete(group);
       return request;
    }
@@ -484,5 +498,33 @@ public class ClientGroupService extends SessService {
             leasePaymentsRepository.saveAll(leasePaymentsList);
          }
       }
+   }
+
+   @Transactional
+   public BikeSessionRequest resetPassword(BikeSessionRequest request) {
+      Map param = request.getParam();
+      Map response = new HashMap();
+      ResetGroupPasswordRequest resetGroupPasswordRequest = map(param, ResetGroupPasswordRequest.class);
+      ClientGroups clientGroups = groupRepository.findByGroupId(resetGroupPasswordRequest.getGroup_id());
+      String newPassword = getRandomString();
+      GroupPasswords groupPasswords = groupPasswordRepository.findByGroup_GroupId(clientGroups.getGroupId());
+      groupPasswords.updatePasswordWithoutSHA256(newPassword);
+      groupPasswordRepository.save(groupPasswords);
+      response.put("password", newPassword);
+      request.setResponse(response);
+      return request;
+   }
+
+   private String getRandomString(){
+      char[] tmp = new char[10];
+      for(int i=0; i<tmp.length; i++) {
+         boolean div = Math.random()*2<1;
+         if(div) {
+            tmp[i] = (char) (Math.random() * 10 + '0') ;
+         }else {
+            tmp[i] = (char) (Math.random() * 26 + 'A') ;
+         }
+      }
+      return new String(tmp);
    }
 }

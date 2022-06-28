@@ -24,6 +24,9 @@
                      <if test="payer_type != null and payer_type != '' and payer_type != 'undefined'">
                        and payer_types = #{payer_type}
                      </if>
+                     <if test="search_bike_id != null and search_bike_id != '' and search_bike_id != 'undefined'">
+                       and bike_id like concat('%', #{search_bike_id}, '%')
+                     </if>
                      <if test="search_name != null and search_name != '' and search_name != 'undefined'">
                        and (
                             vim_num like concat('%', #{search_name}, '%')
@@ -62,7 +65,9 @@
                    or `number` like concat('%', #{search_name}, '%')
                    )
              </if>
-
+             <if test="search_bike_id != null and search_bike_id != '' and search_bike_id != 'undefined'">
+               and bike_id like concat('%', #{search_bike_id}, '%')
+             </if>
         </if>
     </select>
 
@@ -113,6 +118,9 @@
                 or `number` like concat('%', #{search_name}, '%')
                 )
                 </if>
+                <if test="search_bike_id != null and search_bike_id != '' and search_bike_id != 'undefined'">
+                and bike_id like concat('%', #{search_bike_id}, '%')
+                </if>
                 <if test="next_token != null and next_token != '' and next_token != 'undefined'">
                 and bike_id <![CDATA[ < ]]> #{next_token}
                 </if>
@@ -162,6 +170,9 @@
                </if>
                <if test="next_token != null and next_token != '' and next_token != 'undefined'">
                  and bike_id <![CDATA[ < ]]> #{next_token}
+               </if>
+               <if test="search_bike_id != null and search_bike_id != '' and search_bike_id != 'undefined'">
+                 and bike_id like concat('%', #{search_bike_id}, '%')
                </if>
                <if test="type == 'delete'">
                  and deleted_at is not null
@@ -297,9 +308,9 @@
                                      from leases
                                     where status = '550-003')
                    and bike_id != (select val from system_parameters where parameter_no = 0)
-                   and reg_num is not null
-                   and price is not null
-                   and company_name is not null
+--                    and reg_num is not null
+--                    and price is not null
+--                    and company_name is not null
                    and rider_no is null
                    <if test="search_name != null and search_name != '' and search_name != 'undefined'">
                    and (
@@ -361,8 +372,8 @@
                   </if>
                 order by bike_no desc limit 30) bm
                join com_comm_bikes commb on bm.car_model = commb.comm_cd
-               left outer join leases ls on bm.bike_no = ls.bike_no
-               left outer join lease_info li on ls.lease_no = li.lease_no
+               join leases ls on bm.bike_no = ls.bike_no and ls.status = '550-003'
+               join lease_info li on ls.lease_no = li.lease_no
                left outer join clients c on ls.client_no = c.client_no
                left outer join client_info ci on c.client_no = ci.client_no
         order by bm.bike_no desc

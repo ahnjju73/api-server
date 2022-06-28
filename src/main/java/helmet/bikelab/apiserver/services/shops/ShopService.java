@@ -1,31 +1,37 @@
 package helmet.bikelab.apiserver.services.shops;
 
+import com.amazonaws.regions.Regions;
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.CopyObjectRequest;
 import helmet.bikelab.apiserver.domain.Banks;
 import helmet.bikelab.apiserver.domain.Estimates;
 import helmet.bikelab.apiserver.domain.Settles;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.client.ClientAddresses;
 import helmet.bikelab.apiserver.domain.embeds.ModelAddress;
+import helmet.bikelab.apiserver.domain.embeds.ModelAttachment;
 import helmet.bikelab.apiserver.domain.embeds.ModelBankAccount;
-import helmet.bikelab.apiserver.domain.shops.ShopAddresses;
-import helmet.bikelab.apiserver.domain.shops.ShopInfo;
-import helmet.bikelab.apiserver.domain.shops.ShopPassword;
-import helmet.bikelab.apiserver.domain.shops.Shops;
+import helmet.bikelab.apiserver.domain.lease.Fines;
+import helmet.bikelab.apiserver.domain.shops.*;
 import helmet.bikelab.apiserver.domain.types.BikeUserLogTypes;
+import helmet.bikelab.apiserver.domain.types.BusinessTypes;
 import helmet.bikelab.apiserver.domain.types.SettleStatusTypes;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
+import helmet.bikelab.apiserver.objects.PresignedURLVo;
 import helmet.bikelab.apiserver.objects.requests.ClientListDto;
+import helmet.bikelab.apiserver.objects.requests.FetchFineRequest;
 import helmet.bikelab.apiserver.objects.requests.PageableRequest;
 import helmet.bikelab.apiserver.objects.requests.RequestListDto;
-import helmet.bikelab.apiserver.objects.requests.shops.AddShopRequest;
-import helmet.bikelab.apiserver.objects.requests.shops.ShopListDto;
-import helmet.bikelab.apiserver.objects.requests.shops.UpdateShopRequest;
+import helmet.bikelab.apiserver.objects.requests.shops.*;
 import helmet.bikelab.apiserver.objects.responses.FetchSettleDetailResponse;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.repositories.*;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.utils.AutoKey;
 import helmet.bikelab.apiserver.utils.Crypt;
+import helmet.bikelab.apiserver.utils.amazon.AmazonUtils;
+import helmet.bikelab.apiserver.utils.keys.ENV;
 import helmet.bikelab.apiserver.workers.CommonWorker;
 import helmet.bikelab.apiserver.workers.ShopWorker;
 import lombok.RequiredArgsConstructor;
@@ -37,10 +43,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 import static helmet.bikelab.apiserver.domain.bikelab.BikeUserLog.addLog;
 import static helmet.bikelab.apiserver.utils.Utils.randomPassword;
@@ -53,6 +57,7 @@ public class ShopService extends SessService {
     private final ShopInfoRepository shopInfoRepository;
     private final ShopPasswordRepository shopPasswordRepository;
     private final ShopAddressesRepository shopAddressesRepository;
+    private final ShopAttachmentRepository shopAttachmentRepository;
     private final EstimatesRepository estimatesRepository;
     private final AutoKey autoKey;
     private final ShopWorker shopWorker;
@@ -61,7 +66,7 @@ public class ShopService extends SessService {
     private final BankRepository bankRepository;
     private final CommonWorker commonWorker;
 
-    public BikeSessionRequest fetchHistoryOfShop(BikeSessionRequest request){
+    public BikeSessionRequest fetchHistoryOfShop(BikeSessionRequest request) {
         Map param = request.getParam();
         ShopListDto requestListDto = map(param, ShopListDto.class);
         ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(requestListDto, "bikelabs.bike_user_log.getBikeUserLogInShopHistories", "bikelabs.bike_user_log.countAllBikeUserLogInShopHistories", "log_no");
@@ -70,9 +75,9 @@ public class ShopService extends SessService {
     }
 
     @Transactional
-    public BikeSessionRequest updatePasswordByShopId(BikeSessionRequest request){
+    public BikeSessionRequest updatePasswordByShopId(BikeSessionRequest request) {
         Map param = request.getParam();
-        String shopId = (String)param.get("shop_id");
+        String shopId = (String) param.get("shop_id");
         Shops shopByShopId = shopWorker.getShopByShopId(shopId);
         ShopPassword shopPassword = shopByShopId.getShopPassword();
         String plainPassword = randomPassword(8);
@@ -85,7 +90,7 @@ public class ShopService extends SessService {
         return request;
     }
 
-    public BikeSessionRequest fetchAllShops(BikeSessionRequest request){
+    public BikeSessionRequest fetchAllShops(BikeSessionRequest request) {
         PageableRequest pageableRequest = map(request.getParam(), PageableRequest.class);
         String keyword = (String) request.getParam().get("keyword");
         Page<Shops> allShopByPageableRequest = shopWorker.getAllShopByPageableRequest(pageableRequest, keyword);
@@ -93,10 +98,10 @@ public class ShopService extends SessService {
         return request;
     }
 
-    public BikeSessionRequest fetchAllShopsWithoutPage(BikeSessionRequest request){
+    public BikeSessionRequest fetchAllShopsWithoutPage(BikeSessionRequest request) {
         String keyword = (String) request.getParam().get("keyword");
         List<Shops> shopList;
-        if(bePresent(keyword))
+        if (bePresent(keyword))
             shopList = shopsRepository.findAllByShopInfo_NameContaining(keyword);
         else
             shopList = shopsRepository.findAll();
@@ -104,26 +109,27 @@ public class ShopService extends SessService {
         return request;
     }
 
-    public BikeSessionRequest fetchShopDetailsByShopId(BikeSessionRequest request){
+    public BikeSessionRequest fetchShopDetailsByShopId(BikeSessionRequest request) {
         Map param = request.getParam();
-        String shopId = (String)param.get("shop_id");
+        String shopId = (String) param.get("shop_id");
         Shops shopByShopId = shopWorker.getShopByShopId(shopId);
         request.setResponse(shopByShopId);
         return request;
     }
 
     @Transactional
-    public BikeSessionRequest registerNewShop(BikeSessionRequest request){
+    public BikeSessionRequest registerNewShop(BikeSessionRequest request) {
         AddShopRequest addShopRequest = map(request.getParam(), AddShopRequest.class);
         addShopRequest.checkValidation();
         BikeUser sessionUser = request.getSessionUser();
-        if(shopWorker.checkIfEmailExists(addShopRequest.getEmail())) withException("401-008");
-        if(shopWorker.checkIfRegNumExists(addShopRequest.getRegNum())) withException("401-009");
+        if (shopWorker.checkIfEmailExists(addShopRequest.getEmail())) withException("401-008");
+        if (shopWorker.checkIfRegNumExists(addShopRequest.getRegNum())) withException("401-009");
         String shopId = autoKey.makeGetKey("shop");
         Shops shop = new Shops();
         shop.setEmail(addShopRequest.getEmail());
         shop.setShopId(shopId);
         shop.setRegNum(addShopRequest.getRegNum());
+        shop.setBusinessType(BusinessTypes.getBusinessTypes(addShopRequest.getBusinessType()));
         shopsRepository.save(shop);
 
         ShopInfo shopInfo = new ShopInfo();
@@ -167,7 +173,7 @@ public class ShopService extends SessService {
     }
 
     @Transactional
-    public BikeSessionRequest updateShopInfo(BikeSessionRequest request){
+    public BikeSessionRequest updateShopInfo(BikeSessionRequest request) {
         UpdateShopRequest shopRequest = map(request.getParam(), UpdateShopRequest.class);
         shopRequest.checkValidation();
         BikeUser sessionUser = request.getSessionUser();
@@ -176,9 +182,12 @@ public class ShopService extends SessService {
         ShopAddresses shopAddress = shopByShopId.getShopAddress();
         ModelBankAccount modelBankAccount = new ModelBankAccount();
         updateShopInfoLog(BikeUserLogTypes.COMM_SHOP_UPDATED, shopByShopId, shopInfo, shopAddress, shopRequest, sessionUser);
-        if(!shopByShopId.getEmail().equals(shopRequest.getEmail()) && shopWorker.checkIfEmailExists(shopRequest.getEmail())) withException("401-008");
-        if(!shopByShopId.getRegNum().equals(shopRequest.getRegNum()) && shopWorker.checkIfRegNumExists(shopRequest.getRegNum())) withException("401-009");
+        if (!shopByShopId.getEmail().equals(shopRequest.getEmail()) && shopWorker.checkIfEmailExists(shopRequest.getEmail()))
+            withException("401-008");
+        if (!shopByShopId.getRegNum().equals(shopRequest.getRegNum()) && shopWorker.checkIfRegNumExists(shopRequest.getRegNum()))
+            withException("401-009");
 
+        shopByShopId.setBusinessType(BusinessTypes.getBusinessTypes(shopRequest.getBusinessType()));
         shopByShopId.setEmail(shopRequest.getEmail());
         shopByShopId.setRegNum(shopRequest.getRegNum());
         shopsRepository.save(shopByShopId);
@@ -230,6 +239,12 @@ public class ShopService extends SessService {
                 stringList.add("정비소 사업자번호를 <>" + originShop.getRegNum() + "</>에서 <>" + updatedObj.getRegNum() + "</>(으)로 변경하였습니다.");
             else stringList.add("정비소 사업자번호를 <>" + updatedObj.getRegNum() + "</>(으)로 등록하였습니다.");
         }
+        if (bePresent(updatedObj.getBusinessType()) && !updatedObj.getBusinessType().equals(originShop.getBusinessTypeCode())) {
+            BusinessTypes businessTypes = BusinessTypes.getBusinessTypes(updatedObj.getBusinessType());
+            if (bePresent(originShop.getBusinessType()))
+                stringList.add("정비소 사업 타입을 <>" + originShop.getBusinessType().getBusiness() + "</>에서 <>" + businessTypes.getBusiness() + "</>(으)로 변경하였습니다.");
+            else stringList.add("정비소 사업 타입을 <>" + businessTypes.getBusiness() + "</>(으)로 등록하였습니다.");
+        }
         if (bePresent(updatedObj.getPhone()) && !updatedObj.getPhone().equals(originShopInfo.getPhone())) {
             if (bePresent(originShopInfo.getPhone()))
                 stringList.add("정비소 연락처를 <>" + originShopInfo.getPhone() + "</>에서 <>" + updatedObj.getPhone() + "</>(으)로 변경하였습니다.");
@@ -258,16 +273,16 @@ public class ShopService extends SessService {
 
         if (bePresent(updatedObj.getBankCd()) && !bePresent(originShopInfo.getBankAccount())) { // 기존정보 없고, 업데이트가 있을 때
             stringList.add("입금 은행을 <>" + bankInfo.getBankName() + "</>(으)로 등록하였습니다.");
-        }else if (bePresent(updatedObj.getBankCd()) && bePresent(originShopInfo.getBankAccount())){ // 기존 정보는 있고, 업데이트 있을 때
+        } else if (bePresent(updatedObj.getBankCd()) && bePresent(originShopInfo.getBankAccount())) { // 기존 정보는 있고, 업데이트 있을 때
             if (originShopInfo.getBankAccount().getBankCode() == null) {  // 업데이트된 은행 정보가 null 이 아니고, 기존 은행코드가 없으면
                 stringList.add("입금 은행을 <>" + bankInfo.getBankName() + "</>(으)로 등록하였습니다.");
-            }else if (bePresent(updatedObj.getBankCd()) && bePresent(originShopInfo.getBankAccount().getBankCode())) { // 기본정보와 업데이트 정보가 모두 있을 때
+            } else if (bePresent(updatedObj.getBankCd()) && bePresent(originShopInfo.getBankAccount().getBankCode())) { // 기본정보와 업데이트 정보가 모두 있을 때
                 if (!updatedObj.getBankCd().equals(originShopInfo.getBankAccount().getBankCode())) { // 기존과 업데이트 정보가 서로 다를 때
                     stringList.add("입금 은행을 <>" + originShopInfo.getBankAccount().getBank().getBankName() + "</>에서 <>" + bankInfo.getBankName() + "</>(으)로 변경하였습니다.");
                 }
             }
-        }else if (!bePresent(updatedObj.getBankCd())){ // 업데이트 정보가 null 일 때
-            if (bePresent(originShopInfo.getBankAccount())){
+        } else if (!bePresent(updatedObj.getBankCd())) { // 업데이트 정보가 null 일 때
+            if (bePresent(originShopInfo.getBankAccount())) {
                 if (bePresent(originShopInfo.getBankAccount().getBankCode()))
                     stringList.add("입금 은행 정보를 삭제했습니다.");
             }
@@ -275,13 +290,13 @@ public class ShopService extends SessService {
 
         if (bePresent(updatedObj.getAccount()) && !bePresent(originShopInfo.getBankAccount())) { // 기존정보 없거나, 업데이트가 있을 때
             stringList.add("입금 계좌번호를 <>" + updatedObj.getAccount() + "</>(으)로 등록하였습니다.");
-        }else if (bePresent(updatedObj.getAccount()) && bePresent(originShopInfo.getBankAccount())){ // 기존정보는 있고, 업데이트 있을 때
+        } else if (bePresent(updatedObj.getAccount()) && bePresent(originShopInfo.getBankAccount())) { // 기존정보는 있고, 업데이트 있을 때
             if (!bePresent(originShopInfo.getBankAccount().getAccount())) { // 업데이트 정보가 null 아니고, 기존계좌정보가 null일 때
                 stringList.add("입금 계좌번호를 <>" + updatedObj.getAccount() + "</>(으)로 등록하였습니다.");
-            }else if (!updatedObj.getAccount().equals(originShopInfo.getBankAccount().getAccount())) { // 업데이트 정보와 기존정보가 다를 때)
+            } else if (!updatedObj.getAccount().equals(originShopInfo.getBankAccount().getAccount())) { // 업데이트 정보와 기존정보가 다를 때)
                 stringList.add("입금 계좌번호를 <>" + originShopInfo.getBankAccount().getAccount() + "</>에서 <>" + updatedObj.getAccount() + "</>(으)로 변경하였습니다.");
             }
-        }else if (!bePresent(updatedObj.getAccount())){
+        } else if (!bePresent(updatedObj.getAccount())) {
             if (bePresent(originShopInfo.getBankAccount())) { // 업데이트 계좌정보 null 이고, 기존 정보 있을 때
                 if (bePresent(originShopInfo.getBankAccount().getAccount()))
                     stringList.add("입금 계좌 정보를 삭제했습니다.");
@@ -291,14 +306,14 @@ public class ShopService extends SessService {
 
         if (bePresent(updatedObj.getDepositor()) && !bePresent(originShopInfo.getBankAccount())) { // 기존정보 없거나, 업데이트가 있을 때
             stringList.add("예금주를 <>" + updatedObj.getDepositor() + "</>(으)로 등록하였습니다.");
-        }else if(bePresent(updatedObj.getDepositor()) && bePresent(originShopInfo.getBankAccount())){ // 기존정보는 있고, 업데이트 있을 때
-            if(!bePresent(originShopInfo.getBankAccount().getDepositor())) { // 업데이트 정보가 null 아니고, 기존계좌정보가 null일 때
+        } else if (bePresent(updatedObj.getDepositor()) && bePresent(originShopInfo.getBankAccount())) { // 기존정보는 있고, 업데이트 있을 때
+            if (!bePresent(originShopInfo.getBankAccount().getDepositor())) { // 업데이트 정보가 null 아니고, 기존계좌정보가 null일 때
                 stringList.add("예금주를 <>" + updatedObj.getDepositor() + "</>(으)로 등록하였습니다.");
-            }else if(!updatedObj.getDepositor().equals(originShopInfo.getBankAccount().getDepositor())) { // 업데이트 정보와 기존정보가 다를 때)
+            } else if (!updatedObj.getDepositor().equals(originShopInfo.getBankAccount().getDepositor())) { // 업데이트 정보와 기존정보가 다를 때)
                 stringList.add("예금주를 <>" + originShopInfo.getBankAccount().getDepositor() + "</>에서 <>" + updatedObj.getDepositor() + "</>(으)로 변경하였습니다.");
             }
-        }else if(!bePresent(updatedObj.getDepositor())){
-            if(bePresent(originShopInfo.getBankAccount())) {
+        } else if (!bePresent(updatedObj.getDepositor())) {
+            if (bePresent(originShopInfo.getBankAccount())) {
                 if (bePresent(originShopInfo.getBankAccount().getDepositor()))
                     stringList.add("예금주 정보를 삭제했습니다.");
             }
@@ -331,7 +346,7 @@ public class ShopService extends SessService {
         String settleId = (String) param.get("settle_id");
         Settles bySettleId = settleRepository.findBySettleId(settleId);
         List<Estimates> allBySettle_settleId = estimatesRepository.findAllBySettle_SettleId(settleId);
-        FetchSettleDetailResponse fetchSettleDetailResponse  = new FetchSettleDetailResponse();
+        FetchSettleDetailResponse fetchSettleDetailResponse = new FetchSettleDetailResponse();
         fetchSettleDetailResponse.setSettleId(settleId);
         fetchSettleDetailResponse.setShop(bySettleId.getShop());
         fetchSettleDetailResponse.setCreatedAt(bySettleId.getCreatedAt());
@@ -348,13 +363,76 @@ public class ShopService extends SessService {
     public BikeSessionRequest completeSettle(BikeSessionRequest request) {
         Map param = request.getParam();
         String settleId = (String) param.get("settle_id");
-        Integer retroact = (Integer)param.get("retroact");
+        Integer retroact = (Integer) param.get("retroact");
         Settles bySettleId = settleRepository.findBySettleId(settleId);
         bySettleId.setConfirmedAt(LocalDateTime.now());
         bySettleId.setConfirmedUserNo(request.getSessionUser().getUserNo());
         bySettleId.setDeductible(retroact);
         bySettleId.setSettleStatus(SettleStatusTypes.COMPLETED);
         settleRepository.save(bySettleId);
+        return request;
+    }
+
+    public BikeSessionRequest generatePresignedUrl(BikeSessionRequest request) {
+        Map param = request.getParam();
+        String filename = (String) param.get("filename");
+        PresignedURLVo presignedURLVo;
+        if(filename.indexOf(".") >= 0) {
+            String name = filename.substring(0, filename.lastIndexOf("."));
+            String extension = filename.substring(filename.lastIndexOf(".") + 1);
+            presignedURLVo = commonWorker.generatePreSignedUrl(name, extension);
+        }else
+            presignedURLVo = commonWorker.generatePreSignedUrl(filename, null);
+        request.setResponse(presignedURLVo);
+        return request;
+    }
+
+    @Transactional
+    public BikeSessionRequest addAttachments(BikeSessionRequest request){
+        Map param = request.getParam();
+        AddShopAttachmentRequest addShopAttachmentRequest = map(param, AddShopAttachmentRequest.class);
+        Shops shopByShopId = shopWorker.getShopByShopId(addShopAttachmentRequest.getShopId());
+        ShopAttachments shopAttachments = shopByShopId.getShopAttachments() == null ? new ShopAttachments() : shopByShopId.getShopAttachments();
+        shopAttachments.setShopNo(shopByShopId.getShopNo());
+        List<ModelAttachment> attachmentsList = shopAttachments.getAttachmentsList();
+        if(!bePresent(attachmentsList))
+            attachmentsList = new ArrayList<>();
+        List<ModelAttachment> toAdd = addShopAttachmentRequest.getAttachments()
+                .stream().map(presignedURLVo -> {
+                    AmazonS3 amazonS3 = AmazonS3Client.builder()
+                            .withRegion(Regions.AP_NORTHEAST_2)
+                            .withCredentials(AmazonUtils.awsCredentialsProvider())
+                            .build();
+                    String fileKey = "shop-attachment/" + shopByShopId.getShopId() + "/" + presignedURLVo.getFileKey();
+                    CopyObjectRequest objectRequest = new CopyObjectRequest(presignedURLVo.getBucket(), presignedURLVo.getFileKey(), ENV.AWS_S3_ORIGIN_BUCKET, fileKey);
+                    amazonS3.copyObject(objectRequest);
+                    ModelAttachment shopAttachment = new ModelAttachment();
+                    shopAttachment.setUuid(UUID.randomUUID().toString().replaceAll("-", ""));
+                    shopAttachment.setDomain(ENV.AWS_S3_ORIGIN_DOMAIN);
+                    shopAttachment.setUri("/" + fileKey);
+                    shopAttachment.setFileName(presignedURLVo.getFilename());
+                    return shopAttachment;
+                }).collect(Collectors.toList());
+        attachmentsList.addAll(toAdd);
+        shopAttachments.setAttachmentsList(attachmentsList);
+        shopAttachmentRepository.save(shopAttachments);
+        return request;
+    }
+
+    public BikeSessionRequest fetchAttachments(BikeSessionRequest request){
+        Map param = request.getParam();
+        String shopId = (String) param.get("shop_id");
+        Shops shopByShopId = shopWorker.getShopByShopId(shopId);
+        request.setResponse(shopByShopId.getShopAttachments().getAttachmentsList());
+        return request;
+    }
+
+    public BikeSessionRequest deleteAttachment(BikeSessionRequest request) {
+        Map param = request.getParam();
+        DeleteShopAttachmentRequest deleteShopAttachmentRequest = map(param, DeleteShopAttachmentRequest.class);
+        Shops shopByShopId = shopWorker.getShopByShopId(deleteShopAttachmentRequest.getShopId());
+        ShopAttachments shopAttachments = shopWorker.removeAttachment(shopByShopId.getShopAttachments(), deleteShopAttachmentRequest.getUuid());
+        shopAttachmentRepository.save(shopAttachments);
         return request;
     }
 }

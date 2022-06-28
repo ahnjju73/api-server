@@ -540,12 +540,13 @@ public class BikesService extends SessService {
         bikeAttachments.setDomain(ENV.AWS_S3_ORIGIN_DOMAIN);
         bikeAttachmentRepository.save(bikeAttachments);
         //
-        AmazonS3 amazonS3 = AmazonS3Client.builder()
-                .withRegion(Regions.AP_NORTHEAST_2)
-                .withCredentials(AmazonUtils.awsCredentialsProvider())
-                .build();
-        CopyObjectRequest objectRequest = new CopyObjectRequest(presignedURLVo.getBucket(), presignedURLVo.getFileKey(), ENV.AWS_S3_ORIGIN_BUCKET, presignedURLVo.getFileKey());
-        amazonS3.copyObject(objectRequest);
+//        AmazonS3 amazonS3 = AmazonS3Client.builder()
+//                .withRegion(Regions.AP_NORTHEAST_2)
+//                .withCredentials(AmazonUtils.awsCredentialsProvider())
+//                .build();
+//        CopyObjectRequest objectRequest = new CopyObjectRequest(presignedURLVo.getBucket(), presignedURLVo.getFileKey(), ENV.AWS_S3_ORIGIN_BUCKET, presignedURLVo.getFileKey());
+//        amazonS3.copyObject(objectRequest);
+        presignedURLVo.copyObjectToOrigin();
         String log = "바이크에 <>" + presignedURLVo.getFilename() + "</> 파일명의 파일이 추가 되었습니다.";
         bikeUserLogRepository.save(addLog(BikeUserLogTypes.COMM_BIKE_UPDATED, request.getSessionUser().getUserNo(), bike.getBikeNo().toString(), log));
         Map response = new HashMap();

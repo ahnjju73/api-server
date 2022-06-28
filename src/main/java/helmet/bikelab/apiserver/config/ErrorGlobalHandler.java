@@ -82,12 +82,12 @@ public class ErrorGlobalHandler<T extends BusinessException> extends AbstractErr
         }else if(error instanceof Exception){
             Exception exception = (Exception) getError(request);
             apiLogger(HttpStatus.BAD_REQUEST, exception);
-            errorToSlack(exception);
+            errorToSlack(exception, request);
             return responseTo(request, new Response());
         }else {
             Throwable exception = getError(request);
             apiLogger(HttpStatus.BAD_REQUEST, exception);
-            errorToSlack(exception);
+            errorToSlack(exception, request);
             return responseTo(request, new Response());
         }
     }
@@ -106,7 +106,7 @@ public class ErrorGlobalHandler<T extends BusinessException> extends AbstractErr
                 .body(Mono.just(response), Response.class);
     }
 
-    private <K extends Throwable> void errorToSlack(K exception){
+    private <K extends Throwable> void errorToSlack(K exception, ServerRequest serverRequest){
         if(exception instanceof ResponseStatusException){
             ResponseStatusException responseStatusException = (ResponseStatusException) exception;
             if(responseStatusException.getStatus().equals(HttpStatus.NOT_FOUND)) return;
@@ -123,6 +123,13 @@ public class ErrorGlobalHandler<T extends BusinessException> extends AbstractErr
                 "text", ImmutableMap.of(
                         "type", "mrkdwn",
                         "text", "[SERVICE-API] *<https://backoffice.onus-biz.com/exception?q=" + exception + "|" + exception.getClass().getSimpleName() + ">*\n" + (suppressed != null && suppressed.length > 0 ? suppressed[0].getMessage() : exception)
+                )
+        ));
+        blocks.add(ImmutableMap.of(
+                "type", "section",
+                "text", ImmutableMap.of(
+                        "type", "mrkdwn",
+                        "text", "* URI: *\n" + serverRequest.method().name() + " " + serverRequest.uri()
                 )
         ));
         List blockSecond = new ArrayList();
@@ -163,7 +170,7 @@ public class ErrorGlobalHandler<T extends BusinessException> extends AbstractErr
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(new MediaType("application", "json", Charset.forName("UTF-8")));
                 HttpEntity entity = new HttpEntity(body, headers);
-                restTemplate.postForEntity(isMonitoring ? "https://hooks.slack.com/services/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" : "https://hooks.slack.com/services/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", entity, String.class);
+                restTemplate.postForEntity(isRelease ? "https://hooks.slack.com/services/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" : "https://hooks.slack.com/services/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", entity, String.class);
             }
         } catch (Exception e) {
             e.printStackTrace();

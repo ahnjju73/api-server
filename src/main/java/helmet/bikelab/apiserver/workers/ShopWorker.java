@@ -1,8 +1,9 @@
 package helmet.bikelab.apiserver.workers;
 
+import helmet.bikelab.apiserver.domain.embeds.ModelAttachment;
+import helmet.bikelab.apiserver.domain.shops.ShopAttachments;
 import helmet.bikelab.apiserver.domain.shops.Shops;
 import helmet.bikelab.apiserver.objects.requests.PageableRequest;
-import helmet.bikelab.apiserver.repositories.BikeUserTodoRepository;
 import helmet.bikelab.apiserver.repositories.ShopsRepository;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import lombok.RequiredArgsConstructor;
@@ -10,8 +11,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -48,6 +47,16 @@ public class ShopWorker extends SessService {
         Shops byShopId = shopsRepository.findByShopId(shopId);
         if(!bePresent(byShopId)) withException("401-101");
         return byShopId;
+    }
+
+    public ShopAttachments removeAttachment(ShopAttachments shopAttachments, String uuid){
+
+        for(int i = 0; i < shopAttachments.getAttachmentsList().size(); i++){
+            if(shopAttachments.getAttachmentsList().get(i).getUuid().equals(uuid)){
+                shopAttachments.getAttachmentsList().remove(i--);
+            }
+        }
+        return shopAttachments;
     }
 
 }

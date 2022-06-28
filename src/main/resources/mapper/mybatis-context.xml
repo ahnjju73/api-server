@@ -44,6 +44,7 @@
 
         <mapper resource="mapper/leases/leases-manager.xml"/>
         <mapper resource="mapper/leases/leases-payments.xml"/>
+        <mapper resource="mapper/leases/fines.xml"/>
 
         <mapper resource="mapper/quartz/leases.xml"/>
         <mapper resource="mapper/quartz/leases-stop.xml"/>
@@ -51,5 +52,6 @@
 
         <mapper resource="mapper/estimate/estimates.xml"/>
         <mapper resource="mapper/estimate/settles.xml"/>
+
     </mappers>
 </configuration>

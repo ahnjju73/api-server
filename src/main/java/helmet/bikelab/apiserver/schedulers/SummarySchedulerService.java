@@ -105,7 +105,10 @@ public class SummarySchedulerService extends WorkspaceQuartz {
                 HttpHeaders headers = new HttpHeaders();
                 headers.setContentType(new MediaType("application", "json", Charset.forName("UTF-8")));
                 HttpEntity entity = new HttpEntity(body, headers);
-                restTemplate.postForEntity(isMonitoring ? "https://hooks.slack.com/services/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" : "https://hooks.slack.com/services/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", entity, String.class);
+                if(isMonitoring){
+                    restTemplate.postForEntity("https://hooks.slack.com/services/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", entity, String.class);
+                }
+
             }
         } catch (Exception e) {
             e.printStackTrace();

@@ -64,6 +64,6 @@ public class Parts {
 
     @Column(name = "images", columnDefinition = "json")
     @Convert(converter = PartsImagesConverter.class)
-    private List<PartsImages> images;
+    private List<ImageVo> images;
 
 }

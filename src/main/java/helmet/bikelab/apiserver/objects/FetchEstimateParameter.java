@@ -35,6 +35,7 @@ public class FetchEstimateParameter extends RequestListDto {
     private List<Clients> searchClientList = new ArrayList<>();
     private String searchEstimateId;
     private String searchStatusCode;
+    private String isDeleted;
     private String searchClientNo;
     private String searchRiderNo;
     private String searchShopNo;
@@ -72,7 +73,7 @@ public class FetchEstimateParameter extends RequestListDto {
 
     private String getClientIn(){
         String collect = this.searchClientList.stream().map(elm -> elm.getClientNo().toString()).collect(Collectors.joining(", "));
-        return bePresent(collect) ? collect : null;
+        return bePresent(collect) ? collect : "0";
     }
 
 }
