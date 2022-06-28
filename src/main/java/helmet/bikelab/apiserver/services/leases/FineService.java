@@ -147,7 +147,7 @@ public class FineService extends SessService {
         Map param = request.getParam();
         FetchFineRequest fineRequest = map(param, FetchFineRequest.class);
         Fines fine = fineWorker.getFineById(fineRequest.getFineId());
-        request.setResponse(fine.getAttachmentsList());
+        request.setResponse(fine.getAttachmentsList() == null ? new ArrayList<>() : fine.getAttachmentsList());
         return request;
     }
 

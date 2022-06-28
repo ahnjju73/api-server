@@ -85,6 +85,7 @@ public class LeaseFinesHandlers {
     public Mono<ServerResponse> fetchAttachments(ServerRequest request){
         return ServerResponse.ok().body(
                 Mono.fromSupplier(() -> fineService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .map(row -> fineService.getPathVariable(row, "fine_id"))
                         .subscribeOn(Schedulers.elastic())
                         .map(fineService::checkBikeSession)
                         .map(fineService::fetchAttachments)
