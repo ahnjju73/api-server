@@ -108,6 +108,7 @@ public class LeaseFinesHandlers {
                 request.bodyToMono(Map.class)
                         .subscribeOn(Schedulers.elastic())
                         .map(row -> fineService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(row -> fineService.getPathVariable(row, "fine_id"))
                         .map(fineService::checkBikeSession)
                         .map(fineService::deleteAttachment)
                         .map(fineService::returnData), Map.class);
