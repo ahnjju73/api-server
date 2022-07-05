@@ -202,8 +202,9 @@ public class RiderService extends SessService {
     }
 
     public BikeSessionRequest fetchRiderListByBike(BikeSessionRequest request){
-        List list = getList("bikelabs.riders.fetchRiderListByBike", request.getParam());
-        request.setResponse(list);
+        FetchRidersByBike fetchRidersByBike = map(request.getParam(), FetchRidersByBike.class);
+        ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(fetchRidersByBike, "bikelabs.riders.fetchRiderListByBike", "bikelabs.riders.countAllRiderListByBike", "bike_id");
+        request.setResponse(responseListDto);
         return request;
     }
 

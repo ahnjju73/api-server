@@ -3,6 +3,7 @@ package helmet.bikelab.apiserver.controllers.shop;
 import helmet.bikelab.apiserver.domain.Settles;
 import helmet.bikelab.apiserver.domain.shops.Shops;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
+import helmet.bikelab.apiserver.objects.PresignedURLVo;
 import helmet.bikelab.apiserver.objects.SessionResponseDto;
 import helmet.bikelab.apiserver.objects.responses.FetchSettleDetailResponse;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
@@ -127,4 +128,45 @@ public class ShopHandler {
                         .map(shopService::completeSettle)
                         .map(shopService::returnData), Map.class);
     }
+
+    public Mono<ServerResponse> generatePresignedUrl(ServerRequest request){
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> shopService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(shopService::checkBikeSession)
+                        .map(shopService::generatePresignedUrl)
+                        .map(shopService::returnData), PresignedURLVo.class);
+    }
+
+    public Mono<ServerResponse> fetchAttachments(ServerRequest request){
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> shopService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(shopService::checkBikeSession)
+                        .map(shopService::fetchAttachments)
+                        .map(shopService::returnData), List.class);
+    }
+
+
+    public Mono<ServerResponse> addFineAttachment(ServerRequest request){
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> shopService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(shopService::checkBikeSession)
+                        .map(shopService::addAttachments)
+                        .map(shopService::returnData), Map.class);
+    }
+
+    public Mono<ServerResponse> deleteFineAttachment(ServerRequest request){
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> shopService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(shopService::checkBikeSession)
+                        .map(shopService::deleteAttachment)
+                        .map(shopService::returnData), Map.class);
+    }
+
+
 }

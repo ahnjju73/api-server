@@ -87,10 +87,9 @@ public class FineWorker extends SessService {
     }
 
     public Fines removeAttachment(Fines fine, String uuid){
-        for(ModelAttachment ma : fine.getAttachmentsList()){
-            if(ma.getUuid().equals(uuid)){
-                fine.getAttachmentsList().remove(ma);
-            }
+        for (int i = 0; i < fine.getAttachmentsList().size(); i++) {
+            if(fine.getAttachmentsList().get(i).getUuid().equals(uuid))
+                fine.getAttachmentsList().remove(i--);
         }
         return fine;
     }
