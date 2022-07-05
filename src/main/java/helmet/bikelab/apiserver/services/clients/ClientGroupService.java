@@ -4,6 +4,7 @@ import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUserLog;
 import helmet.bikelab.apiserver.domain.client.*;
+import helmet.bikelab.apiserver.domain.embeds.ModelPassword;
 import helmet.bikelab.apiserver.domain.lease.*;
 import helmet.bikelab.apiserver.domain.types.BikeUserLogTypes;
 import helmet.bikelab.apiserver.domain.types.LeaseStatusTypes;
@@ -508,8 +509,15 @@ public class ClientGroupService extends SessService {
       ClientGroups clientGroups = groupRepository.findByGroupId(resetGroupPasswordRequest.getGroup_id());
       String newPassword = getRandomString();
       GroupPasswords groupPasswords = groupPasswordRepository.findByGroup_GroupId(clientGroups.getGroupId());
-      groupPasswords.updatePasswordWithoutSHA256(newPassword);
-      groupPasswordRepository.save(groupPasswords);
+      if(!bePresent(groupPasswords)) {
+         groupPasswords = new GroupPasswords();
+         groupPasswords.updatePasswordWithoutSHA256(clientGroups.getGroupEmail());
+         groupPasswords.setGroupNo(clientGroups.getGroupNo());
+         groupPasswordRepository.save(groupPasswords);
+      }else {
+         groupPasswords.updatePasswordWithoutSHA256(newPassword);
+         groupPasswordRepository.save(groupPasswords);
+      }
       response.put("password", newPassword);
       request.setResponse(response);
       return request;
