@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.controllers;
 
+import helmet.bikelab.apiserver.domain.SectionAxis;
 import helmet.bikelab.apiserver.domain.Sections;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.PresignedURLVo;
@@ -44,6 +45,36 @@ public class BikeModelByImageHandlers {
                         .map(bikeModelByImageService::checkBikeSession)
                         .map(bikeModelByImageService::doSaveSection)
                         .map(bikeModelByImageService::returnData), Sections.class);
+    }
+
+    public Mono<ServerResponse> doSaveSectionAxis(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> bikeModelByImageService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(bikeModelByImageService::checkBikeSession)
+                        .map(bikeModelByImageService::doSaveSectionAxis)
+                        .map(bikeModelByImageService::returnData), SectionAxis.class);
+    }
+
+    public Mono<ServerResponse> doUpdateSectionAxis(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> bikeModelByImageService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(bikeModelByImageService::checkBikeSession)
+                        .map(bikeModelByImageService::doUpdateSectionAxis)
+                        .map(bikeModelByImageService::returnData), SectionAxis.class);
+    }
+
+    public Mono<ServerResponse> handleSectionAxisParts(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> bikeModelByImageService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(bikeModelByImageService::checkBikeSession)
+                        .map(bikeModelByImageService::handleSectionAxisParts)
+                        .map(bikeModelByImageService::returnData), Map.class);
     }
 
 }

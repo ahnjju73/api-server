@@ -7,4 +7,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface SectionAxisPartsRepository extends JpaRepository<SectionAxisParts, SectionAxisPartsPK> {
 
+    SectionAxisParts findByAxisNoAndPartsNo(Integer axisNo, Long partsNo);
+    void deleteByAxisNoAndPartsNo(Integer axisNo, Long partsNo);
 }

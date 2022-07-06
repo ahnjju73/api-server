@@ -40,6 +40,9 @@ public class BikesRouters {
 
                 .andRoute(POST("/sections"), bikeModelByImageHandlers::doSaveSection)
                 .andRoute(POST("/sections/generate/presigned"), bikeModelByImageHandlers::generatePreSignedUrl)
+                .andRoute(POST("/sections/axis"), bikeModelByImageHandlers::doSaveSectionAxis)
+                .andRoute(PUT("/sections/axis"), bikeModelByImageHandlers::doUpdateSectionAxis)
+                .andRoute(POST("/sections/axis/parts"), bikeModelByImageHandlers::handleSectionAxisParts)
                 ;
     }
 

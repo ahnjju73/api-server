@@ -4,18 +4,14 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import helmet.bikelab.apiserver.domain.bike.ImageVo;
-import helmet.bikelab.apiserver.domain.types.converters.PartsImagesConverter;
-import helmet.bikelab.apiserver.objects.PresignedURLVo;
+import helmet.bikelab.apiserver.domain.types.converters.ImageVoConverter;
 import helmet.bikelab.apiserver.services.internal.OriginObject;
 import helmet.bikelab.apiserver.utils.keys.SESSION;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
-import java.awt.*;
 import java.util.List;
-import java.util.stream.Collectors;
 
 
 @Entity
@@ -28,8 +24,10 @@ public class Sections extends OriginObject {
     public Sections(){}
 
     public Sections(CommonBikes carModel, List<ImageVo> images){
-        this.carModelCode = carModel.getModel();
+        this.carModel = carModel;
+        this.carModelCode = carModel.getCode();
         this.imageList = images;
+        this.images = getGsonInstance().toJson(images);
     }
 
     @Id
@@ -46,7 +44,7 @@ public class Sections extends OriginObject {
 
     @JsonIgnore
     @Column(name = "images", columnDefinition = "json")
-    @Convert(converter = PartsImagesConverter.class)
+    @Convert(converter = ImageVoConverter.class)
     private List<ImageVo> imageList;
 
     @Column(name = "images", columnDefinition = "json", insertable = false, updatable = false)

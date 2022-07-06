@@ -6,4 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface SectionAxisRepository extends JpaRepository<SectionAxis, Integer> {
 
+    SectionAxis findBySectionNoAndAxisNo(Integer sectionNo, Integer axisNo);
+    SectionAxis findByAxisNo(Integer axisNo);
+
 }

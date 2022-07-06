@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import helmet.bikelab.apiserver.domain.CommonBikes;
 import helmet.bikelab.apiserver.domain.types.UnitTypes;
 import helmet.bikelab.apiserver.domain.types.converters.PartsBackUpConverter;
-import helmet.bikelab.apiserver.domain.types.converters.PartsImagesConverter;
+import helmet.bikelab.apiserver.domain.types.converters.ImageVoConverter;
 import helmet.bikelab.apiserver.domain.types.converters.UnitTypesConverter;
 import helmet.bikelab.apiserver.objects.bikelabs.bikes.PartsBackUpDto;
 import lombok.Getter;
@@ -63,7 +63,7 @@ public class Parts {
     private List<PartsBackUpDto> backUpList;
 
     @Column(name = "images", columnDefinition = "json")
-    @Convert(converter = PartsImagesConverter.class)
+    @Convert(converter = ImageVoConverter.class)
     private List<ImageVo> images;
 
 }
