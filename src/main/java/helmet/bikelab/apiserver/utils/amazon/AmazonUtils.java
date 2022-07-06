@@ -23,6 +23,13 @@ public class AmazonUtils {
         return new AWSStaticCredentialsProvider(awsCredentials);
     }
 
+    public static AmazonS3 amazonS3(){
+        return AmazonS3Client.builder()
+                .withRegion(Regions.AP_NORTHEAST_2)
+                .withCredentials(awsCredentialsProvider())
+                .build();
+    }
+
     public static String AWSGeneratePresignedURL(PresignedURLVo presignedURLVo){
         Date expiration = new Date();
         long expTimeMillis = expiration.getTime();
