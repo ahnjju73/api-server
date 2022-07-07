@@ -5,6 +5,7 @@ import helmet.bikelab.apiserver.domain.Sections;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.PresignedURLVo;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
+import helmet.bikelab.apiserver.objects.responses.SectionDetailResponse;
 import helmet.bikelab.apiserver.services.bikes.BikeModelByImageService;
 import helmet.bikelab.apiserver.services.bikes.BikesService;
 import helmet.bikelab.apiserver.utils.MultiFiles;
@@ -74,6 +75,45 @@ public class BikeModelByImageHandlers {
                         .map(row -> bikeModelByImageService.makeSessionRequest(request, row, BikeSessionRequest.class))
                         .map(bikeModelByImageService::checkBikeSession)
                         .map(bikeModelByImageService::handleSectionAxisParts)
+                        .map(bikeModelByImageService::returnData), Map.class);
+    }
+
+
+    public Mono<ServerResponse> fetchSectionsByModel(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> bikeModelByImageService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(bikeModelByImageService::checkBikeSession)
+                        .map(bikeModelByImageService::fetchSectionsByModel)
+                        .map(bikeModelByImageService::returnData), List.class);
+    }
+
+    public Mono<ServerResponse> fetchSectionsDetail(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> bikeModelByImageService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> bikeModelByImageService.getPathVariable(row, "section_no"))
+                        .map(bikeModelByImageService::checkBikeSession)
+                        .map(bikeModelByImageService::fetchSectionAxisDetail)
+                        .map(bikeModelByImageService::returnData), SectionDetailResponse.class);
+    }
+
+    public Mono<ServerResponse> fetchPartsByAxis(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> bikeModelByImageService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(bikeModelByImageService::checkBikeSession)
+                        .map(bikeModelByImageService::fetchPartsByAxis)
+                        .map(bikeModelByImageService::returnData), List.class);
+    }
+
+    public Mono<ServerResponse> deleteAxis(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> bikeModelByImageService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(bikeModelByImageService::checkBikeSession)
+                        .map(bikeModelByImageService::deleteSectionAxis)
                         .map(bikeModelByImageService::returnData), Map.class);
     }
 

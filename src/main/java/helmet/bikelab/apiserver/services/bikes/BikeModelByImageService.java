@@ -9,10 +9,9 @@ import helmet.bikelab.apiserver.domain.Sections;
 import helmet.bikelab.apiserver.domain.bike.ImageVo;
 import helmet.bikelab.apiserver.domain.bike.Parts;
 import helmet.bikelab.apiserver.domain.types.MediaTypes;
+import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.PresignedURLVo;
 import helmet.bikelab.apiserver.objects.SessionRequest;
-import helmet.bikelab.apiserver.objects.bikelabs.bikes.BikeModelDto;
-import helmet.bikelab.apiserver.objects.bikelabs.bikes.PartsByIdRequest;
 import helmet.bikelab.apiserver.objects.requests.*;
 import helmet.bikelab.apiserver.repositories.*;
 import helmet.bikelab.apiserver.services.internal.SessService;
@@ -102,6 +101,34 @@ public class BikeModelByImageService extends SessService {
             sectionAxisPartsRepository.save(sectionAxisParts);
         }
 
+        return request;
+    }
+
+    public SessionRequest fetchSectionsByModel(BikeSessionRequest request) {
+        SectionsFetchRequest sectionsFetchRequest = map(request.getParam(), SectionsFetchRequest.class);
+        request.setResponse(sectionWorker.getSectionsByBikeModel(sectionsFetchRequest.getBikeModel()));
+        return request;
+    }
+
+    public SessionRequest fetchSectionAxisDetail(BikeSessionRequest request) {
+        SectionsFetchRequest sectionsFetchRequest = map(request.getParam(), SectionsFetchRequest.class);
+        request.setResponse(sectionWorker.fetchSectionDetail(sectionsFetchRequest.getSectionNo()));
+        return request;
+    }
+
+    public SessionRequest fetchPartsByAxis(BikeSessionRequest request) {
+        SectionsFetchRequest sectionsFetchRequest = map(request.getParam(), SectionsFetchRequest.class);
+        request.setResponse(sectionWorker.getPartsBySectionAxis(sectionsFetchRequest.getAxisNo()));
+        return request;
+    }
+
+    public SessionRequest deleteSectionAxis(BikeSessionRequest request){
+        SectionsFetchRequest sectionsFetchRequest = map(request.getParam(), SectionsFetchRequest.class);
+        SectionAxis byAxisNo = sectionAxisRepository.findByAxisNo(sectionsFetchRequest.getAxisNo());
+        if(!bePresent(byAxisNo))
+            withException("");
+        sectionAxisPartsRepository.deleteAllByAxisNo(byAxisNo.getAxisNo());
+        sectionAxisRepository.deleteByAxisNo(byAxisNo.getAxisNo());
         return request;
     }
 

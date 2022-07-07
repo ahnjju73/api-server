@@ -43,6 +43,10 @@ public class BikesRouters {
                 .andRoute(POST("/sections/axis"), bikeModelByImageHandlers::doSaveSectionAxis)
                 .andRoute(PUT("/sections/axis"), bikeModelByImageHandlers::doUpdateSectionAxis)
                 .andRoute(POST("/sections/axis/parts"), bikeModelByImageHandlers::handleSectionAxisParts)
+                .andRoute(GET("/sections"), bikeModelByImageHandlers::fetchSectionsByModel)
+                .andRoute(GET("/sections/{section_no}"), bikeModelByImageHandlers::fetchSectionsDetail)
+                .andRoute(GET("/sections-parts"), bikeModelByImageHandlers::fetchPartsByAxis)
+                .andRoute(DELETE("/sections/axis"), bikeModelByImageHandlers::deleteAxis)
                 ;
     }
 
