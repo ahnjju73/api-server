@@ -18,9 +18,20 @@ import javax.persistence.*;
 @Setter
 @Table(name = "section_axis_parts", catalog = SESSION.SCHEME_SERVICE)
 @IdClass(SectionAxisPartsPK.class)
-@NoArgsConstructor
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class SectionAxisParts extends OriginObject {
+
+    public SectionAxisParts(){}
+
+    public SectionAxisParts(SectionAxis sectionAxis, Parts part){
+        Sections section = sectionAxis.getSection();
+        this.axisNo = sectionAxis.getAxisNo();
+        this.sectionAxis = sectionAxis;
+        this.part = part;
+        this.partsNo = part.getPartNo();
+        this.section = section;
+        this.sectionNo = section.getSectionNo();
+    }
 
     @Id
     @Column(name = "axis_no")
@@ -33,6 +44,10 @@ public class SectionAxisParts extends OriginObject {
     @ManyToOne
     @JoinColumn(name = "parts_no", insertable = false, updatable = false)
     private Parts part;
+
+    @ManyToOne
+    @JoinColumn(name = "axis_no", insertable = false, updatable = false)
+    private SectionAxis sectionAxis;
 
     @ManyToOne
     @JoinColumn(name = "section_no", insertable = false, updatable = false)

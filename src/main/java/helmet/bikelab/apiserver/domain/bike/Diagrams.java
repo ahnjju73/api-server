@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import helmet.bikelab.apiserver.domain.CommonBikes;
 import helmet.bikelab.apiserver.domain.types.MediaTypes;
-import helmet.bikelab.apiserver.domain.types.converters.PartsImagesConverter;
+import helmet.bikelab.apiserver.domain.types.converters.ImageVoConverter;
 import helmet.bikelab.apiserver.objects.PresignedURLVo;
 import helmet.bikelab.apiserver.objects.requests.DiagramInfoRequest;
 import helmet.bikelab.apiserver.services.internal.OriginObject;
@@ -57,7 +57,7 @@ public class Diagrams extends OriginObject {
 
     @JsonIgnore
     @Column(name = "images", columnDefinition = "json")
-    @Convert(converter = PartsImagesConverter.class)
+    @Convert(converter = ImageVoConverter.class)
     private List<ImageVo> imageList;
 
     @Column(name = "images", columnDefinition = "json", insertable = false, updatable = false)
