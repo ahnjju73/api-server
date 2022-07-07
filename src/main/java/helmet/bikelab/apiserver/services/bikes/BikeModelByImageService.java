@@ -122,13 +122,17 @@ public class BikeModelByImageService extends SessService {
         return request;
     }
 
+    @Transactional
     public SessionRequest deleteSectionAxis(BikeSessionRequest request){
         SectionsFetchRequest sectionsFetchRequest = map(request.getParam(), SectionsFetchRequest.class);
-        SectionAxis byAxisNo = sectionAxisRepository.findByAxisNo(sectionsFetchRequest.getAxisNo());
-        if(!bePresent(byAxisNo))
-            withException("");
-        sectionAxisPartsRepository.deleteAllByAxisNo(byAxisNo.getAxisNo());
-        sectionAxisRepository.deleteByAxisNo(byAxisNo.getAxisNo());
+        sectionWorker.deleteSectionAxis(sectionsFetchRequest.getAxisNo());
+        return request;
+    }
+
+    @Transactional
+    public SessionRequest deleteSection(BikeSessionRequest request){
+        SectionsFetchRequest sectionsFetchRequest = map(request.getParam(), SectionsFetchRequest.class);
+        sectionWorker.deleteSection(sectionsFetchRequest.getSectionNo());
         return request;
     }
 

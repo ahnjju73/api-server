@@ -68,4 +68,27 @@ public class SectionWorker extends SessService {
         return parts;
     }
 
+    public void deleteSectionAxis(Integer axisNo){
+        SectionAxis byAxisNo = sectionAxisRepository.findByAxisNo(axisNo);
+        if(!bePresent(byAxisNo))
+            withException("");
+        sectionAxisPartsRepository.deleteAllByAxisNo(byAxisNo.getAxisNo());
+        sectionAxisRepository.deleteByAxisNo(byAxisNo.getAxisNo());
+    }
+
+    public void deleteSection(Integer sectionNo){
+        Sections sections = sectionsRepository.findBySectionNo(sectionNo);
+        if(!bePresent(sections))
+            withException("");
+        List<SectionAxis> allBySectionNo = sectionAxisRepository.findAllBySectionNo(sectionNo);
+        for(int i = 0; i < allBySectionNo.size(); i++){
+            Integer axisNo = allBySectionNo.get(i).getAxisNo();
+            SectionAxis byAxisNo = sectionAxisRepository.findByAxisNo(axisNo);
+            sectionAxisPartsRepository.deleteAllByAxisNo(byAxisNo.getAxisNo());
+            sectionAxisRepository.deleteByAxisNo(byAxisNo.getAxisNo());
+        }
+        sectionsRepository.deleteById(sectionNo);
+    }
+
+
 }

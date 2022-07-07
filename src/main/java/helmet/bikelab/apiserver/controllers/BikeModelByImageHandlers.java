@@ -117,4 +117,14 @@ public class BikeModelByImageHandlers {
                         .map(bikeModelByImageService::returnData), Map.class);
     }
 
+    public Mono<ServerResponse> deleteSection(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> bikeModelByImageService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(bikeModelByImageService::checkBikeSession)
+                        .map(bikeModelByImageService::deleteSection)
+                        .map(bikeModelByImageService::returnData), Map.class);
+    }
+
 }

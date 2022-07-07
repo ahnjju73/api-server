@@ -47,6 +47,7 @@ public class BikesRouters {
                 .andRoute(GET("/sections/{section_no}"), bikeModelByImageHandlers::fetchSectionsDetail)
                 .andRoute(GET("/sections-parts"), bikeModelByImageHandlers::fetchPartsByAxis)
                 .andRoute(DELETE("/sections/axis"), bikeModelByImageHandlers::deleteAxis)
+                .andRoute(DELETE("/sections"), bikeModelByImageHandlers::deleteSection)
                 ;
     }
 
