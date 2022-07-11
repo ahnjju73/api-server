@@ -121,10 +121,7 @@ public class InsuranceCompanyService extends SessService {
         insuranceCompanies.setPhone(addUpdateInsuranceCompanyRequest.getPhone());
         //logo
         List<ModelInsuranceImage> logoImageList = insuranceCompanies.getLogoImageList() == null ? new ArrayList<>() : insuranceCompanies.getLogoImageList();
-        AmazonS3 amazonS3 = AmazonS3Client.builder()
-                .withRegion(Regions.AP_NORTHEAST_2)
-                .withCredentials(AmazonUtils.awsCredentialsProvider())
-                .build();
+        AmazonS3 amazonS3 = AmazonUtils.amazonS3();
         for (ModelInsuranceImage logo : logoImageList)
             amazonS3.deleteObject(ENV.AWS_S3_ORIGIN_BUCKET, logo.getUri());
         List<PresignedURLVo> images = addUpdateInsuranceCompanyRequest.getImages();

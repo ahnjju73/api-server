@@ -90,9 +90,7 @@ public class BikePartsService extends SessService {
             List<ImageVo> collect = addPartsImageRequest
                     .getImages()
                     .stream().map(presignedURLVo -> {
-                        AmazonS3 amazonS3 = AmazonS3Client.builder()
-                                .withCredentials(AmazonUtils.awsCredentialsProvider())
-                                .build();
+                        AmazonS3 amazonS3 = AmazonUtils.amazonS3();
                         String fileKey = "parts/" + partsByIdAndCarModel.getPartNo() + "/" + presignedURLVo.getFileKey();
                         CopyObjectRequest objectRequest = new CopyObjectRequest(presignedURLVo.getBucket(), presignedURLVo.getFileKey(), ENV.AWS_S3_ORIGIN_BUCKET, fileKey);
                         amazonS3.copyObject(objectRequest);
