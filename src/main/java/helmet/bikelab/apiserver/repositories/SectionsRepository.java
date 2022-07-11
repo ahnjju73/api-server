@@ -9,5 +9,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface SectionsRepository extends JpaRepository<Sections, Integer> {
-
+    Sections findBySectionNo(Integer sectionNo);
+    List<Sections> findAllByCarModel_Code(String modelCode);
 }

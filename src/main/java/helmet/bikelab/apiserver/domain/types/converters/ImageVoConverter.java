@@ -8,7 +8,7 @@ import javax.persistence.AttributeConverter;
 import java.lang.reflect.Type;
 import java.util.List;
 
-public class PartsImagesConverter extends Workspace implements AttributeConverter<List<ImageVo>, String> {
+public class ImageVoConverter extends Workspace implements AttributeConverter<List<ImageVo>, String> {
 
     @Override
     public String convertToDatabaseColumn(List<ImageVo> attribute) {
