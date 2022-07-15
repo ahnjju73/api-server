@@ -127,4 +127,13 @@ public class BikeModelByImageHandlers {
                         .map(bikeModelByImageService::returnData), Map.class);
     }
 
+    public Mono<ServerResponse> doUpdateSection(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> bikeModelByImageService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(bikeModelByImageService::checkBikeSession)
+                        .map(bikeModelByImageService::doUpdateSection)
+                        .map(bikeModelByImageService::returnData), Map.class);
+    }
 }

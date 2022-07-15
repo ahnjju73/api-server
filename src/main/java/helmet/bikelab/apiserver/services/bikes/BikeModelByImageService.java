@@ -59,7 +59,7 @@ public class BikeModelByImageService extends SessService {
             ImageVo partsImage = new ImageVo(MediaTypes.IMAGE, elm.getFilename(), fileKey);
             return partsImage;
         }).collect(Collectors.toList());
-        Sections sections = new Sections(commonCodeBikesById, collect);
+        Sections sections = new Sections(newSectionRequest.getSectionName(), commonCodeBikesById, collect);
         sectionsRepository.save(sections);
         return request;
     }
@@ -136,4 +136,22 @@ public class BikeModelByImageService extends SessService {
         return request;
     }
 
+    public SessionRequest doUpdateSection(BikeSessionRequest request) {
+        NewSectionRequest newSectionRequest = map(request.getParam(), NewSectionRequest.class);
+        Sections section = sectionWorker.getSectionById(newSectionRequest.getSectionNo());
+        CommonBikes commonCodeBikesById = bikeWorker.getCommonCodeBikesById(newSectionRequest.getCarModel());
+        List<ImageVo> collect = newSectionRequest.getImages().stream().map(elm -> {
+            AmazonS3 amazonS3 = AmazonUtils.amazonS3();
+            String fileKey = "parts_by_image/" + elm.getFileKey();
+            CopyObjectRequest objectRequest = new CopyObjectRequest(elm.getBucket(), elm.getFileKey(), ENV.AWS_S3_ORIGIN_BUCKET, fileKey);
+            amazonS3.copyObject(objectRequest);
+            ImageVo partsImage = new ImageVo(MediaTypes.IMAGE, elm.getFilename(), fileKey);
+            return partsImage;
+        }).collect(Collectors.toList());
+        section.setCarModelCode(commonCodeBikesById.getCode());
+        section.setSectionName(newSectionRequest.getSectionName());
+        section.setImageList(collect);
+        sectionsRepository.save(section);
+        return request;
+    }
 }

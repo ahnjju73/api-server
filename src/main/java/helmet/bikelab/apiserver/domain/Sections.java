@@ -23,11 +23,12 @@ public class Sections extends OriginObject {
 
     public Sections(){}
 
-    public Sections(CommonBikes carModel, List<ImageVo> images){
+    public Sections(String sectionName, CommonBikes carModel, List<ImageVo> images){
         this.carModel = carModel;
         this.carModelCode = carModel.getCode();
         this.imageList = images;
         this.images = getGsonInstance().toJson(images);
+        this.sectionName = sectionName;
     }
 
     @Id
@@ -41,6 +42,9 @@ public class Sections extends OriginObject {
     @ManyToOne(optional = false)
     @JoinColumn(name = "car_model", insertable = false, updatable = false)
     private CommonBikes carModel;
+
+    @Column(name = "section_name")
+    private String sectionName;
 
     @JsonIgnore
     @Column(name = "images", columnDefinition = "json")

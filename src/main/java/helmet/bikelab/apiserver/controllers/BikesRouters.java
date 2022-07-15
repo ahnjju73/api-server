@@ -39,6 +39,7 @@ public class BikesRouters {
                 .andRoute(GET("/bikes/{bike_id}/histories"), handler::fetchHistoriesByBikeId)
 
                 .andRoute(POST("/sections"), bikeModelByImageHandlers::doSaveSection)
+                .andRoute(PUT("/sections"), bikeModelByImageHandlers::doUpdateSection)
                 .andRoute(POST("/sections/generate/presigned"), bikeModelByImageHandlers::generatePreSignedUrl)
                 .andRoute(POST("/sections/axis"), bikeModelByImageHandlers::doSaveSectionAxis)
                 .andRoute(PUT("/sections/axis"), bikeModelByImageHandlers::doUpdateSectionAxis)

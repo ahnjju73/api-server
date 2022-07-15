@@ -14,7 +14,9 @@ import java.util.List;
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class NewSectionRequest extends OriginObject {
 
+    private Integer sectionNo;
     private String carModel;
+    private String sectionName;
     private List<PresignedURLVo> images;
 
 }
