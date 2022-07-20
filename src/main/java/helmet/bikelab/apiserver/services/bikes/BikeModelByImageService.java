@@ -141,6 +141,9 @@ public class BikeModelByImageService extends SessService {
         Sections section = sectionWorker.getSectionById(newSectionRequest.getSectionNo());
         CommonBikes commonCodeBikesById = bikeWorker.getCommonCodeBikesById(newSectionRequest.getCarModel());
         List<ImageVo> collect = newSectionRequest.getImages().stream().map(elm -> {
+            if(!bePresent(elm.getBucket())){
+                return section.getImageList().get(0);
+            }
             AmazonS3 amazonS3 = AmazonUtils.amazonS3();
             String fileKey = "parts_by_image/" + elm.getFileKey();
             CopyObjectRequest objectRequest = new CopyObjectRequest(elm.getBucket(), elm.getFileKey(), ENV.AWS_S3_ORIGIN_BUCKET, fileKey);
