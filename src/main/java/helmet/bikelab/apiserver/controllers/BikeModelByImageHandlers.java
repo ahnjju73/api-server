@@ -45,7 +45,7 @@ public class BikeModelByImageHandlers {
                         .map(row -> bikeModelByImageService.makeSessionRequest(request, row, BikeSessionRequest.class))
                         .map(bikeModelByImageService::checkBikeSession)
                         .map(bikeModelByImageService::doSaveSection)
-                        .map(bikeModelByImageService::returnData), Sections.class);
+                        .map(bikeModelByImageService::returnData), Integer.class);
     }
 
     public Mono<ServerResponse> doSaveSectionAxis(ServerRequest request) {
