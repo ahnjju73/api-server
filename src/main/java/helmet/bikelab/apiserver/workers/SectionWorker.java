@@ -4,6 +4,7 @@ import helmet.bikelab.apiserver.domain.SectionAxis;
 import helmet.bikelab.apiserver.domain.SectionAxisParts;
 import helmet.bikelab.apiserver.domain.Sections;
 import helmet.bikelab.apiserver.domain.bike.Parts;
+import helmet.bikelab.apiserver.objects.responses.FetchSections;
 import helmet.bikelab.apiserver.objects.responses.SectionDetailResponse;
 import helmet.bikelab.apiserver.repositories.SectionAxisPartsRepository;
 import helmet.bikelab.apiserver.repositories.SectionAxisRepository;
@@ -42,9 +43,16 @@ public class SectionWorker extends SessService {
         return bySectionNoAndAxisNo;
     }
 
-    public List<Sections> getSectionsByBikeModel(String bikeModel){
+    public List<FetchSections> getSectionsByBikeModel(String bikeModel){
         List<Sections> allByCarModel_code = sectionsRepository.findAllByCarModel_Code(bikeModel);
-        return allByCarModel_code;
+        List<FetchSections> sections = new ArrayList<>();
+        for(Sections section : allByCarModel_code){
+            FetchSections fetchSections = new FetchSections();
+            fetchSections.setPartsCnt(sectionAxisPartsRepository.countAllBySectionNo(section.getSectionNo()));
+            fetchSections.setSections(section);
+            sections.add(fetchSections);
+        }
+        return sections;
     }
 
     public SectionDetailResponse fetchSectionDetail(Integer sectionNo){

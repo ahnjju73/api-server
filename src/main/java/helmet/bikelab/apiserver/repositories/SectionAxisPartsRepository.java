@@ -13,4 +13,5 @@ public interface SectionAxisPartsRepository extends JpaRepository<SectionAxisPar
     void deleteByAxisNoAndPartsNo(Integer axisNo, Long partsNo);
     void deleteAllByAxisNo(Integer axisNo);
     List<SectionAxisParts> findAllByAxisNo(Integer axisNo);
+    Integer countAllBySectionNo(Integer sectionNo);
 }
