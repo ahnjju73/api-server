@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.controllers;
 
+import helmet.bikelab.apiserver.domain.Notifications;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.PresignedURLVo;
 import helmet.bikelab.apiserver.services.NotificationService;
@@ -46,5 +47,34 @@ public class NotificationHandlers {
                         .map(notificationService::checkBikeSession)
                         .map(notificationService::generatePresignedUrl)
                         .map(notificationService::returnData), PresignedURLVo.class);
+    }
+
+    public Mono<ServerResponse> fetchNotificationDetail(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> notificationService.makeSessionRequest(request,  BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(req -> notificationService.getPathVariable(req, "notification_no"))
+                        .map(notificationService::checkBikeSession)
+                        .map(notificationService::fetchNotificationDetail)
+                        .map(notificationService::returnData), Notifications.class);
+    }
+
+    public Mono<ServerResponse> updateNotification(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> notificationService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(notificationService::checkBikeSession)
+                        .map(notificationService::updateNotification)
+                        .map(notificationService::returnData), Map.class);
+    }
+
+    public Mono<ServerResponse> deleteNotification(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> notificationService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(notificationService::checkBikeSession)
+                        .map(notificationService::deleteNotification)
+                        .map(notificationService::returnData), Map.class);
     }
 }

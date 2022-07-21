@@ -12,5 +12,6 @@ public interface NotificationsRepository extends JpaRepository<Notifications, In
     @Query(nativeQuery = true, value = "select * from notifications n inner join notification_targets nt on nt.notification_no = n.notification_no where nt.notification_type = ?1")
     Page<Notifications> getNotificationsByType(String notificationType, Pageable page);
     Page<Notifications> findAll(Pageable pageable);
+    void deleteByNotificationNo(Integer notificationNo);
 
 }

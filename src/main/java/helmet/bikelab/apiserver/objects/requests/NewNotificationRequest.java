@@ -30,6 +30,8 @@ public class NewNotificationRequest extends OriginObject {
             withException("150-002");
         if(!bePresent(endAt))
             withException("150-003");
+        if(!bePresent(notificationTypes) || notificationTypes.size() < 1)
+            withException("150-004");
     }
 
 }

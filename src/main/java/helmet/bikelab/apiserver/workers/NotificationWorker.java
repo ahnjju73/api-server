@@ -32,8 +32,10 @@ public class NotificationWorker extends Workspace {
     private final NotificationTargetRepository notificationTargetRepository;
 
 
-    public Notifications setNotification(NewNotificationRequest request){
+    public Notifications setNotification(NewNotificationRequest request, Integer notificationNo){
         Notifications result = new Notifications();
+        if(bePresent(notificationNo))
+            result.setNotificationNo(notificationNo);
         result.setTitle(request.getTitle());
         result.setContent(request.getContent());
         List<ImageVo> imageCollect = request.getImageList().stream().map(elm -> {
@@ -60,6 +62,7 @@ public class NotificationWorker extends Workspace {
     }
 
     public void saveNotificationType(Integer notificationNo, List<String> types){
+        notificationTargetRepository.deleteAllByNotificationNo(notificationNo);
         List<NotificationTargets> targetsList = types.stream().map(elm -> {
             NotificationTargets target = new NotificationTargets();
             target.setNotificationNo(notificationNo);
@@ -78,5 +81,10 @@ public class NotificationWorker extends Workspace {
             notifications = notificationsRepository.getNotificationsByType(notificationType, pageable);
         }
         return notifications;
+    }
+
+    public void deleteNotification(Integer notificationNo) {
+        notificationTargetRepository.deleteAllByNotificationNo(notificationNo);
+        notificationsRepository.deleteByNotificationNo(notificationNo);
     }
 }

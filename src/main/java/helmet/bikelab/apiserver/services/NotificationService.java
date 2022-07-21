@@ -8,6 +8,7 @@ import helmet.bikelab.apiserver.domain.types.MediaTypes;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.PresignedURLVo;
 import helmet.bikelab.apiserver.objects.requests.NewNotificationRequest;
+import helmet.bikelab.apiserver.objects.requests.NotificationByIdRequest;
 import helmet.bikelab.apiserver.objects.requests.PageableRequest;
 import helmet.bikelab.apiserver.repositories.NotificationsRepository;
 import helmet.bikelab.apiserver.services.internal.SessService;
@@ -20,6 +21,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.server.ServerRequest;
 
 import java.util.List;
@@ -44,10 +46,11 @@ public class NotificationService extends SessService {
         return request;
     }
 
+    @Transactional
     public BikeSessionRequest makeNotification(BikeSessionRequest request) {
         NewNotificationRequest notificationRequest = map(request.getParam(), NewNotificationRequest.class);
         notificationRequest.checkValidation();
-        Notifications notifications = notificationWorker.setNotification(notificationRequest);
+        Notifications notifications = notificationWorker.setNotification(notificationRequest, null);
         notificationsRepository.save(notifications);
         notificationWorker.saveNotificationType(notifications.getNotificationNo(), notificationRequest.getNotificationTypes());
         return request;
@@ -58,6 +61,30 @@ public class NotificationService extends SessService {
         String filename = (String)param.get("filename");
         PresignedURLVo presignedURLVo = commonWorker.generatePreSignedUrl(filename, null);
         request.setResponse(presignedURLVo);
+        return request;
+    }
+
+    public BikeSessionRequest fetchNotificationDetail(BikeSessionRequest request) {
+        NotificationByIdRequest notificationByIdRequest = map(request.getParam(), NotificationByIdRequest.class);
+        request.setResponse(notificationsRepository.findById(notificationByIdRequest.getNotificationNo()).get());
+        return request;
+    }
+
+    @Transactional
+    public BikeSessionRequest deleteNotification(BikeSessionRequest request) {
+        NotificationByIdRequest notificationByIdRequest = map(request.getParam(), NotificationByIdRequest.class);
+        notificationWorker.deleteNotification(notificationByIdRequest.getNotificationNo());
+        return request;
+    }
+
+    @Transactional
+    public BikeSessionRequest updateNotification(BikeSessionRequest request) {
+        NotificationByIdRequest notificationByIdRequest = map(request.getParam(), NotificationByIdRequest.class);
+        NewNotificationRequest notificationRequest = map(request.getParam(), NewNotificationRequest.class);
+        notificationRequest.checkValidation();
+        Notifications notifications = notificationWorker.setNotification(notificationRequest, notificationByIdRequest.getNotificationNo());
+        notificationsRepository.save(notifications);
+        notificationWorker.saveNotificationType(notifications.getNotificationNo(), notificationRequest.getNotificationTypes());
         return request;
     }
 }
