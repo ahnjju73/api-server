@@ -48,10 +48,12 @@ public class Notifications {
     @Column(name = "attachments", columnDefinition = "json", insertable = false, updatable = false)
     private String attachments;
 
-    @Column(name = "start_time", columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
-    private LocalDateTime startTime;
+    @Column(name = "start_at", columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
+    private LocalDateTime startAt;
 
-    @Column(name = "end_time", columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
-    private LocalDateTime endTime;
+    @Column(name = "end_at", columnDefinition = "DATETIME")
+    private LocalDateTime endAt;
 
+    @Column(name = "created_at", columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
+    private LocalDateTime createdAt;
 }

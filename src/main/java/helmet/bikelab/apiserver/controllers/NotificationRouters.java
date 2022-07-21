@@ -19,7 +19,8 @@ public class NotificationRouters {
     public RouterFunction<ServerResponse> notiRouters(NotificationHandlers handler) {
         return RouterFunctions
                 .route(GET("/notifications"), handler::fetchNotifications)
-//                .andRoute(POST("/notifications"), handler::)
+                .andRoute(POST("/notifications"), handler::makeNotification)
+                .andRoute(POST("/notifications-presigned"), handler::generatePresignedUrl)
 //                .andRoute(PUT("/notifications"), handler::)
                 ;
     }
