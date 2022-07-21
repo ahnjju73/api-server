@@ -29,8 +29,9 @@ public class NotificationHandlers {
 
     public Mono<ServerResponse> makeNotification(ServerRequest request) {
         return ServerResponse.ok().body(
-                Mono.fromSupplier(() -> notificationService.makeSessionRequest(request, BikeSessionRequest.class))
+                request.bodyToMono(Map.class)
                         .subscribeOn(Schedulers.elastic())
+                        .map(row -> notificationService.makeSessionRequest(request, row, BikeSessionRequest.class))
                         .map(notificationService::checkBikeSession)
                         .map(notificationService::makeNotification)
                         .map(notificationService::returnData), Map.class);
