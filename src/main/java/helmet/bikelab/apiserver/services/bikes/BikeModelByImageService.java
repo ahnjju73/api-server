@@ -61,6 +61,7 @@ public class BikeModelByImageService extends SessService {
         }).collect(Collectors.toList());
         Sections sections = new Sections(newSectionRequest.getSectionName(), commonCodeBikesById, collect);
         sectionsRepository.save(sections);
+        request.setResponse(sections.getSectionNo());
         return request;
     }
 
