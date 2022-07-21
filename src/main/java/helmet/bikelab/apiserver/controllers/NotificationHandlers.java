@@ -4,6 +4,7 @@ import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.PresignedURLVo;
 import helmet.bikelab.apiserver.services.NotificationService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -24,7 +25,7 @@ public class NotificationHandlers {
                         .subscribeOn(Schedulers.elastic())
                         .map(notificationService::checkBikeSession)
                         .map(notificationService::fetchNotifications)
-                        .map(notificationService::returnData), Map.class);
+                        .map(notificationService::returnData), Page.class);
     }
 
     public Mono<ServerResponse> makeNotification(ServerRequest request) {
