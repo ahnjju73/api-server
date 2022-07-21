@@ -2,10 +2,13 @@ package helmet.bikelab.apiserver.workers;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.CopyObjectRequest;
+import helmet.bikelab.apiserver.domain.NotificationTargets;
 import helmet.bikelab.apiserver.domain.Notifications;
 import helmet.bikelab.apiserver.domain.bike.ImageVo;
 import helmet.bikelab.apiserver.domain.types.MediaTypes;
+import helmet.bikelab.apiserver.domain.types.NotificationTypes;
 import helmet.bikelab.apiserver.objects.requests.NewNotificationRequest;
+import helmet.bikelab.apiserver.repositories.NotificationTargetRepository;
 import helmet.bikelab.apiserver.repositories.NotificationsRepository;
 import helmet.bikelab.apiserver.services.internal.OriginObject;
 import helmet.bikelab.apiserver.utils.amazon.AmazonUtils;
@@ -23,6 +26,8 @@ import java.util.stream.Collectors;
 public class NotificationWorker extends OriginObject {
 
     private final NotificationsRepository notificationsRepository;
+    private final NotificationTargetRepository notificationTargetRepository;
+
 
     public Notifications setNotification(NewNotificationRequest request){
         Notifications result = new Notifications();
@@ -51,4 +56,17 @@ public class NotificationWorker extends OriginObject {
         return result;
     }
 
+    public void saveNotificationType(Integer notificationNo, List<String> types){
+        List<NotificationTargets> targetsList = types.stream().map(elm -> {
+            NotificationTargets target = new NotificationTargets();
+            target.setNotificationNo(notificationNo);
+            target.setNotificationType(NotificationTypes.getType(elm));
+            return target;
+        }).collect(Collectors.toList());
+        notificationTargetRepository.saveAll(targetsList);
+    }
+
+    public List<Notifications> getNotifications(String notificationType){
+        return null;
+    }
 }

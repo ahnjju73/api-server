@@ -39,6 +39,7 @@ public class NotificationService extends SessService {
         NewNotificationRequest notificationRequest = map(request.getParam(), NewNotificationRequest.class);
         notificationRequest.checkValidation();
         Notifications notifications = notificationWorker.setNotification(notificationRequest);
+        notificationWorker.saveNotificationType(notifications.getNotificationNo(), notificationRequest.getNotificationTypes());
         notificationsRepository.save(notifications);
         return request;
     }

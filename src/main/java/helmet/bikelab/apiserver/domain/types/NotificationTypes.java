@@ -4,7 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum NotificationTypes {
-    CLIENTS("509-001"), GROUPS("509-002"), REPAIRSHOPS("509-003"), INSURANCE("509-004"), ALL("509-005");
+    CLIENTS("509-001"), GROUPS("509-002"), REPAIRSHOPS("509-003"), INSURANCE("509-004");
 
     private String type;
 
