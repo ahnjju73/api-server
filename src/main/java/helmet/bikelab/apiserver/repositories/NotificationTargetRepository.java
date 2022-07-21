@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface NotificationTargetRepository extends JpaRepository<NotificationTargets, NotificationTargetPK> {
     List<NotificationTargets> findAllByNotificationNo(Integer notificationNo);
+    void deleteAllByNotificationNo(Integer notificationNo);
 }
