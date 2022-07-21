@@ -930,6 +930,7 @@ public class LeasesService extends SessService {
         Leases lease = leaseRepository.findByLeaseId(leasesDto.getLeaseId());
         if(lease.getStatus() != LeaseStatusTypes.IN_PROGRESS && lease.getStatus() != LeaseStatusTypes.DECLINE) withException("850-022");
         leaseExtraRepository.deleteAllByLease_LeaseId(lease.getLeaseId());
+        leaseAttachmentRepository.deleteAllByLease_LeaseId(lease.getLeaseId());
         leaseInfoRepository.deleteAllByLease_LeaseId(lease.getLeaseId());
         leasePaymentsRepository.deleteAllByLease_LeaseId(lease.getLeaseId());
         leasePriceRepository.deleteAllByLease_LeaseId(lease.getLeaseId());
