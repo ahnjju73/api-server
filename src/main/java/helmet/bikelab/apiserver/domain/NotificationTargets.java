@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import helmet.bikelab.apiserver.domain.types.NotificationTargetPK;
@@ -22,6 +23,11 @@ public class NotificationTargets {
     @Id
     @Column(name = "notification_no")
     private Integer notificationNo;
+
+    @JsonIgnore
+    @JoinColumn(name = "notification_no", insertable = false, updatable = false)
+    @ManyToOne
+    private Notifications notifications;
 
     @Id
     @Column(name = "notification_type", columnDefinition = "ENUM")

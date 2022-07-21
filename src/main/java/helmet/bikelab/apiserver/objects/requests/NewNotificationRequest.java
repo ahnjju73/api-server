@@ -17,6 +17,7 @@ public class NewNotificationRequest extends OriginObject {
 
     private String title;
     private String content;
+    private List<String> notificationTypes;
     private List<PresignedURLVo> imageList;
     private List<PresignedURLVo> attachmentList;
     private String startAt;
@@ -24,12 +25,11 @@ public class NewNotificationRequest extends OriginObject {
 
     public void checkValidation(){
         if(!bePresent(title))
-            withException("");
+            withException("150-001");
         if(!bePresent(content))
-            withException("");
+            withException("150-002");
         if(!bePresent(endAt))
-            withException("");
-
+            withException("150-003");
     }
 
 }

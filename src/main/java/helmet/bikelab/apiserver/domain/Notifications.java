@@ -32,6 +32,9 @@ public class Notifications {
     @Column(name = "content", columnDefinition = "MEDIUMTEXT")
     private String content;
 
+    @OneToMany(mappedBy = "notifications", fetch = FetchType.EAGER)
+    private List<NotificationTargets> notificationTargets;
+
     @JsonIgnore
     @Column(name = "images", columnDefinition = "json")
     @Convert(converter = ImageVoConverter.class)
