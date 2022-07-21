@@ -11,9 +11,12 @@ import helmet.bikelab.apiserver.objects.requests.NewNotificationRequest;
 import helmet.bikelab.apiserver.repositories.NotificationTargetRepository;
 import helmet.bikelab.apiserver.repositories.NotificationsRepository;
 import helmet.bikelab.apiserver.services.internal.OriginObject;
+import helmet.bikelab.apiserver.services.internal.Workspace;
 import helmet.bikelab.apiserver.utils.amazon.AmazonUtils;
 import helmet.bikelab.apiserver.utils.keys.ENV;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -23,7 +26,7 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class NotificationWorker extends OriginObject {
+public class NotificationWorker extends Workspace {
 
     private final NotificationsRepository notificationsRepository;
     private final NotificationTargetRepository notificationTargetRepository;
@@ -66,7 +69,14 @@ public class NotificationWorker extends OriginObject {
         notificationTargetRepository.saveAll(targetsList);
     }
 
-    public List<Notifications> getNotifications(String notificationType){
-        return null;
+    public Page<Notifications> getNotifications(String notificationType, Pageable pageable){
+        Page<Notifications> notifications;
+        if(!bePresent(notificationType)){
+            notifications = notificationsRepository.findAll(pageable);
+        }
+        else{
+            notifications = notificationsRepository.getNotificationsByType(notificationType, pageable);
+        }
+        return notifications;
     }
 }

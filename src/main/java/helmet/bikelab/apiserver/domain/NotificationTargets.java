@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import helmet.bikelab.apiserver.domain.types.NotificationTargetPK;
 import helmet.bikelab.apiserver.domain.types.NotificationTypes;
+import helmet.bikelab.apiserver.domain.types.converters.NotificationTypeConverter;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -31,6 +32,7 @@ public class NotificationTargets {
 
     @Id
     @Column(name = "notification_type", columnDefinition = "ENUM")
+    @Convert(converter = NotificationTypeConverter.class)
     private NotificationTypes notificationType;
 
     @Column(name = "notification_type", columnDefinition = "ENUM", updatable = false, insertable = false)
