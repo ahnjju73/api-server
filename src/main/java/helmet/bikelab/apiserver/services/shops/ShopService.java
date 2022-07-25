@@ -420,7 +420,7 @@ public class ShopService extends SessService {
         Map param = request.getParam();
         String shopId = (String) param.get("shop_id");
         Shops shopByShopId = shopWorker.getShopByShopId(shopId);
-        request.setResponse(shopByShopId.getShopAttachments() != null ? bePresent(shopByShopId.getShopAttachments().getAttachmentsList()) ? shopByShopId.getShopAttachments().getAttachmentsList() : new ArrayList<>() : new ArrayList<>());
+        request.setResponse(bePresent(shopByShopId.getShopAttachments()) ? shopByShopId.getShopAttachments().getAttachmentsList() : new ArrayList<>());
         return request;
     }
 
