@@ -497,10 +497,7 @@ public class ClientsService extends SessService {
         clientAttachments.setDomain(ENV.AWS_S3_ORIGIN_DOMAIN);
         clientAttachmentRepository.save(clientAttachments);
         // todo: filename required
-        AmazonS3 amazonS3 = AmazonS3Client.builder()
-                .withRegion(Regions.AP_NORTHEAST_2)
-                .withCredentials(AmazonUtils.awsCredentialsProvider())
-                .build();
+        AmazonS3 amazonS3 = AmazonUtils.amazonS3();
         CopyObjectRequest objectRequest = new CopyObjectRequest(presignedURLVo.getBucket(), presignedURLVo.getFileKey(), ENV.AWS_S3_ORIGIN_BUCKET, presignedURLVo.getFileKey());
         amazonS3.copyObject(objectRequest);
         Map response = new HashMap();
@@ -524,10 +521,7 @@ public class ClientsService extends SessService {
         ClientAttachments byAttachNo = clientAttachmentRepository.findByAttachNo(attachmentNo);
         String url = byAttachNo.getDomain() + byAttachNo.getFileKey();
         clientAttachmentRepository.deleteById(byAttachNo.getAttachNo());
-        AmazonS3 amazonS3 = AmazonS3Client.builder()
-                .withRegion(Regions.AP_NORTHEAST_2)
-                .withCredentials(AmazonUtils.awsCredentialsProvider())
-                .build();
+        AmazonS3 amazonS3 = AmazonUtils.amazonS3();
         amazonS3.deleteObject(ENV.AWS_S3_ORIGIN_BUCKET, url);
         return request;
     }
