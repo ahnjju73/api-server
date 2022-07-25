@@ -57,7 +57,7 @@ public class NotificationWorker extends Workspace {
             String fileKey = "notification_attachments/" + elm.getFileKey();
             CopyObjectRequest objectRequest = new CopyObjectRequest(elm.getBucket(), elm.getFileKey(), ENV.AWS_S3_ORIGIN_BUCKET, fileKey);
             amazonS3.copyObject(objectRequest);
-            ImageVo notiAttachment = new ImageVo(null, elm.getFilename(), fileKey);
+            ImageVo notiAttachment = new ImageVo(MediaTypes.IMAGE, elm.getFilename(), fileKey);
             return notiAttachment;
         }).collect(Collectors.toList());
         result.setImageList(imageCollect);
