@@ -18,6 +18,7 @@ import lombok.Setter;
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class PresignedURLVo extends OriginObject {
 
+    private String id;
     private String bucket;
     private String fileKey;
     private String url;
