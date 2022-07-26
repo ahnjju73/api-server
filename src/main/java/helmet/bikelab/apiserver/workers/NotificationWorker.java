@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -93,7 +94,8 @@ public class NotificationWorker extends Workspace {
             notifications = notificationsRepository.findAll(pageable);
         }
         else{
-            notifications = notificationsRepository.getNotificationsByType(notificationType, pageable);
+            List<String> types = Arrays.asList(notificationType.split(","));
+            notifications = notificationsRepository.getNotificationsByType(types, pageable);
         }
         return notifications;
     }
