@@ -30,6 +30,7 @@ public class AddShopRequest extends OriginObject {
     private String bankCd;
     private String account;
     private String depositor;
+    private Integer rate;
 
     public void setAddress(Map address) {
         ObjectMapper objectMapper = new ObjectMapper();

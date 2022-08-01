@@ -128,6 +128,7 @@ public class ShopService extends SessService {
         Shops shop = new Shops();
         shop.setEmail(addShopRequest.getEmail());
         shop.setShopId(shopId);
+        shop.setRate(bePresent(addShopRequest.getRate()) ? addShopRequest.getRate() : 70);
         shop.setRegNum(addShopRequest.getRegNum());
         shop.setBusinessType(BusinessTypes.getBusinessTypes(addShopRequest.getBusinessType()));
         shopsRepository.save(shop);
@@ -190,6 +191,7 @@ public class ShopService extends SessService {
         shopByShopId.setBusinessType(BusinessTypes.getBusinessTypes(shopRequest.getBusinessType()));
         shopByShopId.setEmail(shopRequest.getEmail());
         shopByShopId.setRegNum(shopRequest.getRegNum());
+        shopByShopId.setRate(shopRequest.getRate());
         shopsRepository.save(shopByShopId);
 
         shopInfo.setPhone(shopRequest.getPhone());
