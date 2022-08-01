@@ -6,6 +6,7 @@ import helmet.bikelab.apiserver.services.internal.OriginObject;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.persistence.Column;
 import java.time.LocalDateTime;
 
 @Getter
@@ -19,6 +20,9 @@ public class AddUpdateFineRequest extends OriginObject {
     private String fineType;
     private String fineDate;
     private String fineExpireDate;
+    private String fineLocation;
+    private String fineOffice;
+    private String violationReason;
     private String riderId;
     private String clientId;
     private String bikeId;
