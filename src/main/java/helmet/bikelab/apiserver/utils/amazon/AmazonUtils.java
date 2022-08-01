@@ -23,10 +23,17 @@ public class AmazonUtils {
         return new AWSStaticCredentialsProvider(awsCredentials);
     }
 
+    public static AmazonS3 amazonS3(){
+        return AmazonS3Client.builder()
+                .withRegion(Regions.AP_NORTHEAST_2)
+                .withCredentials(awsCredentialsProvider())
+                .build();
+    }
+
     public static String AWSGeneratePresignedURL(PresignedURLVo presignedURLVo){
         Date expiration = new Date();
         long expTimeMillis = expiration.getTime();
-        expTimeMillis += 1000 * 60 * 60; // 1시간
+        expTimeMillis += 1000 * 60 * 5; // 1시간
         expiration.setTime(expTimeMillis);
 
         AWSStaticCredentialsProvider awsStaticCredentialsProvider = awsCredentialsProvider();
@@ -41,8 +48,7 @@ public class AmazonUtils {
                 .withMethod(HttpMethod.PUT)
                 .withExpiration(expiration);
 
-        generatePresignedUrlRequest.addRequestParameter(Headers.S3_CANNED_ACL,
-                CannedAccessControlList.PublicRead.toString());
+        generatePresignedUrlRequest.addRequestParameter(Headers.S3_CANNED_ACL, CannedAccessControlList.PublicRead.toString());
 
         URL url = amazonS3.generatePresignedUrl(generatePresignedUrlRequest);
 

@@ -930,6 +930,7 @@ public class LeasesService extends SessService {
         Leases lease = leaseRepository.findByLeaseId(leasesDto.getLeaseId());
         if(lease.getStatus() != LeaseStatusTypes.IN_PROGRESS && lease.getStatus() != LeaseStatusTypes.DECLINE) withException("850-022");
         leaseExtraRepository.deleteAllByLease_LeaseId(lease.getLeaseId());
+        leaseAttachmentRepository.deleteAllByLease_LeaseId(lease.getLeaseId());
         leaseInfoRepository.deleteAllByLease_LeaseId(lease.getLeaseId());
         leasePaymentsRepository.deleteAllByLease_LeaseId(lease.getLeaseId());
         leasePriceRepository.deleteAllByLease_LeaseId(lease.getLeaseId());
@@ -1059,10 +1060,7 @@ public class LeasesService extends SessService {
             List<ModelAttachment> toAdd = addLeaseAttachmentRequest
                     .getAttachments()
                     .stream().map(presignedURLVo -> {
-                        AmazonS3 amazonS3 = AmazonS3Client.builder()
-                                .withRegion(Regions.AP_NORTHEAST_2)
-                                .withCredentials(AmazonUtils.awsCredentialsProvider())
-                                .build();
+                        AmazonS3 amazonS3 = AmazonUtils.amazonS3();
                         String fileKey = "lease-attachment/" + lease.getLeaseNo() + "/" + presignedURLVo.getFileKey();
                         CopyObjectRequest objectRequest = new CopyObjectRequest(presignedURLVo.getBucket(), presignedURLVo.getFileKey(), ENV.AWS_S3_ORIGIN_BUCKET, fileKey);
                         amazonS3.copyObject(objectRequest);
@@ -1126,10 +1124,7 @@ public class LeasesService extends SessService {
             }
         }
         if(!"".equals(removedUrl)) {
-            AmazonS3 amazonS3 = AmazonS3Client.builder()
-                    .withRegion(Regions.AP_NORTHEAST_2)
-                    .withCredentials(AmazonUtils.awsCredentialsProvider())
-                    .build();
+            AmazonS3 amazonS3 = AmazonUtils.amazonS3();
             amazonS3.deleteObject(ENV.AWS_S3_ORIGIN_BUCKET, removedUrl);
             leaseAttachmentRepository.save(attachments);
         }

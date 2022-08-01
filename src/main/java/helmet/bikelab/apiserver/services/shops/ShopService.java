@@ -399,10 +399,7 @@ public class ShopService extends SessService {
             attachmentsList = new ArrayList<>();
         List<ModelAttachment> toAdd = addShopAttachmentRequest.getAttachments()
                 .stream().map(presignedURLVo -> {
-                    AmazonS3 amazonS3 = AmazonS3Client.builder()
-                            .withRegion(Regions.AP_NORTHEAST_2)
-                            .withCredentials(AmazonUtils.awsCredentialsProvider())
-                            .build();
+                    AmazonS3 amazonS3 = AmazonUtils.amazonS3();
                     String fileKey = "shop-attachment/" + shopByShopId.getShopId() + "/" + presignedURLVo.getFileKey();
                     CopyObjectRequest objectRequest = new CopyObjectRequest(presignedURLVo.getBucket(), presignedURLVo.getFileKey(), ENV.AWS_S3_ORIGIN_BUCKET, fileKey);
                     amazonS3.copyObject(objectRequest);
@@ -423,7 +420,7 @@ public class ShopService extends SessService {
         Map param = request.getParam();
         String shopId = (String) param.get("shop_id");
         Shops shopByShopId = shopWorker.getShopByShopId(shopId);
-        request.setResponse(shopByShopId.getShopAttachments().getAttachmentsList());
+        request.setResponse(bePresent(shopByShopId.getShopAttachments()) ? shopByShopId.getShopAttachments().getAttachmentsList() : new ArrayList<>());
         return request;
     }
 

@@ -123,10 +123,7 @@ public class FineService extends SessService {
             attachmentsList = new ArrayList<>();
         List<ModelAttachment> attachments = addFineAttachmentRequest.getAttachments()
                 .stream().map(presignedURLVo -> {
-                    AmazonS3 amazonS3 = AmazonS3Client.builder()
-                            .withRegion(Regions.AP_NORTHEAST_2)
-                            .withCredentials(AmazonUtils.awsCredentialsProvider())
-                            .build();
+                    AmazonS3 amazonS3 = AmazonUtils.amazonS3();
                     String fileKey = "fine-attachment/" + fine.getFineNo() + "/" + presignedURLVo.getFileKey();
                     CopyObjectRequest objectRequest = new CopyObjectRequest(presignedURLVo.getBucket(), presignedURLVo.getFileKey(), ENV.AWS_S3_ORIGIN_BUCKET, fileKey);
                     amazonS3.copyObject(objectRequest);

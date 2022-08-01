@@ -572,10 +572,7 @@ public class BikesService extends SessService {
         bikeUserLogRepository.save(addLog(BikeUserLogTypes.COMM_BIKE_UPDATED, request.getSessionUser().getUserNo(), byBikeFileInfoNo.getBike().getBikeNo().toString(), log));
         String url = byBikeFileInfoNo.getDomain() + byBikeFileInfoNo.getFileKey();
         bikeAttachmentRepository.deleteById(byBikeFileInfoNo.getBikeFileInfoNo());
-        AmazonS3 amazonS3 = AmazonS3Client.builder()
-                .withRegion(Regions.AP_NORTHEAST_2)
-                .withCredentials(AmazonUtils.awsCredentialsProvider())
-                .build();
+        AmazonS3 amazonS3 = AmazonUtils.amazonS3();
         amazonS3.deleteObject(ENV.AWS_S3_ORIGIN_BUCKET, url);
         return request;
     }

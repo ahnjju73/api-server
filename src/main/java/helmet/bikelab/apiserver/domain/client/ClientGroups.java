@@ -53,6 +53,7 @@ public class ClientGroups {
     @OneToOne(mappedBy = "group", fetch = FetchType.EAGER)
     private GroupAddresses groupAddresses;
 
+    @JsonIgnore
     @OneToOne(mappedBy = "group", fetch = FetchType.EAGER)
     private GroupPasswords groupPasswords;
 

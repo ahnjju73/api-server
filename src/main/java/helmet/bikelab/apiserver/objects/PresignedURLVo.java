@@ -30,10 +30,7 @@ public class PresignedURLVo extends OriginObject {
     }
 
     public void copyObjectToOrigin(){
-        AmazonS3 amazonS3 = AmazonS3Client.builder()
-                .withRegion(Regions.AP_NORTHEAST_2)
-                .withCredentials(AmazonUtils.awsCredentialsProvider())
-                .build();
+        AmazonS3 amazonS3 = AmazonUtils.amazonS3();
         CopyObjectRequest objectRequest = new CopyObjectRequest(getBucket(), getFileKey(), ENV.AWS_S3_ORIGIN_BUCKET, getFileKey());
         amazonS3.copyObject(objectRequest);
     }

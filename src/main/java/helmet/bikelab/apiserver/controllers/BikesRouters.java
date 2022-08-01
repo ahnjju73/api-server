@@ -14,6 +14,7 @@ import static org.springframework.web.reactive.function.server.RequestPredicates
 public class BikesRouters {
 
     private final BikesModelHandlers bikesModelHandlers;
+    private final BikeModelByImageHandlers bikeModelByImageHandlers;
     private final BikePartsHandlers partsHandler;
     private final DiagramHandlers diagramHandlers;
 
@@ -35,7 +36,20 @@ public class BikesRouters {
                 .andRoute(DELETE("/bikes_model"), handler::deleteBikeModel)
                 .andRoute(GET("/bikes_no_lease"), handler::fetchBikesWithoutLease)
                 .andRoute(GET("/bikes_ridable"), handler::fetchBikesRidable)
-                .andRoute(GET("/bikes/{bike_id}/histories"), handler::fetchHistoriesByBikeId);
+                .andRoute(GET("/bikes/{bike_id}/histories"), handler::fetchHistoriesByBikeId)
+
+                .andRoute(POST("/sections"), bikeModelByImageHandlers::doSaveSection)
+                .andRoute(PUT("/sections"), bikeModelByImageHandlers::doUpdateSection)
+                .andRoute(POST("/sections/generate/presigned"), bikeModelByImageHandlers::generatePreSignedUrl)
+                .andRoute(POST("/sections/axis"), bikeModelByImageHandlers::doSaveSectionAxis)
+                .andRoute(PUT("/sections/axis"), bikeModelByImageHandlers::doUpdateSectionAxis)
+                .andRoute(POST("/sections/axis/parts"), bikeModelByImageHandlers::handleSectionAxisParts)
+                .andRoute(GET("/sections"), bikeModelByImageHandlers::fetchSectionsByModel)
+                .andRoute(GET("/sections/{section_no}"), bikeModelByImageHandlers::fetchSectionsDetail)
+                .andRoute(GET("/sections-parts"), bikeModelByImageHandlers::fetchPartsByAxis)
+                .andRoute(DELETE("/sections/axis"), bikeModelByImageHandlers::deleteAxis)
+                .andRoute(DELETE("/sections"), bikeModelByImageHandlers::deleteSection)
+                ;
     }
 
     @Bean
@@ -88,7 +102,6 @@ public class BikesRouters {
     public RouterFunction<ServerResponse> bikeRiderFileUploadRouter(BikesHandlers handler){
         return RouterFunctions
                 .route(PUT("/upload-bike-riders"), handler::uploadFile);
-
     }
 
     @Bean
