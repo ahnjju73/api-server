@@ -48,6 +48,9 @@ public class Fines {
 
     @Column(name = "fine_expire_date")
     private LocalDateTime fineExpireDate;
+//
+//    @Column(name = "fine_location")
+//    private String fineLocation;
 
     @Column(name = "rider_no")
     private Integer riderNo;

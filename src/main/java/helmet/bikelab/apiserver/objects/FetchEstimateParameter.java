@@ -43,6 +43,8 @@ public class FetchEstimateParameter extends RequestListDto {
     private String searchStartAt;
     private String searchEndAt;
 
+    private String accident;
+
     private String limited = "limited";
 
     public void setSearchShopNo(Shops shop) {

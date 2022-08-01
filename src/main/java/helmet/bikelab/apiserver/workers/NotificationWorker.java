@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -35,10 +36,14 @@ public class NotificationWorker extends Workspace {
     public Notifications setNotification(NewNotificationRequest request, Integer notificationNo){
         Notifications result = new Notifications();
         if(bePresent(notificationNo))
-            result.setNotificationNo(notificationNo);
+            result = notificationsRepository.findById(notificationNo).get();
         result.setTitle(request.getTitle());
         result.setContent(request.getContent());
+        List<ImageVo> imageList = result.getImageList();
+        List<ImageVo> attachmentList = result.getAttachmentList();
         List<ImageVo> imageCollect = request.getImageList().stream().map(elm -> {
+            if(bePresent(elm.getId()))
+                return findById(imageList, elm.getId());
             AmazonS3 amazonS3 = AmazonUtils.amazonS3();
             String fileKey = "notification_images/" + elm.getFileKey();
             CopyObjectRequest objectRequest = new CopyObjectRequest(elm.getBucket(), elm.getFileKey(), ENV.AWS_S3_ORIGIN_BUCKET, fileKey);
@@ -47,11 +52,13 @@ public class NotificationWorker extends Workspace {
             return notfiImages;
         }).collect(Collectors.toList());
         List<ImageVo> attachmentCollect = request.getAttachmentList().stream().map(elm -> {
+            if(bePresent(elm.getId()))
+                return findById(attachmentList, elm.getId());
             AmazonS3 amazonS3 = AmazonUtils.amazonS3();
             String fileKey = "notification_attachments/" + elm.getFileKey();
             CopyObjectRequest objectRequest = new CopyObjectRequest(elm.getBucket(), elm.getFileKey(), ENV.AWS_S3_ORIGIN_BUCKET, fileKey);
             amazonS3.copyObject(objectRequest);
-            ImageVo notiAttachment = new ImageVo(null, elm.getFilename(), fileKey);
+            ImageVo notiAttachment = new ImageVo(MediaTypes.IMAGE, elm.getFilename(), fileKey);
             return notiAttachment;
         }).collect(Collectors.toList());
         result.setImageList(imageCollect);
@@ -59,6 +66,15 @@ public class NotificationWorker extends Workspace {
         result.setStartAt(LocalDateTime.parse(request.getStartAt()));
         result.setEndAt(LocalDateTime.parse(request.getEndAt()));
         return result;
+    }
+
+    private ImageVo findById(List<ImageVo> attachments, String id){
+        for(ImageVo iv : attachments){
+            if(iv.getId().equals(id)){
+                return iv;
+            }
+        }
+        return null;
     }
 
     public void saveNotificationType(Integer notificationNo, List<String> types){
@@ -78,7 +94,8 @@ public class NotificationWorker extends Workspace {
             notifications = notificationsRepository.findAll(pageable);
         }
         else{
-            notifications = notificationsRepository.getNotificationsByType(notificationType, pageable);
+            List<String> types = Arrays.asList(notificationType.split(","));
+            notifications = notificationsRepository.getNotificationsByType(types, pageable);
         }
         return notifications;
     }

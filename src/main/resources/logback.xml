@@ -13,10 +13,10 @@
         <appender-ref ref="STDOUT" />
     </logger>
 
-<!--    <springProfile name="localhost">-->
+    <springProfile name="localhost">
         <root level="INFO">
             <appender-ref ref="STDOUT" />
         </root>
-<!--    </springProfile>-->
+    </springProfile>
 
 </configuration>

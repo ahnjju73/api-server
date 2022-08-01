@@ -175,12 +175,18 @@
                    and shop_no = #{search_shop_no}
               </if>
               <if test="search_bike_no != null and search_bike_no != '' and search_bike_no != 'undefined'">
-                    and bike_no = #{search_bike_no}
+                   and bike_no = #{search_bike_no}
               </if>
               <if test="search_start_at != null and search_start_at != '' and search_start_at != 'undefined' and search_end_at != null and search_end_at != '' and search_end_at != 'undefined'">
-                    and created_at between concat(#{search_start_at}, ' 00:00:00') and concat(#{search_end_at}, ' 23:59:59')
+                   and created_at between concat(#{search_start_at}, ' 00:00:00') and concat(#{search_end_at}, ' 23:59:59')
               </if>
-                  order by estimate_no desc
+              <if test="accident == null or accident == '' or accident == 'undefined'">
+                   and accident = 'N'
+              </if>
+              <if test="accident != null and accident != '' and accident != 'undefined'">
+                   and accident = 'Y'
+              </if>
+                 order by estimate_no desc
               <if test="limited != null and limited != '' and limited != 'undefined' and limited == 'limited'">
                   limit 30
               </if>) e
@@ -235,6 +241,12 @@
                  </if>
                  <if test="search_start_at != null and search_start_at != '' and search_start_at != 'undefined' and search_end_at != null and search_end_at != '' and search_end_at != 'undefined'">
                    and created_at between concat(#{search_start_at}, ' 00:00:00') and concat(#{search_end_at}, ' 23:59:59')
+                 </if>
+                 <if test="accident == null or accident == '' or accident == 'undefined'">
+                   and accident = 'N'
+                 </if>
+                 <if test="accident != null and accident != '' and accident != 'undefined'">
+                   and accident = 'Y'
                  </if>) e
                  join shops s on e.shop_no = s.shop_no
                  join shop_info si on s.shop_no = si.shop_no
