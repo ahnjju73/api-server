@@ -49,14 +49,14 @@ public class Fines {
     @Column(name = "fine_expire_date")
     private LocalDateTime fineExpireDate;
 
-    @Column(name = "fine_location", columnDefinition = "MEDIUMTEXT")
-    private String fineLocation;
-
-    @Column(name = "fine_office")
-    private String fineOffice;
-
-    @Column(name = "violation_reason")
-    private String violationReason;
+//    @Column(name = "fine_location", columnDefinition = "MEDIUMTEXT")
+//    private String fineLocation;
+//
+//    @Column(name = "fine_office")
+//    private String fineOffice;
+//
+//    @Column(name = "violation_reason")
+//    private String violationReason;
 
     @Column(name = "rider_no")
     private Integer riderNo;
