@@ -114,4 +114,13 @@ public class LeaseFinesHandlers {
                         .map(fineService::returnData), Map.class);
     }
 
+    public Mono<ServerResponse> addFineExcel(ServerRequest request){
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> fineService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(fineService::checkBikeSession)
+                        .map(fineService::addFinesByExcel)
+                        .map(fineService::returnData), Map.class);
+    }
 }
