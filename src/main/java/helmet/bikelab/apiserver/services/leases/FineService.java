@@ -157,12 +157,10 @@ public class FineService extends SessService {
 
 
     public BikeSessionRequest addFinesByExcel(BikeSessionRequest request){
-        List map = map(request.getParam(), List.class);
-        for(Object item : map){
-            Map hashMap = (Map) item;
-            AddUpdateFineExcelRequest row = map(hashMap, AddUpdateFineExcelRequest.class);
-            row.validationCheck();
-            Fines fines = fineWorker.setFine(row);
+        AddUpdateFineExcelRequest addUpdateFineExcelRequest = map(request.getParam(), AddUpdateFineExcelRequest.class);
+        addUpdateFineExcelRequest.validationCheck();
+        for(AddUpdateFineRequest item : addUpdateFineExcelRequest.getFines()){
+            Fines fines = fineWorker.setFine(item);
             finesRepository.save(fines);
         }
         return request;

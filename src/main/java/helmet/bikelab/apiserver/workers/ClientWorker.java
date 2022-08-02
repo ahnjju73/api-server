@@ -38,7 +38,7 @@ public class ClientWorker extends SessService {
 
     public Clients getClientByBike(Bikes bikes){
         Leases byBike_bikeId = leaseRepository.findByBike_BikeId(bikes.getBikeId());
-        return byBike_bikeId.getClients();
+        return bePresent(byBike_bikeId)? byBike_bikeId.getClients() : null;
     }
 
     public void deleteClientAccount(String clientId){

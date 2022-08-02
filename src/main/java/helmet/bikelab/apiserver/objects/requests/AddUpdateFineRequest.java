@@ -26,14 +26,28 @@ public class AddUpdateFineRequest extends OriginObject {
     private String riderId;
     private String clientId;
     private String bikeId;
+    private String bikeNum;
 
     public void checkValidation(){
         if(!bePresent(bikeId))
             withException("710-001");
-        if(!bePresent(fineNum))
-            withException("710-002");
         if(!bePresent(fineType))
             withException("710-006");
+        if(!bePresent(fee))
+            withException("710-003");
+        if(!bePresent(fineDate))
+            withException("710-004");
+        if(!bePresent(fineExpireDate))
+            withException("710-005");
+        if(!bePresent(fineLocation))
+            withException("710-006");
+        if(!bePresent(fineOffice))
+            withException("710-007");
+        if(!bePresent(violationReason))
+            withException("710-008");
+    }
+
+    public void checkValidationForExcel(){
         if(!bePresent(fee))
             withException("710-003");
         if(!bePresent(fineDate))

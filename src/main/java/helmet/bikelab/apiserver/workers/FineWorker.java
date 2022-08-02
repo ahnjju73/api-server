@@ -129,7 +129,7 @@ public class FineWorker extends SessService {
         return fetchFineDetailResponse;
     }
 
-    public Fines setFine(AddUpdateFineExcelRequest request){
+    public Fines setFine(AddUpdateFineRequest request){
         Fines fines = new Fines();
         String fineId = autoKey.makeGetKey("fine");
         fines.setFineId(fineId);
