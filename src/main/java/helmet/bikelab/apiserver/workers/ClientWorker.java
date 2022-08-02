@@ -1,6 +1,8 @@
 package helmet.bikelab.apiserver.workers;
 
+import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.client.Clients;
+import helmet.bikelab.apiserver.domain.lease.Leases;
 import helmet.bikelab.apiserver.repositories.*;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +23,7 @@ public class ClientWorker extends SessService {
     private final ClientOverpayRepository clientOverpayRepository;
     private final ClientManagersRepository clientManagersRepository;
     private final ClientAttachmentsRepository clientAttachmentsRepository;
+    private final LeaseRepository leaseRepository;
 
     public List<Clients> getClientListByGroupId(String groupId){
         List<Clients> allByGroupId = clientsRepository.findByClientGroup_GroupId(groupId);
@@ -31,6 +34,11 @@ public class ClientWorker extends SessService {
         Clients byClientId = clientsRepository.findByClientId(clientId);
         if(!bePresent(byClientId)) withException("400-100");
         return byClientId;
+    }
+
+    public Clients getClientByBike(Bikes bikes){
+        Leases byBike_bikeId = leaseRepository.findByBike_BikeId(bikes.getBikeId());
+        return byBike_bikeId.getClients();
     }
 
     public void deleteClientAccount(String clientId){

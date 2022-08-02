@@ -10,10 +10,7 @@ import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.FineDto;
 import helmet.bikelab.apiserver.objects.PresignedURLVo;
 import helmet.bikelab.apiserver.objects.bikelabs.leases.LeasesDto;
-import helmet.bikelab.apiserver.objects.requests.AddFineAttachmentRequest;
-import helmet.bikelab.apiserver.objects.requests.AddUpdateFineRequest;
-import helmet.bikelab.apiserver.objects.requests.DeleteFineAttachmentRequest;
-import helmet.bikelab.apiserver.objects.requests.FetchFineRequest;
+import helmet.bikelab.apiserver.objects.requests.*;
 import helmet.bikelab.apiserver.objects.responses.FetchFineDetailResponse;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.repositories.FinesRepository;
@@ -67,8 +64,8 @@ public class FineService extends SessService {
         Map param = request.getParam();
         AddUpdateFineRequest addUpdateFineRequest = map(param, AddUpdateFineRequest.class);
         addUpdateFineRequest.checkValidation();
-        if(bePresent(finesRepository.findByFineNum(addUpdateFineRequest.getFineNum())))
-            withException("710-009");
+//        if(bePresent(finesRepository.findByFineNum(addUpdateFineRequest.getFineNum())))
+//            withException("710-009");
         Fines fines = fineWorker.makeNewFine(addUpdateFineRequest);
         finesRepository.save(fines);
         return request;
@@ -81,9 +78,9 @@ public class FineService extends SessService {
         AddUpdateFineRequest addUpdateFineRequest = map(param, AddUpdateFineRequest.class);
         addUpdateFineRequest.checkValidation();
         Fines fineById = fineWorker.getFineById(fetchFineRequest.getFineId());
-        Fines byFineNum = finesRepository.findByFineNum(addUpdateFineRequest.getFineNum());
-        if(bePresent(byFineNum) && !byFineNum.getFineId().equals(fetchFineRequest.getFineId()))
-            withException("710-009");
+//        Fines byFineNum = finesRepository.findByFineNum(addUpdateFineRequest.getFineNum());
+//        if(bePresent(byFineNum) && !byFineNum.getFineId().equals(fetchFineRequest.getFineId()))
+//            withException("710-009");
         Fines fines = fineWorker.setFine(addUpdateFineRequest, fineById);
         finesRepository.save(fines);
         return request;
@@ -155,6 +152,19 @@ public class FineService extends SessService {
         Fines fine = fineWorker.getFineById(deleteFineAttachmentRequest.getFineId());
         fine = fineWorker.removeAttachment(fine, deleteFineAttachmentRequest.getUuid());
         finesRepository.save(fine);
+        return request;
+    }
+
+
+    public BikeSessionRequest addFinesByExcel(BikeSessionRequest request){
+        List map = map(request.getParam(), List.class);
+        for(Object item : map){
+            Map hashMap = (Map) item;
+            AddUpdateFineExcelRequest row = map(hashMap, AddUpdateFineExcelRequest.class);
+            row.validationCheck();
+            Fines fines = fineWorker.setFine(row);
+            finesRepository.save(fines);
+        }
         return request;
     }
 }

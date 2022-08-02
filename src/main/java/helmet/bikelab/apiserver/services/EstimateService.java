@@ -211,7 +211,4 @@ public class EstimateService extends SessService {
         request.setResponse(reviewList);
         return request;
     }
-
-
-
 }

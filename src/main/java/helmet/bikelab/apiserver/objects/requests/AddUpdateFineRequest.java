@@ -40,5 +40,11 @@ public class AddUpdateFineRequest extends OriginObject {
             withException("710-004");
         if(!bePresent(fineExpireDate))
             withException("710-005");
+        if(!bePresent(fineLocation))
+            withException("710-006");
+        if(!bePresent(fineOffice))
+            withException("710-007");
+        if(!bePresent(violationReason))
+            withException("710-008");
     }
 }

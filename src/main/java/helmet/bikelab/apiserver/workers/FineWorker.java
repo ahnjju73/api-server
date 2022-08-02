@@ -8,6 +8,7 @@ import helmet.bikelab.apiserver.domain.riders.Riders;
 import helmet.bikelab.apiserver.objects.BikeDto;
 import helmet.bikelab.apiserver.objects.RiderInfoDto;
 import helmet.bikelab.apiserver.objects.bikelabs.clients.ClientDto;
+import helmet.bikelab.apiserver.objects.requests.AddUpdateFineExcelRequest;
 import helmet.bikelab.apiserver.objects.requests.AddUpdateFineRequest;
 import helmet.bikelab.apiserver.objects.responses.FetchFineDetailResponse;
 import helmet.bikelab.apiserver.repositories.BikesRepository;
@@ -120,6 +121,30 @@ public class FineWorker extends SessService {
             fetchFineDetailResponse.setClient(clientDto);
         }
         return fetchFineDetailResponse;
+    }
+
+    public Fines setFine(AddUpdateFineExcelRequest request){
+        Fines fines = new Fines();
+        String fineId = autoKey.makeGetKey("fine");
+        fines.setFineId(fineId);
+        fines.setFee(request.getFee());
+        fines.setPaidFee(0);
+        fines.setFineType("과태료");
+        fines.setFineDate(LocalDateTime.parse(request.getFineDate()));
+        fines.setFineExpireDate(LocalDateTime.parse(request.getFineExpireDate()));
+        fines.setFineLocation(request.getFineLocation());
+        fines.setFineOffice(request.getFineOffice());
+        fines.setViolationReason(request.getViolationReason());
+        Bikes bike = bikesRepository.findByCarNum(request.getBikeNum());
+        fines.setBikeNo(bike.getBikeNo());
+        Clients client = clientWorker.getClientByBike(bike);
+        if(bePresent(client)){
+            fines.setClientNo(client.getClientNo());
+        }
+        if(bePresent(bike.getRiderNo())){
+            fines.setRiderNo(bike.getRiderNo());
+        }
+        return fines;
     }
 
 }
