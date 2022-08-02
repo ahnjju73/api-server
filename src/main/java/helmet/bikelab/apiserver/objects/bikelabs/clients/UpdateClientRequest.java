@@ -29,6 +29,8 @@ public class UpdateClientRequest extends OriginObject {
     private ModelAddress address;
     private String uuid;
     private Double discountRate;
+    
+    private String shopId;
 
     public void setAddress(Map address) {
         ObjectMapper objectMapper = new ObjectMapper();
