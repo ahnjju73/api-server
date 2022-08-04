@@ -133,6 +133,7 @@ public class BikesRouters {
                 .andRoute(DELETE("/diagrams/parts"), diagramHandlers::removePartsByDiagramId)
                 .andRoute(GET("/diagrams/parts"), diagramHandlers::fetchPartListByDiagramId)
                 .andRoute(GET("/diagrams/parts/by-all"), diagramHandlers::fetchAllPartListOfDiagramId)
+                .andRoute(PUT("/diagrams/part-ordering"), diagramHandlers::reorderPartListOfDiagram)
                 ;
     }
 

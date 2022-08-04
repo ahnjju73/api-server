@@ -91,11 +91,13 @@ public class DiagramPartsService extends SessService {
         return request;
     }
 
+    @Transactional
     public BikeSessionRequest updatePartsOrder(BikeSessionRequest request){
         DiagramPartsByIdRequest diagramPartsByIdRequest = map(request.getParam(), DiagramPartsByIdRequest.class);
         Diagrams diagramById = diagramWorker.getDiagramById(diagramPartsByIdRequest.getDiagramId());
         List<DiagramParts> allByDiagramNo = diagramPartsRepository.findAllByDiagramNoOrderByOrderNoAsc(diagramById.getDiagramNo());
-        List<DiagramParts> reorderDiagramParts = new ArrayList<>();
+        List<Long> parts = diagramPartsByIdRequest.getParts();
+        allByDiagramNo = reorder(allByDiagramNo, parts);
         AtomicInteger count = new AtomicInteger(0);
         allByDiagramNo.forEach(elm -> {
             elm.setOrderNo(count.get());
@@ -103,10 +105,17 @@ public class DiagramPartsService extends SessService {
         });
         diagramPartsRepository.saveAll(allByDiagramNo);
         return request;
-
     }
 
-    private void reorder(){
+    private List<DiagramParts> reorder(List<DiagramParts> allByDiagramNo, List<Long> order){
+        List<DiagramParts> reorder = new ArrayList<>();
+        for(Long partNo : order){
+            for(DiagramParts dp : allByDiagramNo){
+                if(dp.getPartNo().equals(partNo))
+                    reorder.add(dp);
+            }
+        }
+        return reorder;
 
     }
 }
