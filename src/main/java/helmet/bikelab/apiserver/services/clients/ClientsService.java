@@ -11,6 +11,8 @@ import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.client.*;
 import helmet.bikelab.apiserver.domain.embeds.ModelAddress;
 import helmet.bikelab.apiserver.domain.lease.Leases;
+import helmet.bikelab.apiserver.domain.shops.ShopInfo;
+import helmet.bikelab.apiserver.domain.shops.Shops;
 import helmet.bikelab.apiserver.domain.types.AccountStatusTypes;
 import helmet.bikelab.apiserver.domain.types.BikeUserLogTypes;
 import helmet.bikelab.apiserver.domain.types.BusinessTypes;
@@ -29,6 +31,7 @@ import helmet.bikelab.apiserver.utils.amazon.AmazonUtils;
 import helmet.bikelab.apiserver.utils.keys.ENV;
 import helmet.bikelab.apiserver.workers.ClientWorker;
 import helmet.bikelab.apiserver.workers.CommonWorker;
+import helmet.bikelab.apiserver.workers.ShopWorker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -57,6 +60,8 @@ public class ClientsService extends SessService {
     private final LeaseRepository leaseRepository;
     private final ClientWorker clientWorker;
     private final PartsTypeDiscountClientRepository partsTypeDiscountClientRepository;
+    private final ShopWorker shopWorker;
+    private final ClientShopRepository clientShopRepository;
 
     @Transactional
     public BikeSessionRequest updatePartsDiscountRateByClient(BikeSessionRequest request){
@@ -178,6 +183,15 @@ public class ClientsService extends SessService {
         fetchClientDetailResponse.setBusinessType(client.getBusinessType());
         fetchClientDetailResponse.setBusinessTypeCode(client.getBusinessType().getBusinessType());
         fetchClientDetailResponse.setDiscountRate(client.getDiscountRate());
+
+        ClientShop byClientNo = clientShopRepository.findByClientNo(client.getClientNo());
+        if(bePresent(byClientNo)){
+            Shops shop = byClientNo.getShop();
+            ShopInfo shopInfo = shop.getShopInfo();
+            fetchClientDetailResponse.setShopId(shop.getShopId());
+            fetchClientDetailResponse.setShopName(shopInfo.getName());
+        }
+
         response.put("client", fetchClientDetailResponse);
         request.setResponse(response);
         return request;
@@ -242,6 +256,12 @@ public class ClientsService extends SessService {
         clients.setClientInfo(clientInfo);
         clients.setClientPassword(clientPassword);
         bikeUserLogRepository.save(addLog(BikeUserLogTypes.COMM_CLIENT_ADDED, session.getUserNo(), clients.getClientNo().toString()));
+
+        Shops shopByShopId = shopWorker.getShopByShopId(addClientRequest.getShopId());
+        ClientShop clientShop = new ClientShop();
+        clientShop.setClientNo(clients.getClientNo());
+        clientShop.setShopNo(shopByShopId.getShopNo());
+        clientShopRepository.save(clientShop);
 
         Map response = new HashMap();
         response.put("password", password);
@@ -309,6 +329,12 @@ public class ClientsService extends SessService {
         clientAddresses.setClientNo(client.getClientNo());
         clientInfoRepository.save(clientInfo);
         clientAddressesRepository.save(clientAddresses);
+
+        Shops shopByShopId = shopWorker.getShopByShopId(updateClientRequest.getShopId());
+        ClientShop clientShop = new ClientShop();
+        clientShop.setClientNo(client.getClientNo());
+        clientShop.setShopNo(shopByShopId.getShopNo());
+        clientShopRepository.save(clientShop);
 
         return request;
     }
