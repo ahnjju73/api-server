@@ -199,10 +199,10 @@
           left outer join `groups` g on c.group_no = g.group_no
           join bikes b on e.bike_no = b.bike_no
           join com_comm_bikes bm on bm.comm_cd = b.car_model
-          left outer join (left outer join (select a.estimate_no,
-                                                   sum(floor(parts_price * if(main.accident = 'Y', 1, if (parts_type_discount_rate is not null, parts_type_discount_rate, if(client_discount_rate is null, 1, client_discount_rate)))) * number +
-                                                   floor(if(working_price is null, 0, working_price) * hours * number) *
-                                                   if (main.accident = 'Y', 1, if (parts_type_discount_rate is not null, parts_type_discount_rate, if(client_discount_rate is null, 1, client_discount_rate)))) as estimate_price
+          left outer join a.estimate_no,
+                          sum(floor(parts_price * if(e.accident = 'Y', 1, if (parts_type_discount_rate is not null, parts_type_discount_rate, if(client_discount_rate is null, 1, client_discount_rate)))) * number +
+                              floor(if(working_price is null, 0, working_price) * hours * number) *
+                                    if (e.accident = 'Y', 1, if (parts_type_discount_rate is not null, parts_type_discount_rate, if(client_discount_rate is null, 1, client_discount_rate)))) as estimate_price
                   from estimate_parts a
                   join estimates e on e.estimate_no = a.estimate_no
                  where estimate_type = if ((select count(*)
