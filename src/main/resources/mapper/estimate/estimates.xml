@@ -328,6 +328,11 @@
                                  <if test="client_no != null">
                                    and client_no = ${client_no}
                                  </if>
+                                 <if test="group_no != null">
+                                   and client_no in (select client_no
+                                                       from clients
+                                                      where group_no = #{group_no})
+                                 </if>
                                    and total_price <![CDATA[ > ]]> paid_fee
                                    and status in ('6','7')
                                  order by estimate_no desc) e,
@@ -356,6 +361,11 @@
         where deleted_at is null
         <if test="client_no != null">
           and client_no = ${client_no}
+        </if>
+        <if test="group_no != null">
+            and client_no in (select client_no
+                                from clients
+                               where group_no = #{group_no})
         </if>
           and total_price <![CDATA[ > ]]> paid_fee
           and status in ('6','7')

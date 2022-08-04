@@ -2,6 +2,7 @@ package helmet.bikelab.apiserver.services;
 
 import helmet.bikelab.apiserver.domain.Estimates;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
+import helmet.bikelab.apiserver.domain.client.ClientGroups;
 import helmet.bikelab.apiserver.domain.client.Clients;
 import helmet.bikelab.apiserver.domain.riders.Riders;
 import helmet.bikelab.apiserver.domain.shops.Shops;
@@ -43,6 +44,7 @@ public class EstimateService extends SessService {
     private final RiderRepository riderRepository;
     private final ShopsRepository shopsRepository;
     private final BikesRepository bikesRepository;
+    private final ClientGroupRepository groupRepository;
 
     public BikeSessionRequest excelDownloadEstimates(BikeSessionRequest request){
         Map param = request.getParam();
@@ -98,12 +100,16 @@ public class EstimateService extends SessService {
     public BikeSessionRequest fetchUnpaidEstimates(BikeSessionRequest request){
         Map param = request.getParam();
         String clientId = (String) param.get("client_id");
+        String groupId = (String) param.get("group_id");
         FetchUnpaidEstimatesRequest fetchUnpaidEstimatesRequest = map(param, FetchUnpaidEstimatesRequest.class);
         Clients client = clientsRepository.findByClientId(clientId);
+        ClientGroups group = groupRepository.findByGroupId(groupId);
         if(bePresent(client)){
             fetchUnpaidEstimatesRequest.setClientNo(client.getClientNo());
         }
-
+        if(bePresent(group)){
+            fetchUnpaidEstimatesRequest.setGroupNo(group.getGroupNo());
+        }
         ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(fetchUnpaidEstimatesRequest, "estimate.estimates.fetchUnpaidEstimateList", "estimate.estimates.countUnpaidEstimateList", "rownum");
         FetchUnpaidEstimateResponse toReturn = new FetchUnpaidEstimateResponse();
         toReturn.setTotal(responseListDto.getTotal());

@@ -10,4 +10,5 @@ import lombok.Setter;
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class FetchUnpaidEstimatesRequest extends RequestListDto{
     private Integer clientNo;
+    private Integer groupNo;
 }
