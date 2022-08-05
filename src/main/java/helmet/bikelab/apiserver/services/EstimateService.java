@@ -126,8 +126,18 @@ public class EstimateService extends SessService {
             }
             toReturn.setTotalPrice(total);
             toReturn.setPaidFee(paid);
+        }else if(bePresent(group)){
+            List<Estimates> unpaidEstimatesByGroupNo = estimatesRepository.getUnpaidEstimatesByGroupNo(group.getGroupNo(), EstimateStatusTypes.COMPLETED, EstimateStatusTypes.PAID);
+            Integer total = 0;
+            Integer paid = 0;
+            for(Estimates e : unpaidEstimatesByGroupNo){
+                if(e.getTotalPrice().equals(e.getPaidFee())) continue;
+                total += e.getTotalPrice();
+                paid += e.getPaidFee();
+            }
+            toReturn.setTotalPrice(total);
+            toReturn.setPaidFee(paid);
         }
-
         request.setResponse(toReturn);
         return request;
     }
