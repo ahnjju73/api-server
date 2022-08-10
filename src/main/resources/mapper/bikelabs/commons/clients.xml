@@ -110,8 +110,6 @@
          <if test="condition != null and condition != '' and condition != 'undefined'">
            and (
                ci.name like concat('%', #{condition}, '%')
-            or ci.phone like concat('%', #{condition}, '%')
-            or email like concat('%', #{condition}, '%')
            )
         </if>
     </select>
@@ -135,8 +133,6 @@
                        <if test="condition != null and condition != '' and condition != 'undefined'">
                    and (
                             ci.name like concat('%', #{condition}, '%')
-                         or ci.phone like concat('%', #{condition}, '%')
-                         or email like concat('%', #{condition}, '%')
                        )
                        </if>
                    and c.status != '201-004'

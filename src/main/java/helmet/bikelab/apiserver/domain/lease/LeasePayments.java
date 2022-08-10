@@ -33,7 +33,7 @@ public class LeasePayments {
     @Column(name = "lease_no", nullable = false)
     private Integer leaseNo;
 
-    @ManyToOne(optional = false)
+    @ManyToOne
     @JoinColumn(name = "lease_no", insertable = false, updatable = false)
     private Leases lease;
 

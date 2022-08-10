@@ -37,6 +37,7 @@ public class LeaseExtrasRouters {
                 .andRoute(GET("/lease-fines/attachments/{fine_id}"), handler::fetchAttachments)
                 .andRoute(POST("/lease-fines/attachments"), handler::addFineAttachment)
                 .andRoute(DELETE("/lease-fines/attachments/{fine_id}"), handler::deleteFineAttachment)
+                .andRoute(POST("/lease-fines-excel"), handler::addFineExcel)
                 ;
     }
 }

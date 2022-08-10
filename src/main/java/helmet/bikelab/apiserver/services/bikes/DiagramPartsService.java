@@ -19,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -77,7 +78,7 @@ public class DiagramPartsService extends SessService {
     public BikeSessionRequest fetchPartListByDiagramId(BikeSessionRequest request){
         DiagramByIdRequest diagramByIdRequest = map(request.getParam(), DiagramByIdRequest.class);
         Diagrams diagramById = diagramWorker.getDiagramById(diagramByIdRequest.getDiagramId());
-        List<DiagramParts> allByDiagramNo = diagramPartsRepository.findAllByDiagramNo(diagramById.getDiagramNo());
+        List<DiagramParts> allByDiagramNo = diagramPartsRepository.findAllByDiagramNoOrderByOrderNoAsc(diagramById.getDiagramNo());
         request.setResponse(allByDiagramNo);
         return request;
     }
@@ -85,8 +86,36 @@ public class DiagramPartsService extends SessService {
     public BikeSessionRequest fetchAllPartListOfDiagramId(BikeSessionRequest request){
         PageableRequest pageableRequest = map(request.getParam(), PageableRequest.class);
         Pageable pageable = PageRequest.of(pageableRequest.getPage(), pageableRequest.getSize());
-        Page<DiagramParts> allBy = diagramPartsRepository.findAllByOrderByDiagram_Name(pageable);
+        Page<DiagramParts> allBy = diagramPartsRepository.findAllByOrderByOrderNoAsc(pageable);
         request.setResponse(allBy);
         return request;
+    }
+
+    @Transactional
+    public BikeSessionRequest updatePartsOrder(BikeSessionRequest request){
+        DiagramPartsByIdRequest diagramPartsByIdRequest = map(request.getParam(), DiagramPartsByIdRequest.class);
+        Diagrams diagramById = diagramWorker.getDiagramById(diagramPartsByIdRequest.getDiagramId());
+        List<DiagramParts> allByDiagramNo = diagramPartsRepository.findAllByDiagramNoOrderByOrderNoAsc(diagramById.getDiagramNo());
+        List<Long> parts = diagramPartsByIdRequest.getParts();
+        allByDiagramNo = reorder(allByDiagramNo, parts);
+        AtomicInteger count = new AtomicInteger(0);
+        allByDiagramNo.forEach(elm -> {
+            elm.setOrderNo(count.get());
+            count.incrementAndGet();
+        });
+        diagramPartsRepository.saveAll(allByDiagramNo);
+        return request;
+    }
+
+    private List<DiagramParts> reorder(List<DiagramParts> allByDiagramNo, List<Long> order){
+        List<DiagramParts> reorder = new ArrayList<>();
+        for(Long partNo : order){
+            for(DiagramParts dp : allByDiagramNo){
+                if(dp.getPartNo().equals(partNo))
+                    reorder.add(dp);
+            }
+        }
+        return reorder;
+
     }
 }

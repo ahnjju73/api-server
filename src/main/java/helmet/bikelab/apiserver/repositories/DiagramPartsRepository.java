@@ -15,7 +15,9 @@ public interface DiagramPartsRepository extends JpaRepository<DiagramParts, Diag
     DiagramParts findByDiagramNoAndPartNo(Integer diagramNo, Long partsNo);
     void deleteByDiagramNoAndPartNo(Integer diagramNo, Long partsNo);
     List<DiagramParts> findAllByDiagramNo(Integer diagramNo);
+    List<DiagramParts> findAllByDiagramNoOrderByOrderNoAsc(Integer diagramNo);
     Page<DiagramParts> findAllByOrderByDiagram_Name(Pageable pageable);
+    Page<DiagramParts> findAllByOrderByOrderNoAsc(Pageable pageable);
     DiagramParts findTop1ByDiagramNoOrderByOrderNoDesc(Integer diagramNo);
     List<DiagramParts> findAllByDiagramNoOrderByOrderNo(Integer diagramNo);
 

@@ -142,4 +142,14 @@ public class DiagramHandlers {
                         .map(diagramPartsService::returnData), Page.class);
     }
 
+    public Mono<ServerResponse> reorderPartListOfDiagram(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> diagramPartsService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(diagramPartsService::checkBikeSession)
+                        .map(diagramPartsService::updatePartsOrder)
+                        .map(diagramPartsService::returnData), Map.class);
+    }
+
 }
