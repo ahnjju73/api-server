@@ -157,7 +157,7 @@
                        ri.name
                   from riders rid
                   join rider_info ri on rid.rider_no = ri.rider_no
-                 where 1 = 1
+                 where verified = 'VERIFIED'
                  <if test="next_token != null and next_token != '' and next_token != 'undefined'">
                    and rider_id <![CDATA[ < ]]> #{next_token}
                  </if>
