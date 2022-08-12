@@ -12,6 +12,7 @@
          where 1 = 1
         <if test="verified != null and verified != '' and verified != 'undefined'">
             and verified = 'VERIFIED'
+            and deleted_at is null
         </if>
         <if test="condition_status != null and condition_status != '' and condition_status != 'undefined'">
            and status = #{condition_status}
@@ -163,6 +164,7 @@
                  where 1 = 1
                  <if test="verified != null and verified != '' and verified != 'undefined'">
                    and verified = 'VERIFIED'
+                   and deleted_at is null
                  </if>
                  <if test="next_token != null and next_token != '' and next_token != 'undefined'">
                    and rider_id <![CDATA[ < ]]> #{next_token}
