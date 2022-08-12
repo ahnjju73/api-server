@@ -332,7 +332,7 @@ public class ClientsService extends SessService {
 
         Shops shopByShopId = shopWorker.getShopByShopId(updateClientRequest.getShopId());
         List<ClientShop> byClientNo = clientShopRepository.findAllByClientNo(client.getClientNo());
-        if(bePresent(byClientNo) && byClientNo.size() < 1)
+        if(bePresent(byClientNo) && byClientNo.size() > 0)
             clientShopRepository.deleteAll(byClientNo);
         ClientShop clientShop = new ClientShop();
         clientShop.setClientNo(client.getClientNo());
