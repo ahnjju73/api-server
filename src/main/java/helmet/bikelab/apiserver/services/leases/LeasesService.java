@@ -416,6 +416,7 @@ public class LeasesService extends SessService {
         leaseInfo.setStart(LocalDate.parse(leaseInfoDto.getStartDt()));
         leaseInfo.setPeriod(leaseInfoDto.getPeriod());
         leaseInfo.setContractDate(LocalDate.parse(leaseInfoDto.getContractDt()));
+        leaseInfo.setEndDate(leaseInfo.getContractDate().plusMonths(leaseInfo.getPeriod()));
         leaseInfo.setNote(leaseInfoDto.getNote());
 
         leasePaymentWorker.doLeasePayment(addUpdateLeaseRequest, lease, client, leaseInfo, session, leasePaymentsList);
@@ -668,7 +669,7 @@ public class LeasesService extends SessService {
                 leasePaymentWorker.doLeasePayment(addUpdateLeaseRequest, lease, client, leaseInfo, session, newPaymentList);
                 leasePaymentsRepository.saveAll(newPaymentList);
             }
-
+            leaseInfo.setEndDate(leaseInfo.getContractDate().plusMonths(leaseInfo.getPeriod()));
             leaseInfoRepository.save(leaseInfo);
 
         }

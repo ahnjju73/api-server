@@ -175,7 +175,6 @@ public class LeasePaymentWorker extends SessService {
         }else {
             setPaymentByRentLeaseNot(addUpdateLeaseRequest, session, lease, client, leaseInfo, newPaymentList);
         }
-        leaseInfo.setEndDate(newPaymentList.get(newPaymentList.size() - 1).getPaymentEndDate());
     }
 
     private void setPaymentByRentLease(AddUpdateLeaseRequest addUpdateLeaseRequest, BikeUser session, Leases lease, Clients client, LeaseInfo leaseInfo, List<LeasePayments> leasePaymentsList) {
