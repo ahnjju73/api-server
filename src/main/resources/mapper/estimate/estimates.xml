@@ -259,7 +259,8 @@
                  </if>
                  <if test="accident != null and accident != '' and accident != 'undefined'">
                    and accident = 'Y'
-                 </if>) e
+                 </if>
+                 group by estimate_no) e
                  join shops s on e.shop_no = s.shop_no
                  join shop_info si on s.shop_no = si.shop_no
                  join bikes b on e.bike_no = b.bike_no
