@@ -94,6 +94,7 @@ public class EstimateService extends SessService {
             fetchEstimateParameter.setLimited("limited");
         fetchEstimateParameter.setIsDeleted(estimateRequestListDto.getIsDeleted());
         fetchEstimateParameter.setAccident(estimateRequestListDto.getAccident());
+        fetchEstimateParameter.setPartName(estimateRequestListDto.getPartName());
         return fetchEstimateParameter;
     }
 
