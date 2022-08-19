@@ -192,7 +192,7 @@
               <if test="accident != null and accident != '' and accident != 'undefined'">
                    and accident = 'Y'
               </if>
-                 order by estimate_no desc
+                 group by estimate_id order by estimate_no desc
               <if test="limited != null and limited != '' and limited != 'undefined' and limited == 'limited'">
                   limit 30
               </if>) e
@@ -260,7 +260,7 @@
                  <if test="accident != null and accident != '' and accident != 'undefined'">
                    and accident = 'Y'
                  </if>
-                 group by estimate_no) e
+                 group by estimate_id) e
                  join shops s on e.shop_no = s.shop_no
                  join shop_info si on s.shop_no = si.shop_no
                  join bikes b on e.bike_no = b.bike_no
