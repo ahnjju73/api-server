@@ -45,6 +45,8 @@ public class AddUpdateFineRequest extends OriginObject {
             withException("710-007");
         if(!bePresent(violationReason))
             withException("710-008");
+        if(LocalDateTime.parse(fineExpireDate).isBefore(LocalDateTime.parse(fineDate)))
+            withException("710-010");
     }
 
     public void checkValidationForExcel(){
@@ -60,5 +62,7 @@ public class AddUpdateFineRequest extends OriginObject {
             withException("710-007");
         if(!bePresent(violationReason))
             withException("710-008");
+        if(LocalDateTime.parse(fineExpireDate).isBefore(LocalDateTime.parse(fineDate)))
+            withException("710-010");
     }
 }

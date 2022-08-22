@@ -23,6 +23,7 @@ public class EstimateRequestListDto extends RequestListDto{
     private String limited;
     private String isDeleted;
     private String accident;
+    private String partName;
 
     public void setStatus(String status) {
         this.status = EstimateStatusTypes.getEstimateStatusTypes(status);

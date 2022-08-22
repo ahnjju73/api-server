@@ -147,12 +147,18 @@
                r.rider_id,
                ri.name as name,
                FLOOR(if (e.total_price = 0 or e.total_price is null, ep.estimate_price, e.total_price)) as total_price
-          from (select *
-                  from estimates
+          from (select est.*
+                  from estimates est
+                 <if test="part_name != null and part_name != '' and part_name != 'undefined'">
+                  join estimate_parts ep on est.estimate_no = ep.estimate_no
+                 </if>
                  where 1 = 1
+                 <if test="part_name != null and part_name != '' and part_name != 'undefined'">
+                   and ep.parts_name like concat('%', #{part_name}, '%')
+                 </if>
           <if test="limited != null and limited != '' and limited != 'undefined' and limited == 'limited'">
               <if test="next_token != null and next_token != '' and next_token != 'undefined'">
-                   and estimate_no <![CDATA[ < ]]> #{next_token}
+                   and est.estimate_no <![CDATA[ < ]]> #{next_token}
               </if>
           </if>
               <if test="search_estimate_id != null and search_estimate_id != '' and search_estimate_id != 'undefined'">
@@ -186,7 +192,7 @@
               <if test="accident != null and accident != '' and accident != 'undefined'">
                    and accident = 'Y'
               </if>
-                 order by estimate_no desc
+                 group by estimate_id order by estimate_no desc
               <if test="limited != null and limited != '' and limited != 'undefined' and limited == 'limited'">
                   limit 30
               </if>) e
@@ -214,9 +220,15 @@
 
     <select id="countEstimateList" parameterType="hmap" resultType="int">
         select count(*)
-          from (select *
-                  from estimates
+          from (select est.*
+                  from estimates est
+                 <if test="part_name != null and part_name != '' and part_name != 'undefined'">
+                  join estimate_parts ep on est.estimate_no = ep.estimate_no
+                 </if>
                  where 1 = 1
+                 <if test="part_name != null and part_name != '' and part_name != 'undefined'">
+                   and ep.parts_name like concat('%', #{part_name}, '%')
+                 </if>
                  <if test="search_estimate_id != null and search_estimate_id != '' and search_estimate_id != 'undefined'">
                    and estimate_id like concat("%", #{search_estimate_id}, "%")
                  </if>
@@ -247,7 +259,8 @@
                  </if>
                  <if test="accident != null and accident != '' and accident != 'undefined'">
                    and accident = 'Y'
-                 </if>) e
+                 </if>
+                 group by estimate_id) e
                  join shops s on e.shop_no = s.shop_no
                  join shop_info si on s.shop_no = si.shop_no
                  join bikes b on e.bike_no = b.bike_no
