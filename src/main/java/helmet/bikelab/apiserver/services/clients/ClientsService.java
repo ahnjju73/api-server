@@ -329,7 +329,6 @@ public class ClientsService extends SessService {
         clientAddresses.setClientNo(client.getClientNo());
         clientInfoRepository.save(clientInfo);
         clientAddressesRepository.save(clientAddresses);
-
         Shops shopByShopId = shopWorker.getShopByShopId(updateClientRequest.getShopId());
         List<ClientShop> byClientNo = clientShopRepository.findAllByClientNo(client.getClientNo());
         if(bePresent(byClientNo) && byClientNo.size() > 0)
