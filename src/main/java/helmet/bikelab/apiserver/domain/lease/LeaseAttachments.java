@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.domain.lease;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import helmet.bikelab.apiserver.domain.embeds.ModelAttachment;
 import helmet.bikelab.apiserver.domain.types.converters.ModelAttachmentConverter;
 import helmet.bikelab.apiserver.domain.types.converters.ModelReviewImageConverter;
@@ -21,6 +22,7 @@ public class LeaseAttachments {
     @Column(name = "lease_no")
     private Integer leaseNo;
 
+    @JsonIgnore
     @OneToOne
     @JoinColumn(name = "lease_no")
     private Leases lease;
