@@ -397,21 +397,30 @@ public class BikesService extends SessService {
 
     @Transactional
     public BikeSessionRequest deleteBike(BikeSessionRequest request) {
-        Map param = request.getParam();
-        DeleteBikeRequest deleteBikeRequest = map(param, DeleteBikeRequest.class);
-        deleteBikeRequest.checkValidation();
-        Bikes bikes = bikesRepository.findByBikeId(deleteBikeRequest.getBikeId());
-        if(bePresent(bikes) && bikes.getIsBikemaster()){
-            List<Leases> leases = leaseRepository.findAllByBike_BikeId(deleteBikeRequest.getBikeId());
-            if (bikes == null) withException("");
-            if (leases.size() > 0) writeMessage("리스번호 " + leases.get(0).getLeaseId() + "가 이미 연결되어 있습니다.");
-            activitiesRepository.deleteAllByBikeNo(bikes.getBikeNo());
-            estimateHistoriesRepository.deleteAllByBikeNo(bikes.getBikeNo());
-            bikeRiderBakRepository.deleteAllByBikeNo(bikes.getBikeNo());
-            bikeUserLogRepository.deleteAllByReferenceId(bikes.getBikeNo().toString());
-            bikeAttachmentRepository.deleteAllByBikeNo(bikes.getBikeNo());
-            bikesRepository.delete(bikes);
-        }
+//        Map param = request.getParam();
+//        DeleteBikeRequest deleteBikeRequest = map(param, DeleteBikeRequest.class);
+//        deleteBikeRequest.checkValidation();
+//        Bikes bikes = bikesRepository.findByBikeId(deleteBikeRequest.getBikeId());
+//        if(bePresent(bikes) && bikes.getIsBikemaster()){
+//            List<Leases> leases = leaseRepository.findAllByBike_BikeId(deleteBikeRequest.getBikeId());
+//            if (bikes == null) withException("");
+//            if (leases.size() > 0) writeMessage("리스번호 " + leases.get(0).getLeaseId() + "가 이미 연결되어 있습니다.");
+//            activitiesRepository.deleteAllByBikeNo(bikes.getBikeNo());
+//            estimateHistoriesRepository.deleteAllByBikeNo(bikes.getBikeNo());
+//            bikeRiderBakRepository.deleteAllByBikeNo(bikes.getBikeNo());
+//            bikeUserLogRepository.deleteAllByReferenceId(bikes.getBikeNo().toString());
+//            bikeAttachmentRepository.deleteAllByBikeNo(bikes.getBikeNo());
+//            bikesRepository.delete(bikes);
+//        }
+//        return request;
+        DeleteBikeRequest deleteBikeRequest = map(request.getParam(), DeleteBikeRequest.class);
+        Bikes bike = bikeWorker.getBikeById(deleteBikeRequest.getBikeId());
+        Leases leases = leaseRepository.findByBikeNoAndLeaseStatusTypes(bike.getBikeNo(), LeaseStatusTypes.CONFIRM);
+        if(bePresent(leases)) withException("");
+        bike.setDeletedAt(LocalDateTime.now());
+        bike.setVimNum("bak_" + bike.getVimNum() + "_" + bike.getDeletedAt());
+        bike.setCarNum("bak_" + bike.getCarNum() + "_" + bike.getDeletedAt());
+        bikesRepository.save(bike);
         return request;
     }
 

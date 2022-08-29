@@ -21,4 +21,5 @@ public interface LeaseRepository extends JpaRepository<Leases, Integer> {
     List<Leases> findAllByStatusAndLeaseStopStatus(LeaseStatusTypes lst, LeaseStopStatusTypes lsst);
     List<Leases> findAllByDemandLeases_DemandLeaseId(String demandLeaseId, Pageable pageable);
     Integer countAllByInsuranceNo(Integer insuranceNo);
+    Leases findByBikeNoAndLeaseStatusTypes(Integer bikeNo, LeaseStatusTypes leaseStatusTypes);
 }
