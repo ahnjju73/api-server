@@ -149,6 +149,7 @@ public class DemandLeaseService extends SessService {
             lease.setContractTypes(ContractTypes.MANAGEMENT);
             lease.setCreatedAt(LocalDateTime.now());
             lease.setReleaseNo(1);
+            lease.setIsMt(true);
             lease.setDemandLeaseNo(demandLeaseById.getDemandLeaseNo());
             lease.setCreatedUserNo(sessionUser.getUserNo());
             leaseRepository.save(lease);

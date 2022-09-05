@@ -379,6 +379,7 @@ public class RiderWorker extends SessService {
             lease.setType(ManagementTypes.getManagementStatus(addUpdateLeaseRequest.getManagementType()));
         lease.setCreatedAt(LocalDateTime.now());
         lease.setReleaseNo(1);
+        lease.setIsMt(true);
         lease.setCreatedUserNo(session.getUserNo());
         lease.setExpireTypes(demandLease.getExpireTypes());
         leaseRepository.save(lease);
