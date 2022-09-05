@@ -311,6 +311,9 @@
                dummy.bike_id,
                dummy.vim_num,
                dummy.number,
+               dummy.bak_bike_id,
+               dummy.bak_bike_vim_num,
+               dummy.bak_number,
                cb.comm_nm as car_model,
                lp.payment_type,
                dummy.read_yn as `read`,
@@ -331,7 +334,11 @@
                                      b.bike_id,
                                      b.vim_num,
                                      b.number,
-                                     b.car_model
+                                     b.car_model,
+                                     bak.bike_id as bak_bike_id,
+                                     bak.vim_num as bak_bike_vim_num,
+                                     bak.number as bak_number,
+                                     bak.car_model as bak_car_model
                                 from (select *
                                         from leases
                                        where status = '550-003'
@@ -357,6 +364,13 @@
                                               and payment_date between #{start_at} and #{end_at}
                                             </if>
                                               and lease_fee <![CDATA[ > ]]> paid_fee) lp on l.lease_no = lp.lease_no
+                                     left outer join (select *
+                                                        from bikes
+                                                       where 1 = 1
+                                                       <if test="search_bike != null and search_bike != '' and search_bike != 'undefined'">
+                                                         and ( `number` like concat('%', #{search_bike}, '%') or `vim_num` like concat('%', #{search_bike}, '%') )
+                                                       </if>
+                                                     ) bak on bak.bike_no = l.bak_bike_no
                                order by lp.payment_date desc, lp.payment_id desc) main,
                                (SELECT @rownum :=0) AS R) dmy
                  where 1 = 1

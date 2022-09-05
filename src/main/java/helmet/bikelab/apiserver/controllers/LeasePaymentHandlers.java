@@ -83,9 +83,9 @@ public class LeasePaymentHandlers {
 
     public Mono<ServerResponse> payLeaseExtraFeeByExtraId(ServerRequest request) {
         return ServerResponse.ok().body(
-                request.bodyToMono(Map.class)
+                Mono.fromSupplier(() -> leasePaymentService.makeSessionRequest(request, BikeSessionRequest.class))
                         .subscribeOn(Schedulers.elastic())
-                        .map(row -> leasePaymentService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(row -> leasePaymentService.getPathVariable(row, "extra_id"))
                         .map(leasePaymentService::checkBikeSession)
                         .map(leasePaymentService::payLeaseExtraFeeByExtraId)
                         .map(leasePaymentService::returnData), Map.class);

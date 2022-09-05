@@ -119,6 +119,9 @@ public class Bikes extends OriginObject {
     @Column(name = "description", columnDefinition = "MEDIUMTEXT")
     private String description;
 
+    @Column(name = "deleted_at", columnDefinition = "DATETIME")
+    private LocalDateTime deletedAt;
+
     public void doApproveRider(){
         this.riderStatus = BikeRiderStatusTypes.TAKEN;
         this.riderApprovalAt = LocalDateTime.now();
