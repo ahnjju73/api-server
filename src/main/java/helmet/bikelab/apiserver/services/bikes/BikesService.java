@@ -273,7 +273,7 @@ public class BikesService extends SessService {
         modelTransaction.setPrice(updateBikeRequest.getPrice());
         modelTransaction.setCompanyName(updateBikeRequest.getCompanyName());
         Leases leases = leaseRepository.findByBikeNo(bike.getBikeNo());
-        if (bePresent(leases) && LeaseStatusTypes.PENDING.equals(leases)) {
+        if (bePresent(leases) && LeaseStatusTypes.PENDING.equals(leases.getStatus())) {
             List<LeaseExpense> expenses = expenseRepository.findAllByLease_LeaseIdAndExpenseTypes(leases.getLeaseId(), ExpenseTypes.BIKE);
             LeaseExpense leaseExpense;
             if (expenses.size() > 0) {

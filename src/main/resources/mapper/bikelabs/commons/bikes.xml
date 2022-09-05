@@ -234,6 +234,9 @@
                and reg_num is not null
                and price is not null
                and company_name is not null
+            <if test="is_bikemaster != null and is_bikemaster != '' and is_bikemaster != 'undefined'">
+               and is_bm = #{is_bikemaster}
+            </if>
             <if test="search_bike_id != null and search_bike_id != '' and search_bike_id != 'undefined'">
                 and bike_id like concat('%', #{search_bike_id}, '%')
             </if>
@@ -280,8 +283,8 @@
                    and bike_id <![CDATA[ < ]]> #{next_token}
                 </if>
                  order by bike_no desc limit 30) bm
-                join com_comm_bikes commb on bm.car_model = commb.comm_cd
-                left outer join leases ls on bm.bike_no = ls.bike_no
+                  join com_comm_bikes commb on bm.car_model = commb.comm_cd
+                  left outer join leases ls on bm.bike_no = ls.bike_no
                 <if test="search_client_id != null and search_client_id != '' and search_client_id != 'undefined'">
                     join (select *
                     from clients
