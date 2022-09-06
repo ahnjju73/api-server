@@ -416,6 +416,7 @@ public class BikesService extends SessService {
         DeleteBikeRequest deleteBikeRequest = map(request.getParam(), DeleteBikeRequest.class);
         Bikes bike = bikeWorker.getBikeById(deleteBikeRequest.getBikeId());
         Leases leases = leaseRepository.findByBikeNoAndStatus(bike.getBikeNo(), LeaseStatusTypes.CONFIRM);
+        if(bePresent(bike.getDeletedAt())) withException("");
         if(bePresent(leases)) withException("");
         bike.setDeletedAt(LocalDateTime.now());
         bike.setVimNum("bak_" + bike.getVimNum() + "_" + bike.getDeletedAt());
