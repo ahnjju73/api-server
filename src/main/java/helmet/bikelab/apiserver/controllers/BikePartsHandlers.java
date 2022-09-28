@@ -194,4 +194,23 @@ public class BikePartsHandlers {
                         .map(partsService::returnData), List.class);
     }
 
+    public Mono<ServerResponse> uploadNewParts(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> partsService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(partsService::checkBikeSession)
+                        .map(partsService::uploadNewParts)
+                        .map(partsService::returnData), String.class);
+    }
+
+    public Mono<ServerResponse> uploadModelParts(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> partsService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(partsService::checkBikeSession)
+                        .map(partsService::updatePartsByIdAndCarModel)
+                        .map(partsService::returnData), String.class);
+    }
 }
