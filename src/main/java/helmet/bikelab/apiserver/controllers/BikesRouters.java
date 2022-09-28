@@ -95,7 +95,7 @@ public class BikesRouters {
                 .andRoute(GET("/commons/working-price"), partsHandler::fetchCommonWorkingPriceList)
                 .andRoute(GET("/commons/codes/parts_codes"), partsHandler::fetchParsCodeListByCondition)
                 .andRoute(POST("/upload/bikes/parts"), partsHandler::uploadNewParts)
-//                .andRoute(POST("/upload/model/parts"))
+                .andRoute(POST("/upload/model/parts"), partsHandler::uploadModelParts)
                 ;
     }
 

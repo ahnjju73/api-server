@@ -15,6 +15,7 @@ import helmet.bikelab.apiserver.objects.PresignedURLVo;
 import helmet.bikelab.apiserver.objects.bikelabs.bikes.*;
 import helmet.bikelab.apiserver.domain.bike.PartsCodes;
 import helmet.bikelab.apiserver.objects.requests.BikePartsRequest;
+import helmet.bikelab.apiserver.objects.requests.ModelPartsExcelRequest;
 import helmet.bikelab.apiserver.objects.requests.PartsCodeListRequest;
 import helmet.bikelab.apiserver.objects.requests.PartsExcelRequest;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
@@ -210,11 +211,25 @@ public class BikePartsService extends SessService {
             String partsType = parts.get(i).getPartsType();
             PartsTypes partsTypes = partsTypesRepository.findByPartsType(partsType);
             if(!bePresent(partsTypes)){
-                errors += i + " 번째 추가할 파트의 파트타입이 현재 존재하지 않는 파트입니다.";
+                errors += i + " 번째 파트타입이 현재 존재하지 않는 파트타입 입니다.\n";
             }
             PartsCodes partsCodes = new PartsCodes();
             partsCodes.setPartsTypeNo(partsTypes.getPartsTypeNo());
             partsCodes.setPartsName(partsName);
+
+        }
+        if(!errors.equals("")){
+            throw new RuntimeException(errors);
+        }
+        return request;
+    }
+
+    public BikeSessionRequest uploadModelParts(BikeSessionRequest request) {
+        Map param = request.getParam();
+        ModelPartsExcelRequest partsExcelRequest = map(param, ModelPartsExcelRequest.class);
+        List<BikePartsRequest> parts = partsExcelRequest.getParts();
+        String errors = "";
+        for (int i = 0; i < parts.size(); i++) {
 
         }
         return request;

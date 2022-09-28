@@ -201,7 +201,7 @@ public class BikePartsHandlers {
                         .map(row -> partsService.makeSessionRequest(request, row, BikeSessionRequest.class))
                         .map(partsService::checkBikeSession)
                         .map(partsService::uploadNewParts)
-                        .map(partsService::returnData), String.class);
+                        .map(partsService::returnData), Map.class);
     }
 
     public Mono<ServerResponse> uploadModelParts(ServerRequest request) {
@@ -210,7 +210,7 @@ public class BikePartsHandlers {
                         .subscribeOn(Schedulers.elastic())
                         .map(row -> partsService.makeSessionRequest(request, row, BikeSessionRequest.class))
                         .map(partsService::checkBikeSession)
-                        .map(partsService::updatePartsByIdAndCarModel)
-                        .map(partsService::returnData), String.class);
+                        .map(partsService::uploadModelParts)
+                        .map(partsService::returnData), Map.class);
     }
 }
