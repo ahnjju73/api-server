@@ -203,6 +203,7 @@ public class BikePartsService extends SessService {
         return request;
     }
 
+    @Transactional
     public BikeSessionRequest uploadNewParts(BikeSessionRequest request) {
         Map param = request.getParam();
         PartsExcelRequest partsExcelRequest = map(param, PartsExcelRequest.class);
@@ -227,6 +228,7 @@ public class BikePartsService extends SessService {
         return request;
     }
 
+    @Transactional
     public BikeSessionRequest uploadModelParts(BikeSessionRequest request) {
         Map param = request.getParam();
         ModelPartsExcelRequest partsExcelRequest = map(param, ModelPartsExcelRequest.class);
