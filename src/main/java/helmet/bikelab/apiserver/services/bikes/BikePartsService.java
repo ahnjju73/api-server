@@ -214,7 +214,7 @@ public class BikePartsService extends SessService {
             String partsType = parts.get(i).getPartsType();
             PartsTypes partsTypes = partsTypesRepository.findByPartsType(partsType);
             if(!bePresent(partsTypes)){
-                errors += i + " 번째 파트타입이 현재 존재하지 않는 파트타입 입니다.\n";
+                errors += i + 1 + " 번째 파트타입이 현재 존재하지 않는 파트타입 입니다.\n";
                 continue;
             }
             PartsCodes partsCodes = new PartsCodes();
