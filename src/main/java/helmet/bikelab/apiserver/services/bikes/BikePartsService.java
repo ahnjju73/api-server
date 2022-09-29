@@ -217,10 +217,12 @@ public class BikePartsService extends SessService {
                 errors += i + 1 + " 번째 파트타입이 현재 존재하지 않는 파트타입 입니다.\n";
                 continue;
             }
-            PartsCodes partsCodes = new PartsCodes();
-            partsCodes.setPartsTypeNo(partsTypes.getPartsTypeNo());
-            partsCodes.setPartsName(partsName);
-            partsCodesRepository.save(partsCodes);
+            if(partsCodesRepository.countAllByPartsNameAndPartsTypeNo(partsName, partsTypes.getPartsTypeNo()) == 0) {
+                PartsCodes partsCodes = new PartsCodes();
+                partsCodes.setPartsTypeNo(partsTypes.getPartsTypeNo());
+                partsCodes.setPartsName(partsName);
+                partsCodesRepository.save(partsCodes);
+            }
         }
         if(!errors.equals("")){
             writeMessage(errors);
@@ -242,14 +244,24 @@ public class BikePartsService extends SessService {
             String partsName = parts.get(i).getPartsName();
             Integer partsPrice = parts.get(i).getPartsPrice();
             Double workingHour = parts.get(i).getWorkingHour();
+            PartsCodes byPartsName = new PartsCodes();
             if(bePresent(partsRepository.findByPartsId(partsId)))
                 error += "제조사코드는 이미 존재합니다 [" + partsId + "]\n";
             CommonBikes commonCodeBikesById = bikeWorker.getCommonCodeBikesById(carModel);
             if(!bePresent(commonCodeBikesById))
                 error += "차량은 존재하지않습니다.\n";
-            PartsCodes byPartsName = partsCodesRepository.findByPartsName(partsName);
-            if(!bePresent(byPartsName))
-                error += "부품명 " + partsName + " 이 없습니다.\n";
+            if(partsCodesRepository.countAllByPartsName(partsName) > 1){
+                String types = "";
+                List<PartsCodes> codes = partsCodesRepository.findAllByPartsName(partsName);
+                for(int j = 0; j <  codes.size(); j++){
+                    types += j == codes.size() - 1 ? codes.get(j).getPartsType().getPartsType() : codes.get(j).getPartsType().getPartsType() + ", ";
+                }
+                error += "동일한 부품명이 해당 계통에 중복됩니다: [" + types + "]\n";
+            }else {
+                byPartsName = partsCodesRepository.findByPartsName(partsName);
+                if (!bePresent(byPartsName))
+                    error += "부품명 " + partsName + " 이 없습니다.\n";
+            }
             if(!error.equals(init)){
                 errors += error;
             }else{
