@@ -11,6 +11,7 @@ public interface PartsRepository extends JpaRepository<Parts, Long> {
     Parts findByPartsId(String partsId);
     Parts findByPartNoAndBikeModelCode(Long partsNo, String carModel);
     Parts findByPartsIdAndBikeModelCode(String partsId, String carModel);
+    Parts findByBikeModelCodeAndPartsCodeNo(String carModel, Integer partCodeNo);
     List<Parts> findAllByBikeModelCode(String bikeModelCode);
     List<Parts> findAllByPartNoIn(List<Long> partsNoIn);
 }

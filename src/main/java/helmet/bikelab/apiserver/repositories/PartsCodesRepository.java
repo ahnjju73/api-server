@@ -10,5 +10,6 @@ import java.util.List;
 public interface PartsCodesRepository extends JpaRepository<PartsCodes, Integer> {
     PartsCodes findByPartsCodeNo(Integer partCodeNo);
     List<PartsCodes> findByPartsTypeNo(Integer partsTypeNo);
+    PartsCodes findByPartsName(String partsName);
     Page<PartsCodes> findAllByPartsNameContainingAndPartsType_PartsTypeContaining(String partsName, String partsType, Pageable pageable);
 }

@@ -15,5 +15,5 @@ public class BikePartsRequest extends RequestListDto {
     private String partsName;
     private String partsTypeNo;
     private Integer partsPrice;
-    private Double workingPrice;
+    private Double workingHour;
 }

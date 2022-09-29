@@ -20,6 +20,7 @@ import helmet.bikelab.apiserver.objects.requests.PartsCodeListRequest;
 import helmet.bikelab.apiserver.objects.requests.PartsExcelRequest;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.repositories.CommonWorkingRepository;
+import helmet.bikelab.apiserver.repositories.PartsCodesRepository;
 import helmet.bikelab.apiserver.repositories.PartsRepository;
 import helmet.bikelab.apiserver.repositories.PartsTypesRepository;
 import helmet.bikelab.apiserver.services.internal.SessService;
@@ -46,6 +47,7 @@ public class BikePartsService extends SessService {
     private final BikeWorker bikeWorker;
     private final PartsTypesRepository partsTypesRepository;
     private final CommonWorkingRepository commonWorkingRepository;
+    private final PartsCodesRepository partsCodesRepository;
 
     public BikeSessionRequest fetchCommonWorkingPriceList(BikeSessionRequest request){
         Map param = request.getParam();
@@ -212,14 +214,15 @@ public class BikePartsService extends SessService {
             PartsTypes partsTypes = partsTypesRepository.findByPartsType(partsType);
             if(!bePresent(partsTypes)){
                 errors += i + " 번째 파트타입이 현재 존재하지 않는 파트타입 입니다.\n";
+                continue;
             }
             PartsCodes partsCodes = new PartsCodes();
             partsCodes.setPartsTypeNo(partsTypes.getPartsTypeNo());
             partsCodes.setPartsName(partsName);
-
+            partsCodesRepository.save(partsCodes);
         }
         if(!errors.equals("")){
-            throw new RuntimeException(errors);
+            writeMessage(errors);
         }
         return request;
     }
@@ -230,7 +233,30 @@ public class BikePartsService extends SessService {
         List<BikePartsRequest> parts = partsExcelRequest.getParts();
         String errors = "";
         for (int i = 0; i < parts.size(); i++) {
-
+            String init = i + 1 + "번째\n";
+            String error = init;
+            String carModel = parts.get(i).getCarModel();
+            String partsId = parts.get(i).getPartsId();
+            String partsName = parts.get(i).getPartsName();
+            Integer partsPrice = parts.get(i).getPartsPrice();
+            Double workingHour = parts.get(i).getWorkingHour();
+            if(bePresent(partsRepository.findByPartsId(partsId)))
+                error += "제조사코드는 이미 존재합니다 [" + partsId + "]\n";
+            CommonBikes commonCodeBikesById = bikeWorker.getCommonCodeBikesById(carModel);
+            if(!bePresent(commonCodeBikesById))
+                error += "차량은 존재하지않습니다.\n";
+            PartsCodes byPartsName = partsCodesRepository.findByPartsName(partsName);
+            if(!bePresent(byPartsName))
+                error += "부품명 " + partsName + " 이 없습니다.\n";
+            if(!error.equals(init)){
+                errors += error;
+            }else{
+                partsRepository.save(new Parts(partsId, byPartsName.getPartsCodeNo(), partsPrice, workingHour, commonCodeBikesById.getCode()));
+            }
+        }
+        if(!errors.equals("")){
+//            throw new RuntimeException(errors);
+            writeMessage(errors);
         }
         return request;
     }
