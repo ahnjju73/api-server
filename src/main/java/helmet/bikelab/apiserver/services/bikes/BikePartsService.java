@@ -245,7 +245,7 @@ public class BikePartsService extends SessService {
             Integer partsPrice = parts.get(i).getPartsPrice();
             Double workingHour = parts.get(i).getWorkingHour();
             PartsCodes byPartsName = new PartsCodes();
-            if(bePresent(partsRepository.findByPartsId(partsId)))
+            if(partsRepository.existsByPartsId(partsId))
                 error += "제조사코드는 이미 존재합니다 [" + partsId + "]\n";
             CommonBikes commonCodeBikesById = bikeWorker.getCommonCodeBikesById(carModel);
             if(!bePresent(commonCodeBikesById))
