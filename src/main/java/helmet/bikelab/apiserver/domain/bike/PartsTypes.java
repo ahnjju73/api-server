@@ -23,7 +23,7 @@ public class PartsTypes {
     @Column(name = "parts_type_no", nullable = false)
     private Integer partsTypeNo;
 
-    @Column(name = "parts_type")
+    @Column(name = "parts_type", unique = true)
     private String partsType;
 
     @Column(name = "order_no", columnDefinition = "TINYINT")

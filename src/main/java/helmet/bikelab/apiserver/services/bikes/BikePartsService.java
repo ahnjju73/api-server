@@ -15,8 +15,12 @@ import helmet.bikelab.apiserver.objects.PresignedURLVo;
 import helmet.bikelab.apiserver.objects.bikelabs.bikes.*;
 import helmet.bikelab.apiserver.domain.bike.PartsCodes;
 import helmet.bikelab.apiserver.objects.requests.BikePartsRequest;
+import helmet.bikelab.apiserver.objects.requests.ModelPartsExcelRequest;
+import helmet.bikelab.apiserver.objects.requests.PartsCodeListRequest;
+import helmet.bikelab.apiserver.objects.requests.PartsExcelRequest;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.repositories.CommonWorkingRepository;
+import helmet.bikelab.apiserver.repositories.PartsCodesRepository;
 import helmet.bikelab.apiserver.repositories.PartsRepository;
 import helmet.bikelab.apiserver.repositories.PartsTypesRepository;
 import helmet.bikelab.apiserver.services.internal.SessService;
@@ -43,6 +47,7 @@ public class BikePartsService extends SessService {
     private final BikeWorker bikeWorker;
     private final PartsTypesRepository partsTypesRepository;
     private final CommonWorkingRepository commonWorkingRepository;
+    private final PartsCodesRepository partsCodesRepository;
 
     public BikeSessionRequest fetchCommonWorkingPriceList(BikeSessionRequest request){
         Map param = request.getParam();
@@ -198,4 +203,75 @@ public class BikePartsService extends SessService {
         return request;
     }
 
+    @Transactional
+    public BikeSessionRequest uploadNewParts(BikeSessionRequest request) {
+        Map param = request.getParam();
+        PartsExcelRequest partsExcelRequest = map(param, PartsExcelRequest.class);
+        List<PartsCodeListRequest> parts = partsExcelRequest.getParts();
+        String errors = "";
+        for (int i = 0; i < parts.size(); i++){
+            String partsName = parts.get(i).getPartsName();
+            String partsType = parts.get(i).getPartsType();
+            PartsTypes partsTypes = partsTypesRepository.findByPartsType(partsType);
+            if(!bePresent(partsTypes)){
+                errors += i + 1 + " 번째 파트타입이 현재 존재하지 않는 파트타입 입니다.\n";
+                continue;
+            }
+            if(partsCodesRepository.countAllByPartsNameAndPartsTypeNo(partsName, partsTypes.getPartsTypeNo()) == 0) {
+                PartsCodes partsCodes = new PartsCodes();
+                partsCodes.setPartsTypeNo(partsTypes.getPartsTypeNo());
+                partsCodes.setPartsName(partsName);
+                partsCodesRepository.save(partsCodes);
+            }
+        }
+        if(!errors.equals("")){
+            writeMessage(errors);
+        }
+        return request;
+    }
+
+    @Transactional
+    public BikeSessionRequest uploadModelParts(BikeSessionRequest request) {
+        Map param = request.getParam();
+        ModelPartsExcelRequest partsExcelRequest = map(param, ModelPartsExcelRequest.class);
+        List<BikePartsRequest> parts = partsExcelRequest.getParts();
+        String errors = "";
+        for (int i = 0; i < parts.size(); i++) {
+            String init = i + 1 + "번째\n";
+            String error = init;
+            String carModel = parts.get(i).getCarModel();
+            String partsId = parts.get(i).getPartsId();
+            String partsName = parts.get(i).getPartsName();
+            Integer partsPrice = parts.get(i).getPartsPrice();
+            Double workingHour = parts.get(i).getWorkingHour();
+            PartsCodes byPartsName = new PartsCodes();
+            if(partsRepository.existsByPartsId(partsId))
+                error += "제조사코드는 이미 존재합니다 [" + partsId + "]\n";
+            CommonBikes commonCodeBikesById = bikeWorker.getCommonCodeBikesById(carModel);
+            if(!bePresent(commonCodeBikesById))
+                error += "차량은 존재하지않습니다.\n";
+            if(partsCodesRepository.countAllByPartsName(partsName) > 1){
+                String types = "";
+                List<PartsCodes> codes = partsCodesRepository.findAllByPartsName(partsName);
+                for(int j = 0; j <  codes.size(); j++){
+                    types += j == codes.size() - 1 ? codes.get(j).getPartsType().getPartsType() : codes.get(j).getPartsType().getPartsType() + ", ";
+                }
+                error += "동일한 부품명이 해당 계통에 중복됩니다: [" + types + "]\n";
+            }else {
+                byPartsName = partsCodesRepository.findByPartsName(partsName);
+                if (!bePresent(byPartsName))
+                    error += "부품명 " + partsName + " 이 없습니다.\n";
+            }
+            if(!error.equals(init)){
+                errors += error;
+            }else{
+                partsRepository.save(new Parts(partsId, byPartsName.getPartsCodeNo(), partsPrice, workingHour, commonCodeBikesById.getCode()));
+            }
+        }
+        if(!errors.equals("")){
+//            throw new RuntimeException(errors);
+            writeMessage(errors);
+        }
+        return request;
+    }
 }

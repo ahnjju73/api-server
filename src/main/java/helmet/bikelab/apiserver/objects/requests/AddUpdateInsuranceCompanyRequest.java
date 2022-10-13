@@ -13,15 +13,24 @@ import java.util.List;
 @Setter
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class AddUpdateInsuranceCompanyRequest extends OriginObject {
+
+    private String id;
+    private String chasoo;
+    private String role;
+    private String companyName;
+    private String deptName;
+    private String deptCenter;
+    private String position;
+    private String positionRole;
     private String name;
     private String email;
     private String phone;
     private List<PresignedURLVo> images;
 
     public void validationCheck(){
-        if(!bePresent(name))
+        if(!bePresent(id))
             withException("");
-        if(!bePresent(email))
+        if(!bePresent(name))
             withException("");
         if(!bePresent(phone))
             withException("");

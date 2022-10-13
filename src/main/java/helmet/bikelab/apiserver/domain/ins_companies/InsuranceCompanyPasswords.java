@@ -32,7 +32,7 @@ public class InsuranceCompanyPasswords {
 
     public void makePassword(){
         InsuranceCompanies insuranceCompanies = this.getCompany();
-        String cryptedPassword = Crypt.newCrypt().SHA256(insuranceCompanies.getEmail());
+        String cryptedPassword = Crypt.newCrypt().SHA256(insuranceCompanies.getCompanyId());
         String salt = Crypt.newCrypt().getSalt(128);
         String password = Crypt.newCrypt().getPassword(cryptedPassword, salt);
         modelPassword.setPassword(password);

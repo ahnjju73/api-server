@@ -66,4 +66,11 @@ public class Parts {
     @Convert(converter = ImageVoConverter.class)
     private List<ImageVo> images;
 
+    public Parts(String partsId, Integer partsCodeNo, Integer partsPrice, Double workingHours, String code) {
+        this.partsId = partsId;
+        this.partsCodeNo = partsCodeNo;
+        this.partsPrices = partsPrice;
+        this.workingHours = workingHours;
+        this.bikeModelCode = code;
+    }
 }

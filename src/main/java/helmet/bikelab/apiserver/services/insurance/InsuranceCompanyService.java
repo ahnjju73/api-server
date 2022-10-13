@@ -8,7 +8,10 @@ import helmet.bikelab.apiserver.domain.embeds.ModelInsuranceImage;
 import helmet.bikelab.apiserver.domain.embeds.ModelPassword;
 import helmet.bikelab.apiserver.domain.ins_companies.InsuranceCompanies;
 import helmet.bikelab.apiserver.domain.ins_companies.InsuranceCompanyPasswords;
+import helmet.bikelab.apiserver.domain.types.Chasoo;
+import helmet.bikelab.apiserver.domain.types.InsCompanyTypes;
 import helmet.bikelab.apiserver.domain.types.InsuranceCompanyStatusTypes;
+import helmet.bikelab.apiserver.domain.types.RoleTypes;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.PresignedURLVo;
 import helmet.bikelab.apiserver.objects.requests.AddUpdateInsuranceCompanyRequest;
@@ -54,6 +57,14 @@ public class InsuranceCompanyService extends SessService {
         insuranceCompanies.setName(addUpdateInsuranceCompanyRequest.getName());
         insuranceCompanies.setEmail(addUpdateInsuranceCompanyRequest.getEmail());
         insuranceCompanies.setPhone(addUpdateInsuranceCompanyRequest.getPhone());
+        insuranceCompanies.setCompanyId(addUpdateInsuranceCompanyRequest.getId());
+        insuranceCompanies.setCompanyNameType(InsCompanyTypes.getCompanyType(addUpdateInsuranceCompanyRequest.getCompanyName()));
+        insuranceCompanies.setRoleType(RoleTypes.getRole(addUpdateInsuranceCompanyRequest.getRole()));
+        insuranceCompanies.setDeptNm(addUpdateInsuranceCompanyRequest.getDeptName());
+        insuranceCompanies.setDeptCenter(addUpdateInsuranceCompanyRequest.getDeptCenter());
+        insuranceCompanies.setPosition(addUpdateInsuranceCompanyRequest.getPosition());
+        insuranceCompanies.setPositionRole(addUpdateInsuranceCompanyRequest.getPositionRole());
+        insuranceCompanies.setChasooStatus(Chasoo.getStatus(addUpdateInsuranceCompanyRequest.getChasoo()));
         //logo
         List<ModelInsuranceImage> collect = addUpdateInsuranceCompanyRequest
                 .getImages()
@@ -119,6 +130,13 @@ public class InsuranceCompanyService extends SessService {
         insuranceCompanies.setName(addUpdateInsuranceCompanyRequest.getName());
         insuranceCompanies.setEmail(addUpdateInsuranceCompanyRequest.getEmail());
         insuranceCompanies.setPhone(addUpdateInsuranceCompanyRequest.getPhone());
+        insuranceCompanies.setCompanyNameType(InsCompanyTypes.getCompanyType(addUpdateInsuranceCompanyRequest.getCompanyName()));
+        insuranceCompanies.setRoleType(RoleTypes.getRole(addUpdateInsuranceCompanyRequest.getRole()));
+        insuranceCompanies.setDeptNm(addUpdateInsuranceCompanyRequest.getDeptName());
+        insuranceCompanies.setDeptCenter(addUpdateInsuranceCompanyRequest.getDeptCenter());
+        insuranceCompanies.setPosition(addUpdateInsuranceCompanyRequest.getPosition());
+        insuranceCompanies.setPositionRole(addUpdateInsuranceCompanyRequest.getPositionRole());
+        insuranceCompanies.setChasooStatus(Chasoo.getStatus(addUpdateInsuranceCompanyRequest.getChasoo()));
         //logo
         List<ModelInsuranceImage> logoImageList = insuranceCompanies.getLogoImageList() == null ? new ArrayList<>() : insuranceCompanies.getLogoImageList();
         AmazonS3 amazonS3 = AmazonUtils.amazonS3();
