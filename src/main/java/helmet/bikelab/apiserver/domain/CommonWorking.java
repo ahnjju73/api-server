@@ -40,5 +40,8 @@ public class CommonWorking {
     @Column(name = "working_price")
     private Integer workingPrice;
 
+    @Column(name = "accident_working_price")
+    private Integer accidentWorkingPrice;
+
 
 }

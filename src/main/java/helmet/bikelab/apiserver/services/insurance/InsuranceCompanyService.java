@@ -132,7 +132,7 @@ public class InsuranceCompanyService extends SessService {
         insuranceCompanies.setEmail(addUpdateInsuranceCompanyRequest.getEmail());
         insuranceCompanies.setPhone(addUpdateInsuranceCompanyRequest.getPhone());
         insuranceCompanies.setCompanyNameType(InsCompanyTypes.getCompanyType(addUpdateInsuranceCompanyRequest.getCompanyName()));
-        insuranceCompanies.setRoleType(RoleTypes.getRole(addUpdateInsuranceCompanyRequest.getRole()));
+        insuranceCompanies.setRoleType(RoleTypes.getType(addUpdateInsuranceCompanyRequest.getRole()));
         insuranceCompanies.setDeptNm(addUpdateInsuranceCompanyRequest.getDeptName());
         insuranceCompanies.setDeptCenter(addUpdateInsuranceCompanyRequest.getDeptCenter());
         insuranceCompanies.setPosition(addUpdateInsuranceCompanyRequest.getPosition());

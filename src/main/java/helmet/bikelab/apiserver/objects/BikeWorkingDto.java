@@ -12,4 +12,5 @@ public class BikeWorkingDto {
     private String bikeType;
     private Double volume;
     private Integer workingPrice;
+    private Integer accidentWorkingPrice;
 }
