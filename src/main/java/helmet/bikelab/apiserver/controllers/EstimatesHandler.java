@@ -2,6 +2,7 @@ package helmet.bikelab.apiserver.controllers;
 
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.responses.EstimateByIdResponse;
+import helmet.bikelab.apiserver.objects.responses.FetchCustomEstimatesResponse;
 import helmet.bikelab.apiserver.objects.responses.FetchUnpaidEstimateResponse;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.services.EstimateService;
@@ -86,5 +87,24 @@ public class EstimatesHandler {
                         .map(estimateService::checkBikeSession)
                         .map(estimateService::fetchReviewsByShop)
                         .map(estimateService::returnData), Page.class);
+    }
+
+    public Mono<ServerResponse> fetchCustomEstimateList(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> estimateService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(estimateService::checkBikeSession)
+                        .map(estimateService::fetchCustomEstimateList)
+                        .map(estimateService::returnData), ResponseListDto.class);
+    }
+
+    public Mono<ServerResponse> fetchCustomEstimateDetail(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> estimateService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(estimateService::checkBikeSession)
+                        .map(req -> estimateService.getPathVariable(req, "custom_estimate_id"))
+                        .map(estimateService::fetchCustomEstimateDetail)
+                        .map(estimateService::returnData), FetchCustomEstimatesResponse.class);
     }
 }

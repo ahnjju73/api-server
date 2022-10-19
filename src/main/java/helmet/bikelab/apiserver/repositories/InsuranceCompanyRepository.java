@@ -9,4 +9,6 @@ public interface InsuranceCompanyRepository extends JpaRepository<InsuranceCompa
     Page<InsuranceCompanies> findAll(Pageable pageable);
     Page<InsuranceCompanies> findAllByNameContaining(String name, Pageable pageable);
     InsuranceCompanies findByCompanyId(String companyId);
+
+    InsuranceCompanies findByCompanyNo(Integer companyNo);
 }

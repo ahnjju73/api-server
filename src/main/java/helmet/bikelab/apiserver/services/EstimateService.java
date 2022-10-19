@@ -1,19 +1,26 @@
 package helmet.bikelab.apiserver.services;
 
+import helmet.bikelab.apiserver.domain.CustomEstimates;
 import helmet.bikelab.apiserver.domain.Estimates;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.client.ClientGroups;
 import helmet.bikelab.apiserver.domain.client.Clients;
+import helmet.bikelab.apiserver.domain.ins_companies.InsuranceCompanies;
 import helmet.bikelab.apiserver.domain.riders.Riders;
 import helmet.bikelab.apiserver.domain.shops.Shops;
 import helmet.bikelab.apiserver.domain.types.EstimateStatusTypes;
+import helmet.bikelab.apiserver.domain.types.InsCompanyTypes;
+import helmet.bikelab.apiserver.domain.types.InsuranceCompanyStatusTypes;
+import helmet.bikelab.apiserver.domain.types.InsuranceTypes;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.FetchEstimateParameter;
 import helmet.bikelab.apiserver.objects.bikelabs.clients.ClientDto;
 import helmet.bikelab.apiserver.objects.requests.EstimateRequestListDto;
+import helmet.bikelab.apiserver.objects.requests.FetchCustomEstimatesRequest;
 import helmet.bikelab.apiserver.objects.requests.FetchUnpaidEstimatesRequest;
 import helmet.bikelab.apiserver.objects.requests.PageableRequest;
 import helmet.bikelab.apiserver.objects.responses.EstimateByIdResponse;
+import helmet.bikelab.apiserver.objects.responses.FetchCustomEstimatesResponse;
 import helmet.bikelab.apiserver.objects.responses.FetchUnpaidEstimateResponse;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.repositories.*;
@@ -45,6 +52,8 @@ public class EstimateService extends SessService {
     private final ShopsRepository shopsRepository;
     private final BikesRepository bikesRepository;
     private final ClientGroupRepository groupRepository;
+    private final CustomEstimateRepository customEstimateRepository;
+    private final InsuranceCompanyRepository insuranceCompanyRepository;
 
     public BikeSessionRequest excelDownloadEstimates(BikeSessionRequest request){
         Map param = request.getParam();
@@ -226,6 +235,32 @@ public class EstimateService extends SessService {
             reviewList = estimatesRepository.findAllByReviewNotNullAndEstimateStatusType(EstimateStatusTypes.COMPLETED, pageable);
         }
         request.setResponse(reviewList);
+        return request;
+    }
+
+    public BikeSessionRequest fetchCustomEstimateList(BikeSessionRequest request) {
+        FetchCustomEstimatesRequest fetchCustomEstimatesRequest = map(request.getParam(), FetchCustomEstimatesRequest.class);
+        ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(fetchCustomEstimatesRequest, "estimate.estimates.fetchCustomEstimateList", "estimate.estimates.countAllCustomEstimates", "custom_estimate_no");
+        request.setResponse(responseListDto);
+        return request;
+    }
+
+    public BikeSessionRequest fetchCustomEstimateDetail(BikeSessionRequest request) {
+        String customEstimateId = (String) request.getParam().get("custom_estimate_id");
+        if(!bePresent(customEstimateId))
+            withException("");
+        CustomEstimates estimateById = customEstimateRepository.findByCustomEstimateId(customEstimateId);
+        FetchCustomEstimatesResponse customEstimatesResponse = new FetchCustomEstimatesResponse();
+        customEstimatesResponse.setCustomEstimate(estimateById);
+        if(!bePresent(estimateById))
+            withException("2311-001");
+        customEstimatesResponse.setWorkingPrice(bikeWorker.getWorkingPrice(estimateById.getBikeModel()));
+        if(bePresent(estimateById.getDeptNo())) {
+            InsuranceCompanies byCompanyNo = insuranceCompanyRepository.findByCompanyNo(estimateById.getInsCompanyNo());
+            customEstimatesResponse.setDeptName(byCompanyNo.getDeptNm());
+            customEstimatesResponse.setDeptCenter(byCompanyNo.getDeptCenter());
+        }
+        request.setResponse(customEstimatesResponse);
         return request;
     }
 }
