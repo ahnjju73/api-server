@@ -110,7 +110,7 @@ public class DiagramHandlers {
                         .map(row -> diagramPartsService.makeSessionRequest(request, row, BikeSessionRequest.class))
                         .map(diagramPartsService::checkBikeSession)
                         .map(diagramPartsService::addPartsByDiagramId)
-                        .map(diagramPartsService::reorderDiagramParts)
+//                        .map(diagramPartsService::reorderDiagramParts)
                         .map(diagramPartsService::returnData), Map.class);
     }
 
@@ -120,7 +120,7 @@ public class DiagramHandlers {
                         .subscribeOn(Schedulers.elastic())
                         .map(diagramPartsService::checkBikeSession)
                         .map(diagramPartsService::removePartsByDiagramId)
-                        .map(diagramPartsService::reorderDiagramParts)
+//                        .map(diagramPartsService::reorderDiagramParts)
                         .map(diagramPartsService::returnData), Map.class);
     }
 

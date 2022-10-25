@@ -50,11 +50,17 @@ public class DiagramPartsService extends SessService {
             }).collect(Collectors.toList());
             diagramPartsRepository.saveAll(collect);
         }
+        _reorder(request);
         return request;
     }
 
     @Transactional
     public BikeSessionRequest reorderDiagramParts(BikeSessionRequest request){
+        _reorder(request);
+        return request;
+    }
+
+    private void _reorder(BikeSessionRequest request){
         DiagramPartsByIdRequest diagramPartsByIdRequest = map(request.getParam(), DiagramPartsByIdRequest.class);
         Diagrams diagramById = diagramWorker.getDiagramById(diagramPartsByIdRequest.getDiagramId());
         List<DiagramParts> allByDiagramNo = diagramPartsRepository.findAllByDiagramNoOrderByOrderNo(diagramById.getDiagramNo());
@@ -64,7 +70,6 @@ public class DiagramPartsService extends SessService {
             count.incrementAndGet();
         });
         diagramPartsRepository.saveAll(allByDiagramNo);
-        return request;
     }
 
     @Transactional
@@ -72,6 +77,7 @@ public class DiagramPartsService extends SessService {
         DiagramPartsRemovedByIdRequest diagramPartsRemovedByIdRequest = map(request.getParam(), DiagramPartsRemovedByIdRequest.class);
         Diagrams diagramById = diagramWorker.getDiagramById(diagramPartsRemovedByIdRequest.getDiagramId());
         diagramPartsRepository.deleteByDiagramNoAndPartNo(diagramById.getDiagramNo(), diagramPartsRemovedByIdRequest.getPartsNo());
+        _reorder(request);
         return request;
     }
 

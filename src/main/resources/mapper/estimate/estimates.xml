@@ -396,7 +396,7 @@
 
 
     <select id="countAllCustomEstimates" parameterType="hmap" resultType="int">
-        select count(ce.custom_estimate_no)
+        select count(*)
           from custom_estimates ce
         <if test="ins_company_name != null and ins_company_name != '' and ins_company_name != 'undefined'">
           join insurance_companies ic on ce.ins_company_no = ic.company_no
