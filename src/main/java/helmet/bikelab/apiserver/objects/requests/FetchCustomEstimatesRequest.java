@@ -1,4 +1,4 @@
-package helmet.bikelab.apiserver.objects;
+package helmet.bikelab.apiserver.objects.requests;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
@@ -8,9 +8,6 @@ import lombok.Setter;
 @Getter
 @Setter
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
-public class BikeWorkingDto {
-    private String bikeType;
-    private Double volume;
-    private Integer workingPrice;
-    private Integer accidentWorkingPrice;
+public class FetchCustomEstimatesRequest extends RequestListDto {
+    private String insCompanyName;
 }

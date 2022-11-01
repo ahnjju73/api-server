@@ -57,9 +57,8 @@ public class InsuranceCompanyService extends SessService {
         insuranceCompanies.setName(addUpdateInsuranceCompanyRequest.getName());
         insuranceCompanies.setEmail(addUpdateInsuranceCompanyRequest.getEmail());
         insuranceCompanies.setPhone(addUpdateInsuranceCompanyRequest.getPhone());
-        insuranceCompanies.setCompanyId(addUpdateInsuranceCompanyRequest.getId());
         insuranceCompanies.setCompanyNameType(InsCompanyTypes.getCompanyType(addUpdateInsuranceCompanyRequest.getCompanyName()));
-        insuranceCompanies.setRoleType(RoleTypes.getRole(addUpdateInsuranceCompanyRequest.getRole()));
+        insuranceCompanies.setRoleType(RoleTypes.getType(addUpdateInsuranceCompanyRequest.getRole()));
         insuranceCompanies.setDeptNm(addUpdateInsuranceCompanyRequest.getDeptName());
         insuranceCompanies.setDeptCenter(addUpdateInsuranceCompanyRequest.getDeptCenter());
         insuranceCompanies.setPosition(addUpdateInsuranceCompanyRequest.getPosition());
@@ -126,12 +125,14 @@ public class InsuranceCompanyService extends SessService {
         AddUpdateInsuranceCompanyRequest addUpdateInsuranceCompanyRequest = map(param, AddUpdateInsuranceCompanyRequest.class);
         addUpdateInsuranceCompanyRequest.validationCheck();
         String companyId = (String) param.get("company_id");
+        if(!bePresent(companyId))
+            withException("");
         InsuranceCompanies insuranceCompanies = insuranceCompanyRepository.findByCompanyId(companyId);
         insuranceCompanies.setName(addUpdateInsuranceCompanyRequest.getName());
         insuranceCompanies.setEmail(addUpdateInsuranceCompanyRequest.getEmail());
         insuranceCompanies.setPhone(addUpdateInsuranceCompanyRequest.getPhone());
         insuranceCompanies.setCompanyNameType(InsCompanyTypes.getCompanyType(addUpdateInsuranceCompanyRequest.getCompanyName()));
-        insuranceCompanies.setRoleType(RoleTypes.getRole(addUpdateInsuranceCompanyRequest.getRole()));
+        insuranceCompanies.setRoleType(RoleTypes.getType(addUpdateInsuranceCompanyRequest.getRole()));
         insuranceCompanies.setDeptNm(addUpdateInsuranceCompanyRequest.getDeptName());
         insuranceCompanies.setDeptCenter(addUpdateInsuranceCompanyRequest.getDeptCenter());
         insuranceCompanies.setPosition(addUpdateInsuranceCompanyRequest.getPosition());

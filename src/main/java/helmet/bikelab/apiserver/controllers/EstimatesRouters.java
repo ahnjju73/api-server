@@ -27,6 +27,14 @@ public class EstimatesRouters {
     }
 
     @Bean
+    public RouterFunction<ServerResponse> customEstimatesRouter() {
+        return RouterFunctions
+                .route(GET("/custom-estimates"), estimatesHandler::fetchCustomEstimateList)
+                .andRoute(GET("/custom-estimates/{custom_estimate_id}"), estimatesHandler::fetchCustomEstimateDetail)
+                ;
+    }
+
+    @Bean
     public RouterFunction<ServerResponse> reviewsRouter() {
         return RouterFunctions
                 .route(GET("/reviews"), estimatesHandler::fetchReviewList)

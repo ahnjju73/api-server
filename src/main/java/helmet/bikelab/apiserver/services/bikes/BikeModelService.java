@@ -143,6 +143,7 @@ public class BikeModelService extends SessService {
             }
             CommonWorking commonWorking = new CommonWorking();
             commonWorking.setWorkingPrice(bw.getWorkingPrice());
+            commonWorking.setAccidentWorkingPrice(bw.getAccidentWorkingPrice());
             commonWorking.setVolume(bw.getVolume());
             commonWorking.setBikeType(BikeTypes.GAS);
             commonWorking.setBikeTypeCode(BikeTypes.GAS.getType());
@@ -158,6 +159,7 @@ public class BikeModelService extends SessService {
             }
             CommonWorking commonWorking = new CommonWorking();
             commonWorking.setWorkingPrice(bw.getWorkingPrice());
+            commonWorking.setAccidentWorkingPrice(bw.getAccidentWorkingPrice());
             commonWorking.setVolume(bw.getVolume());
             commonWorking.setBikeType(BikeTypes.ELECTRONIC);
             commonWorking.setBikeTypeCode(BikeTypes.ELECTRONIC.getType());

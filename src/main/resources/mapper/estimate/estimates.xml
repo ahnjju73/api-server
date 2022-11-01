@@ -393,4 +393,36 @@
            and status in ('6','7')
     </select>
 
+
+
+    <select id="countAllCustomEstimates" parameterType="hmap" resultType="int">
+        select count(*)
+          from custom_estimates ce
+        <if test="ins_company_name != null and ins_company_name != '' and ins_company_name != 'undefined'">
+          join insurance_companies ic on ce.ins_company_no = ic.company_no
+         where ic.company_name = #{ins_company_name}
+        </if>
+    </select>
+
+    <select id="fetchCustomEstimateList" parameterType="hmap" resultType="hmap">
+        select ce.custom_estimate_no,
+               ce.custom_estimate_id,
+               ccm.comm_nm as bike_model,
+               ce.bike_number,
+               ce.created_at,
+               ce.total_price,
+               ic.company_name
+          from custom_estimates ce
+          join com_comm_bikes ccm on ce.bike_model = ccm.comm_cd
+          join insurance_companies ic on ce.ins_company_no = ic.company_no
+         where 1 = 1
+         <if test="ins_company_name != null and ins_company_name != '' and ins_company_name != 'undefined'">
+           and ic.company_name = #{ins_company_name}
+         </if>
+         <if test="next_token != null and next_token != '' and next_token != 'undefined'">
+           and ce.custom_estimate_no <![CDATA[ < ]]> #{next_token}
+         </if>
+         order by ce.custom_estimate_no desc limit 30
+    </select>
+
 </mapper>

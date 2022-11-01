@@ -20,7 +20,7 @@
           join shop_info si on si.shop_no = s.shop_no
          where 1 = 1
          <if test="next_token != null and next_token != '' and next_token != 'undefined'">
-           and settle_no <![CDATA[ < ]]> #{next_token}
+           and s.settle_no <![CDATA[ > ]]> #{next_token}
          </if>
          group by settle_no limit 30;
     </select>
