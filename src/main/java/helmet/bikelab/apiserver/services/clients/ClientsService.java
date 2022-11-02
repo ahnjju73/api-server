@@ -245,7 +245,7 @@ public class ClientsService extends SessService {
         clientAddresses.setClient(clients);
         clientAddressesRepository.save(clientAddresses);
 
-        String password = randomPassword(10);
+        String password = bePresent(clients.getEmail()) ? clients.getEmail() : randomPassword(10);
         ClientPassword clientPassword = new ClientPassword();
         clientPassword.updatePasswordWithoutSHA256(password);
         clientPassword.setClientNo(clients.getClientNo());
@@ -461,7 +461,7 @@ public class ClientsService extends SessService {
         Map response = new HashMap();
         ResetPasswordRequest resetPasswordRequest = map(param, ResetPasswordRequest.class);
         Clients client = clientsRepository.findByClientId(resetPasswordRequest.getClientId());
-        String newPassword = getRandomString();
+        String newPassword = bePresent(client.getEmail()) ? client.getEmail() : getRandomString();
         ClientPassword clientPassword = clientPasswordRepository.findByClientNo(client.getClientNo());
         clientPassword.updatePasswordWithoutSHA256(newPassword);
         clientPasswordRepository.save(clientPassword);
