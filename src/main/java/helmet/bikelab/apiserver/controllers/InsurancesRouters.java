@@ -19,4 +19,13 @@ public class InsurancesRouters {
                 .andRoute(DELETE("/insurances"), handler::deleteInsurance)
                 .andRoute(GET("/insurances/cover-options"), handler::fetchInsuranceOption);
     }
+
+    @Bean
+    public RouterFunction<ServerResponse> RiderInsurancesRouter(InsurancesHandler handler){
+        return RouterFunctions
+                .route(GET("/rider-insurances"), handler::fetchInsurance)
+                .andRoute(GET("/rider-insurances/{rider_ins_no}"), handler::fetchInsurance)
+                ;
+
+    }
 }

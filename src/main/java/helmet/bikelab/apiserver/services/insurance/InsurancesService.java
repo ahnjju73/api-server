@@ -1,17 +1,27 @@
 package helmet.bikelab.apiserver.services.insurance;
 
 import helmet.bikelab.apiserver.domain.CommonCodeInsurances;
+import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.lease.Insurances;
+import helmet.bikelab.apiserver.domain.riders.RiderInsurances;
+import helmet.bikelab.apiserver.domain.riders.RiderInsurancesDtl;
+import helmet.bikelab.apiserver.domain.riders.Riders;
+import helmet.bikelab.apiserver.domain.types.RiderInsuranceStatus;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.InsuranceOptionDto;
+import helmet.bikelab.apiserver.objects.RiderInfoDto;
 import helmet.bikelab.apiserver.objects.bikelabs.insurance.DeleteInsuranceRequest;
 import helmet.bikelab.apiserver.objects.bikelabs.insurance.FetchInsuranceRequest;
 import helmet.bikelab.apiserver.objects.bikelabs.insurance.FetchInsuranceResponse;
-import helmet.bikelab.apiserver.repositories.InsuranceOptionlRepository;
-import helmet.bikelab.apiserver.repositories.InsurancesRepository;
-import helmet.bikelab.apiserver.repositories.LeaseRepository;
+import helmet.bikelab.apiserver.objects.requests.AddUpdateRiderInsuranceRequest;
+import helmet.bikelab.apiserver.objects.requests.FetchRiderInsuranceRequest;
+import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
+import helmet.bikelab.apiserver.repositories.*;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.utils.AutoKey;
+import helmet.bikelab.apiserver.workers.BikeWorker;
+import helmet.bikelab.apiserver.workers.CommonWorker;
+import helmet.bikelab.apiserver.workers.RiderWorker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,8 +37,13 @@ public class InsurancesService extends SessService {
 
     private final InsurancesRepository insurancesRepository;
     private final AutoKey autoKey;
+    private final RiderWorker riderWorker;
+    private final BikeWorker bikeWorker;
     private final InsuranceOptionlRepository insuranceOptionlRepository;
     private final LeaseRepository leaseRepository;
+    private final CommonWorker commonWorker;
+    private final RiderInsuranceRepository riderInsuranceRepository;
+    private final RiderInsuranceDtlRepository riderInsuranceDtlRepository;
 
 
     public BikeSessionRequest fetchInsurances(BikeSessionRequest request){
@@ -109,6 +124,42 @@ public class InsurancesService extends SessService {
         }
         response.put("insurances", fetchInsuranceResponses);
         request.setResponse(response);
+        return request;
+    }
+
+    @Transactional
+    public BikeSessionRequest addRiderInsurance(BikeSessionRequest request){
+        AddUpdateRiderInsuranceRequest addUpdateRiderInsuranceRequest = map(request.getParam(), AddUpdateRiderInsuranceRequest.class);
+        String riderInsId = autoKey.makeGetKey("rider_ins");
+        RiderInsurances riderInsurances = new RiderInsurances();
+        riderInsurances.setRiderInsId(riderInsId);
+        Riders rider = riderWorker.getRiderById(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderId());
+        riderInsurances.setRiderNo(rider.getRiderNo());
+        Bikes bike = bikeWorker.getBikeById(addUpdateRiderInsuranceRequest.getBikeId());
+        riderInsurances.setBikeNum(bike.getCarNum());
+        riderInsurances.setVimNum(bike.getVimNum());
+        riderInsuranceRepository.save(riderInsurances);
+
+        RiderInsurancesDtl insurancesDtl = new RiderInsurancesDtl();
+        insurancesDtl.setRiderInsNo(riderInsurances.getRiderInsNo());
+        RiderInfoDto riderInfoDto = new RiderInfoDto();
+        riderInfoDto.setRiderId(rider.getRiderId());
+        riderInfoDto.setRiderStatus(rider.getStatus().getRiderStatusType());
+        riderInfoDto.setRiderEmail(rider.getEmail());
+        riderInfoDto.setRiderPhone(rider.getPhone());
+        riderInfoDto.setRiderName(rider.getRiderInfo().getName());
+        insurancesDtl.setRiderInfoDto(riderInfoDto);
+        insurancesDtl.setRiderInsuranceStatus(RiderInsuranceStatus.PENEDING);
+
+
+
+        return request;
+    }
+
+    public BikeSessionRequest fetchRiderInsurances(BikeSessionRequest request){
+        FetchRiderInsuranceRequest fetchRiderInsuranceRequest = map(request.getParam(), FetchRiderInsuranceRequest.class);
+        ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(fetchRiderInsuranceRequest, "insurances.rider_insurance.", "insurances.rider_insurance.countRiderInsurances", "");
+        request.setResponse(responseListDto);
         return request;
     }
 

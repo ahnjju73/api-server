@@ -62,12 +62,3 @@ public class RiderInsurancesDtl {
     private Integer insFee;
 
 }
-/*
-@Column(name = "logo", columnDefinition = "JSON")
-    @Convert(converter = ModelInsuranceImageConverter.class)
-    private List<ModelInsuranceImage> logoImageList;
-
-    @JsonIgnore
-    @Column(name = "logo", columnDefinition = "JSON", insertable = false, updatable = false)
-    private String logoImages;
- */

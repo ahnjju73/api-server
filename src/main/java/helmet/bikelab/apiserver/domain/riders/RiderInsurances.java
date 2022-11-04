@@ -21,9 +21,15 @@ public class RiderInsurances extends OriginObject {
     @Column(name = "rider_no")
     private Integer riderNo;
 
+    @Column(name = "rider_ins_id")
+    private String riderInsId;
+
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "rider_no", insertable = false, updatable = false)
     private Riders rider;
+
+    @OneToOne(mappedBy = "riderInsurances", optional = false)
+    private RiderInsurancesDtl riderInsurancesDtl;
 
     @Column(name = "bike_num")
     private String bikeNum;
