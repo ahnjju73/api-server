@@ -7,6 +7,7 @@ import helmet.bikelab.apiserver.domain.riders.RiderInsurances;
 import helmet.bikelab.apiserver.domain.riders.RiderInsurancesDtl;
 import helmet.bikelab.apiserver.domain.riders.Riders;
 import helmet.bikelab.apiserver.domain.types.RiderInsuranceStatus;
+import helmet.bikelab.apiserver.objects.BankInfoDto;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.InsuranceOptionDto;
 import helmet.bikelab.apiserver.objects.RiderInfoDto;
@@ -150,7 +151,8 @@ public class InsurancesService extends SessService {
         riderInfoDto.setRiderName(rider.getRiderInfo().getName());
         insurancesDtl.setRiderInfoDto(riderInfoDto);
         insurancesDtl.setRiderInsuranceStatus(RiderInsuranceStatus.PENEDING);
-
+        if(bePresent(addUpdateRiderInsuranceRequest.getBankInfoDto()))
+            insurancesDtl.setBankInfo(addUpdateRiderInsuranceRequest.getBankInfoDto());
 
 
         return request;
