@@ -10,8 +10,7 @@
     </select>
 
     <select id="fetchRiderInsurances" parameterType="hmap" resultType="hmap">
-        select count(*)
-        from rider_insurances
+        select
     </select>
 
 

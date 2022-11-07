@@ -23,8 +23,9 @@ public class InsurancesRouters {
     @Bean
     public RouterFunction<ServerResponse> RiderInsurancesRouter(InsurancesHandler handler){
         return RouterFunctions
-                .route(GET("/rider-insurances"), handler::fetchInsurance)
+                .route(GET("/rider-insurances"), handler::fetchRiderInsurances)
                 .andRoute(GET("/rider-insurances/{rider_ins_no}"), handler::fetchInsurance)
+                .andRoute(POST("/rider-insurances"), handler::addRiderInsurance)
                 ;
 
     }

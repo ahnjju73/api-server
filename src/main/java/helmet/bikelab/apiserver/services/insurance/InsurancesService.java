@@ -24,6 +24,9 @@ import helmet.bikelab.apiserver.workers.BikeWorker;
 import helmet.bikelab.apiserver.workers.CommonWorker;
 import helmet.bikelab.apiserver.workers.RiderWorker;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -134,8 +137,11 @@ public class InsurancesService extends SessService {
         String riderInsId = autoKey.makeGetKey("rider_ins");
         RiderInsurances riderInsurances = new RiderInsurances();
         riderInsurances.setRiderInsId(riderInsId);
-        Riders rider = riderWorker.getRiderById(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderId());
-        riderInsurances.setRiderNo(rider.getRiderNo());
+        Riders rider = null;
+        if(bePresent(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderId())) {
+            rider = riderWorker.getRiderById(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderId());
+            riderInsurances.setRiderNo(rider.getRiderNo());
+        }
         Bikes bike = bikeWorker.getBikeById(addUpdateRiderInsuranceRequest.getBikeId());
         riderInsurances.setBikeNum(bike.getCarNum());
         riderInsurances.setVimNum(bike.getVimNum());
@@ -144,24 +150,37 @@ public class InsurancesService extends SessService {
         RiderInsurancesDtl insurancesDtl = new RiderInsurancesDtl();
         insurancesDtl.setRiderInsNo(riderInsurances.getRiderInsNo());
         RiderInfoDto riderInfoDto = new RiderInfoDto();
-        riderInfoDto.setRiderId(rider.getRiderId());
-        riderInfoDto.setRiderStatus(rider.getStatus().getRiderStatusType());
-        riderInfoDto.setRiderEmail(rider.getEmail());
-        riderInfoDto.setRiderPhone(rider.getPhone());
-        riderInfoDto.setRiderName(rider.getRiderInfo().getName());
+        if(bePresent(rider)) {
+            riderInfoDto.setRiderId(rider.getRiderId());
+            riderInfoDto.setRiderStatus(rider.getStatus().getRiderStatusType());
+            riderInfoDto.setRiderEmail(rider.getEmail());
+            riderInfoDto.setRiderPhone(rider.getPhone());
+            riderInfoDto.setRiderName(rider.getRiderInfo().getName());
+        }else{
+            riderInfoDto.setRiderEmail(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderEmail());
+            riderInfoDto.setRiderPhone(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderPhone());
+            riderInfoDto.setRiderName(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderName());
+        }
         insurancesDtl.setRiderInfoDto(riderInfoDto);
         insurancesDtl.setRiderInsuranceStatus(RiderInsuranceStatus.PENEDING);
         if(bePresent(addUpdateRiderInsuranceRequest.getBankInfoDto()))
             insurancesDtl.setBankInfo(addUpdateRiderInsuranceRequest.getBankInfoDto());
-
-
+        insurancesDtl.setUsage(addUpdateRiderInsuranceRequest.getUsage());
+        insurancesDtl.setAdditionalStandard(addUpdateRiderInsuranceRequest.getAdditionalStandard());
+        riderInsuranceDtlRepository.save(insurancesDtl);
         return request;
     }
 
     public BikeSessionRequest fetchRiderInsurances(BikeSessionRequest request){
         FetchRiderInsuranceRequest fetchRiderInsuranceRequest = map(request.getParam(), FetchRiderInsuranceRequest.class);
-        ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(fetchRiderInsuranceRequest, "insurances.rider_insurance.", "insurances.rider_insurance.countRiderInsurances", "");
-        request.setResponse(responseListDto);
+        Pageable pageable = PageRequest.of(fetchRiderInsuranceRequest.getPage(), fetchRiderInsuranceRequest.getSize());
+        if(bePresent(fetchRiderInsuranceRequest.getRiderName())){
+            Page<RiderInsurances> allByRiderInsurancesDtl_riderInfoDto_riderNameContaining = riderInsuranceRepository.findAllByRiderInsurancesDtl_RiderInfoDto_RiderNameContaining(fetchRiderInsuranceRequest.getRiderName(), pageable);
+            request.setResponse(allByRiderInsurancesDtl_riderInfoDto_riderNameContaining);
+        }else{
+            Page<RiderInsurances> allOrderByRiderInsNoDesc = riderInsuranceRepository.findAllOrderByRiderInsNoDesc(pageable);
+            request.setResponse(allOrderByRiderInsNoDesc);
+        }
         return request;
     }
 

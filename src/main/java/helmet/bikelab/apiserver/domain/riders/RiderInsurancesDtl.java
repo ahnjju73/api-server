@@ -46,6 +46,12 @@ public class RiderInsurancesDtl {
     @Convert(converter = BankInfoDtoConverter.class)
     private BankInfoDto bankInfo;
 
+    @Column(name = "usage")
+    private String usage;
+
+    @Column(name = "additional_standard")
+    private Integer additionalStandard;
+
     @Column(name = "start_dt")
     private LocalDateTime startDt;
 
@@ -60,5 +66,8 @@ public class RiderInsurancesDtl {
 
     @Column(name = "ins_fee")
     private Integer insFee;
+
+    @Column(name = "created_by")
+    private Integer createdBy;
 
 }
