@@ -178,7 +178,7 @@ public class InsurancesService extends SessService {
             Page<RiderInsurances> allByRiderInsurancesDtl_riderInfoDto_riderNameContaining = riderInsuranceRepository.findAllByRiderInsurancesDtl_RiderInfoDto_RiderNameContaining(fetchRiderInsuranceRequest.getRiderName(), pageable);
             request.setResponse(allByRiderInsurancesDtl_riderInfoDto_riderNameContaining);
         }else{
-            Page<RiderInsurances> allOrderByRiderInsNoDesc = riderInsuranceRepository.findAllOrderByRiderInsNoDesc(pageable);
+            Page<RiderInsurances> allOrderByRiderInsNoDesc = riderInsuranceRepository.findAll(pageable);
             request.setResponse(allOrderByRiderInsNoDesc);
         }
         return request;

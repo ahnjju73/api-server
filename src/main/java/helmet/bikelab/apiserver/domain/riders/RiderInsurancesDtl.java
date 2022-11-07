@@ -38,7 +38,7 @@ public class RiderInsurancesDtl {
     @Column(name = "rider_info", columnDefinition = "JSON", updatable = false, insertable = false)
     private String riderInfo;
 
-    @Column(name = "status")
+    @Column(name = "status", columnDefinition = "ENUM")
     @Convert(converter = RiderInsuranceStatusConverter.class)
     private RiderInsuranceStatus riderInsuranceStatus;
 
