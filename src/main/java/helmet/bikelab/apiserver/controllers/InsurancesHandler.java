@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.controllers;
 
+import helmet.bikelab.apiserver.domain.riders.RiderInsurances;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.services.insurance.InsurancesService;
@@ -81,6 +82,36 @@ public class InsurancesHandler {
                         .map(insurancesService::checkBikeSession)
                         .map(insurancesService::addRiderInsurance)
                         .map(insurancesService::returnData), ResponseListDto.class);
+    }
+    public Mono<ServerResponse> fetchRiderInsuranceDetail(ServerRequest request){
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> insurancesService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(req -> insurancesService.getPathVariable(req, "rider_ins_id"))
+                        .map(insurancesService::checkBikeSession)
+                        .map(insurancesService:: fetchRiderInsuranceDetail)
+                        .map(insurancesService::returnData), RiderInsurances.class);
+    }
+
+    public Mono<ServerResponse> updateRiderInsurance(ServerRequest request){
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> insurancesService.makeSessionRequest(request, row , BikeSessionRequest.class))
+                        .map(req -> insurancesService.getPathVariable(req, "rider_ins_id"))
+                        .map(insurancesService::checkBikeSession)
+                        .map(insurancesService::updateRiderInsurance)
+                        .map(insurancesService::returnData), Map.class);
+    }
+
+    public Mono<ServerResponse> deleteRiderInsurance(ServerRequest request){
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> insurancesService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(req -> insurancesService.getPathVariable(req, "rider_ins_id"))
+                        .map(insurancesService::checkBikeSession)
+                        .map(insurancesService:: deleteRiderInsurance)
+                        .map(insurancesService::returnData), Map.class);
     }
 
 }
