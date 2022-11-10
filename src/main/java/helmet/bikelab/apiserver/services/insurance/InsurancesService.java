@@ -50,7 +50,7 @@ public class InsurancesService extends SessService {
     private final RiderInsuranceDtlRepository riderInsuranceDtlRepository;
 
 
-    public BikeSessionRequest fetchInsurances(BikeSessionRequest request){
+    public BikeSessionRequest fetchInsurances(BikeSessionRequest request) {
         Map response = new HashMap();
         List<Insurances> insurancesList = insurancesRepository.findAll();
         response.put("insurances", insurancesList);
@@ -59,7 +59,7 @@ public class InsurancesService extends SessService {
     }
 
     @Transactional
-    public BikeSessionRequest addInsurance(BikeSessionRequest request){
+    public BikeSessionRequest addInsurance(BikeSessionRequest request) {
         Map param = request.getParam();
         Insurances insurance = map(param, Insurances.class);
         insurance.checkValidation();
@@ -70,7 +70,7 @@ public class InsurancesService extends SessService {
     }
 
     @Transactional
-    public BikeSessionRequest updateInsurance(BikeSessionRequest request){
+    public BikeSessionRequest updateInsurance(BikeSessionRequest request) {
         Map param = request.getParam();
         Insurances newInsurance = map(param, Insurances.class);
         newInsurance.checkValidation();
@@ -93,31 +93,31 @@ public class InsurancesService extends SessService {
     }
 
     @Transactional
-    public BikeSessionRequest deleteInsurance(BikeSessionRequest request){
+    public BikeSessionRequest deleteInsurance(BikeSessionRequest request) {
         Map param = request.getParam();
         DeleteInsuranceRequest deleteInsuranceRequest = map(param, DeleteInsuranceRequest.class);
         Insurances insurances = insurancesRepository.findByInsuranceId(deleteInsuranceRequest.getInsuranceId());
-        if(leaseRepository.existsAllByInsuranceNoEquals(insurances.getInsuranceNo()))
+        if (leaseRepository.existsAllByInsuranceNoEquals(insurances.getInsuranceNo()))
             writeMessage("사용중인 보험입니다 삭제할 수 없습니다.");
         insurancesRepository.delete(insurances);
         return request;
     }
 
-    public BikeSessionRequest fetchInsuranceOption(BikeSessionRequest request){
+    public BikeSessionRequest fetchInsuranceOption(BikeSessionRequest request) {
         Map param = request.getParam();
         Map response = new HashMap();
         List<CommonCodeInsurances> insuranceOptions = insuranceOptionlRepository.findAll();
         List<FetchInsuranceResponse> fetchInsuranceResponses = new ArrayList<>();
-        for(CommonCodeInsurances insurance : insuranceOptions){
-            if(insurance.getUpperCode()==null){
+        for (CommonCodeInsurances insurance : insuranceOptions) {
+            if (insurance.getUpperCode() == null) {
                 FetchInsuranceResponse fetchInsuranceResponse = new FetchInsuranceResponse();
                 fetchInsuranceResponse.setUpCode(insurance.getCode());
                 fetchInsuranceResponse.setUpCodeName(insurance.getName());
                 fetchInsuranceResponse.setList(new ArrayList<>());
                 fetchInsuranceResponses.add(fetchInsuranceResponse);
-            }else{
-                for(int i=0; i<fetchInsuranceResponses.size();i++){
-                    if(fetchInsuranceResponses.get(i).getUpCode().equals(insurance.getUpperCode())){
+            } else {
+                for (int i = 0; i < fetchInsuranceResponses.size(); i++) {
+                    if (fetchInsuranceResponses.get(i).getUpCode().equals(insurance.getUpperCode())) {
                         InsuranceOptionDto optionDto = new InsuranceOptionDto();
                         optionDto.setValue(insurance.getName());
                         optionDto.setComCode(insurance.getCode());
@@ -132,13 +132,13 @@ public class InsurancesService extends SessService {
     }
 
     @Transactional
-    public BikeSessionRequest addRiderInsurance(BikeSessionRequest request){
+    public BikeSessionRequest addRiderInsurance(BikeSessionRequest request) {
         AddUpdateRiderInsuranceRequest addUpdateRiderInsuranceRequest = map(request.getParam(), AddUpdateRiderInsuranceRequest.class);
         String riderInsId = autoKey.makeGetKey("rider_ins");
         RiderInsurances riderInsurances = new RiderInsurances();
         riderInsurances.setRiderInsId(riderInsId);
         Riders rider = null;
-        if(bePresent(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderId())) {
+        if (bePresent(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderId())) {
             rider = riderWorker.getRiderById(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderId());
             riderInsurances.setRiderNo(rider.getRiderNo());
         }
@@ -150,20 +150,20 @@ public class InsurancesService extends SessService {
         RiderInsurancesDtl insurancesDtl = new RiderInsurancesDtl();
         insurancesDtl.setRiderInsNo(riderInsurances.getRiderInsNo());
         RiderInfoDto riderInfoDto = new RiderInfoDto();
-        if(bePresent(rider)) {
+        if (bePresent(rider)) {
             riderInfoDto.setRiderId(rider.getRiderId());
             riderInfoDto.setRiderStatus(rider.getStatus().getRiderStatusType());
             riderInfoDto.setRiderEmail(rider.getEmail());
             riderInfoDto.setRiderPhone(rider.getPhone());
             riderInfoDto.setRiderName(rider.getRiderInfo().getName());
-        }else{
+        } else {
             riderInfoDto.setRiderEmail(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderEmail());
             riderInfoDto.setRiderPhone(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderPhone());
             riderInfoDto.setRiderName(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderName());
         }
         insurancesDtl.setRiderInfoDto(riderInfoDto);
         insurancesDtl.setRiderInsuranceStatus(RiderInsuranceStatus.PENEDING);
-        if(bePresent(addUpdateRiderInsuranceRequest.getBankInfoDto()))
+        if (bePresent(addUpdateRiderInsuranceRequest.getBankInfoDto()))
             insurancesDtl.setBankInfo(addUpdateRiderInsuranceRequest.getBankInfoDto());
         insurancesDtl.setUsage(addUpdateRiderInsuranceRequest.getUsage());
         insurancesDtl.setAdditionalStandard(addUpdateRiderInsuranceRequest.getAdditionalStandard());
@@ -171,17 +171,67 @@ public class InsurancesService extends SessService {
         return request;
     }
 
-    public BikeSessionRequest fetchRiderInsurances(BikeSessionRequest request){
+    public BikeSessionRequest fetchRiderInsurances(BikeSessionRequest request) {
         FetchRiderInsuranceRequest fetchRiderInsuranceRequest = map(request.getParam(), FetchRiderInsuranceRequest.class);
         Pageable pageable = PageRequest.of(fetchRiderInsuranceRequest.getPage(), fetchRiderInsuranceRequest.getSize());
-        if(bePresent(fetchRiderInsuranceRequest.getRiderName())){
+        if (bePresent(fetchRiderInsuranceRequest.getRiderName())) {
             Page<RiderInsurances> allByRiderInsurancesDtl_riderInfoDto_riderNameContaining = riderInsuranceRepository.findAllByRiderInsurancesDtl_RiderInfoDto_RiderNameContaining(fetchRiderInsuranceRequest.getRiderName(), pageable);
             request.setResponse(allByRiderInsurancesDtl_riderInfoDto_riderNameContaining);
-        }else{
+        } else {
             Page<RiderInsurances> allOrderByRiderInsNoDesc = riderInsuranceRepository.findAll(pageable);
             request.setResponse(allOrderByRiderInsNoDesc);
         }
         return request;
     }
 
+    public BikeSessionRequest fetchRiderInsuranceDetail(BikeSessionRequest request) {
+        String riderInsId = (String) request.getParam().get("rider_ins_id");
+        RiderInsurances byRiderInsId = riderInsuranceRepository.findByRiderInsId(riderInsId);
+        request.setResponse(byRiderInsId);
+        return request;
+    }
+
+    public BikeSessionRequest updateRiderInsurance(BikeSessionRequest request) {
+        String riderInsId = (String) request.getParam().get("rider_ins_id");
+        AddUpdateRiderInsuranceRequest addUpdateRiderInsuranceRequest = map(request.getParam(), AddUpdateRiderInsuranceRequest.class);
+        RiderInsurances riderInsurances = riderInsuranceRepository.findByRiderInsId(riderInsId);
+        Riders rider = null;
+        if (bePresent(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderId())) {
+            rider = riderWorker.getRiderById(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderId());
+            riderInsurances.setRiderNo(rider.getRiderNo());
+        }
+        Bikes bike = bikeWorker.getBikeById(addUpdateRiderInsuranceRequest.getBikeId());
+        riderInsurances.setBikeNum(bike.getCarNum());
+        riderInsurances.setVimNum(bike.getVimNum());
+        riderInsuranceRepository.save(riderInsurances);
+
+        RiderInsurancesDtl insurancesDtl = new RiderInsurancesDtl();
+        insurancesDtl.setRiderInsNo(riderInsurances.getRiderInsNo());
+        RiderInfoDto riderInfoDto = new RiderInfoDto();
+        if (bePresent(rider)) {
+            riderInfoDto.setRiderId(rider.getRiderId());
+            riderInfoDto.setRiderStatus(rider.getStatus().getRiderStatusType());
+            riderInfoDto.setRiderEmail(rider.getEmail());
+            riderInfoDto.setRiderPhone(rider.getPhone());
+            riderInfoDto.setRiderName(rider.getRiderInfo().getName());
+        } else {
+            riderInfoDto.setRiderEmail(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderEmail());
+            riderInfoDto.setRiderPhone(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderPhone());
+            riderInfoDto.setRiderName(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderName());
+        }
+        insurancesDtl.setRiderInfoDto(riderInfoDto);
+        insurancesDtl.setRiderInsuranceStatus(RiderInsuranceStatus.PENEDING);
+        if (bePresent(addUpdateRiderInsuranceRequest.getBankInfoDto()))
+            insurancesDtl.setBankInfo(addUpdateRiderInsuranceRequest.getBankInfoDto());
+        insurancesDtl.setUsage(addUpdateRiderInsuranceRequest.getUsage());
+        insurancesDtl.setAdditionalStandard(addUpdateRiderInsuranceRequest.getAdditionalStandard());
+        riderInsuranceDtlRepository.save(insurancesDtl);
+        return request;
+    }
+
+    public BikeSessionRequest deleteRiderInsurance(BikeSessionRequest request){
+        String riderInsId = (String) request.getParam().get("rider_ins_id");
+        riderInsuranceRepository.deleteByRiderInsId(riderInsId);
+        return request;
+    }
 }
