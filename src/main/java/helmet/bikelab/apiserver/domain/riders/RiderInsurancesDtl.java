@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.domain.riders;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.types.InsRangeTypes;
 import helmet.bikelab.apiserver.domain.types.RiderInsuranceStatus;
@@ -29,6 +30,7 @@ public class RiderInsurancesDtl {
     @Column(name = "rider_ins_no")
     private Integer riderInsNo;
 
+    @JsonIgnore
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "rider_ins_no", insertable = false, updatable = false)
     private RiderInsurances riderInsurances;
