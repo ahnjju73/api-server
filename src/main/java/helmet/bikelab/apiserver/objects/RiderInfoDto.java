@@ -14,4 +14,5 @@ public class RiderInfoDto {
     private String riderEmail;
     private String riderPhone;
     private String riderName;
+    private String riderSsn;
 }
