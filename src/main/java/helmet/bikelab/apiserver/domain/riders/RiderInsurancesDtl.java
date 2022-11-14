@@ -1,8 +1,10 @@
 package helmet.bikelab.apiserver.domain.riders;
 
 import helmet.bikelab.apiserver.domain.bike.Bikes;
+import helmet.bikelab.apiserver.domain.types.InsRangeTypes;
 import helmet.bikelab.apiserver.domain.types.RiderInsuranceStatus;
 import helmet.bikelab.apiserver.domain.types.converters.BankInfoDtoConverter;
+import helmet.bikelab.apiserver.domain.types.converters.InsRangeTypeConverter;
 import helmet.bikelab.apiserver.domain.types.converters.RiderInfoDtoConverter;
 import helmet.bikelab.apiserver.domain.types.converters.RiderInsuranceStatusConverter;
 import helmet.bikelab.apiserver.objects.BankInfoDto;
@@ -31,6 +33,12 @@ public class RiderInsurancesDtl {
     @JoinColumn(name = "rider_ins_no", insertable = false, updatable = false)
     private RiderInsurances riderInsurances;
 
+    @Column(name = "insurance_company")
+    private String insCompany;
+
+    @Column(name = "insurance_number")
+    private String insNum;
+
     @Column(name = "rider_info", columnDefinition = "JSON")
     @Convert(converter = RiderInfoDtoConverter.class)
     private RiderInfoDto riderInfoDto;
@@ -42,11 +50,15 @@ public class RiderInsurancesDtl {
     @Convert(converter = RiderInsuranceStatusConverter.class)
     private RiderInsuranceStatus riderInsuranceStatus;
 
+    @Column(name = "ins_range", columnDefinition = "ENUM")
+    @Convert(converter = InsRangeTypeConverter.class)
+    private InsRangeTypes insRangeType;
+
     @Column(name = "bank_info", columnDefinition = "JSON")
     @Convert(converter = BankInfoDtoConverter.class)
     private BankInfoDto bankInfo;
 
-    @Column(name = "usage")
+    @Column(name = "`usage`")
     private String usage;
 
     @Column(name = "additional_standard")

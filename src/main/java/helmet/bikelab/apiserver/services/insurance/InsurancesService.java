@@ -145,9 +145,12 @@ public class InsurancesService extends SessService {
         Bikes bike = bikeWorker.getBikeById(addUpdateRiderInsuranceRequest.getBikeId());
         riderInsurances.setBikeNum(bike.getCarNum());
         riderInsurances.setVimNum(bike.getVimNum());
+        riderInsurances.setBikeNo(bike.getBikeNo());
         riderInsuranceRepository.save(riderInsurances);
 
         RiderInsurancesDtl insurancesDtl = new RiderInsurancesDtl();
+        insurancesDtl.setInsCompany(addUpdateRiderInsuranceRequest.getInsCompany());
+        insurancesDtl.setInsNum(addUpdateRiderInsuranceRequest.getInsNum());
         insurancesDtl.setRiderInsNo(riderInsurances.getRiderInsNo());
         RiderInfoDto riderInfoDto = new RiderInfoDto();
         if (bePresent(rider)) {
@@ -156,10 +159,12 @@ public class InsurancesService extends SessService {
             riderInfoDto.setRiderEmail(rider.getEmail());
             riderInfoDto.setRiderPhone(rider.getPhone());
             riderInfoDto.setRiderName(rider.getRiderInfo().getName());
+            riderInfoDto.setRiderSsn(addUpdateRiderInsuranceRequest.getSsn());
         } else {
             riderInfoDto.setRiderEmail(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderEmail());
             riderInfoDto.setRiderPhone(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderPhone());
             riderInfoDto.setRiderName(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderName());
+            riderInfoDto.setRiderSsn(addUpdateRiderInsuranceRequest.getSsn());
         }
         insurancesDtl.setRiderInfoDto(riderInfoDto);
         insurancesDtl.setRiderInsuranceStatus(RiderInsuranceStatus.PENEDING);
