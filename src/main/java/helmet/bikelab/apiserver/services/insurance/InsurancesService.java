@@ -181,7 +181,7 @@ public class InsurancesService extends SessService {
 
     public BikeSessionRequest fetchRiderInsurances(BikeSessionRequest request) {
         FetchRiderInsuranceRequest fetchRiderInsuranceRequest = map(request.getParam(), FetchRiderInsuranceRequest.class);
-        Pageable pageable = PageRequest.of(fetchRiderInsuranceRequest.getPage(), fetchRiderInsuranceRequest.getSize(), Sort.by("rider_ins_no").descending());
+        Pageable pageable = PageRequest.of(fetchRiderInsuranceRequest.getPage(), fetchRiderInsuranceRequest.getSize(), Sort.by("riderInsNo").descending());
 
         if (bePresent(fetchRiderInsuranceRequest.getRiderName()) && bePresent(fetchRiderInsuranceRequest.getStatus())) {
             Page<RiderInsurances> allByRiderInsurancesDtl_riderInfoDto_riderNameContaining = riderInsuranceRepository.findAllByRiderInsurancesDtl_RiderNameContainingAndRiderInsurancesDtl_RiderInsuranceStatus(fetchRiderInsuranceRequest.getRiderName(), RiderInsuranceStatus.getStatus(fetchRiderInsuranceRequest.getStatus()), pageable);
