@@ -4,10 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.types.InsRangeTypes;
 import helmet.bikelab.apiserver.domain.types.RiderInsuranceStatus;
-import helmet.bikelab.apiserver.domain.types.converters.BankInfoDtoConverter;
-import helmet.bikelab.apiserver.domain.types.converters.InsRangeTypeConverter;
-import helmet.bikelab.apiserver.domain.types.converters.RiderInfoDtoConverter;
-import helmet.bikelab.apiserver.domain.types.converters.RiderInsuranceStatusConverter;
+import helmet.bikelab.apiserver.domain.types.RiderStatusTypes;
+import helmet.bikelab.apiserver.domain.types.converters.*;
 import helmet.bikelab.apiserver.objects.BankInfoDto;
 import helmet.bikelab.apiserver.objects.RiderInfoDto;
 import lombok.Getter;
@@ -41,12 +39,24 @@ public class RiderInsurancesDtl {
     @Column(name = "insurance_number")
     private String insNum;
 
-    @Column(name = "rider_info", columnDefinition = "JSON")
-    @Convert(converter = RiderInfoDtoConverter.class)
-    private RiderInfoDto riderInfoDto;
+    @Column(name = "rider_id")
+    private String riderId;
 
-    @Column(name = "rider_info", columnDefinition = "JSON", updatable = false, insertable = false)
-    private String riderInfo;
+    @Column(name = "rider_status", columnDefinition = "ENUM")
+    @Convert(converter = RiderStatusTypesConverter.class)
+    private RiderStatusTypes riderStatus;
+
+    @Column(name = "rider_email")
+    private String riderEmail;
+
+    @Column(name = "rider_phone")
+    private String riderPhone;
+
+    @Column(name = "rider_name")
+    private String riderName;
+
+    @Column(name = "rider_ssn")
+    private String riderSsn;
 
     @Column(name = "status", columnDefinition = "ENUM")
     @Convert(converter = RiderInsuranceStatusConverter.class)
