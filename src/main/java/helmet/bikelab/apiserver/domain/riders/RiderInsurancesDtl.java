@@ -2,6 +2,7 @@ package helmet.bikelab.apiserver.domain.riders;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
+import helmet.bikelab.apiserver.domain.embeds.ModelAddress;
 import helmet.bikelab.apiserver.domain.types.InsRangeTypes;
 import helmet.bikelab.apiserver.domain.types.RiderInsuranceStatus;
 import helmet.bikelab.apiserver.domain.types.RiderStatusTypes;
@@ -93,5 +94,27 @@ public class RiderInsurancesDtl {
 
     @Column(name = "created_by")
     private Integer createdBy;
+
+    @Column(name = "rider_address", columnDefinition = "JSON")
+    @Convert(converter = ModelAddressConverter.class)
+    ModelAddress riderAddress;
+
+    @Column(name = "liability_man")
+    private Integer liabilityMan;
+
+    @Column(name = "liability_car")
+    private Integer liabilityCar;
+
+    @Column(name = "liability_man2")
+    private Integer liabilityMan2;
+
+    @Column(name = "self_cover_man")
+    private Integer selfCoverMan;
+
+    @Column(name = "self_cover_car")
+    private Integer selfCoverCar;
+
+    @Column(name = "no_insurance_cover")
+    private Integer noInsCover;
 
 }

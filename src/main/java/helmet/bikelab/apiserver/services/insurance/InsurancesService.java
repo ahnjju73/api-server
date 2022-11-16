@@ -161,6 +161,13 @@ public class InsurancesService extends SessService {
             insurancesDtl.setRiderName(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderName());
             insurancesDtl.setRiderSsn(addUpdateRiderInsuranceRequest.getSsn());
         }
+        insurancesDtl.setRiderAddress(addUpdateRiderInsuranceRequest.getAddress());
+        insurancesDtl.setLiabilityMan(addUpdateRiderInsuranceRequest.getLiabilityMan());
+        insurancesDtl.setLiabilityCar(addUpdateRiderInsuranceRequest.getLiabilityCar());
+        insurancesDtl.setLiabilityMan2(addUpdateRiderInsuranceRequest.getLiabilityMan2());
+        insurancesDtl.setSelfCoverMan(addUpdateRiderInsuranceRequest.getSelfCoverMan());
+        insurancesDtl.setSelfCoverCar(addUpdateRiderInsuranceRequest.getSelfCoverCar());
+        insurancesDtl.setNoInsCover(addUpdateRiderInsuranceRequest.getNoInsuranceCover());
         insurancesDtl.setRiderInsuranceStatus(RiderInsuranceStatus.PENDING);
         if (bePresent(addUpdateRiderInsuranceRequest.getBankInfoDto()))
             insurancesDtl.setBankInfo(addUpdateRiderInsuranceRequest.getBankInfoDto());
