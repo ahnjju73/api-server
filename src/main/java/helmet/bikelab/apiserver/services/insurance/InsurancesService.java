@@ -256,7 +256,10 @@ public class InsurancesService extends SessService {
 
     public BikeSessionRequest deleteRiderInsurance(BikeSessionRequest request){
         String riderInsId = (String) request.getParam().get("rider_ins_id");
+        RiderInsurances byRiderInsId = riderInsuranceRepository.findByRiderInsId(riderInsId);
+        riderInsuranceDtlRepository.delete(byRiderInsId.getRiderInsurancesDtl());
         riderInsuranceRepository.deleteByRiderInsId(riderInsId);
+
         return request;
     }
 }
