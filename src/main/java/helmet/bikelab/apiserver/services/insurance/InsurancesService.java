@@ -7,16 +7,12 @@ import helmet.bikelab.apiserver.domain.riders.RiderInsurances;
 import helmet.bikelab.apiserver.domain.riders.RiderInsurancesDtl;
 import helmet.bikelab.apiserver.domain.riders.Riders;
 import helmet.bikelab.apiserver.domain.types.RiderInsuranceStatus;
-import helmet.bikelab.apiserver.objects.BankInfoDto;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.InsuranceOptionDto;
-import helmet.bikelab.apiserver.objects.RiderInfoDto;
 import helmet.bikelab.apiserver.objects.bikelabs.insurance.DeleteInsuranceRequest;
-import helmet.bikelab.apiserver.objects.bikelabs.insurance.FetchInsuranceRequest;
 import helmet.bikelab.apiserver.objects.bikelabs.insurance.FetchInsuranceResponse;
 import helmet.bikelab.apiserver.objects.requests.AddUpdateRiderInsuranceRequest;
 import helmet.bikelab.apiserver.objects.requests.FetchRiderInsuranceRequest;
-import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.repositories.*;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.utils.AutoKey;
@@ -165,7 +161,7 @@ public class InsurancesService extends SessService {
             insurancesDtl.setRiderName(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderName());
             insurancesDtl.setRiderSsn(addUpdateRiderInsuranceRequest.getSsn());
         }
-        insurancesDtl.setRiderInsuranceStatus(RiderInsuranceStatus.PENEDING);
+        insurancesDtl.setRiderInsuranceStatus(RiderInsuranceStatus.PENDING);
         if (bePresent(addUpdateRiderInsuranceRequest.getBankInfoDto()))
             insurancesDtl.setBankInfo(addUpdateRiderInsuranceRequest.getBankInfoDto());
         insurancesDtl.setUsage(addUpdateRiderInsuranceRequest.getUsage());
@@ -177,10 +173,17 @@ public class InsurancesService extends SessService {
     public BikeSessionRequest fetchRiderInsurances(BikeSessionRequest request) {
         FetchRiderInsuranceRequest fetchRiderInsuranceRequest = map(request.getParam(), FetchRiderInsuranceRequest.class);
         Pageable pageable = PageRequest.of(fetchRiderInsuranceRequest.getPage(), fetchRiderInsuranceRequest.getSize());
-        if (bePresent(fetchRiderInsuranceRequest.getRiderName())) {
+
+        if (bePresent(fetchRiderInsuranceRequest.getRiderName()) && bePresent(fetchRiderInsuranceRequest.getStatus())) {
+            Page<RiderInsurances> allByRiderInsurancesDtl_riderInfoDto_riderNameContaining = riderInsuranceRepository.findAllByRiderInsurancesDtl_RiderNameContainingAndRiderInsurancesDtl_RiderInsuranceStatus(fetchRiderInsuranceRequest.getRiderName(), RiderInsuranceStatus.getStatus(fetchRiderInsuranceRequest.getStatus()), pageable);
+            request.setResponse(allByRiderInsurancesDtl_riderInfoDto_riderNameContaining);
+        }else if (bePresent(fetchRiderInsuranceRequest.getRiderName())) {
             Page<RiderInsurances> allByRiderInsurancesDtl_riderInfoDto_riderNameContaining = riderInsuranceRepository.findAllByRiderInsurancesDtl_RiderNameContaining(fetchRiderInsuranceRequest.getRiderName(), pageable);
             request.setResponse(allByRiderInsurancesDtl_riderInfoDto_riderNameContaining);
-        } else {
+        } else if(bePresent(fetchRiderInsuranceRequest.getStatus())){
+            Page<RiderInsurances> allByRiderInsurancesDtl_riderInfoDto_riderNameContaining = riderInsuranceRepository.findAllByRiderInsurancesDtl_RiderInsuranceStatus(RiderInsuranceStatus.getStatus(fetchRiderInsuranceRequest.getStatus()), pageable);
+            request.setResponse(allByRiderInsurancesDtl_riderInfoDto_riderNameContaining);
+        }else {
             Page<RiderInsurances> allOrderByRiderInsNoDesc = riderInsuranceRepository.findAll(pageable);
             request.setResponse(allOrderByRiderInsNoDesc);
         }
@@ -226,7 +229,7 @@ public class InsurancesService extends SessService {
             insurancesDtl.setRiderName(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderName());
             insurancesDtl.setRiderSsn(addUpdateRiderInsuranceRequest.getSsn());
         }
-        insurancesDtl.setRiderInsuranceStatus(RiderInsuranceStatus.PENEDING);
+        insurancesDtl.setRiderInsuranceStatus(RiderInsuranceStatus.PENDING);
         if (bePresent(addUpdateRiderInsuranceRequest.getBankInfoDto()))
             insurancesDtl.setBankInfo(addUpdateRiderInsuranceRequest.getBankInfoDto());
         insurancesDtl.setUsage(addUpdateRiderInsuranceRequest.getUsage());
