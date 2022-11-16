@@ -7,6 +7,7 @@ import helmet.bikelab.apiserver.domain.riders.RiderInsurances;
 import helmet.bikelab.apiserver.domain.riders.RiderInsurancesDtl;
 import helmet.bikelab.apiserver.domain.riders.Riders;
 import helmet.bikelab.apiserver.domain.types.RiderInsuranceStatus;
+import helmet.bikelab.apiserver.objects.AddressDto;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.InsuranceOptionDto;
 import helmet.bikelab.apiserver.objects.bikelabs.insurance.DeleteInsuranceRequest;
@@ -161,7 +162,7 @@ public class InsurancesService extends SessService {
             insurancesDtl.setRiderName(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderName());
             insurancesDtl.setRiderSsn(addUpdateRiderInsuranceRequest.getSsn());
         }
-        insurancesDtl.setRiderAddress(addUpdateRiderInsuranceRequest.getAddress());
+        insurancesDtl.setRiderAddress(new AddressDto().setByModelAddress(addUpdateRiderInsuranceRequest.getAddress()));
         insurancesDtl.setLiabilityMan(addUpdateRiderInsuranceRequest.getLiabilityMan());
         insurancesDtl.setLiabilityCar(addUpdateRiderInsuranceRequest.getLiabilityCar());
         insurancesDtl.setLiabilityMan2(addUpdateRiderInsuranceRequest.getLiabilityMan2());
@@ -236,6 +237,13 @@ public class InsurancesService extends SessService {
             insurancesDtl.setRiderName(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderName());
             insurancesDtl.setRiderSsn(addUpdateRiderInsuranceRequest.getSsn());
         }
+        insurancesDtl.setRiderAddress(new AddressDto().setByModelAddress(addUpdateRiderInsuranceRequest.getAddress()));
+        insurancesDtl.setLiabilityMan(addUpdateRiderInsuranceRequest.getLiabilityMan());
+        insurancesDtl.setLiabilityCar(addUpdateRiderInsuranceRequest.getLiabilityCar());
+        insurancesDtl.setLiabilityMan2(addUpdateRiderInsuranceRequest.getLiabilityMan2());
+        insurancesDtl.setSelfCoverMan(addUpdateRiderInsuranceRequest.getSelfCoverMan());
+        insurancesDtl.setSelfCoverCar(addUpdateRiderInsuranceRequest.getSelfCoverCar());
+        insurancesDtl.setNoInsCover(addUpdateRiderInsuranceRequest.getNoInsuranceCover());
         insurancesDtl.setRiderInsuranceStatus(RiderInsuranceStatus.PENDING);
         if (bePresent(addUpdateRiderInsuranceRequest.getBankInfoDto()))
             insurancesDtl.setBankInfo(addUpdateRiderInsuranceRequest.getBankInfoDto());

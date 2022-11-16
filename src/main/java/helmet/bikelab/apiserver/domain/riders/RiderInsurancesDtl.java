@@ -7,6 +7,7 @@ import helmet.bikelab.apiserver.domain.types.InsRangeTypes;
 import helmet.bikelab.apiserver.domain.types.RiderInsuranceStatus;
 import helmet.bikelab.apiserver.domain.types.RiderStatusTypes;
 import helmet.bikelab.apiserver.domain.types.converters.*;
+import helmet.bikelab.apiserver.objects.AddressDto;
 import helmet.bikelab.apiserver.objects.BankInfoDto;
 import helmet.bikelab.apiserver.objects.RiderInfoDto;
 import lombok.Getter;
@@ -97,7 +98,7 @@ public class RiderInsurancesDtl {
 
     @Column(name = "rider_address", columnDefinition = "JSON")
     @Convert(converter = ModelAddressConverter.class)
-    ModelAddress riderAddress;
+    AddressDto riderAddress;
 
     @Column(name = "liability_man")
     private Integer liabilityMan;
