@@ -6,6 +6,7 @@ import helmet.bikelab.apiserver.domain.lease.Insurances;
 import helmet.bikelab.apiserver.domain.riders.RiderInsurances;
 import helmet.bikelab.apiserver.domain.riders.RiderInsurancesDtl;
 import helmet.bikelab.apiserver.domain.riders.Riders;
+import helmet.bikelab.apiserver.domain.types.InsRangeTypes;
 import helmet.bikelab.apiserver.domain.types.RiderInsuranceStatus;
 import helmet.bikelab.apiserver.objects.AddressDto;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
@@ -163,6 +164,8 @@ public class InsurancesService extends SessService {
             insurancesDtl.setRiderName(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderName());
             insurancesDtl.setRiderSsn(addUpdateRiderInsuranceRequest.getSsn());
         }
+        insurancesDtl.setCreatedBy(request.getSessionUser().getUserNo());
+        insurancesDtl.setInsRangeType(InsRangeTypes.getType(addUpdateRiderInsuranceRequest.getInsRange()));
         insurancesDtl.setRiderAddress(new AddressDto().setByModelAddress(addUpdateRiderInsuranceRequest.getAddress()));
         insurancesDtl.setLiabilityMan(addUpdateRiderInsuranceRequest.getLiabilityMan());
         insurancesDtl.setLiabilityCar(addUpdateRiderInsuranceRequest.getLiabilityCar());
@@ -238,6 +241,7 @@ public class InsurancesService extends SessService {
             insurancesDtl.setRiderName(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderName());
             insurancesDtl.setRiderSsn(addUpdateRiderInsuranceRequest.getSsn());
         }
+        insurancesDtl.setInsRangeType(InsRangeTypes.getType(addUpdateRiderInsuranceRequest.getInsRange()));
         insurancesDtl.setRiderAddress(new AddressDto().setByModelAddress(addUpdateRiderInsuranceRequest.getAddress()));
         insurancesDtl.setLiabilityMan(addUpdateRiderInsuranceRequest.getLiabilityMan());
         insurancesDtl.setLiabilityCar(addUpdateRiderInsuranceRequest.getLiabilityCar());
