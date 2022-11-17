@@ -165,6 +165,7 @@ public class InsurancesService extends SessService {
             insurancesDtl.setRiderSsn(addUpdateRiderInsuranceRequest.getSsn());
         }
         insurancesDtl.setCreatedBy(request.getSessionUser().getUserNo());
+        insurancesDtl.setAge(addUpdateRiderInsuranceRequest.getAge());
         insurancesDtl.setInsRangeType(InsRangeTypes.getType(addUpdateRiderInsuranceRequest.getInsRange()));
         insurancesDtl.setRiderAddress(new AddressDto().setByModelAddress(addUpdateRiderInsuranceRequest.getAddress()));
         insurancesDtl.setLiabilityMan(addUpdateRiderInsuranceRequest.getLiabilityMan());
@@ -241,6 +242,7 @@ public class InsurancesService extends SessService {
             insurancesDtl.setRiderName(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderName());
             insurancesDtl.setRiderSsn(addUpdateRiderInsuranceRequest.getSsn());
         }
+        insurancesDtl.setAge(addUpdateRiderInsuranceRequest.getAge());
         insurancesDtl.setInsRangeType(InsRangeTypes.getType(addUpdateRiderInsuranceRequest.getInsRange()));
         insurancesDtl.setRiderAddress(new AddressDto().setByModelAddress(addUpdateRiderInsuranceRequest.getAddress()));
         insurancesDtl.setLiabilityMan(addUpdateRiderInsuranceRequest.getLiabilityMan());

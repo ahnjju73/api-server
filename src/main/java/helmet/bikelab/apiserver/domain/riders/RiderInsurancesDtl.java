@@ -60,6 +60,9 @@ public class RiderInsurancesDtl {
     @Column(name = "rider_ssn")
     private String riderSsn;
 
+    @Column(name = "rider_age")
+    private Integer age;
+
     @Column(name = "status", columnDefinition = "ENUM")
     @Convert(converter = RiderInsuranceStatusConverter.class)
     private RiderInsuranceStatus riderInsuranceStatus;
