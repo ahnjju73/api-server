@@ -221,7 +221,7 @@ public class InsurancesService extends SessService {
         riderInsurances.setBikeNo(bike.getBikeNo());
         riderInsuranceRepository.save(riderInsurances);
 
-        RiderInsurancesDtl insurancesDtl = new RiderInsurancesDtl();
+        RiderInsurancesDtl insurancesDtl = riderInsurances.getRiderInsurancesDtl();
         insurancesDtl.setInsCompany(addUpdateRiderInsuranceRequest.getInsCompany());
         insurancesDtl.setInsNum(addUpdateRiderInsuranceRequest.getInsNum());
         insurancesDtl.setRiderInsNo(riderInsurances.getRiderInsNo());
