@@ -68,6 +68,9 @@ public class RiderInsurancesDtl {
     @Convert(converter = InsRangeTypeConverter.class)
     private InsRangeTypes insRangeType;
 
+    @Column(name = "ins_range", columnDefinition = "ENUM")
+    private String insRangeTypeCode;
+
     @Column(name = "bank_info", columnDefinition = "JSON")
     @Convert(converter = BankInfoDtoConverter.class)
     private BankInfoDto bankInfo;
