@@ -31,7 +31,7 @@ public class RiderInsurancesDtl {
     private Integer riderInsNo;
 
     @JsonIgnore
-    @OneToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "rider_ins_no", insertable = false, updatable = false)
     private RiderInsurances riderInsurances;
 
@@ -40,28 +40,6 @@ public class RiderInsurancesDtl {
 
     @Column(name = "insurance_number")
     private String insNum;
-
-    @Column(name = "rider_id")
-    private String riderId;
-
-    @Column(name = "rider_status", columnDefinition = "ENUM")
-    @Convert(converter = RiderStatusTypesConverter.class)
-    private RiderStatusTypes riderStatus;
-
-    @Column(name = "rider_email")
-    private String riderEmail;
-
-    @Column(name = "rider_phone")
-    private String riderPhone;
-
-    @Column(name = "rider_name")
-    private String riderName;
-
-    @Column(name = "rider_ssn")
-    private String riderSsn;
-
-    @Column(name = "rider_age")
-    private Integer age;
 
     @Column(name = "status", columnDefinition = "ENUM")
     @Convert(converter = RiderInsuranceStatusConverter.class)
@@ -102,9 +80,8 @@ public class RiderInsurancesDtl {
     @Column(name = "created_by")
     private Integer createdBy;
 
-    @Column(name = "rider_address", columnDefinition = "JSON")
-    @Convert(converter = ModelAddressConverter.class)
-    AddressDto riderAddress;
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
 
     @Column(name = "liability_man")
     private Integer liabilityMan;

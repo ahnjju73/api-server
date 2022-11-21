@@ -4,5 +4,6 @@ import helmet.bikelab.apiserver.domain.riders.RiderInsurancesDtl;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface RiderInsuranceDtlRepository extends JpaRepository<RiderInsurancesDtl, Integer> {
-
+    RiderInsurancesDtl findTopByRiderInsurances_RiderInsIdOrderByDtlNoDesc(String riderInsId);
+    void deleteAllByRiderInsurances_RiderInsId(String riderInsId);
 }

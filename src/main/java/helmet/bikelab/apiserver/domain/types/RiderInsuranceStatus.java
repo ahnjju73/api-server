@@ -4,7 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum RiderInsuranceStatus {
-    PENDING("0"), CHECKING("1");
+    PENDING("0"), COMPLETE("1");
 
     private String status;
 

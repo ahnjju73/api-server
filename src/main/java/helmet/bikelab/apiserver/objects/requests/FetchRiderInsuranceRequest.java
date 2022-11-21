@@ -8,7 +8,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
-public class FetchRiderInsuranceRequest extends PageableRequest{
+public class FetchRiderInsuranceRequest extends RequestListDto{
     private String riderName;
     private String status;
 

@@ -207,9 +207,10 @@
                        and reg_num is not null
                        and price is not null
                        and company_name is not null
-                       <if test="is_bikemaster != null and is_bikemaster != '' and is_bikemaster != 'undefined'">
+                       and deleted_at is null
+                     <if test="is_bikemaster != null and is_bikemaster != '' and is_bikemaster != 'undefined'">
                        and is_bm = #{is_bikemaster}
-                       </if>
+                     </if>
                        and bike_id != (select val from system_parameters where parameter_no = 0)
                      <if test="search_name != null and search_name != '' and search_name != 'undefined'">
                         and (
@@ -236,6 +237,7 @@
                and reg_num is not null
                and price is not null
                and company_name is not null
+               and deleted_at is null
             <if test="is_bikemaster != null and is_bikemaster != '' and is_bikemaster != 'undefined'">
                and is_bm = #{is_bikemaster}
             </if>
@@ -268,6 +270,7 @@
                  <if test="is_bikemaster != null and is_bikemaster != '' and is_bikemaster != 'undefined'">
                    and is_bm = #{is_bikemaster}
                  </if>
+                   and deleted_at is null
                    and bike_id != (select val from system_parameters where parameter_no = 0)
                    and reg_num is not null
                    and price is not null

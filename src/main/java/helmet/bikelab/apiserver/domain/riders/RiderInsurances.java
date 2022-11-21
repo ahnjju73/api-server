@@ -1,12 +1,15 @@
 package helmet.bikelab.apiserver.domain.riders;
 
 import helmet.bikelab.apiserver.domain.bike.Bikes;
+import helmet.bikelab.apiserver.domain.types.converters.ModelAddressConverter;
+import helmet.bikelab.apiserver.objects.AddressDto;
 import helmet.bikelab.apiserver.services.internal.OriginObject;
 import helmet.bikelab.apiserver.utils.keys.SESSION;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.List;
 
 @Entity
 @Getter
@@ -28,8 +31,24 @@ public class RiderInsurances extends OriginObject {
     @JoinColumn(name = "rider_no", insertable = false, updatable = false)
     private Riders rider;
 
-    @OneToOne(mappedBy = "riderInsurances", optional = false)
-    private RiderInsurancesDtl riderInsurancesDtl;
+    @Column(name = "rider_email")
+    private String riderEmail;
+
+    @Column(name = "rider_phone")
+    private String riderPhone;
+
+    @Column(name = "rider_name")
+    private String riderName;
+
+    @Column(name = "rider_ssn")
+    private String riderSsn;
+
+    @Column(name = "rider_address", columnDefinition = "JSON")
+    @Convert(converter = ModelAddressConverter.class)
+    AddressDto riderAddress;
+
+    @Column(name = "rider_age")
+    private Integer age;
 
     @Column(name = "bike_num")
     private String bikeNum;

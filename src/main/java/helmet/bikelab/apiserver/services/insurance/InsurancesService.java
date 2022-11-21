@@ -141,33 +141,31 @@ public class InsurancesService extends SessService {
             rider = riderWorker.getRiderById(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderId());
             riderInsurances.setRiderNo(rider.getRiderNo());
         }
+        if (bePresent(rider)) {
+            riderInsurances.setRiderEmail(rider.getEmail());
+            riderInsurances.setRiderPhone(rider.getPhone());
+            riderInsurances.setRiderName(rider.getRiderInfo().getName());
+            riderInsurances.setRiderSsn(addUpdateRiderInsuranceRequest.getSsn());
+        } else {
+            riderInsurances.setRiderEmail(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderEmail());
+            riderInsurances.setRiderPhone(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderPhone());
+            riderInsurances.setRiderName(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderName());
+            riderInsurances.setRiderSsn(addUpdateRiderInsuranceRequest.getSsn());
+        }
+        riderInsurances.setAge(addUpdateRiderInsuranceRequest.getAge());
         Bikes bike = bikeWorker.getBikeById(addUpdateRiderInsuranceRequest.getBikeId());
         riderInsurances.setBikeNum(bike.getCarNum());
         riderInsurances.setVimNum(bike.getVimNum());
         riderInsurances.setBikeNo(bike.getBikeNo());
+        riderInsurances.setRiderAddress(new AddressDto().setByModelAddress(addUpdateRiderInsuranceRequest.getAddress()));
         riderInsuranceRepository.save(riderInsurances);
 
         RiderInsurancesDtl insurancesDtl = new RiderInsurancesDtl();
         insurancesDtl.setInsCompany(addUpdateRiderInsuranceRequest.getInsCompany());
         insurancesDtl.setInsNum(addUpdateRiderInsuranceRequest.getInsNum());
         insurancesDtl.setRiderInsNo(riderInsurances.getRiderInsNo());
-        if (bePresent(rider)) {
-            insurancesDtl.setRiderId(rider.getRiderId());
-            insurancesDtl.setRiderStatus(rider.getStatus());
-            insurancesDtl.setRiderEmail(rider.getEmail());
-            insurancesDtl.setRiderPhone(rider.getPhone());
-            insurancesDtl.setRiderName(rider.getRiderInfo().getName());
-            insurancesDtl.setRiderSsn(addUpdateRiderInsuranceRequest.getSsn());
-        } else {
-            insurancesDtl.setRiderEmail(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderEmail());
-            insurancesDtl.setRiderPhone(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderPhone());
-            insurancesDtl.setRiderName(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderName());
-            insurancesDtl.setRiderSsn(addUpdateRiderInsuranceRequest.getSsn());
-        }
         insurancesDtl.setCreatedBy(request.getSessionUser().getUserNo());
-        insurancesDtl.setAge(addUpdateRiderInsuranceRequest.getAge());
         insurancesDtl.setInsRangeType(InsRangeTypes.getType(addUpdateRiderInsuranceRequest.getInsRange()));
-        insurancesDtl.setRiderAddress(new AddressDto().setByModelAddress(addUpdateRiderInsuranceRequest.getAddress()));
         insurancesDtl.setLiabilityMan(addUpdateRiderInsuranceRequest.getLiabilityMan());
         insurancesDtl.setLiabilityCar(addUpdateRiderInsuranceRequest.getLiabilityCar());
         insurancesDtl.setLiabilityMan2(addUpdateRiderInsuranceRequest.getLiabilityMan2());
@@ -184,22 +182,22 @@ public class InsurancesService extends SessService {
     }
 
     public BikeSessionRequest fetchRiderInsurances(BikeSessionRequest request) {
-        FetchRiderInsuranceRequest fetchRiderInsuranceRequest = map(request.getParam(), FetchRiderInsuranceRequest.class);
-        Pageable pageable = PageRequest.of(fetchRiderInsuranceRequest.getPage(), fetchRiderInsuranceRequest.getSize(), Sort.by("riderInsNo").descending());
-
-        if (bePresent(fetchRiderInsuranceRequest.getRiderName()) && bePresent(fetchRiderInsuranceRequest.getStatus())) {
-            Page<RiderInsurances> allByRiderInsurancesDtl_riderInfoDto_riderNameContaining = riderInsuranceRepository.findAllByRiderInsurancesDtl_RiderNameContainingAndRiderInsurancesDtl_RiderInsuranceStatus(fetchRiderInsuranceRequest.getRiderName(), RiderInsuranceStatus.getStatus(fetchRiderInsuranceRequest.getStatus()), pageable);
-            request.setResponse(allByRiderInsurancesDtl_riderInfoDto_riderNameContaining);
-        }else if (bePresent(fetchRiderInsuranceRequest.getRiderName())) {
-            Page<RiderInsurances> allByRiderInsurancesDtl_riderInfoDto_riderNameContaining = riderInsuranceRepository.findAllByRiderInsurancesDtl_RiderNameContaining(fetchRiderInsuranceRequest.getRiderName(), pageable);
-            request.setResponse(allByRiderInsurancesDtl_riderInfoDto_riderNameContaining);
-        } else if(bePresent(fetchRiderInsuranceRequest.getStatus())){
-            Page<RiderInsurances> allByRiderInsurancesDtl_riderInfoDto_riderNameContaining = riderInsuranceRepository.findAllByRiderInsurancesDtl_RiderInsuranceStatus(RiderInsuranceStatus.getStatus(fetchRiderInsuranceRequest.getStatus()), pageable);
-            request.setResponse(allByRiderInsurancesDtl_riderInfoDto_riderNameContaining);
-        }else {
-            Page<RiderInsurances> allOrderByRiderInsNoDesc = riderInsuranceRepository.findAll(pageable);
-            request.setResponse(allOrderByRiderInsNoDesc);
-        }
+//        FetchRiderInsuranceRequest fetchRiderInsuranceRequest = map(request.getParam(), FetchRiderInsuranceRequest.class);
+//        Pageable pageable = PageRequest.of(fetchRiderInsuranceRequest.getPage(), fetchRiderInsuranceRequest.getSize(), Sort.by("riderInsNo").descending());
+//
+//        if (bePresent(fetchRiderInsuranceRequest.getRiderName()) && bePresent(fetchRiderInsuranceRequest.getStatus())) {
+////            Page<RiderInsurances> allByRiderInsurancesDtl_riderInfoDto_riderNameContaining = riderInsuranceRepository.findAllByRiderInsurancesDtl_RiderNameContainingAndRiderInsurancesDtl_RiderInsuranceStatus(fetchRiderInsuranceRequest.getRiderName(), RiderInsuranceStatus.getStatus(fetchRiderInsuranceRequest.getStatus()), pageable);
+////            request.setResponse(allByRiderInsurancesDtl_riderInfoDto_riderNameContaining);
+//        }else if (bePresent(fetchRiderInsuranceRequest.getRiderName())) {
+//            Page<RiderInsurances> allByRiderInsurancesDtl_riderInfoDto_riderNameContaining = riderInsuranceRepository.findByRiderNameContaining(fetchRiderInsuranceRequest.getRiderName(), pageable);
+//            request.setResponse(allByRiderInsurancesDtl_riderInfoDto_riderNameContaining);
+//        } else if(bePresent(fetchRiderInsuranceRequest.getStatus())){
+////            Page<RiderInsurances> allByRiderInsurancesDtl_riderInfoDto_riderNameContaining = riderInsuranceRepository.findAllByRiderInsurancesDtl_RiderInsuranceStatus(RiderInsuranceStatus.getStatus(fetchRiderInsuranceRequest.getStatus()), pageable);
+////            request.setResponse(allByRiderInsurancesDtl_riderInfoDto_riderNameContaining);
+//        }else {
+//            Page<RiderInsurances> allOrderByRiderInsNoDesc = riderInsuranceRepository.findAll(pageable);
+//            request.setResponse(allOrderByRiderInsNoDesc);
+//        }
         return request;
     }
 
@@ -219,32 +217,30 @@ public class InsurancesService extends SessService {
             rider = riderWorker.getRiderById(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderId());
             riderInsurances.setRiderNo(rider.getRiderNo());
         }
+        if (bePresent(rider)) {
+            riderInsurances.setRiderEmail(rider.getEmail());
+            riderInsurances.setRiderPhone(rider.getPhone());
+            riderInsurances.setRiderName(rider.getRiderInfo().getName());
+            riderInsurances.setRiderSsn(addUpdateRiderInsuranceRequest.getSsn());
+        } else {
+            riderInsurances.setRiderEmail(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderEmail());
+            riderInsurances.setRiderPhone(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderPhone());
+            riderInsurances.setRiderName(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderName());
+            riderInsurances.setRiderSsn(addUpdateRiderInsuranceRequest.getSsn());
+        }
+        riderInsurances.setAge(addUpdateRiderInsuranceRequest.getAge());
         Bikes bike = bikeWorker.getBikeById(addUpdateRiderInsuranceRequest.getBikeId());
         riderInsurances.setBikeNum(bike.getCarNum());
         riderInsurances.setVimNum(bike.getVimNum());
         riderInsurances.setBikeNo(bike.getBikeNo());
+        riderInsurances.setRiderAddress(new AddressDto().setByModelAddress(addUpdateRiderInsuranceRequest.getAddress()));
         riderInsuranceRepository.save(riderInsurances);
 
-        RiderInsurancesDtl insurancesDtl = riderInsurances.getRiderInsurancesDtl();
+        RiderInsurancesDtl insurancesDtl = riderInsuranceDtlRepository.findTopByRiderInsurances_RiderInsIdOrderByDtlNoDesc(riderInsId);
         insurancesDtl.setInsCompany(addUpdateRiderInsuranceRequest.getInsCompany());
         insurancesDtl.setInsNum(addUpdateRiderInsuranceRequest.getInsNum());
         insurancesDtl.setRiderInsNo(riderInsurances.getRiderInsNo());
-        if (bePresent(rider)) {
-            insurancesDtl.setRiderId(rider.getRiderId());
-            insurancesDtl.setRiderStatus(rider.getStatus());
-            insurancesDtl.setRiderEmail(rider.getEmail());
-            insurancesDtl.setRiderPhone(rider.getPhone());
-            insurancesDtl.setRiderName(rider.getRiderInfo().getName());
-            insurancesDtl.setRiderSsn(addUpdateRiderInsuranceRequest.getSsn());
-        } else {
-            insurancesDtl.setRiderEmail(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderEmail());
-            insurancesDtl.setRiderPhone(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderPhone());
-            insurancesDtl.setRiderName(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderName());
-            insurancesDtl.setRiderSsn(addUpdateRiderInsuranceRequest.getSsn());
-        }
-        insurancesDtl.setAge(addUpdateRiderInsuranceRequest.getAge());
         insurancesDtl.setInsRangeType(InsRangeTypes.getType(addUpdateRiderInsuranceRequest.getInsRange()));
-        insurancesDtl.setRiderAddress(new AddressDto().setByModelAddress(addUpdateRiderInsuranceRequest.getAddress()));
         insurancesDtl.setLiabilityMan(addUpdateRiderInsuranceRequest.getLiabilityMan());
         insurancesDtl.setLiabilityCar(addUpdateRiderInsuranceRequest.getLiabilityCar());
         insurancesDtl.setLiabilityMan2(addUpdateRiderInsuranceRequest.getLiabilityMan2());
@@ -260,12 +256,21 @@ public class InsurancesService extends SessService {
         return request;
     }
 
+    @Transactional
     public BikeSessionRequest deleteRiderInsurance(BikeSessionRequest request){
         String riderInsId = (String) request.getParam().get("rider_ins_id");
-        RiderInsurances byRiderInsId = riderInsuranceRepository.findByRiderInsId(riderInsId);
-        riderInsuranceDtlRepository.delete(byRiderInsId.getRiderInsurancesDtl());
+        riderInsuranceDtlRepository.deleteAllByRiderInsurances_RiderInsId(riderInsId);
         riderInsuranceRepository.deleteByRiderInsId(riderInsId);
 
         return request;
     }
+
+
+    private String getChangeLog(RiderInsurances riderInsurances, AddUpdateRiderInsuranceRequest addUpdateRiderInsuranceRequest){
+        String change = "";
+        RiderInsurancesDtl topByRiderInsurances_riderInsIdOrderByDtlNoDesc = riderInsuranceDtlRepository.findTopByRiderInsurances_RiderInsIdOrderByDtlNoDesc(riderInsurances.getRiderInsId());
+
+        return change;
+    }
+
 }
