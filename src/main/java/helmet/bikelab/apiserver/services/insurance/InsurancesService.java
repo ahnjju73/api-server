@@ -6,8 +6,7 @@ import helmet.bikelab.apiserver.domain.lease.Insurances;
 import helmet.bikelab.apiserver.domain.riders.RiderInsurances;
 import helmet.bikelab.apiserver.domain.riders.RiderInsurancesDtl;
 import helmet.bikelab.apiserver.domain.riders.Riders;
-import helmet.bikelab.apiserver.domain.types.InsRangeTypes;
-import helmet.bikelab.apiserver.domain.types.RiderInsuranceStatus;
+import helmet.bikelab.apiserver.domain.types.*;
 import helmet.bikelab.apiserver.objects.AddressDto;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.InsuranceOptionDto;
@@ -152,7 +151,7 @@ public class InsurancesService extends SessService {
             riderInsurances.setRiderName(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderName());
             riderInsurances.setRiderSsn(addUpdateRiderInsuranceRequest.getSsn());
         }
-        riderInsurances.setAge(addUpdateRiderInsuranceRequest.getAge());
+        riderInsurances.setAge(InsAgeTypes.getAge(addUpdateRiderInsuranceRequest.getAge()));
         Bikes bike = bikeWorker.getBikeById(addUpdateRiderInsuranceRequest.getBikeId());
         riderInsurances.setBikeNum(bike.getCarNum());
         riderInsurances.setVimNum(bike.getVimNum());
@@ -161,7 +160,7 @@ public class InsurancesService extends SessService {
         riderInsuranceRepository.save(riderInsurances);
 
         RiderInsurancesDtl insurancesDtl = new RiderInsurancesDtl();
-        insurancesDtl.setInsCompany(addUpdateRiderInsuranceRequest.getInsCompany());
+        insurancesDtl.setInsCompany(InsCompanyTypes.getCompanyType(addUpdateRiderInsuranceRequest.getInsCompany()));
         insurancesDtl.setInsNum(addUpdateRiderInsuranceRequest.getInsNum());
         insurancesDtl.setRiderInsNo(riderInsurances.getRiderInsNo());
         insurancesDtl.setCreatedBy(request.getSessionUser().getUserNo());
@@ -175,8 +174,8 @@ public class InsurancesService extends SessService {
         insurancesDtl.setRiderInsuranceStatus(RiderInsuranceStatus.PENDING);
         if (bePresent(addUpdateRiderInsuranceRequest.getBankInfoDto()))
             insurancesDtl.setBankInfo(addUpdateRiderInsuranceRequest.getBankInfoDto());
-        insurancesDtl.setUsage(addUpdateRiderInsuranceRequest.getUsage());
-        insurancesDtl.setAdditionalStandard(addUpdateRiderInsuranceRequest.getAdditionalStandard());
+        insurancesDtl.setUsageTypes(UsageTypes.getType(addUpdateRiderInsuranceRequest.getUsage()));
+        insurancesDtl.setAdditionalStandardTypes(AdditionalStandardTypes.getType(addUpdateRiderInsuranceRequest.getAdditionalStandard()));
         riderInsuranceDtlRepository.save(insurancesDtl);
         return request;
     }
@@ -228,7 +227,7 @@ public class InsurancesService extends SessService {
             riderInsurances.setRiderName(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderName());
             riderInsurances.setRiderSsn(addUpdateRiderInsuranceRequest.getSsn());
         }
-        riderInsurances.setAge(addUpdateRiderInsuranceRequest.getAge());
+        riderInsurances.setAge(InsAgeTypes.getAge(addUpdateRiderInsuranceRequest.getAge()));
         Bikes bike = bikeWorker.getBikeById(addUpdateRiderInsuranceRequest.getBikeId());
         riderInsurances.setBikeNum(bike.getCarNum());
         riderInsurances.setVimNum(bike.getVimNum());
@@ -237,7 +236,7 @@ public class InsurancesService extends SessService {
         riderInsuranceRepository.save(riderInsurances);
 
         RiderInsurancesDtl insurancesDtl = riderInsuranceDtlRepository.findTopByRiderInsurances_RiderInsIdOrderByDtlNoDesc(riderInsId);
-        insurancesDtl.setInsCompany(addUpdateRiderInsuranceRequest.getInsCompany());
+        insurancesDtl.setInsCompany(InsCompanyTypes.getCompanyType(addUpdateRiderInsuranceRequest.getInsCompany()));
         insurancesDtl.setInsNum(addUpdateRiderInsuranceRequest.getInsNum());
         insurancesDtl.setRiderInsNo(riderInsurances.getRiderInsNo());
         insurancesDtl.setInsRangeType(InsRangeTypes.getType(addUpdateRiderInsuranceRequest.getInsRange()));
@@ -250,8 +249,8 @@ public class InsurancesService extends SessService {
         insurancesDtl.setRiderInsuranceStatus(RiderInsuranceStatus.PENDING);
         if (bePresent(addUpdateRiderInsuranceRequest.getBankInfoDto()))
             insurancesDtl.setBankInfo(addUpdateRiderInsuranceRequest.getBankInfoDto());
-        insurancesDtl.setUsage(addUpdateRiderInsuranceRequest.getUsage());
-        insurancesDtl.setAdditionalStandard(addUpdateRiderInsuranceRequest.getAdditionalStandard());
+        insurancesDtl.setUsageTypes(UsageTypes.getType(addUpdateRiderInsuranceRequest.getUsage()));
+        insurancesDtl.setAdditionalStandardTypes(AdditionalStandardTypes.getType(addUpdateRiderInsuranceRequest.getAdditionalStandard()));
         riderInsuranceDtlRepository.save(insurancesDtl);
         return request;
     }
@@ -261,7 +260,6 @@ public class InsurancesService extends SessService {
         String riderInsId = (String) request.getParam().get("rider_ins_id");
         riderInsuranceDtlRepository.deleteAllByRiderInsurances_RiderInsId(riderInsId);
         riderInsuranceRepository.deleteByRiderInsId(riderInsId);
-
         return request;
     }
 

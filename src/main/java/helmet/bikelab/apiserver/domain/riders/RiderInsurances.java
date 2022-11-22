@@ -1,6 +1,8 @@
 package helmet.bikelab.apiserver.domain.riders;
 
 import helmet.bikelab.apiserver.domain.bike.Bikes;
+import helmet.bikelab.apiserver.domain.types.InsAgeTypes;
+import helmet.bikelab.apiserver.domain.types.converters.InsAgeTypeConverter;
 import helmet.bikelab.apiserver.domain.types.converters.ModelAddressConverter;
 import helmet.bikelab.apiserver.objects.AddressDto;
 import helmet.bikelab.apiserver.services.internal.OriginObject;
@@ -47,8 +49,12 @@ public class RiderInsurances extends OriginObject {
     @Convert(converter = ModelAddressConverter.class)
     AddressDto riderAddress;
 
-    @Column(name = "rider_age")
-    private Integer age;
+    @Column(name = "rider_age", columnDefinition = "ENUM")
+    @Convert(converter = InsAgeTypeConverter.class)
+    private InsAgeTypes age;
+
+    @Column(name = "rider_age", columnDefinition = "ENUM")
+    private String ageCode;
 
     @Column(name = "bike_num")
     private String bikeNum;

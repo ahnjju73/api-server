@@ -3,9 +3,7 @@ package helmet.bikelab.apiserver.domain.riders;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.embeds.ModelAddress;
-import helmet.bikelab.apiserver.domain.types.InsRangeTypes;
-import helmet.bikelab.apiserver.domain.types.RiderInsuranceStatus;
-import helmet.bikelab.apiserver.domain.types.RiderStatusTypes;
+import helmet.bikelab.apiserver.domain.types.*;
 import helmet.bikelab.apiserver.domain.types.converters.*;
 import helmet.bikelab.apiserver.objects.AddressDto;
 import helmet.bikelab.apiserver.objects.BankInfoDto;
@@ -35,8 +33,12 @@ public class RiderInsurancesDtl {
     @JoinColumn(name = "rider_ins_no", insertable = false, updatable = false)
     private RiderInsurances riderInsurances;
 
-    @Column(name = "insurance_company")
-    private String insCompany;
+    @Column(name = "insurance_company", columnDefinition = "ENUM")
+    @Convert(converter = InsCompanyTypeConverter.class)
+    private InsCompanyTypes insCompany;
+
+    @Column(name = "insurance_company", columnDefinition = "ENUM", updatable = false, insertable = false)
+    private String insCompanyCode;
 
     @Column(name = "insurance_number")
     private String insNum;
@@ -56,11 +58,19 @@ public class RiderInsurancesDtl {
     @Convert(converter = BankInfoDtoConverter.class)
     private BankInfoDto bankInfo;
 
-    @Column(name = "`usage`")
-    private String usage;
+    @Column(name = "usage", columnDefinition = "ENUM")
+    @Convert(converter = UsageTypeConverter.class)
+    private UsageTypes usageTypes;
 
-    @Column(name = "additional_standard")
-    private Integer additionalStandard;
+    @Column(name = "usage", columnDefinition = "ENUM", updatable = false, insertable = false)
+    private String usageTypeCode;
+
+    @Column(name = "additional_standard", columnDefinition = "ENUM")
+    @Convert(converter = AdditionalStandardTypeConverter.class)
+    private AdditionalStandardTypes additionalStandardTypes;
+
+    @Column(name = "additional_standard", columnDefinition = "ENUM", updatable = false, insertable = false)
+    private Integer additionalStandardTypeCode;
 
     @Column(name = "start_dt")
     private LocalDateTime startDt;

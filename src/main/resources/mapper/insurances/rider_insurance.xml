@@ -15,7 +15,10 @@
         select ri.*,
                rid.insurance_company,
                rid.start_dt,
-               rid.end_dt
+               rid.end_dt,
+               ri.rider_name,
+               ri.rider_phone,
+               ri.bike_num
           from rider_insurances ri
           join rider_insurances_dtl rid on rid.rider_ins_no = (select rider_ins_no
                                                                  from rider_insurances_dtl dtl

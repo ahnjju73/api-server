@@ -18,7 +18,7 @@ public class AddUpdateRiderInsuranceRequest {
     private String insNum;
     private String ssn;
     private ModelAddress address;
-    private Integer age;
+    private String age;
     private String insRange;
     private RiderInfoDto riderInfoDto;
     private BankInfoDto bankInfoDto;
@@ -26,7 +26,7 @@ public class AddUpdateRiderInsuranceRequest {
     private String bikeId;
 
     private String usage;
-    private Integer additionalStandard;
+    private String additionalStandard;
 
     private Integer liabilityMan;
     private Integer liabilityCar;
