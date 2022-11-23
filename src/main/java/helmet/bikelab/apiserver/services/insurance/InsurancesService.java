@@ -202,12 +202,8 @@ public class InsurancesService extends SessService {
 
     public BikeSessionRequest fetchRiderInsuranceDetail(BikeSessionRequest request) {
         String riderInsId = (String) request.getParam().get("rider_ins_id");
-        Map response = new HashMap();
         RiderInsurances byRiderInsId = riderInsuranceRepository.findByRiderInsId(riderInsId);
-        List<RiderInsurancesDtl> dtls = riderInsuranceDtlRepository.findAllByRiderInsurances_RiderInsIdOrderByCreatedAtDesc(riderInsId);
-        response.put("rider_ins", byRiderInsId);
-        response.put("details", dtls);
-        request.setResponse(response);
+        request.setResponse(byRiderInsId);
         return request;
     }
 

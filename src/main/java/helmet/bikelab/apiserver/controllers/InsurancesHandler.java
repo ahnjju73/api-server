@@ -71,7 +71,7 @@ public class InsurancesHandler {
                 Mono.fromSupplier(() -> insurancesService.makeSessionRequest(request, BikeSessionRequest.class))
                         .subscribeOn(Schedulers.elastic())
                         .map(insurancesService::checkBikeSession)
-                        .map(insurancesService:: fetchRiderInsurances)
+                        .map(insurancesService::fetchRiderInsurances)
                         .map(insurancesService::returnData), Page.class);
     }
 
@@ -91,7 +91,7 @@ public class InsurancesHandler {
                         .map(req -> insurancesService.getPathVariable(req, "rider_ins_id"))
                         .map(insurancesService::checkBikeSession)
                         .map(insurancesService:: fetchRiderInsuranceDetail)
-                        .map(insurancesService::returnData), Map.class);
+                        .map(insurancesService::returnData), RiderInsurances.class);
     }
 
     public Mono<ServerResponse> updateRiderInsurance(ServerRequest request){
