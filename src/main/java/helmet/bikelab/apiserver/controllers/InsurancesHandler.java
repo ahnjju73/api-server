@@ -5,6 +5,7 @@ import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.services.insurance.InsurancesService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -71,7 +72,7 @@ public class InsurancesHandler {
                         .subscribeOn(Schedulers.elastic())
                         .map(insurancesService::checkBikeSession)
                         .map(insurancesService:: fetchRiderInsurances)
-                        .map(insurancesService::returnData), ResponseListDto.class);
+                        .map(insurancesService::returnData), Page.class);
     }
 
     public Mono<ServerResponse> addRiderInsurance(ServerRequest request){
@@ -90,7 +91,7 @@ public class InsurancesHandler {
                         .map(req -> insurancesService.getPathVariable(req, "rider_ins_id"))
                         .map(insurancesService::checkBikeSession)
                         .map(insurancesService:: fetchRiderInsuranceDetail)
-                        .map(insurancesService::returnData), RiderInsurances.class);
+                        .map(insurancesService::returnData), Map.class);
     }
 
     public Mono<ServerResponse> updateRiderInsurance(ServerRequest request){
@@ -114,4 +115,24 @@ public class InsurancesHandler {
                         .map(insurancesService::returnData), Map.class);
     }
 
+    public Mono<ServerResponse> renewRiderInsurance(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> insurancesService.makeSessionRequest(request, row , BikeSessionRequest.class))
+                        .map(req -> insurancesService.getPathVariable(req, "rider_ins_id"))
+                        .map(insurancesService::checkBikeSession)
+                        .map(insurancesService:: renewInsurance)
+                        .map(insurancesService::returnData), Map.class);
+    }
+
+    public Mono<ServerResponse> confirmInsurance(ServerRequest request){
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> insurancesService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(req -> insurancesService.getPathVariable(req, "rider_ins_id"))
+                        .map(insurancesService::checkBikeSession)
+                        .map(insurancesService:: confirmInsurance)
+                        .map(insurancesService::returnData), Map.class);
+    }
 }

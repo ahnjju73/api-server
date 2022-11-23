@@ -12,6 +12,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -33,6 +34,9 @@ public class RiderInsurances extends OriginObject {
     @JoinColumn(name = "rider_no", insertable = false, updatable = false)
     private Riders rider;
 
+    @OneToMany(mappedBy = "riderInsurances", fetch = FetchType.EAGER)
+    private Set<RiderInsurancesDtl> riderInsurancesDtls;
+
     @Column(name = "rider_email")
     private String riderEmail;
 
@@ -53,7 +57,7 @@ public class RiderInsurances extends OriginObject {
     @Convert(converter = InsAgeTypeConverter.class)
     private InsAgeTypes age;
 
-    @Column(name = "rider_age", columnDefinition = "ENUM")
+    @Column(name = "rider_age", columnDefinition = "ENUM",insertable = false, updatable = false)
     private String ageCode;
 
     @Column(name = "bike_num")

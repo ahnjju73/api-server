@@ -12,7 +12,7 @@ public interface RiderInsuranceRepository extends JpaRepository<RiderInsurances,
     Page<RiderInsurances> findAll(Pageable pageable);
 
     RiderInsurances findByRiderInsId(String riderInsId);
-    Page<RiderInsurances> findByRiderNameContaining(String riderName, Pageable pageable);
+    Page<RiderInsurances> findAllByRiderNameContaining(String riderName, Pageable pageable);
     void deleteByRiderInsId(String riderInsId);
 
 }

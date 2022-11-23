@@ -28,6 +28,8 @@ public class InsurancesRouters {
                 .andRoute(POST("/rider-insurances"), handler::addRiderInsurance)
                 .andRoute(PUT("/rider-insurances/{rider_ins_id}"), handler::updateRiderInsurance)
                 .andRoute(DELETE("/rider-insurances/{rider_ins_id}"), handler::deleteRiderInsurance)
+                .andRoute(PATCH("/rider-insurances/{rider_ins_id}/renew"), handler::renewRiderInsurance)
+                .andRoute(PATCH("/rider-insurances/{rider_ins_id}/confirm"), handler::confirmInsurance)
                 ;
 
     }
