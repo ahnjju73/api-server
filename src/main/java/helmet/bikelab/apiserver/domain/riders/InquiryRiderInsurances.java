@@ -1,12 +1,15 @@
 package helmet.bikelab.apiserver.domain.riders;
 
 import helmet.bikelab.apiserver.domain.types.InquiryStatusTypes;
+import helmet.bikelab.apiserver.domain.types.converters.ConsultingDescriptionConverter;
 import helmet.bikelab.apiserver.domain.types.converters.InquiryStatusTypesConverter;
+import helmet.bikelab.apiserver.objects.ConsultingDescriptionDto;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 @Entity
@@ -31,8 +34,9 @@ public class InquiryRiderInsurances {
     @Column(name = "phone")
     private String phone;
 
-    @Column(name = "description", columnDefinition = "MEDIUMTEXT")
-    private String description;
+    @Column(name = "description", columnDefinition = "json")
+    @Convert(converter = ConsultingDescriptionConverter.class)
+    private List<ConsultingDescriptionDto> descriptions;
 
     @Column(name = "status", columnDefinition = "ENUM")
     @Convert(converter = InquiryStatusTypesConverter.class)

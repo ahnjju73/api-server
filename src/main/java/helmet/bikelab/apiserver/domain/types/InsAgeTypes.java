@@ -13,6 +13,8 @@ public enum InsAgeTypes {
     }
 
     public static InsAgeTypes getAge(String age){
+        if(age == null)
+            return null;
         for(InsAgeTypes iat : InsAgeTypes.values()){
             if(iat.getAge() == age){
                 return iat;

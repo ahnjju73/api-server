@@ -9,13 +9,11 @@ import helmet.bikelab.apiserver.domain.demands.DemandLeases;
 import helmet.bikelab.apiserver.domain.embeds.ModelTransaction;
 import helmet.bikelab.apiserver.domain.lease.*;
 import helmet.bikelab.apiserver.domain.riders.Activities;
+import helmet.bikelab.apiserver.domain.riders.InquiryRiderInsurances;
 import helmet.bikelab.apiserver.domain.riders.RiderVerified;
 import helmet.bikelab.apiserver.domain.riders.Riders;
 import helmet.bikelab.apiserver.domain.types.*;
-import helmet.bikelab.apiserver.objects.BikeDto;
-import helmet.bikelab.apiserver.objects.BikeSessionRequest;
-import helmet.bikelab.apiserver.objects.PageableResponse;
-import helmet.bikelab.apiserver.objects.RiderBikeDto;
+import helmet.bikelab.apiserver.objects.*;
 import helmet.bikelab.apiserver.objects.bikelabs.clients.ClientDto;
 import helmet.bikelab.apiserver.objects.bikelabs.fine.FetchFinesResponse;
 import helmet.bikelab.apiserver.objects.bikelabs.insurance.InsuranceDto;
@@ -33,6 +31,7 @@ import helmet.bikelab.apiserver.workers.CommonWorker;
 import helmet.bikelab.apiserver.workers.LeasesWorker;
 import helmet.bikelab.apiserver.workers.RiderWorker;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -60,6 +59,7 @@ public class RiderService extends SessService {
     private final ActivitiesRepository activitiesRepository;
     private final CommonWorker commonWorker;
     private final LeasesWorker leasesWorker;
+    private final InquiryRiderInsurancesRepository inquiryRiderInsurancesRepository;
     private final RiderVerifiedRepository riderVerifiedRepository;
     private final RiderRepository riderRepository;
     private final PushComponent pushComponent;
@@ -300,4 +300,46 @@ public class RiderService extends SessService {
         return request;
     }
 
+    public BikeSessionRequest fetchRiderInsuranceDemandList(BikeSessionRequest request) {
+        InsuranceInquiryRequest insuranceInquiryRequest = map(request.getParam(), InsuranceInquiryRequest.class);
+        Pageable pageable = PageRequest.of(insuranceInquiryRequest.getPage(), insuranceInquiryRequest.getSize());
+        if(bePresent(insuranceInquiryRequest.getStatus()) && bePresent(insuranceInquiryRequest.getPhone())){
+            Page<InquiryRiderInsurances> allByPhoneContainingAndStatusOrderByInquiryNoDesc = inquiryRiderInsurancesRepository.findAllByPhoneContainingAndStatusOrderByInquiryNoDesc(insuranceInquiryRequest.getPhone(), InquiryStatusTypes.getInquiryStatusTypes(insuranceInquiryRequest.getStatus()), pageable);
+            request.setResponse(allByPhoneContainingAndStatusOrderByInquiryNoDesc);
+        }else if(bePresent(insuranceInquiryRequest.getPhone())) {
+            Page<InquiryRiderInsurances> allByPhoneContainingOrderByInquiryNoDesc = inquiryRiderInsurancesRepository.findAllByPhoneContainingOrderByInquiryNoDesc(insuranceInquiryRequest.getPhone(), pageable);
+            request.setResponse(allByPhoneContainingOrderByInquiryNoDesc);
+        }else if(bePresent(insuranceInquiryRequest.getStatus())){
+            Page<InquiryRiderInsurances> allByStatusOrderByInquiryNoDesc = inquiryRiderInsurancesRepository.findAllByStatusOrderByInquiryNoDesc(InquiryStatusTypes.getInquiryStatusTypes(insuranceInquiryRequest.getStatus()), pageable);
+            request.setResponse(allByStatusOrderByInquiryNoDesc);
+        }else{
+            Page<InquiryRiderInsurances> all = inquiryRiderInsurancesRepository.findAllByOrderByInquiryNoDesc(pageable);
+            request.setResponse(all);
+        }
+        return request;
+    }
+    public BikeSessionRequest fetchRiderInsuranceDemandDetail(BikeSessionRequest request) {
+        String inquiryId = (String) request.getParam().get("inquiry_id");
+        InquiryRiderInsurances byInquiryId = inquiryRiderInsurancesRepository.findByInquiryId(inquiryId);
+        request.setResponse(byInquiryId);
+        return request;
+    }
+
+    @Transactional
+    public BikeSessionRequest updateDescription(BikeSessionRequest request){
+        UpdateConsultingDescriptionRequest descriptions = map(request.getParam(), UpdateConsultingDescriptionRequest.class);
+        InquiryRiderInsurances byInquiryId = inquiryRiderInsurancesRepository.findByInquiryId(descriptions.getInquiryId());
+        byInquiryId.setDescriptions(descriptions.getDescriptions());
+        inquiryRiderInsurancesRepository.save(byInquiryId);
+        return request;
+    }
+
+    @Transactional
+    public BikeSessionRequest changeInsInqStatus(BikeSessionRequest request) {
+        String inquiryId = (String) request.getParam().get("inquiry_id");
+        InquiryRiderInsurances byInquiryId = inquiryRiderInsurancesRepository.findByInquiryId(inquiryId);
+        byInquiryId.setStatus(InquiryStatusTypes.CONFIRMED);
+        inquiryRiderInsurancesRepository.save(byInquiryId);
+        return request;
+    }
 }

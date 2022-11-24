@@ -2,7 +2,9 @@ package helmet.bikelab.apiserver.domain.riders;
 
 import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.types.InsAgeTypes;
+import helmet.bikelab.apiserver.domain.types.InsuranceBikeTypes;
 import helmet.bikelab.apiserver.domain.types.converters.InsAgeTypeConverter;
+import helmet.bikelab.apiserver.domain.types.converters.InsuranceBikeTypeConverter;
 import helmet.bikelab.apiserver.domain.types.converters.ModelAddressConverter;
 import helmet.bikelab.apiserver.objects.AddressDto;
 import helmet.bikelab.apiserver.services.internal.OriginObject;
@@ -66,10 +68,11 @@ public class RiderInsurances extends OriginObject {
     @Column(name = "vim_num")
     private String vimNum;
 
-    @Column(name = "bike_no")
-    private Integer bikeNo;
+    @Column(name = "bike_type", columnDefinition = "ENUM")
+    @Convert(converter = InsuranceBikeTypeConverter.class)
+    private InsuranceBikeTypes bikeTypes;
 
-    @OneToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "bike_no", insertable = false, updatable = false)
-    private Bikes bikes;
+    @Column(name = "bike_type", columnDefinition = "ENUM", insertable = false, updatable = false)
+    private String bikeTypesCode;
+
 }

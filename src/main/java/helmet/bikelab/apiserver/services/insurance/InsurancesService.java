@@ -152,10 +152,9 @@ public class InsurancesService extends SessService {
             riderInsurances.setRiderSsn(addUpdateRiderInsuranceRequest.getSsn());
         }
         riderInsurances.setAge(InsAgeTypes.getAge(addUpdateRiderInsuranceRequest.getAge()));
-        Bikes bike = bikeWorker.getBikeById(addUpdateRiderInsuranceRequest.getBikeId());
-        riderInsurances.setBikeNum(bike.getCarNum());
-        riderInsurances.setVimNum(bike.getVimNum());
-        riderInsurances.setBikeNo(bike.getBikeNo());
+        riderInsurances.setBikeNum(addUpdateRiderInsuranceRequest.getBikeNum());
+        riderInsurances.setVimNum(addUpdateRiderInsuranceRequest.getVimNum());
+        riderInsurances.setBikeTypes(InsuranceBikeTypes.getType(addUpdateRiderInsuranceRequest.getBikeType()));
         riderInsurances.setRiderAddress(new AddressDto().setByModelAddress(addUpdateRiderInsuranceRequest.getAddress()));
         riderInsuranceRepository.save(riderInsurances);
 
@@ -228,10 +227,9 @@ public class InsurancesService extends SessService {
             riderInsurances.setRiderSsn(addUpdateRiderInsuranceRequest.getSsn());
         }
         riderInsurances.setAge(InsAgeTypes.getAge(addUpdateRiderInsuranceRequest.getAge()));
-        Bikes bike = bikeWorker.getBikeById(addUpdateRiderInsuranceRequest.getBikeId());
-        riderInsurances.setBikeNum(bike.getCarNum());
-        riderInsurances.setVimNum(bike.getVimNum());
-        riderInsurances.setBikeNo(bike.getBikeNo());
+        riderInsurances.setBikeNum(addUpdateRiderInsuranceRequest.getBikeNum());
+        riderInsurances.setVimNum(addUpdateRiderInsuranceRequest.getVimNum());
+        riderInsurances.setBikeTypes(InsuranceBikeTypes.getType(addUpdateRiderInsuranceRequest.getBikeType()));
         riderInsurances.setRiderAddress(new AddressDto().setByModelAddress(addUpdateRiderInsuranceRequest.getAddress()));
         riderInsuranceRepository.save(riderInsurances);
 
