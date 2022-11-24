@@ -331,13 +331,15 @@ public class RiderService extends SessService {
         InquiryRiderInsurances byInquiryId = inquiryRiderInsurancesRepository.findByInquiryId(descriptions.getInquiryId());
         List<ConsultingDescriptionDto> descriptionList = byInquiryId.getDescriptions();
         if(bePresent(descriptionList)){
-            byInquiryId.setDescriptions(descriptionList);
+            byInquiryId.setDescriptions(descriptions.getDescriptions());
+            descriptionList = descriptions.getDescriptions();
             if(bePresent(descriptions.getDescription())){
                 ConsultingDescriptionDto consultingDescriptionDto = new ConsultingDescriptionDto();
                 consultingDescriptionDto.setDescription(descriptions.getDescription());
                 consultingDescriptionDto.setBikeUserNo(request.getSessionUser().getUserNo());
                 consultingDescriptionDto.setBikeUserName(request.getSessionUser().getBikeUserInfo().getName());
-                descriptionList.add(consultingDescriptionDto);
+                consultingDescriptionDto.setCreatedAt(LocalDateTime.now().toString());
+                descriptionList.add(0, consultingDescriptionDto);
                 byInquiryId.setDescriptions(descriptionList);
             }
         }else{
@@ -346,6 +348,7 @@ public class RiderService extends SessService {
             consultingDescriptionDto.setDescription(descriptions.getDescription());
             consultingDescriptionDto.setBikeUserNo(request.getSessionUser().getUserNo());
             consultingDescriptionDto.setBikeUserName(request.getSessionUser().getBikeUserInfo().getName());
+            consultingDescriptionDto.setCreatedAt(LocalDateTime.now().toString());
             consultingDescriptionDtos.add(consultingDescriptionDto);
             byInquiryId.setDescriptions(consultingDescriptionDtos);
         }

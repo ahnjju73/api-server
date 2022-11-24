@@ -19,7 +19,7 @@ public class ConsultingDescriptionConverter extends Workspace implements Attribu
 
     @Override
     public List<ConsultingDescriptionDto> convertToEntityAttribute(String dbData) {
-        Type type = new TypeToken<List<ProvisionalPartsDto>>() {}.getType();
+        Type type = new TypeToken<List<ConsultingDescriptionDto>>() {}.getType();
         Object o = getGsonInstance().fromJson(dbData, type);
         return bePresent(o) ? (List<ConsultingDescriptionDto>)o : null;
     }
