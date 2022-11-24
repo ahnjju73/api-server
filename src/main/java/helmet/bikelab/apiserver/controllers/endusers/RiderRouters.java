@@ -52,7 +52,8 @@ public class RiderRouters {
                 ;
     }
 
-    public RouterFunction<ServerResponse> riderDemandInsurance(){
+    @Bean
+    public RouterFunction<ServerResponse> riderInsuranceInquiry(){
         return RouterFunctions
                 .route(GET("/rider-ins-inquiries"), riderHandlers::fetchInsuranceInquiries)
                 .andRoute(GET("/rider-ins-inquiries/{inquiry_id}"), riderHandlers::fetchInsuranceInquiryDetail)

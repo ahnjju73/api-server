@@ -1,5 +1,7 @@
 package helmet.bikelab.apiserver.domain.riders;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.types.InquiryStatusTypes;
 import helmet.bikelab.apiserver.domain.types.converters.ConsultingDescriptionConverter;
 import helmet.bikelab.apiserver.domain.types.converters.InquiryStatusTypesConverter;
@@ -50,4 +52,8 @@ public class InquiryRiderInsurances {
 
     @Column(name = "consulted_by")
     private Integer consultedBy;
+
+    @OneToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "consulted_by", insertable = false, updatable = false)
+    private BikeUser consultedUser;
 }

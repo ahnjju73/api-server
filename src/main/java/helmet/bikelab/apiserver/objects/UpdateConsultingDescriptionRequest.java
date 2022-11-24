@@ -12,5 +12,6 @@ import java.util.List;
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class UpdateConsultingDescriptionRequest {
     private List<ConsultingDescriptionDto> descriptions;
+    private String description;
     private String inquiryId;
 }
