@@ -35,7 +35,7 @@ public class RiderInsurancesDtl {
 
     @Column(name = "insurance_company", columnDefinition = "ENUM")
     @Convert(converter = InsCompanyTypeConverter.class)
-    private InsCompanyTypes insCompany;
+    private InsCompanyTypes insCompany = InsCompanyTypes.KB;
 
     @Column(name = "insurance_company", columnDefinition = "ENUM", updatable = false, insertable = false)
     private String insCompanyCode;
@@ -60,7 +60,7 @@ public class RiderInsurancesDtl {
 
     @Column(name = "usage", columnDefinition = "ENUM")
     @Convert(converter = UsageTypeConverter.class)
-    private UsageTypes usageTypes;
+    private UsageTypes usageTypes = UsageTypes.COST_DELIVERY;
 
     @Column(name = "usage", columnDefinition = "ENUM", updatable = false, insertable = false)
     private String usageTypeCode;
@@ -80,9 +80,6 @@ public class RiderInsurancesDtl {
 
     @Column(name = "stop_dt")
     private LocalDateTime stopDt;
-
-    @Column(name = "stop_req_dt")
-    private LocalDateTime stopReqDt;
 
     @Column(name = "ins_fee")
     private Integer insFee;

@@ -11,6 +11,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.Column;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -39,6 +40,11 @@ public class AddUpdateRiderInsuranceRequest extends OriginObject {
     private Integer selfCoverCar;
     private Integer noInsuranceCover;
 
+    private LocalDateTime startDt;
+    private LocalDateTime endDt;
+    private Integer insFee;
+
+
     public void checkValidation(){
         if(!bePresent(insCompany))
             withException("");
@@ -57,4 +63,21 @@ public class AddUpdateRiderInsuranceRequest extends OriginObject {
         if(!bePresent(additionalStandard))
             withException("");
     }
+
+    public void setStartDt(String startDt){
+        try {
+            this.startDt = LocalDateTime.parse(startDt);
+        }catch (Exception e){
+            this.startDt = LocalDateTime.parse(startDt + "T00:00:00");
+        }
+    }
+
+    public void setEndDt(String endDt){
+        try {
+            this.endDt = LocalDateTime.parse(endDt);
+        }catch (Exception e){
+            this.endDt = LocalDateTime.parse(endDt + "T00:00:00");
+        }
+    }
+
 }

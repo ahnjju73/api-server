@@ -39,6 +39,9 @@ public class RiderInsurances extends OriginObject {
     @OneToMany(mappedBy = "riderInsurances", fetch = FetchType.EAGER)
     private Set<RiderInsurancesDtl> riderInsurancesDtls;
 
+    @OneToOne(mappedBy = "riderInsurance", fetch = FetchType.EAGER)
+    private RiderInsuranceHistories riderInsuranceHistories;
+
     @Column(name = "rider_email")
     private String riderEmail;
 

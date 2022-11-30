@@ -9,4 +9,5 @@ public interface RiderInsuranceDtlRepository extends JpaRepository<RiderInsuranc
     RiderInsurancesDtl findTopByRiderInsurances_RiderInsIdOrderByDtlNoDesc(String riderInsId);
     List<RiderInsurancesDtl> findAllByRiderInsurances_RiderInsIdOrderByCreatedAtDesc(String riderInsId);
     void deleteAllByRiderInsurances_RiderInsId(String riderInsId);
+    Integer countAllByRiderInsurances_RiderInsId(String riderInsId);
 }
