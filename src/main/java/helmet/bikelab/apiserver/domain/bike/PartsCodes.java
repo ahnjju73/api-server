@@ -31,6 +31,9 @@ public class PartsCodes {
     @Column(name = "parts_name", nullable = false)
     private String partsName;
 
+    @Column(name = "parts_name_eng", nullable = false)
+    private String partsNameEng;
+
     @Column(name = "usable", nullable = false)
     private Boolean usable = true;
 

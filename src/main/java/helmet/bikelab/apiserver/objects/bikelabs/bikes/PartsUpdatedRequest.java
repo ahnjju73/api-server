@@ -14,6 +14,7 @@ import lombok.Setter;
 public class PartsUpdatedRequest extends OriginObject {
 
     private String partsId;
+    private String merchantId;
     private Long partsNo;
     private Integer partsPrices;
     private Double workingHours;

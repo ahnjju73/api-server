@@ -71,6 +71,7 @@ public class BikeModelService extends SessService {
         commonBikes.setVolume(carModelRequest.getVolume());
         commonBikes.setBikeType(carModelRequest.getBikeType());
         commonBikes.setDiscontinue(carModelRequest.getDiscontinue());
+        commonBikes.setYear(carModelRequest.getYear());
         bikeModelsRepository.save(commonBikes);
         request.setResponse(commonBikes);
         return request;
@@ -81,11 +82,13 @@ public class BikeModelService extends SessService {
         Map param = request.getParam();
         String code = (String)param.get("code");
         NewCarModelRequest carModelRequest = map(request.getParam(), NewCarModelRequest.class);
+        carModelRequest.checkValidation();
         CommonBikes commonBikes = bikeWorker.getCommonCodeBikesById(code);
         commonBikes.setModel(carModelRequest.getModel());
         commonBikes.setVolume(carModelRequest.getVolume());
         commonBikes.setBikeType(carModelRequest.getBikeType());
         commonBikes.setDiscontinue(carModelRequest.getDiscontinue());
+        commonBikes.setYear(carModelRequest.getYear());
         bikeModelsRepository.save(commonBikes);
         request.setResponse(commonBikes);
         return request;

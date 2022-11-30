@@ -31,6 +31,9 @@ public class Parts {
     @Column(name = "parts_id", unique = true)
     private String partsId;
 
+    @Column(name = "merchant_id", unique = true)
+    private String merchantId;
+
     @Column(name = "parts_code_no")
     private Integer partsCodeNo;
 

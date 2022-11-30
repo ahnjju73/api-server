@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 public class PartsNewRequest extends OriginObject {
 
     private String partsId;
+    private String merchantId;
     private String carModel;
     private Integer partsCodeNo;
     private Integer partsPrices;

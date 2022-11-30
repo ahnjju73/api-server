@@ -193,7 +193,7 @@ public class BikesService extends SessService {
         model.setCarModelName(carModel.getModel());
         model.setBikeType(carModel.getBikeType());
         model.setVolume(carModel.getVolume());
-        fetchBikeDetailResponse.setYears(bike.getYears());
+        fetchBikeDetailResponse.setYear(carModel.getYear());
         fetchBikeDetailResponse.setVolume(bike.getVolume());
         fetchBikeDetailResponse.setModel(model);
         fetchBikeDetailResponse.setBikeId(bike.getBikeId());
@@ -230,11 +230,11 @@ public class BikesService extends SessService {
         if (bePresent(bikesRepository.findByVimNum(addBikeRequest.getVimNumber()))) withException("500-009");
         if (bePresent(addBikeRequest.getNumber()) && bePresent(bikesRepository.findByCarNum(addBikeRequest.getNumber())))
             withException("500-011");
-
+        CommonBikes commonCodeBikesById = bikeWorker.getCommonCodeBikesById(addBikeRequest.getCarModel());
         String bikeId = autoKey.makeGetKey("bike");
         Bikes bike = new Bikes();
         bike.setBikeId(bikeId);
-        bike.setYears(addBikeRequest.getYears());
+        bike.setYears(commonCodeBikesById.getYear());
         bike.setVimNum(addBikeRequest.getVimNumber());
         bike.setCarNum(addBikeRequest.getNumber());
         bike.setCarModelCode(addBikeRequest.getCarModel());
@@ -317,8 +317,9 @@ public class BikesService extends SessService {
             withException("500-009");
         if (bePresent(updateBikeRequest.getNumber()) && (!updateBikeRequest.getNumber().equals(bike.getCarNum()) && bikesRepository.countAllByCarNum(updateBikeRequest.getNumber()) > 0))
             withException("500-011");
+        CommonBikes commonCodeBikesById = bikeWorker.getCommonCodeBikesById(updateBikeRequest.getCarModel());
+        bike.setYears(commonCodeBikesById.getYear());
         updateBikeInfoWithLog(updateBikeRequest, request.getSessionUser(), bike);
-        bike.setYears(updateBikeRequest.getYears());
         bike.setVimNum(updateBikeRequest.getVimNumber());
         bike.setCarNum(updateBikeRequest.getNumber());
         bike.setCarModelCode(updateBikeRequest.getCarModel());
@@ -368,10 +369,10 @@ public class BikesService extends SessService {
                 String log = bike.getRegisterDate() == null ? "바이크 등록일을 <>" + updateBikeRequest.getRegisterDt() + "</>로/으로 설정했습니다.\n" : "바이크 등록일을 <>" + bike.getRegisterDate() + "</>에서 <>" + updateBikeRequest.getRegisterDt() + "</>으로 변경하였습니다.\n";
                 stringList.add(log);
             }
-            if (bePresent(updateBikeRequest.getYears()) && !updateBikeRequest.getYears().equals(bike.getYears())) {
-                String log = bike.getYears() == null ? "바이크 연식을 <>" + updateBikeRequest.getYears() + "</>로/으로 설정했습니다.\n" : "바이크 연식을 <>" + bike.getYears() + "</>에서 <>" + updateBikeRequest.getYears() + "</>으로 변경하였습니다.\n";
-                stringList.add(log);
-            }
+//            if (bePresent(updateBikeRequest.getYears()) && !updateBikeRequest.getYears().equals(bike.getYears())) {
+//                String log = bike.getYears() == null ? "바이크 연식을 <>" + updateBikeRequest.getYears() + "</>로/으로 설정했습니다.\n" : "바이크 연식을 <>" + bike.getYears() + "</>에서 <>" + updateBikeRequest.getYears() + "</>으로 변경하였습니다.\n";
+//                stringList.add(log);
+//            }
             if (bePresent(updateBikeRequest.getCompanyName()) && (bike.getTransaction() == null || !updateBikeRequest.getCompanyName().equals(bike.getTransaction().getCompanyName()))) {
                 String log = bike.getTransaction() == null || bike.getTransaction().getCompanyName() == null ? "바이크의 구입처를 <>" + updateBikeRequest.getCompanyName() + "</>로/으로 설정했습니다.\n" : "바이크의 구입처를 <>" + bike.getTransaction().getCompanyName() + "</>에서 <>" + updateBikeRequest.getCompanyName() + "</>로/으로 변경하였습니다.\n";
                 stringList.add(log);

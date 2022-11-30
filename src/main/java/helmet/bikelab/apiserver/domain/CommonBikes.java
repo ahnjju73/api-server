@@ -61,6 +61,9 @@ public class CommonBikes {
     @Column(name = "upt_dt", columnDefinition = "CURRENT_TIMESTAMP")
     private LocalDateTime updatedAt = LocalDateTime.now();
 
+    @Column(name = "year", columnDefinition = "SMALLINT")
+    private Integer year;
+
     public void setManufacturer(Manufacturers manufacturer) {
         this.manufacturer = manufacturer;
         this.manufacturerNo = manufacturer.getManufacturerNo();

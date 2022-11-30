@@ -81,8 +81,8 @@ public class RiderInsurancesDtl {
     @Column(name = "stop_dt")
     private LocalDateTime stopDt;
 
-    @Column(name = "stop_req_dt")
-    private LocalDateTime stopReqDt;
+//    @Column(name = "stop_req_dt")
+//    private LocalDateTime stopReqDt;
 
     @Column(name = "ins_fee")
     private Integer insFee;

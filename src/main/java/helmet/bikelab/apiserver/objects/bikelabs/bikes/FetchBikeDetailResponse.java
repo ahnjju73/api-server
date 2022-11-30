@@ -24,7 +24,7 @@ public class FetchBikeDetailResponse extends OriginObject {
     private String carNum;
     private CarModel model;
     private String color;
-    private Integer years;
+    private Integer year;
     private Integer volume;
     private LocalDateTime receiveDt;
     private LocalDateTime registerDt;
@@ -34,5 +34,4 @@ public class FetchBikeDetailResponse extends OriginObject {
     private Boolean isBikemaster;
     private Boolean isMt;
     private String payerTypeCode;
-
 }

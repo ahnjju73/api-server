@@ -16,7 +16,11 @@ public class NewCarModelRequest extends OriginObject {
     private Double volume;
     private BikeTypes bikeType = BikeTypes.GAS;
     private Boolean discontinue = false;
+    private Integer year;
 
+    public void checkValidation(){
+        if(!bePresent(this.year)) withException("");
+    }
     public void setBikeTypeCode(String bikeTypeCode) {
         this.bikeType = BikeTypes.getType(bikeTypeCode);
     }
