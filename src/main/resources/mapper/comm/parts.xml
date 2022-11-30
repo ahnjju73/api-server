@@ -9,10 +9,12 @@
         select pc.parts_code_no,
                pc.parts_type_no,
                pc.parts_name,
+               pc.parts_name_eng,
                pt.parts_type
           from (select parts_code_no,
                        parts_type_no,
-                       parts_name
+                       parts_name,
+                       parts_name_eng
                   from parts_codes
                  where usable = true) pc
                join parts_types pt on pc.parts_type_no = pt.parts_type_no

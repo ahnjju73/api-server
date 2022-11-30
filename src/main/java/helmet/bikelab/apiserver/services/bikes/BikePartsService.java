@@ -150,9 +150,13 @@ public class BikePartsService extends SessService {
 //            partsByIdAndCarModel.setIsFreeSupport(partsUpdatedRequest.getIsFreeSupport());
 //            changed = true;
 //        }
+        if(!partsUpdatedRequest.getMerchantId().equals(partsByIdAndCarModel.getMerchantId())){
+            partsByIdAndCarModel.setMerchantId(partsUpdatedRequest.getMerchantId());
+//            changed = true;
+        }
         if(!partsUpdatedRequest.getPartsId().equals(partsByIdAndCarModel.getPartsId())){
             partsByIdAndCarModel.setPartsId(partsUpdatedRequest.getPartsId());
-            changed = true;
+//            changed = true;
         }
         if(!partsUpdatedRequest.getPartsPrices().equals(partsByIdAndCarModel.getPartsPrices())){
             partsByIdAndCarModel.setPartsPrices(partsUpdatedRequest.getPartsPrices());
@@ -181,6 +185,7 @@ public class BikePartsService extends SessService {
         Parts parts = new Parts();
         CommonBikes model = bikeWorker.getCommonCodeBikesById(bikePartsDto.getCarModel());
         PartsCodes partsCodes = bikeWorker.getPartsCodeById(bikePartsDto.getPartsCodeNo());
+        parts.setMerchantId(bikePartsDto.getMerchantId());
         parts.setPartsId(bikePartsDto.getPartsId());
         parts.setBikeModelCode(model.getCode());
         parts.setPartsCodeNo(partsCodes.getPartsCodeNo());

@@ -41,6 +41,7 @@ public class PartsService extends SessService {
         Map partsType = (Map)param.get("parts_type_no");
         Integer partsTypeNo = (Integer)partsType.get("parts_type_no");
         String partsName = (String)param.get("parts_name");
+        String partsNameEng = (String)param.get("parts_name_eng");
         Boolean usable = (Boolean)param.get("usable");
         PartsTypes byPartsTypeNo = partsTypesRepository.findByPartsTypeNo(partsTypeNo);
         if(bePresent(byPartsTypeNo)){
@@ -48,6 +49,7 @@ public class PartsService extends SessService {
             partsCodes.setPartsTypeNo(byPartsTypeNo.getPartsTypeNo());
             partsCodes.setPartsName(partsName);
             partsCodes.setUsable(usable);
+            partsCodes.setPartsNameEng(partsNameEng);
             partsCodesRepository.save(partsCodes);
         }else withException("");
         return request;
@@ -60,6 +62,7 @@ public class PartsService extends SessService {
         Map partsType = (Map)param.get("parts_type_no");
         Integer partsTypeNo = (Integer)partsType.get("parts_type_no");
         String partsName = (String)param.get("parts_name");
+        String partsNameEng = (String)param.get("parts_name_eng");
         Boolean usable = (Boolean)param.get("usable");
         PartsTypes byPartsTypeNo = partsTypesRepository.findByPartsTypeNo(partsTypeNo);
         if(bePresent(byPartsTypeNo)){
@@ -67,6 +70,7 @@ public class PartsService extends SessService {
             if(bePresent(byPartsCodeNo)){
                 byPartsCodeNo.setPartsTypeNo(byPartsTypeNo.getPartsTypeNo());
                 byPartsCodeNo.setPartsName(partsName);
+                byPartsCodeNo.setPartsNameEng(partsNameEng);
                 byPartsCodeNo.setUsable(usable);
                 partsCodesRepository.save(byPartsCodeNo);
             }
