@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import helmet.bikelab.apiserver.domain.embeds.ModelAddress;
 import helmet.bikelab.apiserver.objects.BankInfoDto;
 import helmet.bikelab.apiserver.objects.BikeDto;
+import helmet.bikelab.apiserver.objects.PresignedURLVo;
 import helmet.bikelab.apiserver.objects.RiderInfoDto;
 import helmet.bikelab.apiserver.services.internal.OriginObject;
 import lombok.Getter;
@@ -12,6 +13,7 @@ import lombok.Setter;
 
 import javax.persistence.Column;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -43,6 +45,8 @@ public class AddUpdateRiderInsuranceRequest extends OriginObject {
     private LocalDateTime startDt;
     private LocalDateTime endDt;
     private Integer insFee;
+
+    private List<PresignedURLVo> attachments;
 
 
     public void checkValidation(){
