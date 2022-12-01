@@ -3,6 +3,7 @@ package helmet.bikelab.apiserver.objects.requests;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import helmet.bikelab.apiserver.domain.embeds.ModelAddress;
+import helmet.bikelab.apiserver.domain.embeds.ModelAttachment;
 import helmet.bikelab.apiserver.objects.BankInfoDto;
 import helmet.bikelab.apiserver.objects.BikeDto;
 import helmet.bikelab.apiserver.objects.PresignedURLVo;
@@ -46,7 +47,8 @@ public class AddUpdateRiderInsuranceRequest extends OriginObject {
     private LocalDateTime endDt;
     private Integer insFee;
 
-    private List<PresignedURLVo> attachments;
+    private List<PresignedURLVo> newAttachments;
+    private List<ModelAttachment> attachments;
 
 
     public void checkValidation(){

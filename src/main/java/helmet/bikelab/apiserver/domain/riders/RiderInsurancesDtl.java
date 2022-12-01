@@ -111,4 +111,10 @@ public class RiderInsurancesDtl {
     @Column(name = "no_insurance_cover")
     private Integer noInsCover;
 
+    @Column(name = "rider_age", columnDefinition = "ENUM")
+    @Convert(converter = InsAgeTypeConverter.class)
+    private InsAgeTypes age;
+
+    @Column(name = "rider_age", columnDefinition = "ENUM",insertable = false, updatable = false)
+    private String ageCode;
 }
