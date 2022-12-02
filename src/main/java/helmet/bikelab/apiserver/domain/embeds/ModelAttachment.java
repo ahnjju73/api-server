@@ -19,4 +19,12 @@ public class ModelAttachment {
     private String uri;
     private String domain;
     private String fileName;
+
+    @Override
+    public boolean equals(Object obj) {
+        if(!(obj instanceof ModelAttachment)){
+            return false;
+        }
+        return uuid.equals(((ModelAttachment) obj).uuid);
+    }
 }

@@ -297,6 +297,10 @@ public class InsurancesService extends SessService {
         riderInsurances.setBikeTypes(InsuranceBikeTypes.getType(addUpdateRiderInsuranceRequest.getBikeType()));
         riderInsurances.setRiderAddress(new AddressDto().setByModelAddress(addUpdateRiderInsuranceRequest.getAddress()));
         List<ModelAttachment> attachments = addUpdateRiderInsuranceRequest.getAttachments();
+        deletedAttachments(riderInsurances.getAttachmentsList(), attachments).stream().forEach(ma -> {
+            AmazonS3 amazonS3 = AmazonUtils.amazonS3();
+            amazonS3.deleteObject(ENV.AWS_S3_ORIGIN_BUCKET, ma.getUri());
+        });
         List<ModelAttachment> newAttachments = addUpdateRiderInsuranceRequest.getNewAttachments()
                 .stream().map(presignedURLVo -> {
                     AmazonS3 amazonS3 = AmazonUtils.amazonS3();
@@ -323,6 +327,20 @@ public class InsurancesService extends SessService {
         riderInsuranceHistoryRepository.deleteAllByRiderInsurance_RiderInsId(riderInsId);
         riderInsuranceRepository.deleteByRiderInsId(riderInsId);
         return request;
+    }
+
+    private List<ModelAttachment> deletedAttachments(List<ModelAttachment> origin, List<ModelAttachment> updated){
+        List<ModelAttachment> deleted = new ArrayList<>();
+        if(origin.size() == updated.size()){
+            return deleted;
+        }else{
+            for(int i = 0; i < origin.size(); i++){
+                if(updated.indexOf(origin.get(i)) < 0){
+                    deleted.add(origin.get(i));
+                }
+            }
+        }
+        return deleted;
     }
 
 
