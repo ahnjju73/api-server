@@ -10,4 +10,6 @@ public interface PartsTypesRepository extends JpaRepository<PartsTypes, Integer>
     PartsTypes findTop1ByOrderByOrderNoDesc();
     PartsTypes findByPartsTypeNo(Integer partsTypeNo);
     PartsTypes findByPartsType(String partsType);
+
+    void deleteByPartsTypeNo(Integer partsTypeNo);
 }
