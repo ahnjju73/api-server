@@ -1,6 +1,8 @@
 package helmet.bikelab.apiserver.domain.riders;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.embeds.ModelAddress;
 import helmet.bikelab.apiserver.domain.types.*;
@@ -17,6 +19,7 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Setter
+@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 @Table(name = "rider_insurances_dtl")
 public class RiderInsurancesDtl {
 
@@ -35,7 +38,7 @@ public class RiderInsurancesDtl {
 
     @Column(name = "insurance_company", columnDefinition = "ENUM")
     @Convert(converter = InsCompanyTypeConverter.class)
-    private InsCompanyTypes insCompany;
+    private InsCompanyTypes insCompany = InsCompanyTypes.KB;
 
     @Column(name = "insurance_company", columnDefinition = "ENUM", updatable = false, insertable = false)
     private String insCompanyCode;
@@ -58,11 +61,11 @@ public class RiderInsurancesDtl {
     @Convert(converter = BankInfoDtoConverter.class)
     private BankInfoDto bankInfo;
 
-    @Column(name = "usage", columnDefinition = "ENUM")
+    @Column(name = "`usage`", columnDefinition = "ENUM")
     @Convert(converter = UsageTypeConverter.class)
-    private UsageTypes usageTypes;
+    private UsageTypes usageTypes = UsageTypes.COST_DELIVERY;
 
-    @Column(name = "usage", columnDefinition = "ENUM", updatable = false, insertable = false)
+    @Column(name = "`usage`", columnDefinition = "ENUM", updatable = false, insertable = false)
     private String usageTypeCode;
 
     @Column(name = "additional_standard", columnDefinition = "ENUM")
@@ -81,9 +84,6 @@ public class RiderInsurancesDtl {
     @Column(name = "stop_dt")
     private LocalDateTime stopDt;
 
-//    @Column(name = "stop_req_dt")
-//    private LocalDateTime stopReqDt;
-
     @Column(name = "ins_fee")
     private Integer insFee;
 
@@ -91,7 +91,7 @@ public class RiderInsurancesDtl {
     private Integer createdBy;
 
     @Column(name = "created_at")
-    private LocalDateTime createdAt;
+    private LocalDateTime createdAt = LocalDateTime.now();
 
     @Column(name = "liability_man")
     private Integer liabilityMan;
@@ -111,4 +111,10 @@ public class RiderInsurancesDtl {
     @Column(name = "no_insurance_cover")
     private Integer noInsCover;
 
+    @Column(name = "rider_age", columnDefinition = "ENUM")
+    @Convert(converter = InsAgeTypeConverter.class)
+    private InsAgeTypes age;
+
+    @Column(name = "rider_age", columnDefinition = "ENUM",insertable = false, updatable = false)
+    private String ageCode;
 }

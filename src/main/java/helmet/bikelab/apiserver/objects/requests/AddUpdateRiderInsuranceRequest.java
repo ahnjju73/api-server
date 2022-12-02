@@ -3,14 +3,18 @@ package helmet.bikelab.apiserver.objects.requests;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import helmet.bikelab.apiserver.domain.embeds.ModelAddress;
+import helmet.bikelab.apiserver.domain.embeds.ModelAttachment;
 import helmet.bikelab.apiserver.objects.BankInfoDto;
 import helmet.bikelab.apiserver.objects.BikeDto;
+import helmet.bikelab.apiserver.objects.PresignedURLVo;
 import helmet.bikelab.apiserver.objects.RiderInfoDto;
 import helmet.bikelab.apiserver.services.internal.OriginObject;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.Column;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -39,6 +43,14 @@ public class AddUpdateRiderInsuranceRequest extends OriginObject {
     private Integer selfCoverCar;
     private Integer noInsuranceCover;
 
+    private LocalDateTime startDt;
+    private LocalDateTime endDt;
+    private Integer insFee;
+
+    private List<PresignedURLVo> newAttachments;
+    private List<ModelAttachment> attachments;
+
+
     public void checkValidation(){
         if(!bePresent(insCompany))
             withException("");
@@ -57,4 +69,21 @@ public class AddUpdateRiderInsuranceRequest extends OriginObject {
         if(!bePresent(additionalStandard))
             withException("");
     }
+
+    public void setStartDt(String startDt){
+        try {
+            this.startDt = LocalDateTime.parse(startDt);
+        }catch (Exception e){
+            this.startDt = LocalDateTime.parse(startDt + "T00:00:00");
+        }
+    }
+
+    public void setEndDt(String endDt){
+        try {
+            this.endDt = LocalDateTime.parse(endDt);
+        }catch (Exception e){
+            this.endDt = LocalDateTime.parse(endDt + "T00:00:00");
+        }
+    }
+
 }

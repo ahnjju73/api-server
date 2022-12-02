@@ -105,6 +105,16 @@ public class InsurancesHandler {
                         .map(insurancesService::returnData), Map.class);
     }
 
+    public Mono<ServerResponse> updateRiderInsuranceDetail(ServerRequest request){
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> insurancesService.makeSessionRequest(request, row , BikeSessionRequest.class))
+                        .map(insurancesService::checkBikeSession)
+                        .map(insurancesService::updateRiderInsuranceDtls)
+                        .map(insurancesService::returnData), Map.class);
+    }
+
     public Mono<ServerResponse> deleteRiderInsurance(ServerRequest request){
         return ServerResponse.ok().body(
                 Mono.fromSupplier(() -> insurancesService.makeSessionRequest(request, BikeSessionRequest.class))
@@ -133,6 +143,16 @@ public class InsurancesHandler {
                         .map(req -> insurancesService.getPathVariable(req, "rider_ins_id"))
                         .map(insurancesService::checkBikeSession)
                         .map(insurancesService:: confirmInsurance)
+                        .map(insurancesService::returnData), Map.class);
+    }
+
+    public Mono<ServerResponse> generatePresignedUrl(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> insurancesService.makeSessionRequest(request, row , BikeSessionRequest.class))
+                        .map(insurancesService::checkBikeSession)
+                        .map(insurancesService:: generatePresignedUrl)
                         .map(insurancesService::returnData), Map.class);
     }
 }

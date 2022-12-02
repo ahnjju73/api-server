@@ -1,11 +1,14 @@
 package helmet.bikelab.apiserver.domain.riders;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
+import helmet.bikelab.apiserver.domain.embeds.ModelAttachment;
 import helmet.bikelab.apiserver.domain.types.InsAgeTypes;
 import helmet.bikelab.apiserver.domain.types.InsuranceBikeTypes;
 import helmet.bikelab.apiserver.domain.types.converters.InsAgeTypeConverter;
 import helmet.bikelab.apiserver.domain.types.converters.InsuranceBikeTypeConverter;
 import helmet.bikelab.apiserver.domain.types.converters.ModelAddressConverter;
+import helmet.bikelab.apiserver.domain.types.converters.ModelAttachmentConverter;
 import helmet.bikelab.apiserver.objects.AddressDto;
 import helmet.bikelab.apiserver.services.internal.OriginObject;
 import helmet.bikelab.apiserver.utils.keys.SESSION;
@@ -13,6 +16,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -39,6 +43,9 @@ public class RiderInsurances extends OriginObject {
     @OneToMany(mappedBy = "riderInsurances", fetch = FetchType.EAGER)
     private Set<RiderInsurancesDtl> riderInsurancesDtls;
 
+    @OneToOne(mappedBy = "riderInsurance", fetch = FetchType.EAGER)
+    private RiderInsuranceHistories riderInsuranceHistories;
+
     @Column(name = "rider_email")
     private String riderEmail;
 
@@ -55,13 +62,6 @@ public class RiderInsurances extends OriginObject {
     @Convert(converter = ModelAddressConverter.class)
     AddressDto riderAddress;
 
-    @Column(name = "rider_age", columnDefinition = "ENUM")
-    @Convert(converter = InsAgeTypeConverter.class)
-    private InsAgeTypes age;
-
-    @Column(name = "rider_age", columnDefinition = "ENUM",insertable = false, updatable = false)
-    private String ageCode;
-
     @Column(name = "bike_num")
     private String bikeNum;
 
@@ -74,5 +74,13 @@ public class RiderInsurances extends OriginObject {
 
     @Column(name = "bike_type", columnDefinition = "ENUM", insertable = false, updatable = false)
     private String bikeTypesCode;
+
+    @JsonIgnore
+    @Column(name = "attachments", columnDefinition = "JSON")
+    @Convert(converter = ModelAttachmentConverter.class)
+    private List<ModelAttachment> attachmentsList = new ArrayList<>();
+
+    @Column(name = "attachments", columnDefinition = "JSON", updatable = false, insertable = false)
+    private String attachments;
 
 }
