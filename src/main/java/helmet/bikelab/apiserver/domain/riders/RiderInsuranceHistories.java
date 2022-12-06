@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.domain.riders;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import helmet.bikelab.apiserver.domain.bike.ImageVo;
 import helmet.bikelab.apiserver.domain.types.converters.HistoryConverter;
 import helmet.bikelab.apiserver.domain.types.converters.ImageVoConverter;
@@ -21,6 +22,7 @@ public class RiderInsuranceHistories {
     @Column(name = "rider_ins_no")
     private Integer riderInsNo;
 
+    @JsonIgnore
     @OneToOne
     @JoinColumn(name = "rider_ins_no", insertable = false, updatable = false)
     private RiderInsurances riderInsurance;

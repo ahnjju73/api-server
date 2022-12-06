@@ -16,7 +16,7 @@ public enum InsAgeTypes {
         if(age == null)
             return null;
         for(InsAgeTypes iat : InsAgeTypes.values()){
-            if(iat.getAge() == age){
+            if(iat.getAge().equals(age)){
                 return iat;
             }
         }
