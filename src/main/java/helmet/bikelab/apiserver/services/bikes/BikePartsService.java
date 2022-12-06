@@ -5,24 +5,17 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CopyObjectRequest;
 import helmet.bikelab.apiserver.domain.CommonBikes;
 import helmet.bikelab.apiserver.domain.CommonWorking;
-import helmet.bikelab.apiserver.domain.bike.Parts;
-import helmet.bikelab.apiserver.domain.bike.ImageVo;
-import helmet.bikelab.apiserver.domain.bike.PartsTypes;
+import helmet.bikelab.apiserver.domain.SampleFiles;
+import helmet.bikelab.apiserver.domain.bike.*;
+import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.types.BikeTypes;
 import helmet.bikelab.apiserver.domain.types.MediaTypes;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.PresignedURLVo;
 import helmet.bikelab.apiserver.objects.bikelabs.bikes.*;
-import helmet.bikelab.apiserver.domain.bike.PartsCodes;
-import helmet.bikelab.apiserver.objects.requests.BikePartsRequest;
-import helmet.bikelab.apiserver.objects.requests.ModelPartsExcelRequest;
-import helmet.bikelab.apiserver.objects.requests.PartsCodeListRequest;
-import helmet.bikelab.apiserver.objects.requests.PartsExcelRequest;
+import helmet.bikelab.apiserver.objects.requests.*;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
-import helmet.bikelab.apiserver.repositories.CommonWorkingRepository;
-import helmet.bikelab.apiserver.repositories.PartsCodesRepository;
-import helmet.bikelab.apiserver.repositories.PartsRepository;
-import helmet.bikelab.apiserver.repositories.PartsTypesRepository;
+import helmet.bikelab.apiserver.repositories.*;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.utils.amazon.AmazonUtils;
 import helmet.bikelab.apiserver.utils.keys.ENV;
@@ -32,23 +25,24 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDate;
+import java.util.*;
 
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
 @Service
 public class BikePartsService extends SessService {
 
+    private final BikeModelsRepository bikeModelsRepository;
     private final CommonWorker commonWorker;
     private final PartsRepository partsRepository;
     private final BikeWorker bikeWorker;
     private final PartsTypesRepository partsTypesRepository;
     private final CommonWorkingRepository commonWorkingRepository;
     private final PartsCodesRepository partsCodesRepository;
-
+    private final PartsPriceBakRepository partsPriceBakRepository;
+    private final SampleFilesRepository sampleFilesRepository;
     public BikeSessionRequest fetchCommonWorkingPriceList(BikeSessionRequest request){
         Map param = request.getParam();
         BikeTypes bikeType = BikeTypes.getType((String)param.get("bike_type"));
@@ -113,7 +107,8 @@ public class BikePartsService extends SessService {
     public BikeSessionRequest generatePresignedUrl(BikeSessionRequest request){
         Map param = request.getParam();
         String filename = (String)param.get("filename");
-        PresignedURLVo presignedURLVo = commonWorker.generatePreSignedUrl(filename, null);
+        String extension = (String)param.get("extension");
+        PresignedURLVo presignedURLVo = commonWorker.generatePreSignedUrl(filename, extension);
         request.setResponse(presignedURLVo);
         return request;
     }
@@ -168,11 +163,11 @@ public class BikePartsService extends SessService {
         }
 
         if(changed){
-            List<PartsBackUpDto> backUpList = partsByIdAndCarModel.getBackUpList();
-            if(!bePresent(backUpList)) backUpList = new ArrayList<>();
-            backUpList.add(partsBackUpDto);
-            partsByIdAndCarModel.setBackUpList(backUpList);
-            partsRepository.save(partsByIdAndCarModel);
+            BikeUser sessionUser = request.getSessionUser();
+            PartsPriceBak partsPriceBak = new PartsPriceBak();
+            partsPriceBak.initialized(partsByIdAndCarModel, sessionUser);
+            partsPriceBak.setDescription("수기변경");
+            partsPriceBakRepository.save(partsPriceBak);
         }
         return request;
     }
@@ -180,6 +175,7 @@ public class BikePartsService extends SessService {
     @Transactional
     public BikeSessionRequest addPartsByModel(BikeSessionRequest request) {
         Map param = request.getParam();
+        BikeUser sessionUser = request.getSessionUser();
         PartsNewRequest bikePartsDto = map(param, PartsNewRequest.class);
         bikePartsDto.checkValidation();
         Parts parts = new Parts();
@@ -193,6 +189,11 @@ public class BikePartsService extends SessService {
         parts.setWorkingHours(bikePartsDto.getWorkingHours());
         parts.setUnits(bikePartsDto.getUnits());
         partsRepository.save(parts);
+
+        PartsPriceBak partsPriceBak = new PartsPriceBak();
+        partsPriceBak.initialized(parts, sessionUser);
+        partsPriceBakRepository.save(partsPriceBak);
+
         return request;
     }
 
@@ -236,47 +237,136 @@ public class BikePartsService extends SessService {
     }
 
     @Transactional
+    public BikeSessionRequest uploadModelPartsPrice(BikeSessionRequest request) {
+        BikeUser sessionUser = request.getSessionUser();
+        UploadPartsPriceRequest uploadPartsPriceRequest = map(request.getParam(), UploadPartsPriceRequest.class);
+        PresignedURLVo pre = uploadPartsPriceRequest.getFile();
+        SampleFiles sampleFiles = new SampleFiles();
+        if(bePresent(pre)){
+            AmazonS3 amazonS3 = AmazonUtils.amazonS3();
+            String fileKey = "sample-files/" + LocalDate.now() + "/" + UUID.randomUUID().toString().replace("-", "") + "/" + pre.getFileKey();
+            CopyObjectRequest objectRequest = new CopyObjectRequest(pre.getBucket(), pre.getFileKey(), ENV.AWS_S3_ORIGIN_BUCKET, fileKey);
+            amazonS3.copyObject(objectRequest);
+            sampleFiles.setLinks(ENV.AWS_S3_ORIGIN_DOMAIN + "/" + fileKey);
+            sampleFilesRepository.save(sampleFiles);
+        }
+        List<UploadPartsPrice> partsPriceList = uploadPartsPriceRequest.getPartsPriceList();
+        if(!bePresent(partsPriceList)) writeMessage("업데이트할 내용이 없습니다.");
+        StringBuilder errors = new StringBuilder("");
+        for(int i = 0; i < partsPriceList.size(); i++){
+            Integer index = i + 2;
+            Boolean hasError = false;
+            UploadPartsPrice uploadPartsPrice = partsPriceList.get(i);
+            Parts partsByPartsId = partsRepository.findByPartsId(uploadPartsPrice.getPartsId());
+            if(!bePresent(partsByPartsId)){
+                errors.append("[" + index + "번째] 부품 ID가 없습니다. [" + partsByPartsId + "]\n");
+                hasError = true;
+            }
+            if(!bePresent(uploadPartsPrice.getPartsPrice())){
+                errors.append("[" + index + "번째] 부품 가격이 없습니다. [" + uploadPartsPrice.getPartsPrice() + "]\n");
+                hasError = true;
+            }
+            if(!bePresent(uploadPartsPrice.getWorkingHour())){
+                errors.append("[" + index + "번째] 부품 가격이 없습니다. [" + uploadPartsPrice.getWorkingHour() + "]\n");
+                hasError = true;
+            }
+            if(!hasError){
+                partsByPartsId.setPartsPrices(uploadPartsPrice.getPartsPrice());
+                partsByPartsId.setWorkingHours(uploadPartsPrice.getWorkingHour());
+                partsRepository.save(partsByPartsId);
+                PartsPriceBak partsPriceBak = new PartsPriceBak(partsByPartsId, uploadPartsPrice, uploadPartsPriceRequest.getDescription(), sampleFiles, sessionUser);
+                partsPriceBakRepository.save(partsPriceBak);
+            }else {
+                Map response = new HashMap();
+                response.put("error", errors);
+                writeMessage(errors.toString());
+            }
+
+        }
+
+        return request;
+    }
+
+    @Transactional
     public BikeSessionRequest uploadModelParts(BikeSessionRequest request) {
         Map param = request.getParam();
         ModelPartsExcelRequest partsExcelRequest = map(param, ModelPartsExcelRequest.class);
         List<BikePartsRequest> parts = partsExcelRequest.getParts();
         String errors = "";
         for (int i = 0; i < parts.size(); i++) {
-            String init = i + 1 + "번째\n";
-            String error = init;
-            String carModel = parts.get(i).getCarModel();
-            String partsId = parts.get(i).getPartsId();
-            String partsName = parts.get(i).getPartsName();
-            Integer partsPrice = parts.get(i).getPartsPrice();
-            Double workingHour = parts.get(i).getWorkingHour();
-            PartsCodes byPartsName = new PartsCodes();
-            if(partsRepository.existsByPartsId(partsId))
-                error += "제조사코드는 이미 존재합니다 [" + partsId + "]\n";
-            CommonBikes commonCodeBikesById = bikeWorker.getCommonCodeBikesById(carModel);
-            if(!bePresent(commonCodeBikesById))
-                error += "차량은 존재하지않습니다.\n";
-            if(partsCodesRepository.countAllByPartsName(partsName) > 1){
-                String types = "";
-                List<PartsCodes> codes = partsCodesRepository.findAllByPartsName(partsName);
-                for(int j = 0; j <  codes.size(); j++){
-                    types += j == codes.size() - 1 ? codes.get(j).getPartsType().getPartsType() : codes.get(j).getPartsType().getPartsType() + ", ";
-                }
-                error += "동일한 부품명이 해당 계통에 중복됩니다: [" + types + "]\n";
+            String errorText = (i + 2) + "번째 열 오류.\n";
+            BikePartsRequest bikePartsRequest = parts.get(i);
+            String partsId = bikePartsRequest.getPartsId();
+            Parts partByPartsId = partsRepository.findByPartsId(partsId);
+
+            if(bePresent(partByPartsId)){
+                // 수정
+                updatePartsInfoByExcel(bikePartsRequest, partByPartsId);
             }else {
-                byPartsName = partsCodesRepository.findByPartsName(partsName);
-                if (!bePresent(byPartsName))
-                    error += "부품명 " + partsName + " 이 없습니다.\n";
-            }
-            if(!error.equals(init)){
-                errors += error;
-            }else{
-                partsRepository.save(new Parts(partsId, byPartsName.getPartsCodeNo(), partsPrice, workingHour, commonCodeBikesById.getCode()));
+                // 신규등록
+                BikeUser sessionUser = request.getSessionUser();
+                errors = addNewPartsByExcel(errors, bikePartsRequest, sessionUser, errorText);
             }
         }
-        if(!errors.equals("")){
-//            throw new RuntimeException(errors);
+        if(bePresent(errors)){
             writeMessage(errors);
         }
         return request;
     }
+
+    private String addNewPartsByExcel(String errors, BikePartsRequest bikePartsRequest, BikeUser sessionUser, String errorText) {
+        String errorMessage = "";
+        CommonBikes commonCodeBikesById = bikeModelsRepository.findByCode(bikePartsRequest.getCarModel());
+        if(!bePresent(bikePartsRequest.getMerchantId())) errorMessage += "* 제조사코드가 존재하지않습니다.\n";
+        if(!bePresent(bikePartsRequest.getPartsNameEng())) errorMessage += "* 부품(영문)명이 존재하지않습니다.\n";
+        if(!bePresent(bikePartsRequest.getPartsPrice())) errorMessage += "* 부품가격이 존재하지않습니다.\n";
+        if(!bePresent(bikePartsRequest.getWorkingHour())) errorMessage += "* 공임시간이 존재하지않습니다.\n";
+        if(!bePresent(commonCodeBikesById)) errorMessage += "* 차량이 존재하지않습니다.\n";
+
+        Integer partsNameEngCount = partsCodesRepository.countAllByPartsNameEng(bikePartsRequest.getPartsNameEng());
+        if(partsNameEngCount > 1){
+            List<PartsCodes> codes = partsCodesRepository.findAllByPartsNameEng(bikePartsRequest.getPartsNameEng());
+            if(codes.size() > 0){
+                String types = "";
+                for(int j = 0; j <  codes.size(); j++){
+                    types += j == codes.size() - 1 ? codes.get(j).getPartsType().getPartsType() : codes.get(j).getPartsType().getPartsType() + ", ";
+                }
+                errorMessage += "* 동일한 부품명이 해당 계통에 중복됩니다: [" + types + "]\n";
+            }
+
+        }else if(partsNameEngCount == 0) {
+            errorMessage += "* 부품명 [" + bikePartsRequest.getPartsNameEng() + "] 이 없습니다.\n";
+        }
+        if(!bePresent(errorMessage)){
+            PartsCodes partsCode = partsCodesRepository.findByPartsNameEng(bikePartsRequest.getPartsNameEng());
+            Parts newParts = new Parts(bikePartsRequest, commonCodeBikesById, partsCode);
+            partsRepository.save(newParts);
+            PartsPriceBak partsPriceBak = new PartsPriceBak();
+            partsPriceBak.initialized(newParts, sessionUser);
+            partsPriceBakRepository.save(partsPriceBak);
+        }else {
+            errors += (errorText + errorMessage);
+        }
+        return errors;
+    }
+
+    private void updatePartsInfoByExcel(BikePartsRequest bikePartsRequest, Parts partByPartsId) {
+        partByPartsId.setPartsPrices(bikePartsRequest.getPartsPrice());
+        partByPartsId.setWorkingHours(bikePartsRequest.getWorkingHour());
+        partByPartsId.setMerchantId(bikePartsRequest.getMerchantId());
+        PartsCodes partsCode = partByPartsId.getPartsCode();
+        partsCode.setPartsNameEng(bikePartsRequest.getPartsNameEng());
+        partsCode.setPartsName(bikePartsRequest.getPartsName());
+        partsCodesRepository.save(partsCode);
+        partsRepository.save(partByPartsId);
+    }
+
+    public BikeSessionRequest getPartsPriceHistory(BikeSessionRequest request) {
+        PartsByIdRequest partsByIdRequest = map(request.getParam(), PartsByIdRequest.class);
+        Parts partsById = bikeWorker.getPartsById(partsByIdRequest.getPartsNo());
+        List<PartsPriceBak> allByPartsNo = partsPriceBakRepository.findAllByPartsNoOrderByBakNoDesc(partsById.getPartNo());
+        request.setResponse(bePresent(allByPartsNo) ? allByPartsNo : new ArrayList<>());
+        return request;
+    }
+
 }

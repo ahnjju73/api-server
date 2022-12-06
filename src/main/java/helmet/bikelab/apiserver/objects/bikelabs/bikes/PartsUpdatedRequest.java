@@ -24,6 +24,7 @@ public class PartsUpdatedRequest extends OriginObject {
         if(!bePresent(this.partsId)) withException("503-008");
         if(!bePresent(this.partsPrices)) withException("503-003");
         if(!bePresent(this.workingHours)) withException("503-005");
+        if(!bePresent(this.merchantId)) writeMessage("제조사코드를 입력해주세요.");
     }
 
     public void setIsFreeSupport(String isFreeSupport) {

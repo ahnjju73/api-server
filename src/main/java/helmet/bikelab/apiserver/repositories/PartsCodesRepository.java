@@ -23,7 +23,10 @@ public interface PartsCodesRepository extends JpaRepository<PartsCodes, Integer>
     Integer countAllByPartsNameAndPartsTypeNo(String partsName, Integer typeNo);
 
     PartsCodes findByPartsName(String partsName);
+    PartsCodes findByPartsNameEng(String partsNameEng);
     Integer countAllByPartsName(String partsName);
+    Integer countAllByPartsNameEng(String partsNameEng);
     List<PartsCodes> findAllByPartsName(String partsName);
+    List<PartsCodes> findAllByPartsNameEng(String partsNameEng);
     Page<PartsCodes> findAllByPartsNameContainingAndPartsType_PartsTypeContaining(String partsName, String partsType, Pageable pageable);
 }

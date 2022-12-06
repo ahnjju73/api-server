@@ -86,19 +86,6 @@ public class Workspace extends OriginObject{
         throw new RuntimeException(getJson(rtn));
     }
 
-    protected void writeMessage(String message){
-        writeMessage(message, HttpStatus.BAD_REQUEST);
-    }
-
-    protected void writeMessage(String message, HttpStatus httpStatus){
-        BusinessException businessException = new BusinessException();
-        businessException.setErr_code("");
-        businessException.setMsg(message);
-        businessException.setErrHttpStatus(httpStatus);
-        throw businessException;
-
-    }
-
     protected void writeError(Map map, String lang_code){
         writeError(map, lang_code, HttpStatus.BAD_REQUEST);
     }

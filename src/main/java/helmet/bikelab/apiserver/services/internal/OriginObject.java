@@ -2,7 +2,9 @@ package helmet.bikelab.apiserver.services.internal;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.google.gson.Gson;
+import helmet.bikelab.apiserver.objects.exceptions.BusinessException;
 import helmet.bikelab.apiserver.objects.exceptions.BusinessExceptionWithMessage;
+import org.springframework.http.HttpStatus;
 
 import java.util.List;
 import java.util.Map;
@@ -57,4 +59,18 @@ public class OriginObject {
         }
         return obj != null;
     }
+
+    protected void writeMessage(String message){
+        writeMessage(message, HttpStatus.BAD_REQUEST);
+    }
+
+    protected void writeMessage(String message, HttpStatus httpStatus){
+        BusinessException businessException = new BusinessException();
+        businessException.setErr_code("");
+        businessException.setMsg(message);
+        businessException.setErrHttpStatus(httpStatus);
+        throw businessException;
+
+    }
+
 }
