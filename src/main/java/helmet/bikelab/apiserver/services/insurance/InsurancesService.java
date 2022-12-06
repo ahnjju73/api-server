@@ -391,71 +391,71 @@ public class InsurancesService extends SessService {
                 change += "바이크 종류를 <>" + InsuranceBikeTypes.getType(addUpdateRiderInsuranceRequest.getBikeType()) + "</>로 설정하였습니다.\n";
             }
         }
-        RiderInsurancesDtl topDetail = riderInsuranceDtlRepository.findTopByRiderInsurances_RiderInsIdOrderByDtlNoDesc(riderInsurances.getRiderInsId());
-        Integer dtlCnt = riderInsuranceDtlRepository.countAllByRiderInsurances_RiderInsId(riderInsurances.getRiderInsId());
-        if (!topDetail.getInsCompanyCode().equals(addUpdateRiderInsuranceRequest.getInsCompany())) {
-            change += dtlCnt + "번째 계약서 보험 회사를 <>" + topDetail.getInsCompany() + "</>에서 <>" + InsCompanyTypes.getCompanyType(addUpdateRiderInsuranceRequest.getInsCompany()) + "</>로 수정하였습니다.\n";
-        }
-        if (!topDetail.getInsCompanyCode().equals(addUpdateRiderInsuranceRequest.getInsCompany())) {
-            change += dtlCnt + "번째 계약서 보험 번호를 <>" + topDetail.getInsNum() + "</>에서 <>" + addUpdateRiderInsuranceRequest.getInsNum() + "</>로 수정하였습니다.\n";
-        }
-        if (bePresent(topDetail.getBankInfo())) {
-            if (bePresent(topDetail.getBankInfo().getBankName()) && bePresent(addUpdateRiderInsuranceRequest.getBankInfoDto().getBankName()) && !topDetail.getBankInfo().getBankName().equals(addUpdateRiderInsuranceRequest.getBankInfoDto().getBankName())) {
-                change += dtlCnt + "번째 은행사를 <>" + topDetail.getBankInfo().getBankName() + "</>에서 <>" + addUpdateRiderInsuranceRequest.getBankInfoDto().getBankName() + "</>로 수정하였습니다.\n";
-            } else if (bePresent(topDetail.getBankInfo().getBankName()) && !bePresent(addUpdateRiderInsuranceRequest.getBankInfoDto().getBankName())) {
-                change += dtlCnt + "번째 은행사를 <>" + topDetail.getBankInfo().getBankName() + "</>에서 삭제하였습니다.\n";
-            } else if (!bePresent(topDetail.getBankInfo().getBankName()) && bePresent(addUpdateRiderInsuranceRequest.getBankInfoDto().getBankName())) {
-                change += dtlCnt + "번째 은행사를 <>" + addUpdateRiderInsuranceRequest.getBankInfoDto().getBankName() + "</>로 입력하였습니다.\n";
-            }
-            if (bePresent(topDetail.getBankInfo().getAccountNumber()) && bePresent(addUpdateRiderInsuranceRequest.getBankInfoDto().getAccountNumber()) && !topDetail.getBankInfo().getAccountNumber().equals(addUpdateRiderInsuranceRequest.getBankInfoDto().getAccountNumber())) {
-                change += dtlCnt + "번째 계좌번호를 <>" + topDetail.getBankInfo().getAccountNumber() + "</>에서 <>" + addUpdateRiderInsuranceRequest.getBankInfoDto().getAccountNumber() + "</>로 수정하였습니다.\n";
-            } else if (bePresent(topDetail.getBankInfo().getAccountNumber()) && !bePresent(addUpdateRiderInsuranceRequest.getBankInfoDto().getAccountNumber())) {
-                change += dtlCnt + "번째 계좌번호를 <>" + topDetail.getBankInfo().getAccountNumber() + "</>에서 삭제하였습니다.\n";
-            } else if (!bePresent(topDetail.getBankInfo().getAccountNumber()) && bePresent(addUpdateRiderInsuranceRequest.getBankInfoDto().getAccountNumber())) {
-                change += dtlCnt + "번째 계좌번호를 <>" + addUpdateRiderInsuranceRequest.getBankInfoDto().getAccountNumber() + "</>로 입력하였습니다.\n";
-            }
-            if (bePresent(topDetail.getBankInfo().getName()) && bePresent(addUpdateRiderInsuranceRequest.getBankInfoDto().getName()) && !topDetail.getBankInfo().getName().equals(addUpdateRiderInsuranceRequest.getBankInfoDto().getName())) {
-                change += dtlCnt + "번째 게좌명을 <>" + topDetail.getBankInfo().getName() + "</>에서 <>" + addUpdateRiderInsuranceRequest.getBankInfoDto().getName() + "</>로 수정하였습니다.\n";
-            } else if (bePresent(topDetail.getBankInfo().getName()) && !bePresent(addUpdateRiderInsuranceRequest.getBankInfoDto().getName())) {
-                change += dtlCnt + "번째 게좌명을 <>" + topDetail.getBankInfo().getName() + "</>에서 삭제하였습니다.\n";
-            } else if (!bePresent(topDetail.getBankInfo().getName()) && bePresent(addUpdateRiderInsuranceRequest.getBankInfoDto().getName())) {
-                change += dtlCnt + "번째 게좌명을 <>" + addUpdateRiderInsuranceRequest.getBankInfoDto().getName() + "</>로 입력하였습니다.\n";
-            }
-        }
-        if (!topDetail.getUsageTypeCode().equals(addUpdateRiderInsuranceRequest.getUsage())) {
-            change += dtlCnt + "번째 계약서 용도를 <>" + topDetail.getUsageTypes() + "</>에서 <>" + InsCompanyTypes.getCompanyType(addUpdateRiderInsuranceRequest.getUsage()) + "</>로 수정하였습니다.\n";
-        }
-        if (!topDetail.getAdditionalStandardTypeCode().equals(addUpdateRiderInsuranceRequest.getAdditionalStandard())) {
-            change += dtlCnt + "번째 할증 기준금액을 <>" + topDetail.getUsageTypeCode() + " 만원</>에서 <>" + addUpdateRiderInsuranceRequest.getAdditionalStandard() + " 만원</>으로 수정하였습니다.\n";
-        }
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        if (!topDetail.getStartDt().equals(addUpdateRiderInsuranceRequest.getStartDt())) {
-            change += dtlCnt + "번째 계약 시작 날짜를 <>" + topDetail.getStartDt().format(formatter) + "</>에서 <>" + addUpdateRiderInsuranceRequest.getStartDt().format(formatter) + "</>로 수정하였습니다.\n";
-        }
-        if (!topDetail.getEndDt().equals(addUpdateRiderInsuranceRequest.getEndDt())) {
-            change += dtlCnt + "번째 계약 종료 날짜를 <>" + topDetail.getEndDt().format(formatter) + "</>에서 <>" + addUpdateRiderInsuranceRequest.getEndDt().format(formatter) + "</>로 수정하였습니다.\n";
-        }
-        if (bePresent(topDetail.getInsFee()) && bePresent(addUpdateRiderInsuranceRequest.getInsFee()) && topDetail.getInsFee() != addUpdateRiderInsuranceRequest.getInsFee()) {
-            change += dtlCnt + "번째 계약 금액을 <>" + Utils.getCurrencyFormat(topDetail.getInsFee()) + "원</>에서 <>" + Utils.getCurrencyFormat(addUpdateRiderInsuranceRequest.getInsFee()) + "원</>으로 수정하였습니다.\n";
-        }
-        if (bePresent(topDetail.getLiabilityMan()) && bePresent(addUpdateRiderInsuranceRequest.getLiabilityMan()) && !topDetail.getLiabilityMan().equals(addUpdateRiderInsuranceRequest.getLiabilityMan())) {
-            change += dtlCnt + "번째 대인 금액을 <>" + Utils.getCurrencyFormat(topDetail.getLiabilityMan()) + "원</>에서 <>" + Utils.getCurrencyFormat(addUpdateRiderInsuranceRequest.getLiabilityMan()) + "원</>으로 수정하였습니다.\n";
-        }
-        if (bePresent(topDetail.getLiabilityCar()) && bePresent(addUpdateRiderInsuranceRequest.getLiabilityCar()) && topDetail.getInsFee() != addUpdateRiderInsuranceRequest.getLiabilityCar()) {
-            change += dtlCnt + "번째 대물 금액을 <>" + Utils.getCurrencyFormat(topDetail.getLiabilityCar()) + "원</>에서 <>" + Utils.getCurrencyFormat(addUpdateRiderInsuranceRequest.getLiabilityCar()) + "원</>으로 수정하였습니다.\n";
-        }
-        if (bePresent(topDetail.getLiabilityMan2()) && bePresent(addUpdateRiderInsuranceRequest.getLiabilityMan2()) && topDetail.getLiabilityMan2() != addUpdateRiderInsuranceRequest.getLiabilityMan2()) {
-            change += dtlCnt + "번째 대인2 금액을 <>" + Utils.getCurrencyFormat(topDetail.getLiabilityMan2()) + "원</>에서 <>" + Utils.getCurrencyFormat(addUpdateRiderInsuranceRequest.getLiabilityMan2()) + "원</>으로 수정하였습니다.\n";
-        }
-        if (bePresent(topDetail.getNoInsCover()) && bePresent(addUpdateRiderInsuranceRequest.getNoInsuranceCover()) && topDetail.getNoInsCover() != addUpdateRiderInsuranceRequest.getNoInsuranceCover()) {
-            change += dtlCnt + "번째 무보험 상해 보험 금액을 <>" + Utils.getCurrencyFormat(topDetail.getNoInsCover()) + "원</>에서 <>" + Utils.getCurrencyFormat(addUpdateRiderInsuranceRequest.getNoInsuranceCover()) + "원</>으로 수정하였습니다.\n";
-        }
-        if (bePresent(topDetail.getSelfCoverMan()) && bePresent(addUpdateRiderInsuranceRequest.getSelfCoverMan()) && topDetail.getSelfCoverMan() != addUpdateRiderInsuranceRequest.getSelfCoverMan()) {
-            change += dtlCnt + "번째 자손 금액을 <>" + Utils.getCurrencyFormat(topDetail.getSelfCoverMan()) + "원</>에서 <>" + Utils.getCurrencyFormat(addUpdateRiderInsuranceRequest.getSelfCoverMan()) + "원</>으로 수정하였습니다.\n";
-        }
-        if (bePresent(topDetail.getSelfCoverCar()) && bePresent(addUpdateRiderInsuranceRequest.getSelfCoverCar()) && topDetail.getSelfCoverCar() != addUpdateRiderInsuranceRequest.getSelfCoverCar()) {
-            change += dtlCnt + "번째 자차 금액을 <>" + Utils.getCurrencyFormat(topDetail.getSelfCoverCar()) + "원</>에서 <>" + Utils.getCurrencyFormat(addUpdateRiderInsuranceRequest.getSelfCoverCar()) + "원</>으로 수정하였습니다.\n";
-        }
+//        RiderInsurancesDtl topDetail = riderInsuranceDtlRepository.findTopByRiderInsurances_RiderInsIdOrderByDtlNoDesc(riderInsurances.getRiderInsId());
+//        Integer dtlCnt = riderInsuranceDtlRepository.countAllByRiderInsurances_RiderInsId(riderInsurances.getRiderInsId());
+//        if (!topDetail.getInsCompanyCode().equals(addUpdateRiderInsuranceRequest.getInsCompany())) {
+//            change += dtlCnt + "번째 계약서 보험 회사를 <>" + topDetail.getInsCompany() + "</>에서 <>" + InsCompanyTypes.getCompanyType(addUpdateRiderInsuranceRequest.getInsCompany()) + "</>로 수정하였습니다.\n";
+//        }
+//        if (!topDetail.getInsCompanyCode().equals(addUpdateRiderInsuranceRequest.getInsCompany())) {
+//            change += dtlCnt + "번째 계약서 보험 번호를 <>" + topDetail.getInsNum() + "</>에서 <>" + addUpdateRiderInsuranceRequest.getInsNum() + "</>로 수정하였습니다.\n";
+//        }
+//        if (bePresent(topDetail.getBankInfo()) && bePresent(addUpdateRiderInsuranceRequest.getBankInfoDto())) {
+//            if (bePresent(topDetail.getBankInfo().getBankName()) && bePresent(addUpdateRiderInsuranceRequest.getBankInfoDto().getBankName()) && !topDetail.getBankInfo().getBankName().equals(addUpdateRiderInsuranceRequest.getBankInfoDto().getBankName())) {
+//                change += dtlCnt + "번째 은행사를 <>" + topDetail.getBankInfo().getBankName() + "</>에서 <>" + addUpdateRiderInsuranceRequest.getBankInfoDto().getBankName() + "</>로 수정하였습니다.\n";
+//            } else if (bePresent(topDetail.getBankInfo().getBankName()) && !bePresent(addUpdateRiderInsuranceRequest.getBankInfoDto().getBankName())) {
+//                change += dtlCnt + "번째 은행사를 <>" + topDetail.getBankInfo().getBankName() + "</>에서 삭제하였습니다.\n";
+//            } else if (!bePresent(topDetail.getBankInfo().getBankName()) && bePresent(addUpdateRiderInsuranceRequest.getBankInfoDto().getBankName())) {
+//                change += dtlCnt + "번째 은행사를 <>" + addUpdateRiderInsuranceRequest.getBankInfoDto().getBankName() + "</>로 입력하였습니다.\n";
+//            }
+//            if (bePresent(topDetail.getBankInfo().getAccountNumber()) && bePresent(addUpdateRiderInsuranceRequest.getBankInfoDto().getAccountNumber()) && !topDetail.getBankInfo().getAccountNumber().equals(addUpdateRiderInsuranceRequest.getBankInfoDto().getAccountNumber())) {
+//                change += dtlCnt + "번째 계좌번호를 <>" + topDetail.getBankInfo().getAccountNumber() + "</>에서 <>" + addUpdateRiderInsuranceRequest.getBankInfoDto().getAccountNumber() + "</>로 수정하였습니다.\n";
+//            } else if (bePresent(topDetail.getBankInfo().getAccountNumber()) && !bePresent(addUpdateRiderInsuranceRequest.getBankInfoDto().getAccountNumber())) {
+//                change += dtlCnt + "번째 계좌번호를 <>" + topDetail.getBankInfo().getAccountNumber() + "</>에서 삭제하였습니다.\n";
+//            } else if (!bePresent(topDetail.getBankInfo().getAccountNumber()) && bePresent(addUpdateRiderInsuranceRequest.getBankInfoDto().getAccountNumber())) {
+//                change += dtlCnt + "번째 계좌번호를 <>" + addUpdateRiderInsuranceRequest.getBankInfoDto().getAccountNumber() + "</>로 입력하였습니다.\n";
+//            }
+//            if (bePresent(topDetail.getBankInfo().getName()) && bePresent(addUpdateRiderInsuranceRequest.getBankInfoDto().getName()) && !topDetail.getBankInfo().getName().equals(addUpdateRiderInsuranceRequest.getBankInfoDto().getName())) {
+//                change += dtlCnt + "번째 게좌명을 <>" + topDetail.getBankInfo().getName() + "</>에서 <>" + addUpdateRiderInsuranceRequest.getBankInfoDto().getName() + "</>로 수정하였습니다.\n";
+//            } else if (bePresent(topDetail.getBankInfo().getName()) && !bePresent(addUpdateRiderInsuranceRequest.getBankInfoDto().getName())) {
+//                change += dtlCnt + "번째 게좌명을 <>" + topDetail.getBankInfo().getName() + "</>에서 삭제하였습니다.\n";
+//            } else if (!bePresent(topDetail.getBankInfo().getName()) && bePresent(addUpdateRiderInsuranceRequest.getBankInfoDto().getName())) {
+//                change += dtlCnt + "번째 게좌명을 <>" + addUpdateRiderInsuranceRequest.getBankInfoDto().getName() + "</>로 입력하였습니다.\n";
+//            }
+//        }
+//        if (!topDetail.getUsageTypeCode().equals(addUpdateRiderInsuranceRequest.getUsage())) {
+//            change += dtlCnt + "번째 계약서 용도를 <>" + topDetail.getUsageTypes() + "</>에서 <>" + InsCompanyTypes.getCompanyType(addUpdateRiderInsuranceRequest.getUsage()) + "</>로 수정하였습니다.\n";
+//        }
+//        if (!topDetail.getAdditionalStandardTypeCode().equals(addUpdateRiderInsuranceRequest.getAdditionalStandard())) {
+//            change += dtlCnt + "번째 할증 기준금액을 <>" + topDetail.getUsageTypeCode() + " 만원</>에서 <>" + addUpdateRiderInsuranceRequest.getAdditionalStandard() + " 만원</>으로 수정하였습니다.\n";
+//        }
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+//        if (!topDetail.getStartDt().equals(addUpdateRiderInsuranceRequest.getStartDt())) {
+//            change += dtlCnt + "번째 계약 시작 날짜를 <>" + topDetail.getStartDt().format(formatter) + "</>에서 <>" + addUpdateRiderInsuranceRequest.getStartDt().format(formatter) + "</>로 수정하였습니다.\n";
+//        }
+//        if (!topDetail.getEndDt().equals(addUpdateRiderInsuranceRequest.getEndDt())) {
+//            change += dtlCnt + "번째 계약 종료 날짜를 <>" + topDetail.getEndDt().format(formatter) + "</>에서 <>" + addUpdateRiderInsuranceRequest.getEndDt().format(formatter) + "</>로 수정하였습니다.\n";
+//        }
+//        if (bePresent(topDetail.getInsFee()) && bePresent(addUpdateRiderInsuranceRequest.getInsFee()) && topDetail.getInsFee() != addUpdateRiderInsuranceRequest.getInsFee()) {
+//            change += dtlCnt + "번째 계약 금액을 <>" + Utils.getCurrencyFormat(topDetail.getInsFee()) + "원</>에서 <>" + Utils.getCurrencyFormat(addUpdateRiderInsuranceRequest.getInsFee()) + "원</>으로 수정하였습니다.\n";
+//        }
+//        if (bePresent(topDetail.getLiabilityMan()) && bePresent(addUpdateRiderInsuranceRequest.getLiabilityMan()) && !topDetail.getLiabilityMan().equals(addUpdateRiderInsuranceRequest.getLiabilityMan())) {
+//            change += dtlCnt + "번째 대인 금액을 <>" + Utils.getCurrencyFormat(topDetail.getLiabilityMan()) + "원</>에서 <>" + Utils.getCurrencyFormat(addUpdateRiderInsuranceRequest.getLiabilityMan()) + "원</>으로 수정하였습니다.\n";
+//        }
+//        if (bePresent(topDetail.getLiabilityCar()) && bePresent(addUpdateRiderInsuranceRequest.getLiabilityCar()) && topDetail.getInsFee() != addUpdateRiderInsuranceRequest.getLiabilityCar()) {
+//            change += dtlCnt + "번째 대물 금액을 <>" + Utils.getCurrencyFormat(topDetail.getLiabilityCar()) + "원</>에서 <>" + Utils.getCurrencyFormat(addUpdateRiderInsuranceRequest.getLiabilityCar()) + "원</>으로 수정하였습니다.\n";
+//        }
+//        if (bePresent(topDetail.getLiabilityMan2()) && bePresent(addUpdateRiderInsuranceRequest.getLiabilityMan2()) && topDetail.getLiabilityMan2() != addUpdateRiderInsuranceRequest.getLiabilityMan2()) {
+//            change += dtlCnt + "번째 대인2 금액을 <>" + Utils.getCurrencyFormat(topDetail.getLiabilityMan2()) + "원</>에서 <>" + Utils.getCurrencyFormat(addUpdateRiderInsuranceRequest.getLiabilityMan2()) + "원</>으로 수정하였습니다.\n";
+//        }
+//        if (bePresent(topDetail.getNoInsCover()) && bePresent(addUpdateRiderInsuranceRequest.getNoInsuranceCover()) && topDetail.getNoInsCover() != addUpdateRiderInsuranceRequest.getNoInsuranceCover()) {
+//            change += dtlCnt + "번째 무보험 상해 보험 금액을 <>" + Utils.getCurrencyFormat(topDetail.getNoInsCover()) + "원</>에서 <>" + Utils.getCurrencyFormat(addUpdateRiderInsuranceRequest.getNoInsuranceCover()) + "원</>으로 수정하였습니다.\n";
+//        }
+//        if (bePresent(topDetail.getSelfCoverMan()) && bePresent(addUpdateRiderInsuranceRequest.getSelfCoverMan()) && topDetail.getSelfCoverMan() != addUpdateRiderInsuranceRequest.getSelfCoverMan()) {
+//            change += dtlCnt + "번째 자손 금액을 <>" + Utils.getCurrencyFormat(topDetail.getSelfCoverMan()) + "원</>에서 <>" + Utils.getCurrencyFormat(addUpdateRiderInsuranceRequest.getSelfCoverMan()) + "원</>으로 수정하였습니다.\n";
+//        }
+//        if (bePresent(topDetail.getSelfCoverCar()) && bePresent(addUpdateRiderInsuranceRequest.getSelfCoverCar()) && topDetail.getSelfCoverCar() != addUpdateRiderInsuranceRequest.getSelfCoverCar()) {
+//            change += dtlCnt + "번째 자차 금액을 <>" + Utils.getCurrencyFormat(topDetail.getSelfCoverCar()) + "원</>에서 <>" + Utils.getCurrencyFormat(addUpdateRiderInsuranceRequest.getSelfCoverCar()) + "원</>으로 수정하였습니다.\n";
+//        }
         return change;
     }
 
