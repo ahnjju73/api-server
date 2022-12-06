@@ -213,27 +213,49 @@ public class BikePartsService extends SessService {
     public BikeSessionRequest uploadNewParts(BikeSessionRequest request) {
         Map param = request.getParam();
         PartsExcelRequest partsExcelRequest = map(param, PartsExcelRequest.class);
-        List<PartsCodeListRequest> parts = partsExcelRequest.getParts();
+        List<PartsCodeUploadRequest> parts = partsExcelRequest.getParts();
         String errors = "";
         for (int i = 0; i < parts.size(); i++){
-            String partsName = parts.get(i).getPartsName();
-            String partsType = parts.get(i).getPartsType();
-            PartsTypes partsTypes = partsTypesRepository.findByPartsType(partsType);
-            if(!bePresent(partsTypes)){
-                errors += i + 1 + " 번째 파트타입이 현재 존재하지 않는 파트타입 입니다.\n";
-                continue;
+            String index = (i + 2) + "번째 오류\n";
+            String errorText = "";
+            PartsCodeUploadRequest partsCodeRow = parts.get(i);
+            PartsCodes partsCodeById = partsCodesRepository.findByPartsCodeNo(partsCodeRow.getPartsCodeNo());
+            if(!bePresent(partsCodeRow.getPartsNameEng())) errorText = "부품(영문)명이 존재하지않습니다.\n";
+            if(bePresent(partsCodeById)){
+                // 수정하기
+                updatePartsCodeByExcel(partsCodeRow, partsCodeById, errorText);
+            }else {
+                // 신규등록
+                addPartsCodeByExcel(partsCodeRow, errorText);
             }
-            if(partsCodesRepository.countAllByPartsNameAndPartsTypeNo(partsName, partsTypes.getPartsTypeNo()) == 0) {
-                PartsCodes partsCodes = new PartsCodes();
-                partsCodes.setPartsTypeNo(partsTypes.getPartsTypeNo());
-                partsCodes.setPartsName(partsName);
-                partsCodesRepository.save(partsCodes);
+            if(bePresent(errorText)){
+                errors += (index + errorText);
             }
         }
-        if(!errors.equals("")){
+        if(bePresent(errors)){
             writeMessage(errors);
         }
         return request;
+    }
+
+    private void addPartsCodeByExcel(PartsCodeUploadRequest partsCodeRow, String errorText) {
+        PartsTypes partsType = partsTypesRepository.findByPartsTypeNo(partsCodeRow.getPartsTypeNo());
+        if(!bePresent(partsType)) {
+            errorText = "계통정보가 없습니다\n";
+            return ;
+        }
+        if(!bePresent(errorText)){
+            PartsCodes partsCode = new PartsCodes(partsType, partsCodeRow.getPartsName(), partsCodeRow.getPartsNameEng());
+            partsCodesRepository.save(partsCode);
+        }
+    }
+
+    private void updatePartsCodeByExcel(PartsCodeUploadRequest partsCodeRow, PartsCodes partsCodeById, String errorText) {
+        if(!bePresent(errorText)){
+            partsCodeById.setPartsName(partsCodeRow.getPartsName());
+            partsCodeById.setPartsNameEng(partsCodeRow.getPartsNameEng());
+            partsCodesRepository.save(partsCodeById);
+        }
     }
 
     @Transactional

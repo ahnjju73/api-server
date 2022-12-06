@@ -8,8 +8,10 @@ import helmet.bikelab.apiserver.domain.embeds.ModelTransaction;
 import helmet.bikelab.apiserver.domain.lease.Leases;
 import helmet.bikelab.apiserver.domain.riders.Riders;
 import helmet.bikelab.apiserver.domain.types.BikeRiderStatusTypes;
+import helmet.bikelab.apiserver.domain.types.BikeStatusTypes;
 import helmet.bikelab.apiserver.domain.types.PayerTypes;
 import helmet.bikelab.apiserver.domain.types.converters.BikeRiderStatusTypesConverter;
+import helmet.bikelab.apiserver.domain.types.converters.BikeStatusTypesConverter;
 import helmet.bikelab.apiserver.domain.types.converters.PayerTypesConverter;
 import helmet.bikelab.apiserver.services.internal.OriginObject;
 import lombok.*;
@@ -27,12 +29,17 @@ import java.util.List;
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class Bikes extends OriginObject {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "bike_no", nullable = false)
     private Integer bikeNo;
 
     @Column(name = "bike_id", length = 45, unique = true)
     private String bikeId;
+
+    @Column(name = "status", columnDefinition = "ENUM", nullable = false)
+    @Convert(converter = BikeStatusTypesConverter.class)
+    private BikeStatusTypes bikeStatus = BikeStatusTypes.PENDING;
 
     @Column(name = "vim_num", length = 45, unique = true)
     private String vimNum;

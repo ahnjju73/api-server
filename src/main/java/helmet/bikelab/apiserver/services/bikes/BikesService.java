@@ -206,6 +206,7 @@ public class BikesService extends SessService {
         fetchBikeDetailResponse.setDescription(bike.getDescription());
         fetchBikeDetailResponse.setIsBikemaster(bike.getIsBikemaster());
         fetchBikeDetailResponse.setPayerTypeCode(bike.getPayerTypeCode());
+        fetchBikeDetailResponse.setBikeStatusType(bike.getBikeStatus());
         if (leases != null) {
             ClientDto client = new ClientDto();
             client.setClientName(clients.getClientInfo().getName());
@@ -258,12 +259,30 @@ public class BikesService extends SessService {
         return request;
     }
 
+    private UpdateBikeRequest checkIfRemovableInBikeList(Bikes bike, Leases leases, UpdateBikeRequest updateBikeRequest){
+        BikeStatusTypes requestedStatusType = updateBikeRequest.getBikeStatusType();
+        if(!bike.getIsBikemaster() && !BikeStatusTypes.RIDING.equals(requestedStatusType)){
+            writeMessage("온어스 소유의 차량이 아닐 경우, \"차량상태\" 정보를 변경할수 없습니다.");
+        }
+        // 판매 또는 폐차의 경우, 운영중인 계약서 (Leases 테이블)이 존재할 경우 변경불가능.
+        if(BikeStatusTypes.FOR_SALE.equals(requestedStatusType) ||
+                BikeStatusTypes.JUNK.equals(requestedStatusType)){
+            if(bePresent(leases)) writeMessage("진행중인 계약서가 존재합니다. 계약번호 : [" + leases.getLeaseId() + "]");
+        }
+        if(bePresent(leases)){
+            updateBikeRequest.setBikeStatusType(BikeStatusTypes.RIDING);
+        }
+        return updateBikeRequest;
+    }
+
     @Transactional
     public BikeSessionRequest updateBike(BikeSessionRequest request) {
         Map param = request.getParam();
         UpdateBikeRequest updateBikeRequest = map(param, UpdateBikeRequest.class);
-        Bikes bike = bikesRepository.findByBikeId(updateBikeRequest.getBikeId());
+        Bikes bike = bikeWorker.getBikeById(updateBikeRequest.getBikeId());
+        Leases leases = leaseRepository.findByBikeNo(bike.getBikeNo());
         updateBikeRequest.checkValidation();
+        checkIfRemovableInBikeList(bike, leases, updateBikeRequest);
         if(!updateBikeRequest.getIsBikemaster() && !bike.getIsBikemaster().equals(updateBikeRequest.getIsBikemaster())){
             Integer riderNo = bike.getRiderNo();
             if(!bePresent(riderNo)) withException("500-012");
@@ -272,7 +291,7 @@ public class BikesService extends SessService {
         modelTransaction.setRegNum(updateBikeRequest.getRegNum());
         modelTransaction.setPrice(updateBikeRequest.getPrice());
         modelTransaction.setCompanyName(updateBikeRequest.getCompanyName());
-        Leases leases = leaseRepository.findByBikeNo(bike.getBikeNo());
+
         if (bePresent(leases) && !LeaseStatusTypes.CONFIRM.equals(leases.getStatus())) {
             List<LeaseExpense> expenses = expenseRepository.findAllByLease_LeaseIdAndExpenseTypes(leases.getLeaseId(), ExpenseTypes.BIKE);
             LeaseExpense leaseExpense;
@@ -318,6 +337,12 @@ public class BikesService extends SessService {
         if (bePresent(updateBikeRequest.getNumber()) && (!updateBikeRequest.getNumber().equals(bike.getCarNum()) && bikesRepository.countAllByCarNum(updateBikeRequest.getNumber()) > 0))
             withException("500-011");
         CommonBikes commonCodeBikesById = bikeWorker.getCommonCodeBikesById(updateBikeRequest.getCarModel());
+        bike.setBikeStatus(updateBikeRequest.getBikeStatusType());
+        if(BikeStatusTypes.FOR_SALE.equals(bike.getBikeStatus()) || BikeStatusTypes.JUNK.equals(bike.getBikeStatus())){
+            bike.setUsable(false);
+        }else {
+            bike.setUsable(true);
+        }
         bike.setYears(commonCodeBikesById.getYear());
         updateBikeInfoWithLog(updateBikeRequest, request.getSessionUser(), bike);
         bike.setVimNum(updateBikeRequest.getVimNumber());
