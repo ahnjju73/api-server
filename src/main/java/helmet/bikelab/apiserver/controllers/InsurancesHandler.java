@@ -2,6 +2,7 @@ package helmet.bikelab.apiserver.controllers;
 
 import helmet.bikelab.apiserver.domain.riders.RiderInsurances;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
+import helmet.bikelab.apiserver.objects.PresignedURLVo;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.services.insurance.InsurancesService;
 import lombok.RequiredArgsConstructor;
@@ -153,6 +154,6 @@ public class InsurancesHandler {
                         .map(row -> insurancesService.makeSessionRequest(request, row , BikeSessionRequest.class))
                         .map(insurancesService::checkBikeSession)
                         .map(insurancesService:: generatePresignedUrl)
-                        .map(insurancesService::returnData), Map.class);
+                        .map(insurancesService::returnData), PresignedURLVo.class);
     }
 }
