@@ -30,7 +30,7 @@ public class InsurancesRouters {
                 .andRoute(DELETE("/rider-insurances/{rider_ins_id}"), handler::deleteRiderInsurance)
                 .andRoute(PATCH("/rider-insurances/{rider_ins_id}/renew"), handler::renewRiderInsurance)
                 .andRoute(PATCH("/rider-insurances/{rider_ins_id}/confirm"), handler::confirmInsurance)
-                .andRoute(PUT("/rider-insurances-detail"), handler::updateRiderInsurance)
+                .andRoute(PUT("/rider-insurances-detail"), handler::updateRiderInsuranceDetail)
                 .andRoute(POST("/rider-insurances-pre-signed-url"),handler::generatePresignedUrl)
                 ;
 
