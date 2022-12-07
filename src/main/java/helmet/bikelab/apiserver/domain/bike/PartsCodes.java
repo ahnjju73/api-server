@@ -12,9 +12,16 @@ import javax.persistence.*;
 @Getter
 @Setter
 @Table(name = "parts_codes")
-@NoArgsConstructor
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class PartsCodes {
+
+    public PartsCodes(){}
+
+    public PartsCodes(PartsTypes partsType, String name, String nameEng){
+        this.partsTypeNo = partsType.getPartsTypeNo();
+        this.partsName = name;
+        this.partsNameEng = nameEng;
+    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

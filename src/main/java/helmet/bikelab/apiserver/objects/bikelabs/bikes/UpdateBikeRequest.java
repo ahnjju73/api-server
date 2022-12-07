@@ -2,6 +2,7 @@ package helmet.bikelab.apiserver.objects.bikelabs.bikes;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import helmet.bikelab.apiserver.domain.types.BikeStatusTypes;
 import helmet.bikelab.apiserver.domain.types.PayerTypes;
 import helmet.bikelab.apiserver.services.internal.OriginObject;
 import lombok.Getter;
@@ -31,6 +32,15 @@ public class UpdateBikeRequest extends OriginObject {
     private Boolean isMt;
     private String payerTypeCode;
     private PayerTypes payerType;
+    private BikeStatusTypes bikeStatusType;
+
+    public void setBikeStatusType(BikeStatusTypes bikeStatusType) {
+        this.bikeStatusType = bikeStatusType;
+    }
+
+    public void setBikeStatusType(String bikeStatusType) {
+        this.bikeStatusType = BikeStatusTypes.getBikeStatusTypes(bikeStatusType);
+    }
 
     public void setPayerTypeCode(String payerTypeCode) {
         this.payerTypeCode = payerTypeCode;

@@ -3,6 +3,7 @@ package helmet.bikelab.apiserver.objects.bikelabs.bikes;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import helmet.bikelab.apiserver.domain.embeds.ModelTransaction;
+import helmet.bikelab.apiserver.domain.types.BikeStatusTypes;
 import helmet.bikelab.apiserver.objects.CarModel;
 import helmet.bikelab.apiserver.objects.bikelabs.clients.ClientDto;
 import helmet.bikelab.apiserver.objects.bikelabs.insurance.InsuranceDto;
@@ -34,4 +35,11 @@ public class FetchBikeDetailResponse extends OriginObject {
     private Boolean isBikemaster;
     private Boolean isMt;
     private String payerTypeCode;
+    private BikeStatusTypes bikeStatusType;
+    private String bikeStatusTypeCode;
+
+    public void setBikeStatusType(BikeStatusTypes bikeStatusType) {
+        this.bikeStatusType = bikeStatusType;
+        this.bikeStatusTypeCode = bikeStatusType.getType();
+    }
 }
