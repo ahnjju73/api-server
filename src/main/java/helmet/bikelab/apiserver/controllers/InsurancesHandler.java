@@ -156,4 +156,14 @@ public class InsurancesHandler {
                         .map(insurancesService:: generatePresignedUrl)
                         .map(insurancesService::returnData), PresignedURLVo.class);
     }
+
+    public Mono<ServerResponse> stopInsurance(ServerRequest request){
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> insurancesService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(req -> insurancesService.getPathVariable(req, "rider_ins_id"))
+                        .map(insurancesService::checkBikeSession)
+                        .map(insurancesService::stopInsurance)
+                        .map(insurancesService::returnData), Map.class);
+    }
 }

@@ -36,6 +36,8 @@ public class UpdateRiderInsuranceDtlRequest {
     private LocalDateTime endDt;
     private Integer insFee;
 
+    private String description;
+
     public void setStartDt(String startDt){
         try {
             this.startDt = LocalDateTime.parse(startDt);

@@ -510,4 +510,15 @@ public class InsurancesService extends SessService {
         request.setResponse(presignedURLVo);
         return request;
     }
+
+    @Transactional
+    public BikeSessionRequest stopInsurance(BikeSessionRequest request) {
+        String riderInsId = (String) request.getParam().get("rider_ins_id");
+        RiderInsurancesDtl topDtl = riderInsuranceDtlRepository.findTopByRiderInsurances_RiderInsIdOrderByDtlNoDesc(riderInsId);
+        if (topDtl.getRiderInsuranceStatus() != RiderInsuranceStatus.COMPLETE)
+            withException("");
+        topDtl.setStopDt(LocalDateTime.now());
+        riderInsuranceDtlRepository.save(topDtl);
+        return request;
+    }
 }
