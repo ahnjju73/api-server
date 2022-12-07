@@ -35,4 +35,20 @@ public class UpdateRiderInsuranceDtlRequest {
     private LocalDateTime startDt;
     private LocalDateTime endDt;
     private Integer insFee;
+
+    public void setStartDt(String startDt){
+        try {
+            this.startDt = LocalDateTime.parse(startDt);
+        }catch (Exception e){
+            this.startDt = LocalDateTime.parse(startDt + "T00:00:00");
+        }
+    }
+
+    public void setEndDt(String endDt){
+        try {
+            this.endDt = LocalDateTime.parse(endDt);
+        }catch (Exception e){
+            this.endDt = LocalDateTime.parse(endDt + "T00:00:00");
+        }
+    }
 }

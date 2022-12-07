@@ -163,20 +163,22 @@ public class InsurancesService extends SessService {
         riderInsurances.setBikeTypes(InsuranceBikeTypes.getType(addUpdateRiderInsuranceRequest.getBikeType()));
         riderInsurances.setRiderAddress(new AddressDto().setByModelAddress(addUpdateRiderInsuranceRequest.getAddress()));
         List<ModelAttachment> attachments = new ArrayList<>();
-        List<ModelAttachment> newAttachments = addUpdateRiderInsuranceRequest.getNewAttachments()
-                .stream().map(presignedURLVo -> {
-                    AmazonS3 amazonS3 = AmazonUtils.amazonS3();
-                    String fileKey = "rider-insurance/" + riderInsurances.getRiderNo() + "/" + presignedURLVo.getFileKey();
-                    CopyObjectRequest objectRequest = new CopyObjectRequest(presignedURLVo.getBucket(), presignedURLVo.getFileKey(), ENV.AWS_S3_ORIGIN_BUCKET, fileKey);
-                    amazonS3.copyObject(objectRequest);
-                    ModelAttachment leaseAttachment = new ModelAttachment();
-                    leaseAttachment.setUuid(UUID.randomUUID().toString().replaceAll("-", ""));
-                    leaseAttachment.setDomain(ENV.AWS_S3_ORIGIN_DOMAIN);
-                    leaseAttachment.setUri("/" + fileKey);
-                    leaseAttachment.setFileName(presignedURLVo.getFilename());
-                    return leaseAttachment;
-                }).collect(Collectors.toList());
-        attachments.addAll(newAttachments);
+        if(bePresent(addUpdateRiderInsuranceRequest.getNewAttachments())) {
+            List<ModelAttachment> newAttachments = addUpdateRiderInsuranceRequest.getNewAttachments()
+                    .stream().map(presignedURLVo -> {
+                        AmazonS3 amazonS3 = AmazonUtils.amazonS3();
+                        String fileKey = "rider-insurance/" + riderInsurances.getRiderNo() + "/" + presignedURLVo.getFileKey();
+                        CopyObjectRequest objectRequest = new CopyObjectRequest(presignedURLVo.getBucket(), presignedURLVo.getFileKey(), ENV.AWS_S3_ORIGIN_BUCKET, fileKey);
+                        amazonS3.copyObject(objectRequest);
+                        ModelAttachment leaseAttachment = new ModelAttachment();
+                        leaseAttachment.setUuid(UUID.randomUUID().toString().replaceAll("-", ""));
+                        leaseAttachment.setDomain(ENV.AWS_S3_ORIGIN_DOMAIN);
+                        leaseAttachment.setUri("/" + fileKey);
+                        leaseAttachment.setFileName(presignedURLVo.getFilename());
+                        return leaseAttachment;
+                    }).collect(Collectors.toList());
+            attachments.addAll(newAttachments);
+        }
         riderInsurances.setAttachmentsList(attachments);
         riderInsuranceRepository.save(riderInsurances);
 
@@ -296,7 +298,7 @@ public class InsurancesService extends SessService {
         riderInsurances.setVimNum(addUpdateRiderInsuranceRequest.getVimNum());
         riderInsurances.setBikeTypes(InsuranceBikeTypes.getType(addUpdateRiderInsuranceRequest.getBikeType()));
         riderInsurances.setRiderAddress(new AddressDto().setByModelAddress(addUpdateRiderInsuranceRequest.getAddress()));
-        List<ModelAttachment> attachments = addUpdateRiderInsuranceRequest.getAttachments();
+        List<ModelAttachment> attachments = addUpdateRiderInsuranceRequest.getAttachments() != null ? addUpdateRiderInsuranceRequest.getAttachments() : new ArrayList<>();
         deletedAttachments(riderInsurances.getAttachmentsList(), attachments).stream().forEach(ma -> {
             AmazonS3 amazonS3 = AmazonUtils.amazonS3();
             amazonS3.deleteObject(ENV.AWS_S3_ORIGIN_BUCKET, ma.getUri());
