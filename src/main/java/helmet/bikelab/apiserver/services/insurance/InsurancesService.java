@@ -357,6 +357,16 @@ public class InsurancesService extends SessService {
             if (!riderInsurances.getRiderName().equals(rider.getRiderInfo().getName())) {
                 change += "라이더를 <>" + riderInsurances.getRiderName() + "</>에서 <>" + rider.getRiderInfo().getName() + "</>로 수정하였습니다.";
             }
+        } else if (!bePresent(rider)) {
+            if (!riderInsurances.getRiderName().equals(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderName())) {
+                change += "라이더를 <>" + riderInsurances.getRiderName() + "</>에서 <>" + rider.getRiderInfo().getName() + "</>로 수정하였습니다.";
+            }
+            if (!riderInsurances.getRiderEmail().equals(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderEmail())) {
+                change += "라이더 이메일을 <>" + riderInsurances.getRiderEmail() + "</>에서 <>" + addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderEmail() + "</>로 수정하였습니다.";
+            }
+            if (!riderInsurances.getRiderPhone().equals(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderPhone())) {
+                change += "라이더 연락처를 <>" + riderInsurances.getRiderPhone() + "</>에서 <>" + addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderPhone() + "</>로 수정하였습니다.";
+            }
         }
         if (bePresent(riderInsurances.getRiderSsn()) && !riderInsurances.getRiderSsn().equals(addUpdateRiderInsuranceRequest.getSsn())) {
             if (bePresent(riderInsurances.getRiderSsn())) {
