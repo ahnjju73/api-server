@@ -10,6 +10,24 @@ import static org.springframework.web.reactive.function.server.RequestPredicates
 
 @Component
 public class InsurancesRouters {
+
+    @Bean
+    public RouterFunction<ServerResponse> bikeInsurancesRouter(BikeInsurancesHandler handler){
+        return RouterFunctions
+                .route(GET("/insurances/bikes"), handler::getBikeInsurances)
+                .andRoute(GET("/insurances/bikes/details"), handler::getBikeInsuranceDetails)
+                .andRoute(POST("/insurances/bikes"), handler::addNewBikeInsurance)
+                .andRoute(PUT("/insurances/bikes"), handler::updateBikeInsurance)
+                .andRoute(DELETE("/insurances/bikes"), handler::deleteBikeInsurance)
+                .andRoute(POST("/insurances/bikes/renew"), handler::renewBikeInsurance)
+
+                .andRoute(POST("/insurances/bikes/setter"), handler::setBikeInsuranceToBike)
+                .andRoute(DELETE("/insurances/bikes/setter"), handler::removeBikeInsuranceToBike)
+                .andRoute(POST("/insurances/bikes/enable"), handler::checkIfEnableBikeInsuranceToBike)
+                ;
+    }
+
+
     @Bean
     public RouterFunction<ServerResponse> insurancesRouter(InsurancesHandler handler){
         return RouterFunctions

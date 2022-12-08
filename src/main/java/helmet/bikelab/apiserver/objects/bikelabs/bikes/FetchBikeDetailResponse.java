@@ -35,6 +35,7 @@ public class FetchBikeDetailResponse extends OriginObject {
     private Boolean isBikemaster;
     private Boolean isMt;
     private String payerTypeCode;
+    private Integer odometerByAdmin = 0;
     private BikeStatusTypes bikeStatusType;
     private String bikeStatusTypeCode;
 

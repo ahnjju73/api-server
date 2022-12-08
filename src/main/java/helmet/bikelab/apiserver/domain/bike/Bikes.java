@@ -7,6 +7,7 @@ import helmet.bikelab.apiserver.domain.CommonBikes;
 import helmet.bikelab.apiserver.domain.embeds.ModelTransaction;
 import helmet.bikelab.apiserver.domain.lease.Leases;
 import helmet.bikelab.apiserver.domain.riders.Riders;
+import helmet.bikelab.apiserver.domain.types.BikeInsuranceTypes;
 import helmet.bikelab.apiserver.domain.types.BikeRiderStatusTypes;
 import helmet.bikelab.apiserver.domain.types.BikeStatusTypes;
 import helmet.bikelab.apiserver.domain.types.PayerTypes;
@@ -40,6 +41,13 @@ public class Bikes extends OriginObject {
     @Column(name = "status", columnDefinition = "ENUM", nullable = false)
     @Convert(converter = BikeStatusTypesConverter.class)
     private BikeStatusTypes bikeStatus = BikeStatusTypes.PENDING;
+
+    @Column(name = "insurance_no", nullable = false)
+    private Integer bikeInsuranceNo;
+
+    @ManyToOne
+    @JoinColumn(name = "insurance_no", insertable = false, updatable = false)
+    private BikeInsurances bikeInsurance;
 
     @Column(name = "vim_num", length = 45, unique = true)
     private String vimNum;
@@ -75,6 +83,9 @@ public class Bikes extends OriginObject {
 
     @Column(name = "volume")
     private Integer volume;
+
+    @Column(name = "odometer_by_admin")
+    private Integer odometerByAdmin = 0;
 
     @Column(name = "usable")
     private Boolean usable = true;

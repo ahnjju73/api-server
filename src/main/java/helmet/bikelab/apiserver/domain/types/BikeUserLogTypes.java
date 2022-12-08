@@ -29,6 +29,10 @@ public enum BikeUserLogTypes {
     COMM_SHOP_ADDED("150-030"),
     COMM_SHOP_UPDATED("150-031"),
     LEASE_EXTENSION("150-032"),
+    BIKE_INSURANCE_ADD("201-001"),
+    BIKE_INSURANCE_REMOVE("201-002"),
+    BIKE_INSURANCE_UPDATE("201-003"),
+    BIKE_INSURANCE_SET("201-004"),
     ;
 
     private String status;
