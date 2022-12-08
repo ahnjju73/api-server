@@ -163,20 +163,22 @@ public class InsurancesService extends SessService {
         riderInsurances.setBikeTypes(InsuranceBikeTypes.getType(addUpdateRiderInsuranceRequest.getBikeType()));
         riderInsurances.setRiderAddress(new AddressDto().setByModelAddress(addUpdateRiderInsuranceRequest.getAddress()));
         List<ModelAttachment> attachments = new ArrayList<>();
-        List<ModelAttachment> newAttachments = addUpdateRiderInsuranceRequest.getNewAttachments()
-                .stream().map(presignedURLVo -> {
-                    AmazonS3 amazonS3 = AmazonUtils.amazonS3();
-                    String fileKey = "rider-insurance/" + riderInsurances.getRiderNo() + "/" + presignedURLVo.getFileKey();
-                    CopyObjectRequest objectRequest = new CopyObjectRequest(presignedURLVo.getBucket(), presignedURLVo.getFileKey(), ENV.AWS_S3_ORIGIN_BUCKET, fileKey);
-                    amazonS3.copyObject(objectRequest);
-                    ModelAttachment leaseAttachment = new ModelAttachment();
-                    leaseAttachment.setUuid(UUID.randomUUID().toString().replaceAll("-", ""));
-                    leaseAttachment.setDomain(ENV.AWS_S3_ORIGIN_DOMAIN);
-                    leaseAttachment.setUri("/" + fileKey);
-                    leaseAttachment.setFileName(presignedURLVo.getFilename());
-                    return leaseAttachment;
-                }).collect(Collectors.toList());
-        attachments.addAll(newAttachments);
+        if(bePresent(addUpdateRiderInsuranceRequest.getNewAttachments())) {
+            List<ModelAttachment> newAttachments = addUpdateRiderInsuranceRequest.getNewAttachments()
+                    .stream().map(presignedURLVo -> {
+                        AmazonS3 amazonS3 = AmazonUtils.amazonS3();
+                        String fileKey = "rider-insurance/" + riderInsurances.getRiderNo() + "/" + presignedURLVo.getFileKey();
+                        CopyObjectRequest objectRequest = new CopyObjectRequest(presignedURLVo.getBucket(), presignedURLVo.getFileKey(), ENV.AWS_S3_ORIGIN_BUCKET, fileKey);
+                        amazonS3.copyObject(objectRequest);
+                        ModelAttachment leaseAttachment = new ModelAttachment();
+                        leaseAttachment.setUuid(UUID.randomUUID().toString().replaceAll("-", ""));
+                        leaseAttachment.setDomain(ENV.AWS_S3_ORIGIN_DOMAIN);
+                        leaseAttachment.setUri("/" + fileKey);
+                        leaseAttachment.setFileName(presignedURLVo.getFilename());
+                        return leaseAttachment;
+                    }).collect(Collectors.toList());
+            attachments.addAll(newAttachments);
+        }
         riderInsurances.setAttachmentsList(attachments);
         riderInsuranceRepository.save(riderInsurances);
 
@@ -296,7 +298,7 @@ public class InsurancesService extends SessService {
         riderInsurances.setVimNum(addUpdateRiderInsuranceRequest.getVimNum());
         riderInsurances.setBikeTypes(InsuranceBikeTypes.getType(addUpdateRiderInsuranceRequest.getBikeType()));
         riderInsurances.setRiderAddress(new AddressDto().setByModelAddress(addUpdateRiderInsuranceRequest.getAddress()));
-        List<ModelAttachment> attachments = addUpdateRiderInsuranceRequest.getAttachments();
+        List<ModelAttachment> attachments = addUpdateRiderInsuranceRequest.getAttachments() != null ? addUpdateRiderInsuranceRequest.getAttachments() : new ArrayList<>();
         deletedAttachments(riderInsurances.getAttachmentsList(), attachments).stream().forEach(ma -> {
             AmazonS3 amazonS3 = AmazonUtils.amazonS3();
             amazonS3.deleteObject(ENV.AWS_S3_ORIGIN_BUCKET, ma.getUri());
@@ -354,6 +356,16 @@ public class InsurancesService extends SessService {
         if (bePresent(rider)) {
             if (!riderInsurances.getRiderName().equals(rider.getRiderInfo().getName())) {
                 change += "라이더를 <>" + riderInsurances.getRiderName() + "</>에서 <>" + rider.getRiderInfo().getName() + "</>로 수정하였습니다.";
+            }
+        } else if (!bePresent(rider)) {
+            if (!riderInsurances.getRiderName().equals(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderName())) {
+                change += "라이더를 <>" + riderInsurances.getRiderName() + "</>에서 <>" + rider.getRiderInfo().getName() + "</>로 수정하였습니다.";
+            }
+            if (!riderInsurances.getRiderEmail().equals(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderEmail())) {
+                change += "라이더 이메일을 <>" + riderInsurances.getRiderEmail() + "</>에서 <>" + addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderEmail() + "</>로 수정하였습니다.";
+            }
+            if (!riderInsurances.getRiderPhone().equals(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderPhone())) {
+                change += "라이더 연락처를 <>" + riderInsurances.getRiderPhone() + "</>에서 <>" + addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderPhone() + "</>로 수정하였습니다.";
             }
         }
         if (bePresent(riderInsurances.getRiderSsn()) && !riderInsurances.getRiderSsn().equals(addUpdateRiderInsuranceRequest.getSsn())) {
@@ -506,6 +518,17 @@ public class InsurancesService extends SessService {
         String extension = filename.substring(filename.lastIndexOf(".") + 1);
         PresignedURLVo presignedURLVo = commonWorker.generatePreSignedUrl(name, extension);
         request.setResponse(presignedURLVo);
+        return request;
+    }
+
+    @Transactional
+    public BikeSessionRequest stopInsurance(BikeSessionRequest request) {
+        String riderInsId = (String) request.getParam().get("rider_ins_id");
+        RiderInsurancesDtl topDtl = riderInsuranceDtlRepository.findTopByRiderInsurances_RiderInsIdOrderByDtlNoDesc(riderInsId);
+        if (topDtl.getRiderInsuranceStatus() != RiderInsuranceStatus.COMPLETE)
+            withException("");
+        topDtl.setStopDt(LocalDateTime.now());
+        riderInsuranceDtlRepository.save(topDtl);
         return request;
     }
 }
