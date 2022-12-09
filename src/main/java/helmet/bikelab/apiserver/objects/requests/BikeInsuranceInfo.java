@@ -69,7 +69,7 @@ public class BikeInsuranceInfo extends OriginObject {
     }
 
     public void checkValidation(){
-        if(!bePresent(this.bikeId)) writeMessage("차량정보를 선택하세요.");
+//        if(!bePresent(this.bikeId)) writeMessage("차량정보를 선택하세요.");
         if(!bePresent(this.type)) writeMessage("보험형태를 선택하세요.");
         if(!bePresent(this.bikeInsuranceType)) writeMessage("보험종류를 선택하세요.");
         if(!bePresent(this.age)) writeMessage("나이 선택하세요.");
