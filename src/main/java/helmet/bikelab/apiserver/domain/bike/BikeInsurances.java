@@ -13,6 +13,7 @@ import helmet.bikelab.apiserver.domain.types.converters.BikeInsuranceTypesConver
 import helmet.bikelab.apiserver.domain.types.converters.InsuranceTypesConverter;
 import helmet.bikelab.apiserver.domain.types.converters.SelfCoverCarTypesConverter;
 import helmet.bikelab.apiserver.objects.requests.BikeInsuranceInfo;
+import helmet.bikelab.apiserver.objects.requests.UploadBikeInfo;
 import helmet.bikelab.apiserver.services.internal.OriginObject;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -29,6 +30,24 @@ import java.time.LocalDateTime;
 public class BikeInsurances extends OriginObject {
 
     public BikeInsurances(){}
+
+    public BikeInsurances(UploadBikeInfo bikeInsuranceInfo, Bikes bike, String insuranceId){
+        this.insuranceId = insuranceId;
+        this.bikeNo = bike.getBikeNo();
+        this.type = bikeInsuranceInfo.getType();
+        this.bikeInsuranceType = bikeInsuranceInfo.getBikeInsuranceType();
+        this.age = bikeInsuranceInfo.getAge();
+        this.companyName = bikeInsuranceInfo.getCompanyName();
+        this.liabilityMan = bikeInsuranceInfo.getLiabilityMan();
+        this.liabilityCar = bikeInsuranceInfo.getLiabilityCar();
+        this.liabilityMan2 = bikeInsuranceInfo.getLiabilityMan2();
+        this.selfCoverCar = bikeInsuranceInfo.getSelfCoverCar();
+        this.selfCoverMan = bikeInsuranceInfo.getSelfCoverMan();
+        this.noInsuranceCover = bikeInsuranceInfo.getNoInsuranceCover();
+        this.startAt = bikeInsuranceInfo.getStartAt();
+        this.endAt = bikeInsuranceInfo.getEndAt();
+        this.fee = bikeInsuranceInfo.getFee();
+    }
 
     public BikeInsurances(BikeInsuranceInfo bikeInsuranceInfo, Bikes bike, String insuranceId){
         this.insuranceId = insuranceId;
@@ -176,5 +195,12 @@ public class BikeInsurances extends OriginObject {
         this.fee = bikeInsuranceInfo.getFee();
         this.updatedUserNo = sessionUser.getUserNo();
         this.updatedAt = LocalDateTime.now();
+    }
+
+    public void setCreatedUser(BikeUser createdUser) {
+        this.createdUser = createdUser;
+        this.createdUserNo = createdUser.getUserNo();
+        this.updatedUserNo = createdUser.getUserNo();
+        this.updatedUser = createdUser;
     }
 }

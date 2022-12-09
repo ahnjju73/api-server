@@ -238,4 +238,15 @@ public class BikesHandlers {
                 );
     }
 
+    public Mono<ServerResponse> uploadExcelToAddBike(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> bikesService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(bikesService::checkBikeSession)
+                        .map(bikesService::uploadExcelToAddBike)
+                        .map(bikesService::returnData), Map.class);
+    }
+
+
 }

@@ -7,6 +7,7 @@ import com.amazonaws.services.s3.model.CopyObjectRequest;
 import helmet.bikelab.apiserver.domain.CommonBikes;
 import helmet.bikelab.apiserver.domain.Manufacturers;
 import helmet.bikelab.apiserver.domain.bike.BikeAttachments;
+import helmet.bikelab.apiserver.domain.bike.BikeInsurances;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.bike.Parts;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
@@ -18,15 +19,14 @@ import helmet.bikelab.apiserver.domain.lease.LeaseExpense;
 import helmet.bikelab.apiserver.domain.lease.Leases;
 import helmet.bikelab.apiserver.domain.riders.*;
 import helmet.bikelab.apiserver.domain.types.*;
-import helmet.bikelab.apiserver.objects.BikeDto;
-import helmet.bikelab.apiserver.objects.BikeSessionRequest;
-import helmet.bikelab.apiserver.objects.CarModel;
-import helmet.bikelab.apiserver.objects.PresignedURLVo;
+import helmet.bikelab.apiserver.objects.*;
 import helmet.bikelab.apiserver.objects.bikelabs.bikes.*;
 import helmet.bikelab.apiserver.objects.bikelabs.clients.ClientDto;
 import helmet.bikelab.apiserver.objects.bikelabs.leases.LeasesDto;
 import helmet.bikelab.apiserver.objects.requests.BikeListDto;
 import helmet.bikelab.apiserver.objects.requests.BikeRequestListDto;
+import helmet.bikelab.apiserver.objects.requests.UploadBikeInfo;
+import helmet.bikelab.apiserver.objects.requests.UploadBikeRequest;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.repositories.*;
 import helmet.bikelab.apiserver.services.internal.SessService;
@@ -61,7 +61,7 @@ public class BikesService extends SessService {
     private final AutoKey autoKey;
     private final BikeAttachmentRepository bikeAttachmentRepository;
     private final BikesRepository bikesRepository;
-    private final BikeRiderBakRepository bikeRiderBakRepository;
+    private final BikeInsurancesRepository bikeInsurancesRepository;
     private final LeaseRepository leaseRepository;
     private final BikeModelsRepository bikeModelsRepository;
     private final BikeUserLogRepository bikeUserLogRepository;
@@ -194,7 +194,7 @@ public class BikesService extends SessService {
         model.setBikeType(carModel.getBikeType());
         model.setVolume(carModel.getVolume());
         fetchBikeDetailResponse.setYear(carModel.getYear());
-        fetchBikeDetailResponse.setVolume(bike.getVolume());
+        fetchBikeDetailResponse.setVolume(carModel.getVolume());
         fetchBikeDetailResponse.setModel(model);
         fetchBikeDetailResponse.setBikeId(bike.getBikeId());
         fetchBikeDetailResponse.setColor(bike.getColor());
@@ -221,6 +221,71 @@ public class BikesService extends SessService {
         response.put("bike", fetchBikeDetailResponse);
         request.setResponse(response);
         return request;
+    }
+
+    @Transactional
+    public BikeSessionRequest uploadExcelToAddBike(BikeSessionRequest request){
+        UploadBikeRequest uploadBikeRequest = map(request.getParam(), UploadBikeRequest.class);
+        BikeUser sessionUser = request.getSessionUser();
+        StringBuilder errorString = new StringBuilder("");
+        List<UploadBikeInfo> bikeList = uploadBikeRequest.getBikes();
+        for(int i = 0; i < bikeList.size(); i++){
+            String index = (i + 2) + "번째 오류\n";
+            StringBuilder errorText = new StringBuilder();
+            UploadBikeInfo bikeInfo = bikeList.get(i);
+            bikeInfo.checkValidation(errorText);
+            if(bePresent(bikeInfo.getVimNum())){
+                Bikes bikeByVimNum = bikesRepository.findByVimNum(bikeInfo.getVimNum());
+                if(bePresent(bikeByVimNum)) {
+                    errorText.append("차대번호가 이미 존재합니다.\n");
+                }
+            }
+            if(bePresent(bikeInfo.getNumber())){
+                Bikes bikeByNumber = bikesRepository.findByCarNum(bikeInfo.getNumber());
+                if(bePresent(bikeByNumber)) {
+                    errorText.append("차량번호가 이미 존재합니다.\n");
+                }
+            }
+            if(!bePresent(errorText.toString()) && bePresent(bikeInfo.getVimNum()) && bePresent(bikeInfo.getNumber())){
+                addNewBikeByExcelUploading(bikeInfo, sessionUser, errorText);
+            }
+
+            if(bePresent(errorText.toString())){
+                errorString.append(index + errorText);
+            }
+        }
+        if(bePresent(errorString.toString())){
+            writeMessage(errorString.toString());
+        }
+        return request;
+    }
+
+    public void addNewBikeByExcelUploading(UploadBikeInfo bikeInfo, BikeUser session, StringBuilder errorText){
+        // bikes, bikeInsurance, logs
+        CommonBikes commonCodeBikesById = bikeModelsRepository.findByCode(bikeInfo.getCarModel());
+        if(!bePresent(commonCodeBikesById)){
+            errorText.append("차종정보가 없습니다.");
+            return;
+        }
+        if(!bePresent(errorText.toString())){
+            String bikeId = autoKey.makeGetKey("bike");
+            Bikes bikes = new Bikes(bikeInfo, bikeId);
+            bikes.setCarModelData(commonCodeBikesById);
+            bikesRepository.save(bikes);
+            String insuranceId = autoKey.makeGetKey("insurance");
+            if(bikeInfo.isAddableBikeInsurance()){
+                bikeInfo.checkValidationBikeInsurance(errorText);
+                if(!bePresent(errorText.toString())){
+                    BikeInsurances bikeInsurances = new BikeInsurances(bikeInfo, bikes, insuranceId);
+                    bikeInsurances.setCreatedUser(session);
+                    bikeInsurancesRepository.save(bikeInsurances);
+                    bikes.setBikeInsuranceNo(bikeInsurances.getInsuranceNo());
+                    bikesRepository.save(bikes);
+                }
+
+            }
+        }
+
     }
 
     @Transactional
