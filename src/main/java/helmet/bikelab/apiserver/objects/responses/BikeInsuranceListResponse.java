@@ -19,6 +19,7 @@ public class BikeInsuranceListResponse extends OriginObject {
         this.insurances = insurances;
         this.bikeInsuranceNo = bikeInsuranceNo;
     }
-    private List<BikeInsurances> insurances;
+    private List insurances;
     private Integer bikeInsuranceNo;
+    private String insuranceId;
 }

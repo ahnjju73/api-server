@@ -4,12 +4,14 @@ import lombok.Getter;
 
 @Getter
 public enum BikeInsuranceTypes {
-    COMPREHENSIVE("0"), PERSONAL("1");
+    PAID("0", "유상용"), UNPAID("1", "비유상용"), FOR_WORKS("2", "업무용");
 
     private String type;
+    private String typeName;
 
-    BikeInsuranceTypes(String type){
+    BikeInsuranceTypes(String type, String typeName) {
         this.type = type;
+        this.typeName = typeName;
     }
 
     public static BikeInsuranceTypes getBikeInsuranceTypes(String type){

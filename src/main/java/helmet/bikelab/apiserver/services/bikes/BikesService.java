@@ -14,6 +14,7 @@ import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.bikelab.SystemParameter;
 import helmet.bikelab.apiserver.domain.client.Clients;
 import helmet.bikelab.apiserver.domain.demands.DemandLeases;
+import helmet.bikelab.apiserver.domain.embeds.ModelBikeTransaction;
 import helmet.bikelab.apiserver.domain.embeds.ModelTransaction;
 import helmet.bikelab.apiserver.domain.lease.LeaseExpense;
 import helmet.bikelab.apiserver.domain.lease.Leases;
@@ -23,10 +24,8 @@ import helmet.bikelab.apiserver.objects.*;
 import helmet.bikelab.apiserver.objects.bikelabs.bikes.*;
 import helmet.bikelab.apiserver.objects.bikelabs.clients.ClientDto;
 import helmet.bikelab.apiserver.objects.bikelabs.leases.LeasesDto;
-import helmet.bikelab.apiserver.objects.requests.BikeListDto;
-import helmet.bikelab.apiserver.objects.requests.BikeRequestListDto;
-import helmet.bikelab.apiserver.objects.requests.UploadBikeInfo;
-import helmet.bikelab.apiserver.objects.requests.UploadBikeRequest;
+import helmet.bikelab.apiserver.objects.requests.*;
+import helmet.bikelab.apiserver.objects.responses.FetchBikeTransactionResponse;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.repositories.*;
 import helmet.bikelab.apiserver.services.internal.SessService;
@@ -310,7 +309,7 @@ public class BikesService extends SessService {
         bike.setDescription(addBikeRequest.getDescription());
         bike.setPayerType(addBikeRequest.getPayerType());
         bike.setIsBikemaster(addBikeRequest.getIsBikemaster());
-        ModelTransaction modelTransaction = new ModelTransaction();
+        ModelBikeTransaction modelTransaction = new ModelBikeTransaction();
         modelTransaction.setRegNum(addBikeRequest.getRegNum());
         modelTransaction.setPrice(addBikeRequest.getPrice());
         modelTransaction.setCompanyName(addBikeRequest.getCompanyName());
@@ -353,23 +352,71 @@ public class BikesService extends SessService {
             Integer riderNo = bike.getRiderNo();
             if(!bePresent(riderNo)) withException("500-012");
         }
-        ModelTransaction modelTransaction = new ModelTransaction();
-        modelTransaction.setRegNum(updateBikeRequest.getRegNum());
-        modelTransaction.setPrice(updateBikeRequest.getPrice());
-        modelTransaction.setCompanyName(updateBikeRequest.getCompanyName());
+//        updateLeaseExpenseInfo(bike, leases);
+        if (!updateBikeRequest.getVimNumber().equals(bike.getVimNum()) && bikesRepository.countAllByVimNum(updateBikeRequest.getVimNumber()) > 0)
+            withException("500-009");
+        if (bePresent(updateBikeRequest.getNumber()) && (!updateBikeRequest.getNumber().equals(bike.getCarNum()) && bikesRepository.countAllByCarNum(updateBikeRequest.getNumber()) > 0))
+            withException("500-011");
+        CommonBikes commonCodeBikesById = bikeWorker.getCommonCodeBikesById(updateBikeRequest.getCarModel());
+        updateBikeInfoWithLog(updateBikeRequest, request.getSessionUser(), bike);
+        bike.setBikeStatus(updateBikeRequest.getBikeStatusType());
+        if(BikeStatusTypes.FOR_SALE.equals(bike.getBikeStatus()) || BikeStatusTypes.JUNK.equals(bike.getBikeStatus())){
+            bike.setUsable(false);
+        }else {
+            bike.setUsable(true);
+        }
+        bike.setYears(commonCodeBikesById.getYear());
+        bike.setOdometerByAdmin(updateBikeRequest.getOdometerByAdmin());
+        bike.setVimNum(updateBikeRequest.getVimNumber());
+        bike.setCarNum(updateBikeRequest.getNumber());
+        bike.setCarModelCode(updateBikeRequest.getCarModel());
+        bike.setColor(updateBikeRequest.getColor());
+        bike.setRegisterDate(updateBikeRequest.getRegisterDt());
+        bike.setIsBikemaster(updateBikeRequest.getIsBikemaster());
+        bike.setPayerType(updateBikeRequest.getPayerType());
+        bike.setDescription(updateBikeRequest.getDescription());
+        bikesRepository.save(bike);
 
+        return request;
+    }
+
+    @Transactional
+    public BikeSessionRequest updateBikeTransactionInfo(BikeSessionRequest request) {
+        BikeUser sessionUser = request.getSessionUser();
+        UpdateBikeTransactionRequest transactionRequest = map(request.getParam(), UpdateBikeTransactionRequest.class);
+        BikeByIdRequest bikeByIdRequest = map(request.getParam(), BikeByIdRequest.class);
+        Bikes bikeById = bikeWorker.getBikeById(bikeByIdRequest.getBikeId());
+        ModelBikeTransaction transaction = bikeById.getTransaction();
+        updateBikeTransactionInfoWithLog(transactionRequest, sessionUser, bikeById);
+        if(!bePresent(transaction)) transaction = new ModelBikeTransaction();
+        transaction.updateTransactionInfo(transactionRequest);
+        bikeById.setTransaction(transaction);
+        bikeById.setReceiveDate(transactionRequest.getReceiveDt());
+        bikesRepository.save(bikeById);
+        return request;
+    }
+
+    public BikeSessionRequest getBikeTransactionInfo(BikeSessionRequest request) {
+        BikeByIdRequest bikeByIdRequest = map(request.getParam(), BikeByIdRequest.class);
+        Bikes bikeById = bikeWorker.getBikeById(bikeByIdRequest.getBikeId());
+        FetchBikeTransactionResponse response = new FetchBikeTransactionResponse(bikeById);
+        request.setResponse(bePresent(response) ? response : new HashMap<>());
+        return request;
+    }
+
+    private void updateLeaseExpenseInfo(Bikes bike, Leases leases) {
         if (bePresent(leases) && !LeaseStatusTypes.CONFIRM.equals(leases.getStatus())) {
             List<LeaseExpense> expenses = expenseRepository.findAllByLease_LeaseIdAndExpenseTypes(leases.getLeaseId(), ExpenseTypes.BIKE);
             LeaseExpense leaseExpense;
             if (expenses.size() > 0) {
                 leaseExpense = expenses.get(0);
-                leaseExpense.setTransaction(modelTransaction);
+//                leaseExpense.setTransaction(modelTransaction);
                 expenseRepository.save(leaseExpense);
             } else {
                 leaseExpense = new LeaseExpense();
                 leaseExpense.setLeaseNo(leases.getLeaseNo());
                 leaseExpense.setExpenseTypes(ExpenseTypes.BIKE);
-                leaseExpense.setTransaction(modelTransaction);
+//                leaseExpense.setTransaction(modelTransaction);
                 leaseExpense.setNumber(1);
                 expenseRepository.save(leaseExpense);
             }
@@ -398,114 +445,112 @@ public class BikesService extends SessService {
                 expenseRepository.save(expenseReg);
             }
         }
-        if (!updateBikeRequest.getVimNumber().equals(bike.getVimNum()) && bikesRepository.countAllByVimNum(updateBikeRequest.getVimNumber()) > 0)
-            withException("500-009");
-        if (bePresent(updateBikeRequest.getNumber()) && (!updateBikeRequest.getNumber().equals(bike.getCarNum()) && bikesRepository.countAllByCarNum(updateBikeRequest.getNumber()) > 0))
-            withException("500-011");
-        CommonBikes commonCodeBikesById = bikeWorker.getCommonCodeBikesById(updateBikeRequest.getCarModel());
-        bike.setBikeStatus(updateBikeRequest.getBikeStatusType());
-        if(BikeStatusTypes.FOR_SALE.equals(bike.getBikeStatus()) || BikeStatusTypes.JUNK.equals(bike.getBikeStatus())){
-            bike.setUsable(false);
-        }else {
-            bike.setUsable(true);
-        }
-        bike.setYears(commonCodeBikesById.getYear());
-        updateBikeInfoWithLog(updateBikeRequest, request.getSessionUser(), bike);
-        bike.setOdometerByAdmin(updateBikeRequest.getOdometerByAdmin());
-        bike.setVimNum(updateBikeRequest.getVimNumber());
-        bike.setCarNum(updateBikeRequest.getNumber());
-        bike.setCarModelCode(updateBikeRequest.getCarModel());
-        bike.setColor(updateBikeRequest.getColor());
-        bike.setReceiveDate(updateBikeRequest.getReceiveDt());
-        bike.setRegisterDate(updateBikeRequest.getRegisterDt());
-        bike.setTransaction(modelTransaction);
-        bike.setIsBikemaster(updateBikeRequest.getIsBikemaster());
-        bike.setPayerType(updateBikeRequest.getPayerType());
-        bike.setDescription(updateBikeRequest.getDescription());
-        bikesRepository.save(bike);
-
-        return request;
     }
 
-    private void updateBikeInfoWithLog(UpdateBikeRequest updateBikeRequest, BikeUser session, Bikes bike) {
+    private void updateBikeTransactionInfoWithLog(UpdateBikeTransactionRequest updateBikeRequest, BikeUser session, Bikes bike) {
         List<String> stringList = new ArrayList<>();
         if (bePresent(updateBikeRequest)) {
-            if (bePresent(updateBikeRequest.getPayerType()) && !updateBikeRequest.getPayerType().equals(bike.getPayerType())) {
-                stringList.add("결제주체정보를 <>" + bike.getPayerType().getStatusName() + "</>에서 <>" + updateBikeRequest.getPayerType().getStatusName() + "</>으로 변경하였습니다.\\n");
-            }
-            if (bePresent(updateBikeRequest.getIsBikemaster()) && !updateBikeRequest.getIsBikemaster().equals(bike.getIsBikemaster())) {
-                stringList.add("차량소유 정보를 <>" + (bike.getIsBikemaster() ? "바이크마스터" : "외부차량") + "</>에서 <>" + (updateBikeRequest.getIsBikemaster() ? "바이크마스터" : "외부차량") + "</>으로 변경하였습니다.\\n");
-            }
-            if (bePresent(updateBikeRequest.getVimNumber()) && !updateBikeRequest.getVimNumber().equals(bike.getVimNum())) {
-                stringList.add("바이크 차대 번호를 <>" + bike.getVimNum() + "</>에서 <>" + updateBikeRequest.getVimNumber() + "</>으로 변경하였습니다.\\n");
-            }
-            if (bePresent(updateBikeRequest.getNumber()) && !updateBikeRequest.getNumber().equals(bike.getCarNum())) {
-                String log = bike.getCarNum() == null ? "바이크 차량번호가 <>" + updateBikeRequest.getNumber() + "</>로/으로 설정했습니다.\\n" : "바이크 차량번호를 <>" + bike.getCarNum() + "</>에서 <>" + updateBikeRequest.getNumber() + "</>으로 변경하였습니다.\\n";
-                stringList.add(log);
-            }
-            if (bePresent(updateBikeRequest.getCarModel()) && !updateBikeRequest.getCarModel().equals(bike.getCarModelCode())) {
-                CommonBikes change = bikeModelsRepository.findByCode(updateBikeRequest.getCarModel());
-                String exModel = bike.getCarModel().getBikeType().equals(BikeTypes.GAS) ? bike.getCarModel().getModel() + " / " + bike.getCarModel().getVolume() + " cc" : bike.getCarModel().getModel() + " / " + bike.getCarModel().getVolume() + " KW";
-                String nowModel = change.getBikeType().equals(BikeTypes.GAS) ? change.getModel() + " / " + change.getVolume() + " cc" : change.getModel() + " / " + change.getVolume() + " KW";
-                stringList.add("바이크 차량종류를 <>" + exModel + "</>에서 <>" + nowModel + "</>로 변경하였습니다.\\n");
-            }
-            if (bePresent(updateBikeRequest.getColor()) && !updateBikeRequest.getColor().equals(bike.getColor())) {
-                String log = bike.getColor() == null ? "바이크 색상을 <>" + updateBikeRequest.getColor() + "</>로/으로 설정했습니다.\\n" : "바이크 색상을 <>" + bike.getColor() + "</>에서 <>" + updateBikeRequest.getColor() + "</>으로 변경하였습니다.\\n";
-                stringList.add(log);
-            }
-            if (bePresent(updateBikeRequest.getReceiveDt()) && !updateBikeRequest.getReceiveDt().equals(bike.getReceiveDate())) {
-                String log = bike.getReceiveDate() == null ? "바이크 수령일자를 <>" + updateBikeRequest.getReceiveDt() + "</>로/으로 설정했습니다.\\n" : "바이크 수령일자를 <>" + bike.getReceiveDate() + "</>에서 <>" + updateBikeRequest.getReceiveDt() + "</>으로 변경하였습니다.\\n";
-                stringList.add(log);
-            }
-            if (bePresent(updateBikeRequest.getRegisterDt()) && !updateBikeRequest.getRegisterDt().equals(bike.getRegisterDate())) {
-                String log = bike.getRegisterDate() == null ? "바이크 등록일을 <>" + updateBikeRequest.getRegisterDt() + "</>로/으로 설정했습니다.\\n" : "바이크 등록일을 <>" + bike.getRegisterDate() + "</>에서 <>" + updateBikeRequest.getRegisterDt() + "</>으로 변경하였습니다.\\n";
-                stringList.add(log);
-            }
-//            if (bePresent(updateBikeRequest.getYears()) && !updateBikeRequest.getYears().equals(bike.getYears())) {
-//                String log = bike.getYears() == null ? "바이크 연식을 <>" + updateBikeRequest.getYears() + "</>로/으로 설정했습니다.\n" : "바이크 연식을 <>" + bike.getYears() + "</>에서 <>" + updateBikeRequest.getYears() + "</>으로 변경하였습니다.\n";
-//                stringList.add(log);
-//            }
+            // 구매처 변경이력
             if (bePresent(updateBikeRequest.getCompanyName()) && (bike.getTransaction() == null || !updateBikeRequest.getCompanyName().equals(bike.getTransaction().getCompanyName()))) {
-                String log = bike.getTransaction() == null || bike.getTransaction().getCompanyName() == null ? "바이크의 구입처를 <>" + updateBikeRequest.getCompanyName() + "</>로/으로 설정했습니다.\\n" : "바이크의 구입처를 <>" + bike.getTransaction().getCompanyName() + "</>에서 <>" + updateBikeRequest.getCompanyName() + "</>로/으로 변경하였습니다.\\n";
+                String log = bike.getTransaction() == null || bike.getTransaction().getCompanyName() == null ? "차량 구입처를 <>" + updateBikeRequest.getCompanyName() + "</>(으)로 설정했습니다.\\n" : "차량 구입처를 <>" + bike.getTransaction().getCompanyName() + "</>에서 <>" + updateBikeRequest.getCompanyName() + "</>(으)로 변경하였습니다.\\n";
                 stringList.add(log);
             }
             if (bePresent(updateBikeRequest.getRegNum()) && (bike.getTransaction() == null || !updateBikeRequest.getRegNum().equals(bike.getTransaction().getRegNum()))) {
-                String log = bike.getTransaction() == null || bike.getTransaction().getRegNum() == null ? "바이크 구입처 사업자 번호를 <>" + updateBikeRequest.getRegNum() + "</>로/으로 설정했습니다.\\n" : "바이크 구입처 사업자 번호를 <>" + bike.getTransaction().getRegNum() + "</>에서 <>" + updateBikeRequest.getRegNum() + "</>로/으로 변경하였습니다.\\n";
+                String log = bike.getTransaction() == null || bike.getTransaction().getRegNum() == null ? "차량 구입처 사업자 번호를 <>" + updateBikeRequest.getRegNum() + "</>(으)로 설정했습니다.\\n" : "차량 구입처 사업자 번호를 <>" + bike.getTransaction().getRegNum() + "</>에서 <>" + updateBikeRequest.getRegNum() + "</>(으)로 변경하였습니다.\\n";
                 stringList.add(log);
             }
             if (bePresent(updateBikeRequest.getPrice()) && (bike.getTransaction() == null || !updateBikeRequest.getPrice().equals(bike.getTransaction().getPrice()))) {
-                String log = bike.getTransaction() == null || bike.getTransaction().getPrice() == null ? "바이크의 구매가격을 <>" + Utils.getCurrencyFormat(updateBikeRequest.getPrice()) + "원</>로/으로 설정했습니다.\\n" : "바이크의 구매가격을 <>" + Utils.getCurrencyFormat(bike.getTransaction().getPrice()) + "원</>에서 <>" + Utils.getCurrencyFormat(updateBikeRequest.getPrice()) + "원</>로/으로 변경하였습니다.\\n";
+                String log = bike.getTransaction() == null || bike.getTransaction().getPrice() == null ? "차량 구매가격을 <>" + Utils.getCurrencyFormat(updateBikeRequest.getPrice()) + "원</>(으)로 설정했습니다.\\n" : "차량 구매가격을 <>" + Utils.getCurrencyFormat(bike.getTransaction().getPrice()) + "원</>에서 <>" + Utils.getCurrencyFormat(updateBikeRequest.getPrice()) + "원</>(으)로 변경하였습니다.\\n";
                 stringList.add(log);
             }
-            if (bePresent(updateBikeRequest.getDescription()) && !updateBikeRequest.getDescription().equals(bike.getDescription())) {
-                String log = bike.getDescription() == null ? "바이크 비고를 <>" + updateBikeRequest.getDescription() + "</>로/으로 설정했습니다.\\n" : "바이크 비고를 <>" + bike.getDescription() + "</>에서 <>" + updateBikeRequest.getDescription() + "</>으로 변경하였습니다.\\n";
+            if (bePresent(updateBikeRequest.getDiscount()) && (bike.getTransaction() == null || !updateBikeRequest.getDiscount().equals(bike.getTransaction().getDiscount()))) {
+                String log = bike.getTransaction() == null || bike.getTransaction().getDiscount() == null ? "차량 구매 할인률을 <>" + updateBikeRequest.getDiscount() + "%</>(으)로 설정했습니다.\\n" : "차량 구매 할인율을 <>" + bike.getTransaction().getDiscount() + "%</>에서 <>" + updateBikeRequest.getDiscount() + "%</>(으)로 변경하였습니다.\\n";
+                stringList.add(log);
+            }
+            if (bePresent(updateBikeRequest.getConsignmentPrice()) && (bike.getTransaction() == null || !updateBikeRequest.getConsignmentPrice().equals(bike.getTransaction().getConsignmentPrice()))) {
+                String log = bike.getTransaction() == null || bike.getTransaction().getConsignmentPrice() == null ? "차량 탁송료를 <>" + Utils.getCurrencyFormat(updateBikeRequest.getConsignmentPrice()) + "원</>(으)로 설정했습니다.\\n" : "차량 탁송료를 <>" + Utils.getCurrencyFormat(bike.getTransaction().getConsignmentPrice()) + "원</>에서 <>" + Utils.getCurrencyFormat(updateBikeRequest.getConsignmentPrice()) + "원</>(으)로 변경하였습니다.\\n";
+                stringList.add(log);
+            }
+            if (bePresent(updateBikeRequest.getReceiveDt()) && !updateBikeRequest.getReceiveDt().equals(bike.getReceiveDate())) {
+                String log = bike.getReceiveDate() == null ? "구매처 지출일자를 <>" + updateBikeRequest.getReceiveDt() + "</>(으)로 설정했습니다.\\n" : "구매처 지출일자를 <>" + bike.getReceiveDate() + "</>에서 <>" + updateBikeRequest.getReceiveDt() + "</>(으)로 변경하였습니다.\\n";
+                stringList.add(log);
+            }
+
+            // 판매처 변경이력
+            if (bePresent(updateBikeRequest.getSellCompanyName()) && (bike.getTransaction() == null || !updateBikeRequest.getSellCompanyName().equals(bike.getTransaction().getSellCompanyName()))) {
+                String log = bike.getTransaction() == null || bike.getTransaction().getSellCompanyName() == null ? "차량 판매처를 <>" + updateBikeRequest.getSellCompanyName() + "</>(으)로 설정했습니다.\\n" : "차량 판매처를 <>" + bike.getTransaction().getSellCompanyName() + "</>에서 <>" + updateBikeRequest.getSellCompanyName() + "</>(으)로 변경하였습니다.\\n";
+                stringList.add(log);
+            }
+            if (bePresent(updateBikeRequest.getSellRegNum()) && (bike.getTransaction() == null || !updateBikeRequest.getSellRegNum().equals(bike.getTransaction().getSellRegNum()))) {
+                String log = bike.getTransaction() == null || bike.getTransaction().getSellRegNum() == null ? "차량 판매처 사업자 번호를 <>" + updateBikeRequest.getSellRegNum() + "</>(으)로 설정했습니다.\\n" : "차량 판매처 사업자 번호를 <>" + bike.getTransaction().getSellRegNum() + "</>에서 <>" + updateBikeRequest.getSellRegNum() + "</>(으)로 변경하였습니다.\\n";
+                stringList.add(log);
+            }
+            if (bePresent(updateBikeRequest.getSellPrice()) && (bike.getTransaction() == null || !updateBikeRequest.getSellPrice().equals(bike.getTransaction().getSellPrice()))) {
+                String log = bike.getTransaction() == null || bike.getTransaction().getSellPrice() == null ? "차량 판매가격을 <>" + Utils.getCurrencyFormat(updateBikeRequest.getSellPrice()) + "원</>(으)로 설정했습니다.\\n" : "차량 판매가격을 <>" + Utils.getCurrencyFormat(bike.getTransaction().getSellPrice()) + "원</>에서 <>" + Utils.getCurrencyFormat(updateBikeRequest.getSellPrice()) + "원</>(으)로 변경하였습니다.\\n";
+                stringList.add(log);
+            }
+            if (bePresent(updateBikeRequest.getSellDiscount()) && (bike.getTransaction() == null || !updateBikeRequest.getSellDiscount().equals(bike.getTransaction().getSellDiscount()))) {
+                String log = bike.getTransaction() == null || bike.getTransaction().getSellDiscount() == null ? "차량 판매 할인률 <>" + updateBikeRequest.getSellDiscount() + "%</>(으)로 설정했습니다.\\n" : "차량 판매 할인율을 <>" + bike.getTransaction().getSellDiscount() + "%</>에서 <>" + updateBikeRequest.getSellDiscount() + "%</>(으)로 변경하였습니다.\\n";
+                stringList.add(log);
+            }
+            if (bePresent(updateBikeRequest.getSellConsignmentPrice()) && (bike.getTransaction() == null || !updateBikeRequest.getSellConsignmentPrice().equals(bike.getTransaction().getSellConsignmentPrice()))) {
+                String log = bike.getTransaction() == null || bike.getTransaction().getSellConsignmentPrice() == null ? "차량 판매 탁송료를 <>" + Utils.getCurrencyFormat(updateBikeRequest.getSellConsignmentPrice()) + "원</>(으)로 설정했습니다.\\n" : "차량 판매 탁송료를 <>" + Utils.getCurrencyFormat(bike.getTransaction().getSellConsignmentPrice()) + "원</>에서 <>" + Utils.getCurrencyFormat(updateBikeRequest.getSellConsignmentPrice()) + "원</>(으)로 변경하였습니다.\\n";
+                stringList.add(log);
+            }
+            if (bePresent(updateBikeRequest.getSoldDate()) && !updateBikeRequest.getSoldDate().equals(bike.getTransaction().getSoldDate())) {
+                String log = bike.getTransaction() == null || bike.getTransaction().getSoldDate() == null ? "차량 판매일자를 <>" + updateBikeRequest.getSoldDate() + "</>(으)로 설정했습니다.\\n" : "차량 판매일자를 <>" + bike.getTransaction().getSoldDate() + "</>에서 <>" + updateBikeRequest.getSoldDate() + "</>(으)로 변경하였습니다.\\n";
                 stringList.add(log);
             }
             if (bePresent(stringList) && stringList.size() > 0) {
                 bikeUserLogRepository.save(addLog(BikeUserLogTypes.COMM_BIKE_UPDATED, session.getUserNo(), bike.getBikeNo().toString(), stringList));
             }
         }
-
+    }
+    private void updateBikeInfoWithLog(UpdateBikeRequest updateBikeRequest, BikeUser session, Bikes bike) {
+        List<String> stringList = new ArrayList<>();
+        if (bePresent(updateBikeRequest)) {
+            if (bePresent(updateBikeRequest.getPayerType()) && !updateBikeRequest.getPayerType().equals(bike.getPayerType())) {
+                stringList.add("결제주체정보를 <>" + bike.getPayerType().getStatusName() + "</>에서 <>" + updateBikeRequest.getPayerType().getStatusName() + "</>(으)로 변경하였습니다.\\n");
+            }
+            if (bePresent(updateBikeRequest.getIsBikemaster()) && !updateBikeRequest.getIsBikemaster().equals(bike.getIsBikemaster())) {
+                stringList.add("차량소유 정보를 <>" + (bike.getIsBikemaster() ? "온어스 소유" : "외부차량") + "</>에서 <>" + (updateBikeRequest.getIsBikemaster() ? "온어스 소유" : "외부차량") + "</>(으)로 변경하였습니다.\\n");
+            }
+            if (bePresent(updateBikeRequest.getVimNumber()) && !updateBikeRequest.getVimNumber().equals(bike.getVimNum())) {
+                stringList.add("차량 차대 번호를 <>" + bike.getVimNum() + "</>에서 <>" + updateBikeRequest.getVimNumber() + "</>(으)로 변경하였습니다.\\n");
+            }
+            if (bePresent(updateBikeRequest.getBikeStatusType()) && !updateBikeRequest.getBikeStatusType().equals(bike.getBikeStatus())) {
+                stringList.add("차량 보관상태를 <>" + bike.getBikeStatus().getTypeName() + "</>에서 <>" + updateBikeRequest.getBikeStatusType().getTypeName() + "</>(으)로 변경하였습니다.\\n");
+            }
+            if (bePresent(updateBikeRequest.getNumber()) && !updateBikeRequest.getNumber().equals(bike.getCarNum())) {
+                String log = bike.getCarNum() == null ? "차량 차량번호가 <>" + updateBikeRequest.getNumber() + "</>(으)로 설정했습니다.\\n" : "차량 차량번호를 <>" + bike.getCarNum() + "</>에서 <>" + updateBikeRequest.getNumber() + "</>(으)로 변경하였습니다.\\n";
+                stringList.add(log);
+            }
+            if (bePresent(updateBikeRequest.getCarModel()) && !updateBikeRequest.getCarModel().equals(bike.getCarModelCode())) {
+                CommonBikes change = bikeModelsRepository.findByCode(updateBikeRequest.getCarModel());
+                String exModel = bike.getCarModel().getBikeType().equals(BikeTypes.GAS) ? bike.getCarModel().getModel() + " / " + bike.getCarModel().getVolume() + " cc" : bike.getCarModel().getModel() + " / " + bike.getCarModel().getVolume() + " KW";
+                String nowModel = change.getBikeType().equals(BikeTypes.GAS) ? change.getModel() + " / " + change.getVolume() + " cc" : change.getModel() + " / " + change.getVolume() + " KW";
+                stringList.add("차량 차량종류를 <>" + exModel + "</>에서 <>" + nowModel + "</>(으)로 변경하였습니다.\\n");
+            }
+            if (bePresent(updateBikeRequest.getColor()) && !updateBikeRequest.getColor().equals(bike.getColor())) {
+                String log = bike.getColor() == null ? "차량 색상을 <>" + updateBikeRequest.getColor() + "</>(으)로 설정했습니다.\\n" : "차량 색상을 <>" + bike.getColor() + "</>에서 <>" + updateBikeRequest.getColor() + "</>(으)로 변경하였습니다.\\n";
+                stringList.add(log);
+            }
+            if (bePresent(updateBikeRequest.getRegisterDt()) && !updateBikeRequest.getRegisterDt().equals(bike.getRegisterDate())) {
+                String log = bike.getRegisterDate() == null ? "차량 등록일을 <>" + updateBikeRequest.getRegisterDt() + "</>(으)로 설정했습니다.\\n" : "차량 등록일을 <>" + bike.getRegisterDate() + "</>에서 <>" + updateBikeRequest.getRegisterDt() + "</>(으)로 변경하였습니다.\\n";
+                stringList.add(log);
+            }
+            if (bePresent(updateBikeRequest.getDescription()) && !updateBikeRequest.getDescription().equals(bike.getDescription())) {
+                String log = bike.getDescription() == null ? "차량 비고를 <>" + updateBikeRequest.getDescription() + "</>(으)로 설정했습니다.\\n" : "차량 비고를 <>" + bike.getDescription() + "</>에서 <>" + updateBikeRequest.getDescription() + "</>(으)로 변경하였습니다.\\n";
+                stringList.add(log);
+            }
+            if (bePresent(stringList) && stringList.size() > 0) {
+                bikeUserLogRepository.save(addLog(BikeUserLogTypes.COMM_BIKE_UPDATED, session.getUserNo(), bike.getBikeNo().toString(), stringList));
+            }
+        }
     }
 
     @Transactional
     public BikeSessionRequest deleteBike(BikeSessionRequest request) {
-//        Map param = request.getParam();
-//        DeleteBikeRequest deleteBikeRequest = map(param, DeleteBikeRequest.class);
-//        deleteBikeRequest.checkValidation();
-//        Bikes bikes = bikesRepository.findByBikeId(deleteBikeRequest.getBikeId());
-//        if(bePresent(bikes) && bikes.getIsBikemaster()){
-//            List<Leases> leases = leaseRepository.findAllByBike_BikeId(deleteBikeRequest.getBikeId());
-//            if (bikes == null) withException("");
-//            if (leases.size() > 0) writeMessage("리스번호 " + leases.get(0).getLeaseId() + "가 이미 연결되어 있습니다.");
-//            activitiesRepository.deleteAllByBikeNo(bikes.getBikeNo());
-//            estimateHistoriesRepository.deleteAllByBikeNo(bikes.getBikeNo());
-//            bikeRiderBakRepository.deleteAllByBikeNo(bikes.getBikeNo());
-//            bikeUserLogRepository.deleteAllByReferenceId(bikes.getBikeNo().toString());
-//            bikeAttachmentRepository.deleteAllByBikeNo(bikes.getBikeNo());
-//            bikesRepository.delete(bikes);
-//        }
-//        return request;
         DeleteBikeRequest deleteBikeRequest = map(request.getParam(), DeleteBikeRequest.class);
         Bikes bike = bikeWorker.getBikeById(deleteBikeRequest.getBikeId());
         Leases leases = leaseRepository.findByBikeNoAndStatus(bike.getBikeNo(), LeaseStatusTypes.CONFIRM);
@@ -790,7 +835,7 @@ public class BikesService extends SessService {
             String bikeId = autoKey.makeGetKey("bike");
             bikes.setBikeId(bikeId);
             CommonBikes model = null;
-            ModelTransaction modelTransaction = new ModelTransaction();
+            ModelBikeTransaction modelTransaction = new ModelBikeTransaction();
             boolean isBreak = false;
             for (colIdx = 0; colIdx < row.getPhysicalNumberOfCells(); colIdx++) {
                 XSSFCell cell = row.getCell(colIdx);

@@ -22,6 +22,7 @@ public class BikeInsuranceInfoResponse extends OriginObject {
     public BikeInsuranceInfoResponse(BikeInsurances bikeInsurance){
         Bikes bike = bikeInsurance.getBike();
         this.insuranceId = bikeInsurance.getInsuranceId();
+        this.stockNumber = bikeInsurance.getStockNumber();
         this.type = bikeInsurance.getTypeCode();
         this.setBikeInsuranceType(bikeInsurance.getBikeInsuranceTypeCode());
         this.age = bikeInsurance.getAge();
@@ -36,10 +37,12 @@ public class BikeInsuranceInfoResponse extends OriginObject {
         if(bePresent(bikeInsurance.getEndAt())) this.setEndAt(bikeInsurance.getEndAt().toLocalDate().toString());
         this.fee = bikeInsurance.getFee();
         this.insuranceNo = bikeInsurance.getInsuranceNo();
-        this.used = bePresent(bike.getBikeInsurance()) ? true : false;
+        this.grade = bikeInsurance.getGrade();
+        this.used = bePresent(bike.getBikeInsurance()) && bike.getBikeInsuranceNo().equals(bikeInsurance.getInsuranceNo()) ? true : false;
     }
 
     private String insuranceId;
+    private String stockNumber;
     private String type;
     private String bikeInsuranceType;
     private Integer age;
@@ -58,5 +61,6 @@ public class BikeInsuranceInfoResponse extends OriginObject {
     private Integer fee;
 
     private Integer insuranceNo;
+    private String grade;
     private Boolean used = false;
 }

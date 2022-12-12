@@ -21,10 +21,6 @@ public class UpdateBikeRequest extends OriginObject {
     private String carModel;
     private String color;
     private Integer years;
-    private String regNum;
-    private String companyName;
-    private Integer price;
-    private LocalDateTime receiveDt;
     private LocalDateTime registerDt;
     private String description;
 
@@ -48,13 +44,7 @@ public class UpdateBikeRequest extends OriginObject {
         this.payerType = PayerTypes.getPayerTypes(payerTypeCode);
     }
 
-    public void setReceiveDt(String receiveDt) {
-        try {
-            this.receiveDt = LocalDateTime.parse(receiveDt + "T00:00:00");
-        }catch (Exception e){
-            this.receiveDt = LocalDateTime.parse(receiveDt);
-        }
-    }
+
 
     public void setRegisterDt(String registerDt) {
         if(bePresent(registerDt)) this.registerDt = LocalDateTime.parse(registerDt);
