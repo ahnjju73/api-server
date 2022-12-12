@@ -22,6 +22,7 @@ import java.time.LocalDateTime;
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class BikeInsuranceInfo extends OriginObject {
     private String insuranceId;
+    private String stockNumber;
     private String bikeId;
     private InsuranceTypes type;
     private BikeInsuranceTypes bikeInsuranceType;
@@ -39,6 +40,8 @@ public class BikeInsuranceInfo extends OriginObject {
     private LocalDateTime endAt;
 
     private Integer fee;
+
+    private String grade;
 
     public void setStartAt(LocalDateTime startAt) {
         this.startAt = startAt;
@@ -69,9 +72,9 @@ public class BikeInsuranceInfo extends OriginObject {
     }
 
     public void checkValidation(){
-//        if(!bePresent(this.bikeId)) writeMessage("차량정보를 선택하세요.");
+        if(!bePresent(this.stockNumber)) writeMessage("증권번호를 입력해주세요.");
         if(!bePresent(this.type)) writeMessage("보험형태를 선택하세요.");
-        if(!bePresent(this.bikeInsuranceType)) writeMessage("보험종류를 선택하세요.");
+        if(!bePresent(this.bikeInsuranceType)) writeMessage("보험용도를 선택하세요.");
         if(!bePresent(this.age)) writeMessage("나이 선택하세요.");
         if(!bePresent(this.companyName)) writeMessage("보험사를 선택하세요.");
         if(!bePresent(this.liabilityMan)) writeMessage("대인 선택하세요.");
@@ -83,5 +86,6 @@ public class BikeInsuranceInfo extends OriginObject {
         if(!bePresent(this.startAt)) writeMessage("시작일 선택하세요.");
         if(!bePresent(this.endAt)) writeMessage("종료일 선택하세요.");
         if(!bePresent(this.fee)) writeMessage("납부료 선택하세요.");
+        if(!bePresent(this.grade)) writeMessage("등급을 선택하세요.");
     }
 }

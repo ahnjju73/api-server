@@ -41,6 +41,7 @@
         <mapper resource="mapper/bikelabs/bike_user_log.xml"/>
         <mapper resource="mapper/bikelabs/clients_log.xml"/>
         <mapper resource="mapper/bikelabs/inquiries.xml"/>
+        <mapper resource="mapper/bikelabs/insurance.xml"/>
 
         <mapper resource="mapper/leases/leases-manager.xml"/>
         <mapper resource="mapper/leases/leases-payments.xml"/>

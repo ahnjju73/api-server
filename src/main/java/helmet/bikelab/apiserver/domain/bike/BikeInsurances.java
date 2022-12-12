@@ -22,6 +22,10 @@ import lombok.Setter;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+/**
+ * 비고 :
+ * 대인2 가 0원이면 책임보험, 무한이면 종합보험.
+ */
 @Entity
 @Getter
 @Setter
@@ -33,6 +37,7 @@ public class BikeInsurances extends OriginObject {
 
     public BikeInsurances(UploadBikeInfo bikeInsuranceInfo, Bikes bike, String insuranceId){
         this.insuranceId = insuranceId;
+        this.stockNumber = bikeInsuranceInfo.getStockNumber();
         this.bikeNo = bike.getBikeNo();
         this.type = bikeInsuranceInfo.getType();
         this.bikeInsuranceType = bikeInsuranceInfo.getBikeInsuranceType();
@@ -47,11 +52,13 @@ public class BikeInsurances extends OriginObject {
         this.startAt = bikeInsuranceInfo.getStartAt();
         this.endAt = bikeInsuranceInfo.getEndAt();
         this.fee = bikeInsuranceInfo.getFee();
+        this.grade = bikeInsuranceInfo.getGrade();
     }
 
     public BikeInsurances(BikeInsuranceInfo bikeInsuranceInfo, Bikes bike, String insuranceId){
         this.insuranceId = insuranceId;
         this.bikeNo = bike.getBikeNo();
+        this.stockNumber = bikeInsuranceInfo.getStockNumber();
         this.type = bikeInsuranceInfo.getType();
         this.bikeInsuranceType = bikeInsuranceInfo.getBikeInsuranceType();
         this.age = bikeInsuranceInfo.getAge();
@@ -65,6 +72,7 @@ public class BikeInsurances extends OriginObject {
         this.startAt = bikeInsuranceInfo.getStartAt();
         this.endAt = bikeInsuranceInfo.getEndAt();
         this.fee = bikeInsuranceInfo.getFee();
+        this.grade = bikeInsuranceInfo.getGrade();
     }
 
     @Id
@@ -74,6 +82,10 @@ public class BikeInsurances extends OriginObject {
 
     @Column(name = "insurance_id", nullable = false)
     private String insuranceId;
+
+    // 증권번호
+    @Column(name = "stock_number", nullable = false)
+    private String stockNumber;
 
     @Column(name = "bike_no", nullable = false)
     private Integer bikeNo;
@@ -95,7 +107,7 @@ public class BikeInsurances extends OriginObject {
 
     @Column(name = "insurance_type", columnDefinition = "ENUM")
     @Convert(converter = BikeInsuranceTypesConverter.class)
-    private BikeInsuranceTypes bikeInsuranceType = BikeInsuranceTypes.COMPREHENSIVE;
+    private BikeInsuranceTypes bikeInsuranceType = BikeInsuranceTypes.PAID;
 
     @Column(name = "insurance_age", columnDefinition = "TINYINT")
     private Integer age;
@@ -131,6 +143,12 @@ public class BikeInsurances extends OriginObject {
 
     @Column(name = "end_at", columnDefinition = "DATETIME")
     private LocalDateTime endAt;
+
+    @Column(name = "grade")
+    private String grade;
+
+    @Column(name = "is_transferred", columnDefinition = "TINYINT(1)")
+    private Boolean isTransferred = false;
 
     @Column(name = "fee")
     private Integer fee;
@@ -183,6 +201,7 @@ public class BikeInsurances extends OriginObject {
         this.type = bikeInsuranceInfo.getType();
         this.bikeInsuranceType = bikeInsuranceInfo.getBikeInsuranceType();
         this.age = bikeInsuranceInfo.getAge();
+        this.stockNumber = bikeInsuranceInfo.getStockNumber();
         this.companyName = bikeInsuranceInfo.getCompanyName();
         this.liabilityMan = bikeInsuranceInfo.getLiabilityMan();
         this.liabilityCar = bikeInsuranceInfo.getLiabilityCar();
@@ -195,6 +214,7 @@ public class BikeInsurances extends OriginObject {
         this.fee = bikeInsuranceInfo.getFee();
         this.updatedUserNo = sessionUser.getUserNo();
         this.updatedAt = LocalDateTime.now();
+        this.grade = bikeInsuranceInfo.getGrade();
     }
 
     public void setCreatedUser(BikeUser createdUser) {

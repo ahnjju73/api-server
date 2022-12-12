@@ -5,12 +5,14 @@ import lombok.Getter;
 @Getter
 public enum BikeStatusTypes {
 
-    PENDING("0"), RIDING("1"), FOR_SALE("2"), JUNK("3");
+    PENDING("0", "보관중"), RIDING("1", "운영중"), FOR_SALE("2", "판매완료"), JUNK("3", "폐차");
 
     private String type;
+    private String typeName;
 
-    BikeStatusTypes(String type){
+    BikeStatusTypes(String type, String typeName) {
         this.type = type;
+        this.typeName = typeName;
     }
 
     public static BikeStatusTypes getBikeStatusTypes(String type){

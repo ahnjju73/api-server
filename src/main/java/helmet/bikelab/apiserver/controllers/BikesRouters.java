@@ -26,6 +26,8 @@ public class BikesRouters {
                 .andRoute(GET("/bikes/client/{client_id}"),handler::fetchBikesByClient)
                 .andRoute(POST("/bikes-upload"), handler::uploadExcelToAddBike)
                 .andRoute(POST("/bikes"), handler::addBike)
+                .andRoute(PUT("/bikes-transaction"), handler::updateBikeTransactionInfo)
+                .andRoute(GET("/bikes-transaction"), handler::getBikeTransactionInfo)
                 .andRoute(PUT("/bikes"), handler::updateBike)
                 .andRoute(DELETE("/bikes"), handler::deleteBike)
                 .andRoute(GET("/bikes_volume"), handler::fetchBikeVolumes)

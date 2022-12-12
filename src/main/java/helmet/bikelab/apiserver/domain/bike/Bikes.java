@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import helmet.bikelab.apiserver.domain.CommonBikes;
+import helmet.bikelab.apiserver.domain.embeds.ModelBikeTransaction;
 import helmet.bikelab.apiserver.domain.embeds.ModelTransaction;
 import helmet.bikelab.apiserver.domain.lease.Leases;
 import helmet.bikelab.apiserver.domain.riders.Riders;
@@ -40,7 +41,7 @@ public class Bikes extends OriginObject {
         this.color = bikeInfo.getColor();
         this.receiveDate = bikeInfo.getReceiveDt();
         this.odometerByAdmin = bikeInfo.getOdometerByAdmin();
-        this.transaction = new ModelTransaction(bikeInfo.getRegNum(), bikeInfo.getCompanyName(), bikeInfo.getPrice());
+        this.transaction = new ModelBikeTransaction(bikeInfo.getRegNum(), bikeInfo.getCompanyName(), bikeInfo.getPrice());
         this.description = bikeInfo.getDescription();
     }
 
@@ -112,7 +113,7 @@ public class Bikes extends OriginObject {
     private String payerTypeCode;
 
     @Embedded
-    private ModelTransaction transaction = new ModelTransaction();
+    private ModelBikeTransaction transaction = new ModelBikeTransaction();
 
     @Column(name = "rider_no")
     private Integer riderNo;

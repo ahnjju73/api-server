@@ -20,6 +20,7 @@ public class UploadBikeInfo extends OriginObject {
     private String vimNum;
     private String number;
     private String carModel;
+    private String stockNumber;
     private BikeStatusTypes status;
     private String color;
     private Integer odometerByAdmin;
@@ -44,6 +45,7 @@ public class UploadBikeInfo extends OriginObject {
     private Integer noInsuranceCover;
     private Integer selfCoverMan;
     private SelfCoverCarTypes selfCoverCar;
+    private String grade;
 
     public void checkValidation(StringBuilder errorText){
         if(!bePresent(vimNum)) errorText.append("차대번호를 입력해주세요.\n");
@@ -54,8 +56,10 @@ public class UploadBikeInfo extends OriginObject {
     }
 
     public void checkValidationBikeInsurance(StringBuilder errorText){
+        if(!bePresent(grade)) errorText.append("등급을 선택해주세요.\n");
+        if(!bePresent(stockNumber)) errorText.append("증권번호를 입력해주세요.\n");
         if(!bePresent(fee)) errorText.append("보험료를 입력해주세요.\n");
-        if(!bePresent(bikeInsuranceType)) errorText.append("보험종류를 입력해주세요.\n");
+        if(!bePresent(bikeInsuranceType)) errorText.append("보험용도를 입력해주세요.\n");
         if(!bePresent(type)) errorText.append("보험형태를 입력해주세요.\n");
         if(!bePresent(insuranceCompanyName)) errorText.append("보험사를 입력해주세요.\n");
         if(!bePresent(age)) errorText.append("나이를 입력해주세요.\n");
