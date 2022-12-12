@@ -9,6 +9,7 @@ import helmet.bikelab.apiserver.domain.lease.Leases;
 import helmet.bikelab.apiserver.domain.riders.Riders;
 import helmet.bikelab.apiserver.domain.types.*;
 import helmet.bikelab.apiserver.objects.bikelabs.leases.AddUpdateLeaseRequest;
+import helmet.bikelab.apiserver.objects.requests.PayLeaseFeeRequest;
 import helmet.bikelab.apiserver.repositories.*;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.utils.AutoKey;
@@ -113,6 +114,28 @@ public class LeasePaymentWorker extends SessService {
         bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_PAYMENT, session.getUserNo(), leases.getLeaseNo().toString(), strings));
     }
 
+    public void adjustLeaseFeeByPaymentId(BikeUser session, Map param){
+        PayLeaseFeeRequest payLeaseFeeRequest = map(param, PayLeaseFeeRequest.class);
+        List<String> strings = new ArrayList<>();
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일");
+        String content = "";
+        Leases leases = null;
+        for(String paymentId : payLeaseFeeRequest.getPayments()){
+            LeasePayments byPaymentId = leasePaymentsRepository.findByPaymentId(paymentId);
+            if(!bePresent(byPaymentId)) withException("901-001");
+            if((byPaymentId.getLeaseFee() + payLeaseFeeRequest.getAdjustmentFee())<0 || (byPaymentId.getLeaseFee() - byPaymentId.getPaidFee()) + payLeaseFeeRequest.getAdjustmentFee() < 0) withException("850-038");
+            leases = byPaymentId.getLease();
+            checkLeaseIsConfirmed(leases);
+            Integer prevLeaseFee = byPaymentId.getLeaseFee();
+            Integer adjLeaseFee = prevLeaseFee + payLeaseFeeRequest.getAdjustmentFee();
+            byPaymentId.setLeaseFee(adjLeaseFee);
+            leasePaymentsRepository.save(byPaymentId);
+            content = "<>" + byPaymentId.getIndex() + "회차 (" + byPaymentId.getPaymentDate().format(dateTimeFormatter) + ")</> 리스료를 <>보험료 변경</>을(를) 이유로 " + Utils.getCurrencyFormat(prevLeaseFee) + "원에서 " + "<>" + Utils.getCurrencyFormat(adjLeaseFee) + "원</>으로 변경하였습니다.";
+            strings.add(content);
+        }
+        if(leases != null)
+            bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_UPDATED, session.getUserNo(), leases.getLeaseNo().toString(), strings));
+    }
     public void readLeaseFeeByPaymentId(String paymentId, BikeUser session) {
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일");
         LeasePayments byPaymentId = leasePaymentsRepository.findByPaymentId(paymentId);
@@ -129,18 +152,17 @@ public class LeasePaymentWorker extends SessService {
     }
 
     public void payLeaseFeeMulti(BikeUser session, Map param) {
-        List<String> paymentIds = (List<String>) param.get("payments");
-        String paidType = (String) param.get("paid_type");
+        PayLeaseFeeRequest payLeaseFeeRequest = map(param, PayLeaseFeeRequest.class);
         List<String> strings = new ArrayList<>();
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy년 MM월 dd일");
         Leases leases = null;
-        for(String paymentId : paymentIds) {
+        for(String paymentId : payLeaseFeeRequest.getPayments()) {
             LeasePayments byPaymentId = leasePaymentsRepository.findByPaymentId(paymentId);
             Riders rider = byPaymentId.getLease().getBike().getRiders();
             if (!bePresent(byPaymentId)) withException("901-001");
             if (bePresent(rider))
                 byPaymentId.setRiderNo(rider.getRiderNo());
-            byPaymentId.setPaidType(PaidTypes.getStatus(paidType));
+            byPaymentId.setPaidType(PaidTypes.getStatus(payLeaseFeeRequest.getPaidType()));
             leases = byPaymentId.getLease();
             checkLeaseIsConfirmed(leases);
             Integer prevPaidFee = byPaymentId.getPaidFee();
