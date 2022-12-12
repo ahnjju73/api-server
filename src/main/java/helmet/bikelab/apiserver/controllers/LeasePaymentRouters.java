@@ -24,6 +24,7 @@ public class LeasePaymentRouters {
                 .andRoute(PUT("/leases-payments-by-index/{payment_id}"), handler::payLeaseFeeByPaymentId)
                 .andRoute(PUT("/leases-payments-by-index/extra/{extra_id}"), handler::payLeaseExtraFeeByExtraId)
                 .andRoute(PUT("/leases-payments-multiple"), handler::payLeaseFeeMulti)
+                .andRoute(PUT("/leases-payments-adjust"), handler::adjustLeaseFee)
                 .andRoute(GET("/leases-payments-by-index/extra"), handler::fetchLeasePaymentExtraByIndex)
                 .andRoute(PUT("/unpaid-leases/without-excel/{lease_id}"), handler::payLease)
                 .andRoute(PUT("/unpaid-leases/clients"), handler::payClientLease)
