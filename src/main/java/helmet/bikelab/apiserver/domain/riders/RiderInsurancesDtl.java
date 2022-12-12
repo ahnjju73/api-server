@@ -117,4 +117,7 @@ public class RiderInsurancesDtl {
 
     @Column(name = "rider_age", columnDefinition = "ENUM",insertable = false, updatable = false)
     private String ageCode;
+
+    @Column(name = "description", columnDefinition = "MEDIUMTEXT")
+    private String description;
 }

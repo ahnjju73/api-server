@@ -7,6 +7,7 @@ import helmet.bikelab.apiserver.services.internal.Workspace;
 
 import javax.persistence.AttributeConverter;
 import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ModelAttachmentConverter extends Workspace implements AttributeConverter<List<ModelAttachment>, String> {
@@ -20,6 +21,6 @@ public class ModelAttachmentConverter extends Workspace implements AttributeConv
     public List<ModelAttachment> convertToEntityAttribute(String dbData) {
         Type type = new TypeToken<List<ModelAttachment>>() {}.getType();
         Object o = getGsonInstance().fromJson(dbData, type);
-        return !bePresent(o) ? null : (List<ModelAttachment>)o;
+        return !bePresent(o) ? new ArrayList<>() : (List<ModelAttachment>)o;
     }
 }

@@ -11,6 +11,12 @@ import javax.persistence.Embeddable;
 @Setter
 @Embeddable
 public class ModelTransaction {
+    public ModelTransaction(){}
+    public ModelTransaction(String regNum, String companyName, Integer price){
+        this.regNum = regNum;
+        this.companyName = companyName;
+        this.price = price;
+    }
     @Column(name = "reg_num")
     private String regNum;
 

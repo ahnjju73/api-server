@@ -7,10 +7,14 @@ import helmet.bikelab.apiserver.domain.CommonBikes;
 import helmet.bikelab.apiserver.domain.embeds.ModelTransaction;
 import helmet.bikelab.apiserver.domain.lease.Leases;
 import helmet.bikelab.apiserver.domain.riders.Riders;
+import helmet.bikelab.apiserver.domain.types.BikeInsuranceTypes;
 import helmet.bikelab.apiserver.domain.types.BikeRiderStatusTypes;
+import helmet.bikelab.apiserver.domain.types.BikeStatusTypes;
 import helmet.bikelab.apiserver.domain.types.PayerTypes;
 import helmet.bikelab.apiserver.domain.types.converters.BikeRiderStatusTypesConverter;
+import helmet.bikelab.apiserver.domain.types.converters.BikeStatusTypesConverter;
 import helmet.bikelab.apiserver.domain.types.converters.PayerTypesConverter;
+import helmet.bikelab.apiserver.objects.requests.UploadBikeInfo;
 import helmet.bikelab.apiserver.services.internal.OriginObject;
 import lombok.*;
 
@@ -23,16 +27,41 @@ import java.util.List;
 @Getter
 @Setter
 @Table(name = "bikes")
-@NoArgsConstructor
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class Bikes extends OriginObject {
 
-    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    public Bikes(){}
+
+    public Bikes(UploadBikeInfo bikeInfo, String bikeId){
+        this.bikeId = bikeId;
+        this.bikeStatus = bikeInfo.getStatus();
+        this.vimNum = bikeInfo.getVimNum();
+        this.carNum = bikeInfo.getNumber();
+        this.color = bikeInfo.getColor();
+        this.receiveDate = bikeInfo.getReceiveDt();
+        this.odometerByAdmin = bikeInfo.getOdometerByAdmin();
+        this.transaction = new ModelTransaction(bikeInfo.getRegNum(), bikeInfo.getCompanyName(), bikeInfo.getPrice());
+        this.description = bikeInfo.getDescription();
+    }
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "bike_no", nullable = false)
     private Integer bikeNo;
 
     @Column(name = "bike_id", length = 45, unique = true)
     private String bikeId;
+
+    @Column(name = "status", columnDefinition = "ENUM", nullable = false)
+    @Convert(converter = BikeStatusTypesConverter.class)
+    private BikeStatusTypes bikeStatus = BikeStatusTypes.PENDING;
+
+    @Column(name = "insurance_no", nullable = false)
+    private Integer bikeInsuranceNo;
+
+    @ManyToOne
+    @JoinColumn(name = "insurance_no", insertable = false, updatable = false)
+    private BikeInsurances bikeInsurance;
 
     @Column(name = "vim_num", length = 45, unique = true)
     private String vimNum;
@@ -66,8 +95,8 @@ public class Bikes extends OriginObject {
     @OneToMany(mappedBy = "bike", fetch = FetchType.EAGER)
     private List<BikeAttachments> files = new ArrayList<>();
 
-    @Column(name = "volume")
-    private Integer volume;
+    @Column(name = "odometer_by_admin")
+    private Integer odometerByAdmin = 0;
 
     @Column(name = "usable")
     private Boolean usable = true;
@@ -150,5 +179,10 @@ public class Bikes extends OriginObject {
         this.setRiderApprovalAt(LocalDateTime.now());
         this.setRiderRequestAt(LocalDateTime.now());
         if(bePresent(leases)) this.riderLeaseNo = leases.getLeaseNo();
+    }
+
+    public void setCarModelData(CommonBikes carModel){
+        this.carModelCode = carModel.getCode();
+        this.years = carModel.getYear();
     }
 }

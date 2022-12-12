@@ -27,8 +27,20 @@ public class AutoKey extends Workspace {
         map.put("autono_tp", autoKeyId);
         return makeGetKey(map);
     }
+
+    @Scope(value = "prototype")
+    public String makeGetKey(String autoKeyId, String preFix){
+        Map map = new HashMap();
+        map.put("autono_tp", autoKeyId);
+        return makeGetKey(map, preFix);
+    }
+
     @Scope(value = "prototype")
     public String makeGetKey(Map map) {
+        return makeGetKey(map, null);
+    }
+    @Scope(value = "prototype")
+    private String makeGetKey(Map map, String preFix) {
         String key = "";
         String strIssueDt = "";
         String strDashYn = "";
@@ -42,7 +54,7 @@ public class AutoKey extends Workspace {
         Date issueDt = new Date();
         try {
             issueDt = !((strIssueDt == null) || (("").equals(strIssueDt)))
-                ? df.parse(strIssueDt): Calendar.getInstance().getTime();
+                    ? df.parse(strIssueDt): Calendar.getInstance().getTime();
         } catch (ParseException e) {
             // TODO Auto-generated catch block
             throw new RuntimeException(e);
@@ -53,8 +65,10 @@ public class AutoKey extends Workspace {
         if (baseData == null) {
             throw new RuntimeException();
         }
+        if(preFix == null){
+            preFix = String.valueOf(baseData.get("pre_fix")).replaceAll("null", "");
+        }
 
-        String preFix 		= String.valueOf(baseData.get("pre_fix")).replaceAll("null", "");
         int serialDigit 	= Integer.parseInt((baseData.get("serial_digit")).toString());
         String dateType		= (String)baseData.get("date_tp");
         String dateInfo		= "";

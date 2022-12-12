@@ -62,6 +62,19 @@ public class RiderInsurances extends OriginObject {
     @Convert(converter = ModelAddressConverter.class)
     AddressDto riderAddress;
 
+    @Column(name = "contractor_phone")
+    private String contractorPhone;
+
+    @Column(name = "contractor_name")
+    private String contractorName;
+
+    @Column(name = "contractor_ssn")
+    private String contractorSsn;
+
+    @Column(name = "contractor_address", columnDefinition = "JSON")
+    @Convert(converter = ModelAddressConverter.class)
+    AddressDto contractorAddress;
+
     @Column(name = "bike_num")
     private String bikeNum;
 

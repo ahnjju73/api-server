@@ -3,6 +3,7 @@ package helmet.bikelab.apiserver.workers;
 import helmet.bikelab.apiserver.domain.CommonBikes;
 import helmet.bikelab.apiserver.domain.CommonWorking;
 import helmet.bikelab.apiserver.domain.Manufacturers;
+import helmet.bikelab.apiserver.domain.bike.BikeInsurances;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.bike.Parts;
 import helmet.bikelab.apiserver.domain.bike.PartsCodes;
@@ -23,6 +24,7 @@ public class BikeWorker extends Workspace {
     private final PartsRepository partsRepository;
     private final BikesRepository bikesRepository;
     private final CommonWorkingRepository commonWorkingRepository;
+    private final BikeInsurancesRepository bikeInsurancesRepository;
 
     public List<Manufacturers> getManufacturers(){
         return manufacturersRepository.findAllBy();
@@ -100,6 +102,12 @@ public class BikeWorker extends Workspace {
             }
         }
         return workingPrice;
+    }
+
+    public BikeInsurances getBikeInsurancesByNo(Integer insuranceNo){
+        BikeInsurances byInsuranceNo = bikeInsurancesRepository.findByInsuranceNo(insuranceNo);
+        if(!bePresent(byInsuranceNo)) writeMessage("존재하지않습니다.");
+        return byInsuranceNo;
     }
 
 }
