@@ -151,12 +151,21 @@ public class InsurancesService extends SessService {
             riderInsurances.setRiderEmail(rider.getEmail());
             riderInsurances.setRiderPhone(rider.getPhone());
             riderInsurances.setRiderName(rider.getRiderInfo().getName());
-            riderInsurances.setRiderSsn(addUpdateRiderInsuranceRequest.getSsn());
+            if(bePresent(addUpdateRiderInsuranceRequest.getRiderInfoDto()))
+                riderInsurances.setRiderSsn(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderSsn());
         } else {
-            riderInsurances.setRiderEmail(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderEmail());
-            riderInsurances.setRiderPhone(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderPhone());
-            riderInsurances.setRiderName(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderName());
-            riderInsurances.setRiderSsn(addUpdateRiderInsuranceRequest.getSsn());
+            if(bePresent(addUpdateRiderInsuranceRequest.getRiderInfoDto())) {
+                riderInsurances.setRiderEmail(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderEmail());
+                riderInsurances.setRiderPhone(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderPhone());
+                riderInsurances.setRiderName(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderName());
+                riderInsurances.setRiderSsn(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderSsn());
+            }
+        }
+        if(bePresent(addUpdateRiderInsuranceRequest.getContractInfoDto())) {
+            riderInsurances.setContractorAddress(new AddressDto().setByModelAddress(addUpdateRiderInsuranceRequest.getContractorAddress()));
+            riderInsurances.setContractorName(addUpdateRiderInsuranceRequest.getContractInfoDto().getRiderPhone());
+            riderInsurances.setContractorPhone(addUpdateRiderInsuranceRequest.getContractInfoDto().getRiderName());
+            riderInsurances.setContractorSsn(addUpdateRiderInsuranceRequest.getContractInfoDto().getRiderSsn());
         }
         riderInsurances.setBikeNum(addUpdateRiderInsuranceRequest.getBikeNum());
         riderInsurances.setVimNum(addUpdateRiderInsuranceRequest.getVimNum());
@@ -287,12 +296,20 @@ public class InsurancesService extends SessService {
             riderInsurances.setRiderEmail(rider.getEmail());
             riderInsurances.setRiderPhone(rider.getPhone());
             riderInsurances.setRiderName(rider.getRiderInfo().getName());
-            riderInsurances.setRiderSsn(addUpdateRiderInsuranceRequest.getSsn());
-        } else {
-            riderInsurances.setRiderEmail(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderEmail());
-            riderInsurances.setRiderPhone(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderPhone());
-            riderInsurances.setRiderName(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderName());
-            riderInsurances.setRiderSsn(addUpdateRiderInsuranceRequest.getSsn());
+            riderInsurances.setRiderSsn(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderSsn());
+        }else {
+            if(bePresent(addUpdateRiderInsuranceRequest.getRiderInfoDto())) {
+                riderInsurances.setRiderEmail(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderEmail());
+                riderInsurances.setRiderPhone(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderPhone());
+                riderInsurances.setRiderName(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderName());
+                riderInsurances.setRiderSsn(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderSsn());
+            }
+        }
+        if(bePresent(addUpdateRiderInsuranceRequest.getContractInfoDto())) {
+            riderInsurances.setContractorAddress(new AddressDto().setByModelAddress(addUpdateRiderInsuranceRequest.getContractorAddress()));
+            riderInsurances.setContractorName(addUpdateRiderInsuranceRequest.getContractInfoDto().getRiderPhone());
+            riderInsurances.setContractorPhone(addUpdateRiderInsuranceRequest.getContractInfoDto().getRiderName());
+            riderInsurances.setContractorSsn(addUpdateRiderInsuranceRequest.getContractInfoDto().getRiderSsn());
         }
         riderInsurances.setBikeNum(addUpdateRiderInsuranceRequest.getBikeNum());
         riderInsurances.setVimNum(addUpdateRiderInsuranceRequest.getVimNum());
@@ -368,11 +385,11 @@ public class InsurancesService extends SessService {
                 change += "라이더 연락처를 <>" + riderInsurances.getRiderPhone() + "</>에서 <>" + addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderPhone() + "</>로 수정하였습니다.";
             }
         }
-        if (bePresent(riderInsurances.getRiderSsn()) && !riderInsurances.getRiderSsn().equals(addUpdateRiderInsuranceRequest.getSsn())) {
+        if (bePresent(riderInsurances.getRiderSsn()) && bePresent(addUpdateRiderInsuranceRequest.getRiderInfoDto()) && !riderInsurances.getRiderSsn().equals(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderSsn())) {
             if (bePresent(riderInsurances.getRiderSsn())) {
-                change += "라이더의 주민번호를 <>" + riderInsurances.getRiderSsn() + "</>에서 <>" + addUpdateRiderInsuranceRequest.getSsn() + "</>으로 수정하였습니다.\n";
+                change += "라이더의 주민번호를 <>" + riderInsurances.getRiderSsn() + "</>에서 <>" + addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderSsn() + "</>으로 수정하였습니다.\n";
             } else {
-                change += "라이더의 주민번호를 <>" + addUpdateRiderInsuranceRequest.getSsn() + "</>으로 설정하였습니다.\n";
+                change += "라이더의 주민번호를 <>" + addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderSsn() + "</>으로 설정하였습니다.\n";
             }
         }
 //        if (bePresent(riderInsurances.getAge()) && !riderInsurances.getAge().equals(InsAgeTypes.getAge(addUpdateRiderInsuranceRequest.getAge()))) {

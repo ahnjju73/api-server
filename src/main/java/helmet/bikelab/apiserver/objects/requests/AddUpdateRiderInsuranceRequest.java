@@ -22,11 +22,12 @@ import java.util.List;
 public class AddUpdateRiderInsuranceRequest extends OriginObject {
     private String insCompany;
     private String insNum;
-    private String ssn;
     private ModelAddress address;
+    private ModelAddress contractorAddress;
     private String age;
     private String insRange;
     private RiderInfoDto riderInfoDto;
+    private RiderInfoDto contractInfoDto;
     private BankInfoDto bankInfoDto;
 
     private String bikeNum;
