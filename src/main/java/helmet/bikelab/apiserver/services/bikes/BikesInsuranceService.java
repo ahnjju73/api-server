@@ -37,14 +37,8 @@ public class BikesInsuranceService extends SessService {
     }
     public SessionRequest getBikeInsurances(SessionRequest request){
         BikeByIdRequest bikeByIdRequest = map(request.getParam(), BikeByIdRequest.class);
-        Map param = request.getParam();
         Bikes bikeById = bikeWorker.getBikeById(bikeByIdRequest.getBikeId());
-        List list = getList("bikelabs.insurance.getBikeInsuranceListByBikeId", param);
-        BikeInsuranceListResponse bikeInsuranceListResponse = new BikeInsuranceListResponse(list, bikeById.getBikeInsuranceNo());
-        if(bePresent(bikeInsuranceListResponse.getBikeInsuranceNo())){
-            BikeInsurances bikeInsurance = bikeById.getBikeInsurance();
-            bikeInsuranceListResponse.setInsuranceId(bikeInsurance.getInsuranceId());
-        }
+        BikeInsuranceListResponse bikeInsuranceListResponse = bikeWorker.getBikeInsuranceListByBikeId(bikeById);
         request.setResponse(bikeInsuranceListResponse);
         return request;
     }

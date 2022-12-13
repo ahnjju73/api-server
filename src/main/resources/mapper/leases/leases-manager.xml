@@ -57,11 +57,6 @@
         <result property="client_id" column="client_id" />
         <result property="client_name" column="client_name"/>
     </resultMap>
-    <resultMap id="insuranceMap" type="hmap">
-        <result property="insurance_id" column="insurance_id" />
-        <result property="company_name" column="company_name"/>
-        <result property="insurance_age" column="insurance_age"/>
-    </resultMap>
     <resultMap id="releaseMap" type="hmap">
         <result property="release_id" column="release_id" />
         <result property="release_name" column="release_name" />
@@ -103,7 +98,6 @@
         <result property="group_id" column="group_id"/>
         <result property="group_name" column="group_name"/>
         <result property="client_id" column="client_id"/>
-        <result property="insurance_id" column="insurance_id"/>
         <result property="release_id" column="release_id"/>
         <result property="status" column="status"/>
         <result property="contract_type" column="contract_type"/>
@@ -118,7 +112,6 @@
         <result property="stop_reason" column="stop_reason"/>
         <collection property="bike" javaType="hmap" resultMap="bikeMap" />
         <collection property="client" javaType="hmap" resultMap="clientMap" />
-        <collection property="insurance" javaType="hmap" resultMap="insuranceMap" />
         <collection property="release" javaType="hmap" resultMap="releaseMap" />
         <collection property="lease_info" javaType="hmap" resultMap="leaseInfoMap" />
         <collection property="lease_price" javaType="hmap" resultMap="leasePriceMap" />
@@ -134,9 +127,6 @@
                bm.car_model as bike_model,
                cm.client_id,
                if(ci.name is null, '', ci.name) as client_name,
-               ins.insurance_id,
-               ins.insurance_age,
-               if(ins.company_name is null, '', ins.company_name) as company_name,
                rls.release_id,
                if(rls.release_name is null, '', rls.release_name) as release_name,
                li.period,
@@ -198,7 +188,6 @@
              join clients cm on lm.client_no = cm.client_no
              join client_info ci on cm.client_no = ci.client_no
              join `groups` g on g.group_no = cm.group_no
-             join insurances ins on lm.insurance_no = ins.insurance_no
              join releases rls on lm.release_no = rls.release_no
              join bike_user_mst cum on cum.user_no = lm.created_user_no
              join bike_user_info cui on cum.user_no = cui.user_no
@@ -217,9 +206,6 @@
                lm.car_model as bike_model,
                cm.client_id,
                if(ci.name is null, '', ci.name) as client_name,
-               ins.insurance_id,
-               ins.insurance_age,
-               if(ins.company_name is null, '', ins.company_name) as company_name,
                rls.release_id,
                if(rls.release_name is null, '', rls.release_name) as release_name,
                li.period,
@@ -290,7 +276,6 @@
             join clients cm on lm.client_no = cm.client_no
             join client_info ci on cm.client_no = ci.client_no
             join `groups` g on g.group_no = cm.group_no
-            join insurances ins on lm.insurance_no = ins.insurance_no
             join releases rls on lm.release_no = rls.release_no
             join bike_user_mst cum on cum.user_no = lm.created_user_no
             join bike_user_info cui on cum.user_no = cui.user_no

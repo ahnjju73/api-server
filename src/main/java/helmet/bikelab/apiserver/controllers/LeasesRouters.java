@@ -30,6 +30,7 @@ public class LeasesRouters {
         return RouterFunctions
                 .route(GET("/leases"), handler::fetchLeases)
                 .andRoute(GET("/leases/{lease_id}"), handler::fetchLease)
+                .andRoute(GET("/leases/{lease_id}/insurance"), handler::fetchLeaseInsuranceByLeaseId)
                 .andRoute(POST("/leases"), handler::addLease)
                 .andRoute(PUT("/leases/{lease_id}"), handler::updateLease)
                 .andRoute(PUT("/leases/change_status/submit"), handler::submitApplication)

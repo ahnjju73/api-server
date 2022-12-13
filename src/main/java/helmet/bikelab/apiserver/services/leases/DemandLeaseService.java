@@ -136,13 +136,13 @@ public class DemandLeaseService extends SessService {
     public void createLeaseContractsFromDemandLeases(DemandLeases demandLeaseById, BikeUser sessionUser, Map param){
         Bikes bike = bikeWorker.getEmptyBikes();
         String insuranceId = (String)getItem("comm.common.getDefaultInsurance", param);
-        Insurances insurance = insurancesRepository.findByInsuranceId(insuranceId);
+//        Insurances insurance = insurancesRepository.findByInsuranceId(insuranceId);
         Integer cycleToLease = demandLeaseById.getAmounts();
         for(int size = 0; size < cycleToLease; size++){
             Leases lease = new Leases();
             String leaseId = autoKey.makeGetKey("lease");
             lease.setLeaseId(leaseId);
-            lease.setInsuranceNo(insurance.getInsuranceNo());
+//            lease.setInsuranceNo(insurance.getInsuranceNo());
             lease.setClientNo(demandLeaseById.getClientNo());
             lease.setBikeNo(bike.getBikeNo());
             lease.setType(demandLeaseById.getManagementType());

@@ -371,8 +371,8 @@ public class RiderWorker extends SessService {
         Bikes bike = bikesRepository.findByBikeId(addUpdateLeaseRequest.getBikeId());
         lease.setBikeNo(bike.getBikeNo());
         //insurance
-        Insurances insurance = insurancesRepository.findByInsuranceId(systemParameterRepository.findByRemark("리스신청서 계약완료 기본 보험 ID").getValue());
-        lease.setInsuranceNo(insurance.getInsuranceNo());
+//        Insurances insurance = insurancesRepository.findByInsuranceId(systemParameterRepository.findByRemark("리스신청서 계약완료 기본 보험 ID").getValue());
+//        lease.setInsuranceNo(insurance.getInsuranceNo());
         if(client!=null)
             lease.setClientNo(client.getClientNo());
         if(addUpdateLeaseRequest.getManagementType() != null)

@@ -102,9 +102,9 @@ public class InsurancesService extends SessService {
         Map param = request.getParam();
         DeleteInsuranceRequest deleteInsuranceRequest = map(param, DeleteInsuranceRequest.class);
         Insurances insurances = insurancesRepository.findByInsuranceId(deleteInsuranceRequest.getInsuranceId());
-        if (leaseRepository.existsAllByInsuranceNoEquals(insurances.getInsuranceNo()))
-            writeMessage("사용중인 보험입니다 삭제할 수 없습니다.");
-        insurancesRepository.delete(insurances);
+//        if (leaseRepository.existsAllByInsuranceNoEquals(insurances.getInsuranceNo()))
+//            writeMessage("사용중인 보험입니다 삭제할 수 없습니다.");
+//        insurancesRepository.delete(insurances);
         return request;
     }
 

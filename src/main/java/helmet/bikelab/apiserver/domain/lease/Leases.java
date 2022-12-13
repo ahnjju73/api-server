@@ -63,13 +63,6 @@ public class Leases {
     @JoinColumn(name = "release_no", insertable = false, updatable = false)
     private Releases releases;
 
-    @Column(name = "insurance_no")
-    private Integer insuranceNo;
-
-    @ManyToOne
-    @JoinColumn(name = "insurance_no", insertable = false, updatable = false)
-    private Insurances insurances;
-
     @Column(name = "contract_type", columnDefinition = "ENUM")
     @Convert(converter = ContractTypeConverter.class)
     private ContractTypes contractTypes = ContractTypes.MANAGEMENT;
