@@ -82,7 +82,7 @@ public class AddUpdateRiderInsuranceRequest extends OriginObject {
         try {
             this.endDt = LocalDateTime.parse(endDt);
         }catch (Exception e){
-            this.endDt = LocalDateTime.parse(endDt + "T00:00:00");
+            this.endDt = LocalDateTime.parse(endDt + "T23:59:59");
         }
     }
 
