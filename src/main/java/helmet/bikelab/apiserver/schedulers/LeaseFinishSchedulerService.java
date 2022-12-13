@@ -3,7 +3,9 @@ package helmet.bikelab.apiserver.schedulers;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.lease.LeaseInfo;
 import helmet.bikelab.apiserver.domain.lease.Leases;
+import helmet.bikelab.apiserver.domain.types.BikeStatusTypes;
 import helmet.bikelab.apiserver.domain.types.LeaseStopStatusTypes;
+import helmet.bikelab.apiserver.repositories.BikesRepository;
 import helmet.bikelab.apiserver.repositories.LeasePaymentsRepository;
 import helmet.bikelab.apiserver.repositories.LeaseRepository;
 import helmet.bikelab.apiserver.schedulers.internal.WorkspaceQuartz;
@@ -26,6 +28,7 @@ public class LeaseFinishSchedulerService extends WorkspaceQuartz {
     private final LeaseRepository leaseRepository;
     private final BikeWorker bikeWorker;
     private final LeasesWorker leasesWorker;
+    private final BikesRepository bikesRepository;
 
     @Override
     @Transactional
@@ -45,6 +48,9 @@ public class LeaseFinishSchedulerService extends WorkspaceQuartz {
                     leaseByLeaseId.setStopDt(LocalDateTime.now());
                     leaseByLeaseId.setStopReason("계약만료");
                     leaseRepository.save(leaseByLeaseId);
+                    // 만료가 될 경우, 차량 보관상태는 '보관중'으로 변경된다.
+                    bike.setBikeStatus(BikeStatusTypes.PENDING);
+                    bikesRepository.save(bike);
                 }
             });
         }
