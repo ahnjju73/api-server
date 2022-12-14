@@ -315,7 +315,8 @@ public class LeasesService extends SessService {
 
     private void checkBikeStatusType(Bikes bike){
         if(!bePresent(bike)) writeMessage("존재하지않는 차량입니다.");
-        if(!BikeStatusTypes.PENDING.equals(bike.getBikeStatus())) writeMessage("\"보관중\"인 차량만 가능합니다.");
+        if(BikeStatusTypes.JUNK.equals(bike.getBikeStatus()) || BikeStatusTypes.FOR_SALE.equals(bike.getBikeStatus()))
+            writeMessage("\"보관중\"인 차량만 가능합니다.");
     }
 
     @Transactional

@@ -176,6 +176,16 @@ public class BikeInsurances extends OriginObject {
     @JoinColumn(name = "updated_no", referencedColumnName = "user_no", insertable = false, updatable = false)
     private BikeUser updatedUser;
 
+    @Column(name = "paid_user_no", length = 21)
+    private Integer paidUserNo;
+
+    @ManyToOne
+    @JoinColumn(name = "paid_user_no", referencedColumnName = "user_no", insertable = false, updatable = false)
+    private BikeUser paidUser;
+
+    @Column(name = "paid_at", columnDefinition = "DATETIME")
+    private LocalDateTime paidAt;
+
     public void setType (String type){
         this.type = InsuranceTypes.getInsuranceType(type);
     }
@@ -222,5 +232,12 @@ public class BikeInsurances extends OriginObject {
         this.createdUserNo = createdUser.getUserNo();
         this.updatedUserNo = createdUser.getUserNo();
         this.updatedUser = createdUser;
+    }
+
+    public void setPaidFee(Integer paidFee, BikeUser user) {
+        this.paidFee = paidFee;
+        this.paidUser = user;
+        this.paidUserNo = user.getUserNo();
+        this.paidAt = LocalDateTime.now();
     }
 }

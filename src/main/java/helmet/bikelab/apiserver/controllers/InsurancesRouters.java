@@ -24,6 +24,7 @@ public class InsurancesRouters {
                 .andRoute(POST("/insurances/bikes/setter"), handler::setBikeInsuranceToBike)
                 .andRoute(DELETE("/insurances/bikes/setter"), handler::removeBikeInsuranceToBike)
                 .andRoute(POST("/insurances/bikes/enable"), handler::checkIfEnableBikeInsuranceToBike)
+                .andRoute(PUT("/insurances/bikes/pay"), handler::payInsuranceFeeByNo)
                 ;
     }
 
