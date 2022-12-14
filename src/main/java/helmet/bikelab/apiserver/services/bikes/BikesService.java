@@ -184,7 +184,7 @@ public class BikesService extends SessService {
         fetchBikeRequest.checkValidation();
         Bikes bike = bikesRepository.findByBikeId(fetchBikeRequest.getBikeId());
         Leases leases = leaseRepository.findByBikeNo(bike.getBikeNo());
-        Clients clients = leases == null ? null : leases.getClients();
+        Clients clients = !bePresent(leases) ? null : leases.getClients();
         FetchBikeDetailResponse fetchBikeDetailResponse = new FetchBikeDetailResponse();
         CommonBikes carModel = bike.getCarModel();
         CarModel model = new CarModel();
@@ -192,6 +192,7 @@ public class BikesService extends SessService {
         model.setCarModelName(carModel.getModel());
         model.setBikeType(carModel.getBikeType());
         model.setVolume(carModel.getVolume());
+        fetchBikeDetailResponse.setWarehouse(bike.getWarehouse());
         fetchBikeDetailResponse.setYear(carModel.getYear());
         fetchBikeDetailResponse.setVolume(carModel.getVolume());
         fetchBikeDetailResponse.setModel(model);
@@ -207,19 +208,34 @@ public class BikesService extends SessService {
         fetchBikeDetailResponse.setPayerTypeCode(bike.getPayerTypeCode());
         fetchBikeDetailResponse.setOdometerByAdmin(bike.getOdometerByAdmin());
         fetchBikeDetailResponse.setBikeStatusType(bike.getBikeStatus());
+        setCountAttachmentType(bike, fetchBikeDetailResponse);
         if (leases != null) {
             ClientDto client = new ClientDto();
             client.setClientName(clients.getClientInfo().getName());
             client.setClientId(clients.getClientId());
             LeasesDto lease = new LeasesDto();
             lease.setLeaseId(leases.getLeaseId());
-
             fetchBikeDetailResponse.setClient(client);
             fetchBikeDetailResponse.setLease(lease);
         }
         response.put("bike", fetchBikeDetailResponse);
         request.setResponse(response);
         return request;
+    }
+
+    private FetchBikeDetailResponse setCountAttachmentType(Bikes bike, FetchBikeDetailResponse response){
+        Map param = new HashMap();
+        param.put("bike_no", bike.getBikeNo());
+        param.put("attachment_type", BikeAttachmentTypes.COMPLETION.getAttachmentType());
+        Integer countCompletion = (Integer) getItem("bikelabs.commons.bikes_attachments.countBikeAttachmentByType", param);
+
+        param.put("attachment_type", BikeAttachmentTypes.REVOCATION.getAttachmentType());
+        Integer countRevocation = (Integer) getItem("bikelabs.commons.bikes_attachments.countBikeAttachmentByType", param);
+
+        param.put("attachment_type", BikeAttachmentTypes.PRODUCTION.getAttachmentType());
+        Integer countProduction = (Integer) getItem("bikelabs.commons.bikes_attachments.countBikeAttachmentByType", param);
+        response.setAttachmentCount(countCompletion, countRevocation, countProduction);
+        return response;
     }
 
     @Transactional
@@ -305,20 +321,16 @@ public class BikesService extends SessService {
         bike.setCarNum(addBikeRequest.getNumber());
         bike.setCarModelCode(addBikeRequest.getCarModel());
         bike.setColor(addBikeRequest.getColor());
-        bike.setReceiveDate(addBikeRequest.getReceiveDt());
         bike.setDescription(addBikeRequest.getDescription());
         bike.setPayerType(addBikeRequest.getPayerType());
         bike.setIsBikemaster(addBikeRequest.getIsBikemaster());
-        ModelBikeTransaction modelTransaction = new ModelBikeTransaction();
-        modelTransaction.setRegNum(addBikeRequest.getRegNum());
-        modelTransaction.setPrice(addBikeRequest.getPrice());
-        modelTransaction.setCompanyName(addBikeRequest.getCompanyName());
-        bike.setTransaction(modelTransaction);
+        bike.setBikeStatus(addBikeRequest.getBikeStatusType());
+        bike.setWarehouse(addBikeRequest.getWarehouse());
         bikesRepository.save(bike);
         CommonBikes model = bikeModelsRepository.findByCode(addBikeRequest.getCarModel());
         String log = "<>" + addBikeRequest.getYears() + "</>년식 차량모델 배기량은 <>"
                 + (model.getBikeType().equals(BikeTypes.GAS) ? model.getVolume() + " cc" : model.getVolume() + " KW") +
-                "</> 색상은 <>" + addBikeRequest.getColor() + "</> 차대번호가 <>" + addBikeRequest.getVimNumber() + "</> 인 바이크가 생성되었습니다";
+                "</> 색상은 <>" + addBikeRequest.getColor() + "</> 차대번호가 <>" + addBikeRequest.getVimNumber() + "</> 인 바이크가 생성되었습니다.";
         bikeUserLogRepository.save(addLog(BikeUserLogTypes.COMM_BIKE_ADDED, session.getUserNo(), bike.getBikeNo().toString(), log));
 
         return request;
@@ -360,11 +372,21 @@ public class BikesService extends SessService {
         CommonBikes commonCodeBikesById = bikeWorker.getCommonCodeBikesById(updateBikeRequest.getCarModel());
         updateBikeInfoWithLog(updateBikeRequest, request.getSessionUser(), bike);
         bike.setBikeStatus(updateBikeRequest.getBikeStatusType());
+
+        // 보관형태 변경 -> 사용여부, deleted_at 추가 설정
         if(BikeStatusTypes.FOR_SALE.equals(bike.getBikeStatus()) || BikeStatusTypes.JUNK.equals(bike.getBikeStatus())){
             bike.setUsable(false);
         }else {
             bike.setUsable(true);
         }
+        // 보관지 설정
+        if(BikeStatusTypes.PENDING.equals(bike.getBikeStatus())){
+            if(!bePresent(updateBikeRequest.getWarehouse())) writeMessage("차량보관지를 선택해주세요.");
+            bike.setWarehouse(updateBikeRequest.getWarehouse());
+        }else {
+            bike.setWarehouse(null);
+        }
+
         bike.setYears(commonCodeBikesById.getYear());
         bike.setOdometerByAdmin(updateBikeRequest.getOdometerByAdmin());
         bike.setVimNum(updateBikeRequest.getVimNumber());
@@ -520,6 +542,9 @@ public class BikesService extends SessService {
             }
             if (bePresent(updateBikeRequest.getBikeStatusType()) && !updateBikeRequest.getBikeStatusType().equals(bike.getBikeStatus())) {
                 stringList.add("차량 보관상태를 <>" + bike.getBikeStatus().getTypeName() + "</>에서 <>" + updateBikeRequest.getBikeStatusType().getTypeName() + "</>(으)로 변경하였습니다.\\n");
+                if(BikeStatusTypes.JUNK.equals(updateBikeRequest.getBikeStatusType()) || BikeStatusTypes.FOR_SALE.equals(updateBikeRequest.getBikeStatusType())){
+                    stringList.add("차량정보가 삭제되었습니다. \"차량관리\"메뉴에서 [삭제된 차량]으로 검색하세요.\n");
+                }
             }
             if (bePresent(updateBikeRequest.getNumber()) && !updateBikeRequest.getNumber().equals(bike.getCarNum())) {
                 String log = bike.getCarNum() == null ? "차량 차량번호가 <>" + updateBikeRequest.getNumber() + "</>(으)로 설정했습니다.\\n" : "차량 차량번호를 <>" + bike.getCarNum() + "</>에서 <>" + updateBikeRequest.getNumber() + "</>(으)로 변경하였습니다.\\n";
@@ -557,8 +582,8 @@ public class BikesService extends SessService {
         if(bePresent(bike.getDeletedAt())) withException("");
         if(bePresent(leases)) withException("");
         bike.setDeletedAt(LocalDateTime.now());
-        bike.setVimNum("bak_" + bike.getVimNum() + "_" + bike.getDeletedAt());
-        bike.setCarNum("bak_" + bike.getCarNum() + "_" + bike.getDeletedAt());
+        bike.setVimNum("bak_" + (bePresent(bike.getVimNum()) ? bike.getVimNum() : bike.getBikeNo()) + "_" + bike.getDeletedAt());
+        bike.setCarNum("bak_" + (bePresent(bike.getCarNum()) ? bike.getCarNum() : bike.getBikeNo())+ "_" + bike.getDeletedAt());
         bikesRepository.save(bike);
         return request;
     }
@@ -687,19 +712,22 @@ public class BikesService extends SessService {
         bikeAttachments.setFileKey("/" + presignedURLVo.getFileKey());
         bikeAttachments.setDomain(ENV.AWS_S3_ORIGIN_DOMAIN);
         bikeAttachmentRepository.save(bikeAttachments);
-        //
-//        AmazonS3 amazonS3 = AmazonS3Client.builder()
-//                .withRegion(Regions.AP_NORTHEAST_2)
-//                .withCredentials(AmazonUtils.awsCredentialsProvider())
-//                .build();
-//        CopyObjectRequest objectRequest = new CopyObjectRequest(presignedURLVo.getBucket(), presignedURLVo.getFileKey(), ENV.AWS_S3_ORIGIN_BUCKET, presignedURLVo.getFileKey());
-//        amazonS3.copyObject(objectRequest);
         presignedURLVo.copyObjectToOrigin();
         String log = "바이크에 <>" + presignedURLVo.getFilename() + "</> 파일명의 파일이 추가 되었습니다.";
         bikeUserLogRepository.save(addLog(BikeUserLogTypes.COMM_BIKE_UPDATED, request.getSessionUser().getUserNo(), bike.getBikeNo().toString(), log));
         Map response = new HashMap();
         response.put("url", bikeAttachments.getFileKey());
         request.setResponse(response);
+        return request;
+    }
+
+    @Transactional
+    public BikeSessionRequest updateBikeAttachmentTypeById(BikeSessionRequest request){
+        UpdateBikeAttachmentTypeRequest bikeAttachmentTypeRequest = map(request.getParam(), UpdateBikeAttachmentTypeRequest.class);
+        Bikes bikeById = bikeWorker.getBikeById(bikeAttachmentTypeRequest.getBikeId());
+        BikeAttachments byBikeFileInfoNo = bikeAttachmentRepository.findByBikeFileInfoNo(bikeAttachmentTypeRequest.getBikeFileInfoNo());
+        byBikeFileInfoNo.setAttachmentType(bikeAttachmentTypeRequest.getAttachmentType());
+        bikeAttachmentRepository.save(byBikeFileInfoNo);
         return request;
     }
 

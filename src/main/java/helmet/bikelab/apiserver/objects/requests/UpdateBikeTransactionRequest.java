@@ -35,7 +35,7 @@ public class UpdateBikeTransactionRequest extends OriginObject {
         try {
             this.receiveDt = LocalDateTime.parse(receiveDt + "T00:00:00");
         }catch (Exception e){
-            this.receiveDt = LocalDateTime.parse(receiveDt);
+//            this.receiveDt = LocalDateTime.parse(receiveDt);
         }
     }
 
@@ -43,7 +43,7 @@ public class UpdateBikeTransactionRequest extends OriginObject {
         try {
             this.soldDate = LocalDateTime.parse(soldDate + "T00:00:00");
         }catch (Exception e){
-            this.soldDate = LocalDateTime.parse(soldDate);
+//            this.soldDate = LocalDateTime.parse(soldDate);
         }
     }
 }

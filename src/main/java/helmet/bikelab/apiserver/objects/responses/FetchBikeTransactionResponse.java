@@ -18,18 +18,20 @@ public class FetchBikeTransactionResponse extends ModelBikeTransaction {
     public FetchBikeTransactionResponse(Bikes bike){
         ModelBikeTransaction transaction = bike.getTransaction();
         this.receiveDate = bike.getReceiveDate();
-        setRegNum(transaction.getRegNum());
-        setCompanyName(transaction.getCompanyName());
-        setPrice(transaction.getPrice());
-        setConsignmentPrice(transaction.getConsignmentPrice());
-        setDiscount(transaction.getDiscount());
+        if(bePresent(transaction)){
+            setRegNum(transaction.getRegNum());
+            setCompanyName(transaction.getCompanyName());
+            setPrice(transaction.getPrice());
+            setConsignmentPrice(transaction.getConsignmentPrice());
+            setDiscount(transaction.getDiscount());
 
-        setSellRegNum(transaction.getSellRegNum());
-        setSellCompanyName(transaction.getSellCompanyName());
-        setSellConsignmentPrice(transaction.getSellConsignmentPrice());
-        setSellPrice(transaction.getSellPrice());
-        setSellDiscount(transaction.getSellDiscount());
-        setSoldDate(transaction.getSoldDate());
+            setSellRegNum(transaction.getSellRegNum());
+            setSellCompanyName(transaction.getSellCompanyName());
+            setSellConsignmentPrice(transaction.getSellConsignmentPrice());
+            setSellPrice(transaction.getSellPrice());
+            setSellDiscount(transaction.getSellDiscount());
+            setSoldDate(transaction.getSoldDate());
+        }
     }
     private LocalDateTime receiveDate;
 }

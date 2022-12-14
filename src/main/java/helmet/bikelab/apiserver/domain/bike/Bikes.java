@@ -149,6 +149,9 @@ public class Bikes extends OriginObject {
     @Column(name = "description", columnDefinition = "MEDIUMTEXT")
     private String description;
 
+    @Column(name = "warehouse")
+    private String warehouse;
+
     @Column(name = "deleted_at", columnDefinition = "DATETIME")
     private LocalDateTime deletedAt;
 
@@ -186,4 +189,16 @@ public class Bikes extends OriginObject {
         this.carModelCode = carModel.getCode();
         this.years = carModel.getYear();
     }
+
+    public void setUsable(Boolean usable) {
+        this.usable = usable;
+        if(usable){
+            this.deletedAt = null;
+        }else {
+            this.deletedAt = LocalDateTime.now();
+            this.warehouse = null;
+        }
+    }
+
+
 }

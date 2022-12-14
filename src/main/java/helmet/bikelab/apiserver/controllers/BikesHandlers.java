@@ -227,6 +227,17 @@ public class BikesHandlers {
                         .map(bikesService::returnData), Map.class);
     }
 
+    public Mono<ServerResponse> updateBikeAttachmentTypeById(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> bikesService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(row -> bikesService.getPathVariable(row, "bike_id"))
+                        .map(bikesService::checkBikeSession)
+                        .map(bikesService::updateBikeAttachmentTypeById)
+                        .map(bikesService::returnData), Map.class);
+    }
+
     public Mono<ServerResponse> fetchBikeFiles(ServerRequest request) {
         return ServerResponse.ok().body(
                 Mono.fromSupplier(() -> bikesService.makeSessionRequest(request, BikeSessionRequest.class))

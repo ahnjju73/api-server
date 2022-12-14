@@ -37,6 +37,7 @@
         <mapper resource="mapper/bikelabs/employees.xml"/>
         <mapper resource="mapper/bikelabs/todo.xml"/>
         <mapper resource="mapper/bikelabs/commons/bikes.xml"/>
+        <mapper resource="mapper/bikelabs/commons/bikes_attachments.xml"/>
         <mapper resource="mapper/bikelabs/commons/clients.xml"/>
         <mapper resource="mapper/bikelabs/bike_user_log.xml"/>
         <mapper resource="mapper/bikelabs/clients_log.xml"/>

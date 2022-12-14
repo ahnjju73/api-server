@@ -38,9 +38,21 @@ public class FetchBikeDetailResponse extends OriginObject {
     private Integer odometerByAdmin = 0;
     private BikeStatusTypes bikeStatusType;
     private String bikeStatusTypeCode;
+    private String warehouse;
+
+    private Integer attachmentCompletion = 0;
+    private Integer attachmentRevocation = 0;
+    private Integer attachmentProduction = 0;
+
 
     public void setBikeStatusType(BikeStatusTypes bikeStatusType) {
         this.bikeStatusType = bikeStatusType;
         this.bikeStatusTypeCode = bikeStatusType.getType();
+    }
+
+    public void setAttachmentCount(Integer completion, Integer revocation, Integer production){
+        this.attachmentCompletion = completion;
+        this.attachmentRevocation = revocation;
+        this.attachmentProduction = production;
     }
 }
