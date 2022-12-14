@@ -50,6 +50,7 @@ public class AddUpdateRiderInsuranceRequest extends OriginObject {
 
     private List<PresignedURLVo> newAttachments;
     private List<ModelAttachment> attachments;
+    private String description;
 
 
     public void checkValidation(){

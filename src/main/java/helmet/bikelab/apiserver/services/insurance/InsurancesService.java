@@ -20,6 +20,7 @@ import helmet.bikelab.apiserver.objects.requests.FetchRiderInsuranceRequest;
 import helmet.bikelab.apiserver.repositories.*;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.utils.AutoKey;
+import helmet.bikelab.apiserver.utils.Senders;
 import helmet.bikelab.apiserver.utils.Utils;
 import helmet.bikelab.apiserver.utils.amazon.AmazonUtils;
 import helmet.bikelab.apiserver.utils.keys.ENV;
@@ -53,6 +54,7 @@ public class InsurancesService extends SessService {
     private final RiderInsuranceRepository riderInsuranceRepository;
     private final RiderInsuranceDtlRepository riderInsuranceDtlRepository;
     private final RiderInsuranceHistoryRepository riderInsuranceHistoryRepository;
+    private final Senders senders;
 
 
     public BikeSessionRequest fetchInsurances(BikeSessionRequest request) {
@@ -211,6 +213,7 @@ public class InsurancesService extends SessService {
         insurancesDtl.setStartDt(addUpdateRiderInsuranceRequest.getStartDt());
         insurancesDtl.setEndDt(addUpdateRiderInsuranceRequest.getEndDt());
         insurancesDtl.setInsFee(addUpdateRiderInsuranceRequest.getInsFee());
+        insurancesDtl.setDescription(addUpdateRiderInsuranceRequest.getDescription());
         riderInsuranceDtlRepository.save(insurancesDtl);
         return request;
     }
@@ -238,6 +241,7 @@ public class InsurancesService extends SessService {
         insurancesDtl.setEndDt(updateRiderInsuranceDtlRequest.getEndDt());
         insurancesDtl.setInsFee(updateRiderInsuranceDtlRequest.getInsFee());
         insurancesDtl.setAge(InsAgeTypes.getAge(updateRiderInsuranceDtlRequest.getAge()));
+        insurancesDtl.setDescription(updateRiderInsuranceDtlRequest.getDescription());
         riderInsuranceDtlRepository.save(insurancesDtl);
         return request;
     }
@@ -546,6 +550,12 @@ public class InsurancesService extends SessService {
             withException("");
         topDtl.setStopDt(LocalDateTime.now());
         riderInsuranceDtlRepository.save(topDtl);
+        return request;
+    }
+
+    public BikeSessionRequest sendSMSMessage(BikeSessionRequest request) {
+        SMSMessageDto messageDto = map(request.getParam(), SMSMessageDto.class);
+        senders.withPhoneMessage(messageDto.getContents(), messageDto.getPhone());
         return request;
     }
 }

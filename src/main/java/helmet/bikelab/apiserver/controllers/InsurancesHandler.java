@@ -166,4 +166,14 @@ public class InsurancesHandler {
                         .map(insurancesService::stopInsurance)
                         .map(insurancesService::returnData), Map.class);
     }
+
+    public Mono<ServerResponse> sendSMSMessage(ServerRequest request){
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> insurancesService.makeSessionRequest(request, row , BikeSessionRequest.class))
+                        .map(insurancesService::checkBikeSession)
+                        .map(insurancesService::sendSMSMessage)
+                        .map(insurancesService::returnData), Map.class);
+    }
 }
