@@ -20,6 +20,7 @@ import helmet.bikelab.apiserver.objects.requests.FetchRiderInsuranceRequest;
 import helmet.bikelab.apiserver.repositories.*;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.utils.AutoKey;
+import helmet.bikelab.apiserver.utils.Senders;
 import helmet.bikelab.apiserver.utils.Utils;
 import helmet.bikelab.apiserver.utils.amazon.AmazonUtils;
 import helmet.bikelab.apiserver.utils.keys.ENV;
@@ -53,6 +54,7 @@ public class InsurancesService extends SessService {
     private final RiderInsuranceRepository riderInsuranceRepository;
     private final RiderInsuranceDtlRepository riderInsuranceDtlRepository;
     private final RiderInsuranceHistoryRepository riderInsuranceHistoryRepository;
+    private final Senders senders;
 
 
     public BikeSessionRequest fetchInsurances(BikeSessionRequest request) {
@@ -151,12 +153,21 @@ public class InsurancesService extends SessService {
             riderInsurances.setRiderEmail(rider.getEmail());
             riderInsurances.setRiderPhone(rider.getPhone());
             riderInsurances.setRiderName(rider.getRiderInfo().getName());
-            riderInsurances.setRiderSsn(addUpdateRiderInsuranceRequest.getSsn());
+            if(bePresent(addUpdateRiderInsuranceRequest.getRiderInfoDto()))
+                riderInsurances.setRiderSsn(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderSsn());
         } else {
-            riderInsurances.setRiderEmail(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderEmail());
-            riderInsurances.setRiderPhone(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderPhone());
-            riderInsurances.setRiderName(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderName());
-            riderInsurances.setRiderSsn(addUpdateRiderInsuranceRequest.getSsn());
+            if(bePresent(addUpdateRiderInsuranceRequest.getRiderInfoDto())) {
+                riderInsurances.setRiderEmail(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderEmail());
+                riderInsurances.setRiderPhone(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderPhone());
+                riderInsurances.setRiderName(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderName());
+                riderInsurances.setRiderSsn(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderSsn());
+            }
+        }
+        if(bePresent(addUpdateRiderInsuranceRequest.getContractInfoDto())) {
+            riderInsurances.setContractorAddress(new AddressDto().setByModelAddress(addUpdateRiderInsuranceRequest.getContractorAddress()));
+            riderInsurances.setContractorName(addUpdateRiderInsuranceRequest.getContractInfoDto().getRiderPhone());
+            riderInsurances.setContractorPhone(addUpdateRiderInsuranceRequest.getContractInfoDto().getRiderName());
+            riderInsurances.setContractorSsn(addUpdateRiderInsuranceRequest.getContractInfoDto().getRiderSsn());
         }
         riderInsurances.setBikeNum(addUpdateRiderInsuranceRequest.getBikeNum());
         riderInsurances.setVimNum(addUpdateRiderInsuranceRequest.getVimNum());
@@ -202,6 +213,7 @@ public class InsurancesService extends SessService {
         insurancesDtl.setStartDt(addUpdateRiderInsuranceRequest.getStartDt());
         insurancesDtl.setEndDt(addUpdateRiderInsuranceRequest.getEndDt());
         insurancesDtl.setInsFee(addUpdateRiderInsuranceRequest.getInsFee());
+        insurancesDtl.setDescription(addUpdateRiderInsuranceRequest.getDescription());
         riderInsuranceDtlRepository.save(insurancesDtl);
         return request;
     }
@@ -229,6 +241,7 @@ public class InsurancesService extends SessService {
         insurancesDtl.setEndDt(updateRiderInsuranceDtlRequest.getEndDt());
         insurancesDtl.setInsFee(updateRiderInsuranceDtlRequest.getInsFee());
         insurancesDtl.setAge(InsAgeTypes.getAge(updateRiderInsuranceDtlRequest.getAge()));
+        insurancesDtl.setDescription(updateRiderInsuranceDtlRequest.getDescription());
         riderInsuranceDtlRepository.save(insurancesDtl);
         return request;
     }
@@ -287,12 +300,20 @@ public class InsurancesService extends SessService {
             riderInsurances.setRiderEmail(rider.getEmail());
             riderInsurances.setRiderPhone(rider.getPhone());
             riderInsurances.setRiderName(rider.getRiderInfo().getName());
-            riderInsurances.setRiderSsn(addUpdateRiderInsuranceRequest.getSsn());
-        } else {
-            riderInsurances.setRiderEmail(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderEmail());
-            riderInsurances.setRiderPhone(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderPhone());
-            riderInsurances.setRiderName(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderName());
-            riderInsurances.setRiderSsn(addUpdateRiderInsuranceRequest.getSsn());
+            riderInsurances.setRiderSsn(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderSsn());
+        }else {
+            if(bePresent(addUpdateRiderInsuranceRequest.getRiderInfoDto())) {
+                riderInsurances.setRiderEmail(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderEmail());
+                riderInsurances.setRiderPhone(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderPhone());
+                riderInsurances.setRiderName(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderName());
+                riderInsurances.setRiderSsn(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderSsn());
+            }
+        }
+        if(bePresent(addUpdateRiderInsuranceRequest.getContractInfoDto())) {
+            riderInsurances.setContractorAddress(new AddressDto().setByModelAddress(addUpdateRiderInsuranceRequest.getContractorAddress()));
+            riderInsurances.setContractorName(addUpdateRiderInsuranceRequest.getContractInfoDto().getRiderPhone());
+            riderInsurances.setContractorPhone(addUpdateRiderInsuranceRequest.getContractInfoDto().getRiderName());
+            riderInsurances.setContractorSsn(addUpdateRiderInsuranceRequest.getContractInfoDto().getRiderSsn());
         }
         riderInsurances.setBikeNum(addUpdateRiderInsuranceRequest.getBikeNum());
         riderInsurances.setVimNum(addUpdateRiderInsuranceRequest.getVimNum());
@@ -368,11 +389,11 @@ public class InsurancesService extends SessService {
                 change += "라이더 연락처를 <>" + riderInsurances.getRiderPhone() + "</>에서 <>" + addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderPhone() + "</>로 수정하였습니다.";
             }
         }
-        if (bePresent(riderInsurances.getRiderSsn()) && !riderInsurances.getRiderSsn().equals(addUpdateRiderInsuranceRequest.getSsn())) {
+        if (bePresent(riderInsurances.getRiderSsn()) && bePresent(addUpdateRiderInsuranceRequest.getRiderInfoDto()) && !riderInsurances.getRiderSsn().equals(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderSsn())) {
             if (bePresent(riderInsurances.getRiderSsn())) {
-                change += "라이더의 주민번호를 <>" + riderInsurances.getRiderSsn() + "</>에서 <>" + addUpdateRiderInsuranceRequest.getSsn() + "</>으로 수정하였습니다.\n";
+                change += "라이더의 주민번호를 <>" + riderInsurances.getRiderSsn() + "</>에서 <>" + addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderSsn() + "</>으로 수정하였습니다.\n";
             } else {
-                change += "라이더의 주민번호를 <>" + addUpdateRiderInsuranceRequest.getSsn() + "</>으로 설정하였습니다.\n";
+                change += "라이더의 주민번호를 <>" + addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderSsn() + "</>으로 설정하였습니다.\n";
             }
         }
 //        if (bePresent(riderInsurances.getAge()) && !riderInsurances.getAge().equals(InsAgeTypes.getAge(addUpdateRiderInsuranceRequest.getAge()))) {
@@ -529,6 +550,12 @@ public class InsurancesService extends SessService {
             withException("");
         topDtl.setStopDt(LocalDateTime.now());
         riderInsuranceDtlRepository.save(topDtl);
+        return request;
+    }
+
+    public BikeSessionRequest sendSMSMessage(BikeSessionRequest request) {
+        SMSMessageDto messageDto = map(request.getParam(), SMSMessageDto.class);
+        senders.withPhoneMessage(messageDto.getContents(), messageDto.getPhone());
         return request;
     }
 }

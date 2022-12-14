@@ -51,6 +51,7 @@ public class InsurancesRouters {
                 .andRoute(PATCH("/rider-insurances/{rider_ins_id}/stop"), handler::stopInsurance)
                 .andRoute(PUT("/rider-insurances-detail"), handler::updateRiderInsuranceDetail)
                 .andRoute(POST("/rider-insurances-pre-signed-url"),handler::generatePresignedUrl)
+                .andRoute(POST("/rider-insurances-message"),handler::sendSMSMessage)
                 ;
 
     }
