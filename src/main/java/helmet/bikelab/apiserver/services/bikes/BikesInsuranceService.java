@@ -131,4 +131,16 @@ public class BikesInsuranceService extends SessService {
         return request;
     }
 
+    @Transactional
+    public BikeSessionRequest payInsuranceFeeByNo(BikeSessionRequest request){
+        BikeUser sessionUser = request.getSessionUser();
+        BikeInsuranceByNoRequest bikeInsuranceByNoRequest = map(request.getParam(), BikeInsuranceByNoRequest.class);
+        BikeInsurances bikeInsurancesByNo = bikeWorker.getBikeInsurancesByNo(bikeInsuranceByNoRequest.getInsuranceNo());
+        if(bePresent(bikeInsurancesByNo.getPaidFee()) && bikeInsurancesByNo.getPaidFee().equals(bikeInsurancesByNo.getFee()))
+            writeMessage("이미 납부완료된 내역입니다.");
+        bikeInsurancesByNo.setPaidFee(bikeInsurancesByNo.getFee(), sessionUser);
+        bikeInsurancesRepository.save(bikeInsurancesByNo);
+        return request;
+    }
+
 }

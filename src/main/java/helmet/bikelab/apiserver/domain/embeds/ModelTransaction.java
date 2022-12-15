@@ -1,6 +1,7 @@
 package helmet.bikelab.apiserver.domain.embeds;
 
 
+import helmet.bikelab.apiserver.services.internal.OriginObject;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -10,7 +11,7 @@ import javax.persistence.Embeddable;
 @Getter
 @Setter
 @Embeddable
-public class ModelTransaction {
+public class ModelTransaction extends OriginObject {
     public ModelTransaction(){}
     public ModelTransaction(String regNum, String companyName, Integer price){
         this.regNum = regNum;

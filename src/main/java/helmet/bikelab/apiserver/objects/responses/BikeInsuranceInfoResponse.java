@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import helmet.bikelab.apiserver.domain.bike.BikeInsurances;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
+import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.types.BikeInsuranceTypes;
 import helmet.bikelab.apiserver.domain.types.InsuranceTypes;
 import helmet.bikelab.apiserver.domain.types.SelfCoverCarTypes;
@@ -39,6 +40,13 @@ public class BikeInsuranceInfoResponse extends OriginObject {
         this.insuranceNo = bikeInsurance.getInsuranceNo();
         this.grade = bikeInsurance.getGrade();
         this.used = bePresent(bike.getBikeInsurance()) && bike.getBikeInsuranceNo().equals(bikeInsurance.getInsuranceNo()) ? true : false;
+        this.paidFee = bikeInsurance.getPaidFee();
+        this.paidAt = bikeInsurance.getPaidAt();
+        BikeUser paidUser = bikeInsurance.getPaidUser();
+        if(bePresent(paidUser)){
+            this.paidUserName = paidUser.getBikeUserInfo().getName();
+            this.paidUserId = paidUser.getUserId();
+        }
     }
 
     private String insuranceId;
@@ -59,6 +67,10 @@ public class BikeInsuranceInfoResponse extends OriginObject {
     private String endAt;
 
     private Integer fee;
+    private Integer paidFee;
+    private String paidUserName;
+    private String paidUserId;
+    private LocalDateTime paidAt;
 
     private Integer insuranceNo;
     private String grade;

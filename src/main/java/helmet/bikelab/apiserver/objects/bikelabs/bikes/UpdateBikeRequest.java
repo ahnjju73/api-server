@@ -30,6 +30,7 @@ public class UpdateBikeRequest extends OriginObject {
     private PayerTypes payerType;
     private BikeStatusTypes bikeStatusType;
     private Integer odometerByAdmin = 0;
+    private String warehouse;
 
     public void setBikeStatusType(BikeStatusTypes bikeStatusType) {
         this.bikeStatusType = bikeStatusType;

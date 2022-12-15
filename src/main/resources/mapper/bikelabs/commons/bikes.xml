@@ -18,23 +18,23 @@
                                     </if>) commb on b.car_model = commb.comm_cd
                      where bike_id != (select val from system_parameters where parameter_no = 0)
                        and deleted_at is null
-                     <if test="is_bikemaster != null and is_bikemaster != '' and is_bikemaster != 'undefined'">
+                       <if test="is_bikemaster != null and is_bikemaster != '' and is_bikemaster != 'undefined'">
                        and is_bm = #{is_bikemaster}
-                     </if>
-                     <if test="payer_type != null and payer_type != '' and payer_type != 'undefined'">
+                       </if>
+                       <if test="payer_type != null and payer_type != '' and payer_type != 'undefined'">
                        and payer_types = #{payer_type}
-                     </if>
-                     <if test="search_number != null and search_number != '' and search_number != 'undefined'">
+                       </if>
+                       <if test="search_number != null and search_number != '' and search_number != 'undefined'">
                        and `number` like concat('%', #{search_number}, '%')
-                     </if>
-                     <if test="search_bike_id != null and search_bike_id != '' and search_bike_id != 'undefined'">
+                       </if>
+                       <if test="search_bike_id != null and search_bike_id != '' and search_bike_id != 'undefined'">
                        and bike_id like concat('%', #{search_bike_id}, '%')
-                     </if>
-                     <if test="search_vim != null and search_vim != '' and search_vim != 'undefined'">
+                       </if>
+                       <if test="search_vim != null and search_vim != '' and search_vim != 'undefined'">
                        and vim_num like concat('%', #{search_vim}, '%')
-                     </if>) b
-                   join leases l on b.bike_no = l.bike_no
-                   join clients c on l.client_no = c.client_no
+                       </if>) b
+                    join leases l on b.bike_no = l.bike_no
+                    join clients c on l.client_no = c.client_no
                                  and c.client_id = #{search_client_id}
         </if>
         <if test="search_client_id == null or search_client_id == '' or search_client_id == 'undefined'">
@@ -47,27 +47,27 @@
                             and comm_nm like concat('%', #{car_model}, '%')
                           </if>) commb on b.car_model = commb.comm_cd
              where bike_id != (select val from system_parameters where parameter_no = 0)
-             <if test="is_bikemaster != null and is_bikemaster != '' and is_bikemaster != 'undefined'">
+               <if test="is_bikemaster != null and is_bikemaster != '' and is_bikemaster != 'undefined'">
                and is_bm = #{is_bikemaster}
-             </if>
-             <if test="type == 'delete'">
+               </if>
+               <if test="type == 'delete'">
                and deleted_at is not null
-             </if>
-             <if test="payer_type != null and payer_type != '' and payer_type != 'undefined'">
+               </if>
+               <if test="payer_type != null and payer_type != '' and payer_type != 'undefined'">
                and payer_types = #{payer_type}
-             </if>
-             <if test="type == null or type == '' or type == 'undefined'">
+               </if>
+               <if test="type == null or type == '' or type == 'undefined'">
                and deleted_at is null
-             </if>
-             <if test="search_number != null and search_number != '' and search_number != 'undefined'">
+               </if>
+               <if test="search_number != null and search_number != '' and search_number != 'undefined'">
                and `number` like concat('%', #{search_number}, '%')
-             </if>
-             <if test="search_bike_id != null and search_bike_id != '' and search_bike_id != 'undefined'">
+               </if>
+               <if test="search_bike_id != null and search_bike_id != '' and search_bike_id != 'undefined'">
                and bike_id like concat('%', #{search_bike_id}, '%')
-             </if>
-             <if test="search_vim != null and search_vim != '' and search_vim != 'undefined'">
+               </if>
+               <if test="search_vim != null and search_vim != '' and search_vim != 'undefined'">
                and vim_num like concat('%', #{search_vim}, '%')
-             </if>
+               </if>
         </if>
     </select>
 
@@ -106,6 +106,7 @@
                            </if>) commb on b.car_model = commb.comm_cd
               where 1 = 1
                 and b.deleted_at is null
+                and b.status in ('0', '1')
                 and bike_id != (select val from system_parameters where parameter_no = 0)
                 <if test="is_bikemaster != null and is_bikemaster != '' and is_bikemaster != 'undefined'">
                 and is_bm = #{is_bikemaster}
@@ -158,30 +159,30 @@
                             </if>) commb on b.car_model = commb.comm_cd
                where 1 = 1
                  and bike_id != (select val from system_parameters where parameter_no = 0)
-               <if test="is_bikemaster != null and is_bikemaster != '' and is_bikemaster != 'undefined'">
+                 <if test="is_bikemaster != null and is_bikemaster != '' and is_bikemaster != 'undefined'">
                  and is_bm = #{is_bikemaster}
-               </if>
-               <if test="payer_type != null and payer_type != '' and payer_type != 'undefined'">
+                 </if>
+                 <if test="payer_type != null and payer_type != '' and payer_type != 'undefined'">
                  and payer_types = #{payer_type}
-               </if>
-               <if test="search_number != null and search_number != '' and search_number != 'undefined'">
+                 </if>
+                 <if test="search_number != null and search_number != '' and search_number != 'undefined'">
                  and `number` like concat('%', #{search_number}, '%')
-               </if>
-               <if test="search_bike_id != null and search_bike_id != '' and search_bike_id != 'undefined'">
+                 </if>
+                 <if test="search_bike_id != null and search_bike_id != '' and search_bike_id != 'undefined'">
                  and bike_id like concat('%', #{search_bike_id}, '%')
-               </if>
-               <if test="search_vim != null and search_vim != '' and search_vim != 'undefined'">
+                 </if>
+                 <if test="search_vim != null and search_vim != '' and search_vim != 'undefined'">
                  and vim_num like concat('%', #{search_vim}, '%')
-               </if>
-               <if test="next_token != null and next_token != '' and next_token != 'undefined'">
+                 </if>
+                 <if test="next_token != null and next_token != '' and next_token != 'undefined'">
                  and bike_id <![CDATA[ < ]]> #{next_token}
-               </if>
-               <if test="type == 'delete'">
+                 </if>
+                 <if test="type == 'delete'">
                  and deleted_at is not null
-               </if>
-               <if test="type == null or type == '' or type == 'undefined'">
+                 </if>
+                 <if test="type == null or type == '' or type == 'undefined'">
                  and deleted_at is null
-               </if>
+                 </if>
                order by bike_no desc limit 30) bm
               left outer join leases ls on bm.bike_no = ls.bike_no
               <if test="search_client_id != null and search_client_id != '' and search_client_id != 'undefined'">
@@ -204,52 +205,55 @@
               from (select *
                       from bikes
                      where bike_no not in (select bike_no from leases)
+                       and status in ('0', '1')
+                       and deleted_at is null
                        and reg_num is not null
                        and price is not null
                        and company_name is not null
-                       and deleted_at is null
-                     <if test="is_bikemaster != null and is_bikemaster != '' and is_bikemaster != 'undefined'">
+                       <if test="is_bikemaster != null and is_bikemaster != '' and is_bikemaster != 'undefined'">
                        and is_bm = #{is_bikemaster}
-                     </if>
+                       </if>
                        and bike_id != (select val from system_parameters where parameter_no = 0)
-                     <if test="search_name != null and search_name != '' and search_name != 'undefined'">
-                        and (
+                       <if test="search_name != null and search_name != '' and search_name != 'undefined'">
+                       and (
                         vim_num like concat('%', #{search_name}, '%')
                         or `number` like concat('%', #{search_name}, '%')
-                        )
-                    </if>
-                    <if test="search_bike_id != null and search_bike_id != '' and search_bike_id != 'undefined'">
-                        and bike_id like concat('%', #{search_bike_id}, '%')
-                    </if>
-                    <if test="search_number != null and search_number != '' and search_number != 'undefined'">
-                        and `number` like concat('%', #{search_number}, '%')
-                    </if>
-                    <if test="search_vim != null and search_vim != '' and search_vim != 'undefined'">
-                        and vim_num like concat('%', #{search_vim}, '%')
-                    </if>) b
+                       )
+                      </if>
+                      <if test="search_bike_id != null and search_bike_id != '' and search_bike_id != 'undefined'">
+                      and bike_id like concat('%', #{search_bike_id}, '%')
+                      </if>
+                      <if test="search_number != null and search_number != '' and search_number != 'undefined'">
+                      and `number` like concat('%', #{search_number}, '%')
+                      </if>
+                      <if test="search_vim != null and search_vim != '' and search_vim != 'undefined'">
+                      and vim_num like concat('%', #{search_vim}, '%')
+                      </if>) b
                    join leases l on b.bike_no = l.bike_no
                    join clients c on l.client_no = c.client_no
                                  and c.client_id = #{search_client_id}
         </if>
         <if test="search_client_id == null or search_client_id == '' or search_client_id == 'undefined'">
-            select count(*) from bikes
+            select count(*)
+              from bikes
              where bike_no not in (select bike_no from leases)
+               and status in ('0', '1')
                and reg_num is not null
                and price is not null
                and company_name is not null
                and deleted_at is null
-            <if test="is_bikemaster != null and is_bikemaster != '' and is_bikemaster != 'undefined'">
+               <if test="is_bikemaster != null and is_bikemaster != '' and is_bikemaster != 'undefined'">
                and is_bm = #{is_bikemaster}
-            </if>
-            <if test="search_bike_id != null and search_bike_id != '' and search_bike_id != 'undefined'">
-                and bike_id like concat('%', #{search_bike_id}, '%')
-            </if>
-            <if test="search_number != null and search_number != '' and search_number != 'undefined'">
-                and `number` like concat('%', #{search_number}, '%')
-            </if>
-            <if test="search_vim != null and search_vim != '' and search_vim != 'undefined'">
-                and vim_num like concat('%', #{search_vim}, '%')
-            </if>
+               </if>
+               <if test="search_bike_id != null and search_bike_id != '' and search_bike_id != 'undefined'">
+               and bike_id like concat('%', #{search_bike_id}, '%')
+               </if>
+               <if test="search_number != null and search_number != '' and search_number != 'undefined'">
+               and `number` like concat('%', #{search_number}, '%')
+               </if>
+               <if test="search_vim != null and search_vim != '' and search_vim != 'undefined'">
+               and vim_num like concat('%', #{search_vim}, '%')
+               </if>
         </if>
     </select>
 
@@ -267,36 +271,37 @@
           from (select *
                   from bikes b
                  where bike_no not in (select bike_no from leases)
-                 <if test="is_bikemaster != null and is_bikemaster != '' and is_bikemaster != 'undefined'">
-                   and is_bm = #{is_bikemaster}
-                 </if>
+                   and b.status in ('0', '1')
                    and deleted_at is null
+                   <if test="is_bikemaster != null and is_bikemaster != '' and is_bikemaster != 'undefined'">
+                   and is_bm = #{is_bikemaster}
+                   </if>
                    and bike_id != (select val from system_parameters where parameter_no = 0)
                    and reg_num is not null
                    and price is not null
                    and company_name is not null
-                <if test="search_bike_id != null and search_bike_id != '' and search_bike_id != 'undefined'">
-                    and bike_id like concat('%', #{search_bike_id}, '%')
-                </if>
-                <if test="search_number != null and search_number != '' and search_number != 'undefined'">
-                    and `number` like concat('%', #{search_number}, '%')
-                </if>
-                <if test="search_vim != null and search_vim != '' and search_vim != 'undefined'">
-                    and vim_num like concat('%', #{search_vim}, '%')
-                </if>
-                <if test="next_token != null and next_token != '' and next_token != 'undefined'">
+                   <if test="search_bike_id != null and search_bike_id != '' and search_bike_id != 'undefined'">
+                   and bike_id like concat('%', #{search_bike_id}, '%')
+                   </if>
+                   <if test="search_number != null and search_number != '' and search_number != 'undefined'">
+                   and `number` like concat('%', #{search_number}, '%')
+                   </if>
+                   <if test="search_vim != null and search_vim != '' and search_vim != 'undefined'">
+                   and vim_num like concat('%', #{search_vim}, '%')
+                   </if>
+                   <if test="next_token != null and next_token != '' and next_token != 'undefined'">
                    and bike_id <![CDATA[ < ]]> #{next_token}
-                </if>
+                   </if>
                  order by bike_no desc limit 30) bm
-                  join com_comm_bikes commb on bm.car_model = commb.comm_cd
-                  left outer join leases ls on bm.bike_no = ls.bike_no
+                join com_comm_bikes commb on bm.car_model = commb.comm_cd
+                left outer join leases ls on bm.bike_no = ls.bike_no
                 <if test="search_client_id != null and search_client_id != '' and search_client_id != 'undefined'">
-                    join (select *
-                    from clients
-                    where client_id = #{search_client_id}) c on ls.client_no = c.client_no
+                join (select *
+                        from clients
+                        where client_id = #{search_client_id}) c on ls.client_no = c.client_no
                 </if>
                 <if test="search_client_id == null or search_client_id == '' or search_client_id == 'undefined'">
-                    left outer join clients c on ls.client_no = c.client_no
+                left outer join clients c on ls.client_no = c.client_no
                 </if>
                 left outer join client_info ci on c.client_no = ci.client_no
             order by bm.bike_no desc

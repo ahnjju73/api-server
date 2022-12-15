@@ -105,4 +105,14 @@ public class BikeInsurancesHandler {
                         .map(bikesInsuranceService::returnData), BikeInsuranceListResponse.class);
     }
 
+    public Mono<ServerResponse> payInsuranceFeeByNo(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> bikesInsuranceService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(bikesInsuranceService::checkBikeSession)
+                        .map(bikesInsuranceService::payInsuranceFeeByNo)
+                        .map(bikesInsuranceService::returnData), Map.class);
+    }
+
 }

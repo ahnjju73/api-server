@@ -3,6 +3,10 @@ package helmet.bikelab.apiserver.domain.bike;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import helmet.bikelab.apiserver.domain.types.BikeAttachmentTypes;
+import helmet.bikelab.apiserver.domain.types.PayerTypes;
+import helmet.bikelab.apiserver.domain.types.converters.BikeAttachmentTypesConverter;
+import helmet.bikelab.apiserver.domain.types.converters.PayerTypesConverter;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -37,4 +41,13 @@ public class BikeAttachments {
 
     @Column(name = "file_key", columnDefinition = "MEDIUMTEXT")
     private String fileKey;
+
+    @Column(name = "attachment_type", columnDefinition = "ENUM", nullable = false)
+    @Convert(converter = BikeAttachmentTypesConverter.class)
+    private BikeAttachmentTypes attachmentType;
+
+    @Column(name = "attachment_type", columnDefinition = "ENUM", nullable = false, insertable = false, updatable = false)
+    private String attachmentTypeCode;
+
+
 }
