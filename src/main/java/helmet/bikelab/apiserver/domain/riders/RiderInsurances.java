@@ -75,19 +75,6 @@ public class RiderInsurances extends OriginObject {
     @Convert(converter = ModelAddressConverter.class)
     AddressDto contractorAddress;
 
-    @Column(name = "bike_num")
-    private String bikeNum;
-
-    @Column(name = "vim_num")
-    private String vimNum;
-
-    @Column(name = "bike_type", columnDefinition = "ENUM")
-    @Convert(converter = InsuranceBikeTypeConverter.class)
-    private InsuranceBikeTypes bikeTypes;
-
-    @Column(name = "bike_type", columnDefinition = "ENUM", insertable = false, updatable = false)
-    private String bikeTypesCode;
-
     @JsonIgnore
     @Column(name = "attachments", columnDefinition = "JSON")
     @Convert(converter = ModelAttachmentConverter.class)

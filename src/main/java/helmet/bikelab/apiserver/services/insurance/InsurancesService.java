@@ -169,9 +169,6 @@ public class InsurancesService extends SessService {
             riderInsurances.setContractorPhone(addUpdateRiderInsuranceRequest.getContractInfoDto().getRiderName());
             riderInsurances.setContractorSsn(addUpdateRiderInsuranceRequest.getContractInfoDto().getRiderSsn());
         }
-        riderInsurances.setBikeNum(addUpdateRiderInsuranceRequest.getBikeNum());
-        riderInsurances.setVimNum(addUpdateRiderInsuranceRequest.getVimNum());
-        riderInsurances.setBikeTypes(InsuranceBikeTypes.getType(addUpdateRiderInsuranceRequest.getBikeType()));
         riderInsurances.setRiderAddress(new AddressDto().setByModelAddress(addUpdateRiderInsuranceRequest.getAddress()));
         List<ModelAttachment> attachments = new ArrayList<>();
         if(bePresent(addUpdateRiderInsuranceRequest.getNewAttachments())) {
@@ -194,6 +191,9 @@ public class InsurancesService extends SessService {
         riderInsuranceRepository.save(riderInsurances);
 
         RiderInsurancesDtl insurancesDtl = new RiderInsurancesDtl();
+        insurancesDtl.setBikeNum(addUpdateRiderInsuranceRequest.getBikeNum());
+        insurancesDtl.setVimNum(addUpdateRiderInsuranceRequest.getVimNum());
+        insurancesDtl.setBikeTypes(InsuranceBikeTypes.getType(addUpdateRiderInsuranceRequest.getBikeType()));
         insurancesDtl.setAge(InsAgeTypes.getAge(addUpdateRiderInsuranceRequest.getAge()));
         insurancesDtl.setRiderInsNo(riderInsurances.getRiderInsNo());
         insurancesDtl.setInsCompany(InsCompanyTypes.getCompanyType(addUpdateRiderInsuranceRequest.getInsCompany()));
@@ -233,6 +233,9 @@ public class InsurancesService extends SessService {
         insurancesDtl.setSelfCoverCar(updateRiderInsuranceDtlRequest.getSelfCoverCar());
         insurancesDtl.setNoInsCover(updateRiderInsuranceDtlRequest.getNoInsuranceCover());
         insurancesDtl.setRiderInsuranceStatus(RiderInsuranceStatus.PENDING);
+        insurancesDtl.setBikeNum(updateRiderInsuranceDtlRequest.getBikeNum());
+        insurancesDtl.setVimNum(updateRiderInsuranceDtlRequest.getVimNum());
+        insurancesDtl.setBikeTypes(InsuranceBikeTypes.getType(updateRiderInsuranceDtlRequest.getBikeType()));
         if (bePresent(updateRiderInsuranceDtlRequest.getBankInfoDto()))
             insurancesDtl.setBankInfo(updateRiderInsuranceDtlRequest.getBankInfoDto());
         insurancesDtl.setUsageTypes(UsageTypes.getType(updateRiderInsuranceDtlRequest.getUsage()));
@@ -315,9 +318,6 @@ public class InsurancesService extends SessService {
             riderInsurances.setContractorPhone(addUpdateRiderInsuranceRequest.getContractInfoDto().getRiderName());
             riderInsurances.setContractorSsn(addUpdateRiderInsuranceRequest.getContractInfoDto().getRiderSsn());
         }
-        riderInsurances.setBikeNum(addUpdateRiderInsuranceRequest.getBikeNum());
-        riderInsurances.setVimNum(addUpdateRiderInsuranceRequest.getVimNum());
-        riderInsurances.setBikeTypes(InsuranceBikeTypes.getType(addUpdateRiderInsuranceRequest.getBikeType()));
         riderInsurances.setRiderAddress(new AddressDto().setByModelAddress(addUpdateRiderInsuranceRequest.getAddress()));
         List<ModelAttachment> attachments = addUpdateRiderInsuranceRequest.getAttachments() != null ? addUpdateRiderInsuranceRequest.getAttachments() : new ArrayList<>();
         deletedAttachments(riderInsurances.getAttachmentsList(), attachments).stream().forEach(ma -> {
@@ -403,27 +403,31 @@ public class InsurancesService extends SessService {
 //                change += "라이더의 나이를 <>" + addUpdateRiderInsuranceRequest.getAge() + " 세</>로 설정하였습니다.\n";
 //            }
 //        }
-        if (bePresent(riderInsurances.getBikeNum()) && !riderInsurances.getBikeNum().equals(addUpdateRiderInsuranceRequest.getBikeNum())) {
-            if (bePresent(riderInsurances.getBikeNum())) {
-                change += "바이크 번호를 <>" + riderInsurances.getBikeNum() + "</>에서 <>" + addUpdateRiderInsuranceRequest.getBikeNum() + "</>로 수정하였습니다.\n";
-            } else {
-                change += "바이크 번호를 <>" + addUpdateRiderInsuranceRequest.getBikeNum() + "</>로 설정하였습니다.\n";
-            }
-        }
-        if (bePresent(riderInsurances.getVimNum()) && !riderInsurances.getVimNum().equals(addUpdateRiderInsuranceRequest.getVimNum())) {
-            if (bePresent(riderInsurances.getBikeNum())) {
-                change += "차대 번호를 <>" + riderInsurances.getVimNum() + "</>에서 <>" + addUpdateRiderInsuranceRequest.getVimNum() + "</>로 수정하였습니다.\n";
-            } else {
-                change += "차대 번호를 <>" + addUpdateRiderInsuranceRequest.getVimNum() + "</>로 설정하였습니다.\n";
-            }
-        }
-        if (bePresent(riderInsurances.getBikeTypes()) && !riderInsurances.getBikeTypes().equals(InsuranceBikeTypes.getType(addUpdateRiderInsuranceRequest.getBikeType()))) {
-            if (bePresent(riderInsurances.getBikeNum())) {
-                change += "바이크 종류를 <>" + riderInsurances.getBikeTypes() + "</>에서 <>" + InsuranceBikeTypes.getType(addUpdateRiderInsuranceRequest.getBikeType()) + "</>로 수정하였습니다.\n";
-            } else {
-                change += "바이크 종류를 <>" + InsuranceBikeTypes.getType(addUpdateRiderInsuranceRequest.getBikeType()) + "</>로 설정하였습니다.\n";
-            }
-        }
+
+
+//        if (bePresent(riderInsurances.getBikeNum()) && !riderInsurances.getBikeNum().equals(addUpdateRiderInsuranceRequest.getBikeNum())) {
+//            if (bePresent(riderInsurances.getBikeNum())) {
+//                change += "바이크 번호를 <>" + riderInsurances.getBikeNum() + "</>에서 <>" + addUpdateRiderInsuranceRequest.getBikeNum() + "</>로 수정하였습니다.\n";
+//            } else {
+//                change += "바이크 번호를 <>" + addUpdateRiderInsuranceRequest.getBikeNum() + "</>로 설정하였습니다.\n";
+//            }
+//        }
+//        if (bePresent(riderInsurances.getVimNum()) && !riderInsurances.getVimNum().equals(addUpdateRiderInsuranceRequest.getVimNum())) {
+//            if (bePresent(riderInsurances.getBikeNum())) {
+//                change += "차대 번호를 <>" + riderInsurances.getVimNum() + "</>에서 <>" + addUpdateRiderInsuranceRequest.getVimNum() + "</>로 수정하였습니다.\n";
+//            } else {
+//                change += "차대 번호를 <>" + addUpdateRiderInsuranceRequest.getVimNum() + "</>로 설정하였습니다.\n";
+//            }
+//        }
+//        if (bePresent(riderInsurances.getBikeTypes()) && !riderInsurances.getBikeTypes().equals(InsuranceBikeTypes.getType(addUpdateRiderInsuranceRequest.getBikeType()))) {
+//            if (bePresent(riderInsurances.getBikeNum())) {
+//                change += "바이크 종류를 <>" + riderInsurances.getBikeTypes() + "</>에서 <>" + InsuranceBikeTypes.getType(addUpdateRiderInsuranceRequest.getBikeType()) + "</>로 수정하였습니다.\n";
+//            } else {
+//                change += "바이크 종류를 <>" + InsuranceBikeTypes.getType(addUpdateRiderInsuranceRequest.getBikeType()) + "</>로 설정하였습니다.\n";
+//            }
+//        }
+
+
 //        RiderInsurancesDtl topDetail = riderInsuranceDtlRepository.findTopByRiderInsurances_RiderInsIdOrderByDtlNoDesc(riderInsurances.getRiderInsId());
 //        Integer dtlCnt = riderInsuranceDtlRepository.countAllByRiderInsurances_RiderInsId(riderInsurances.getRiderInsId());
 //        if (!topDetail.getInsCompanyCode().equals(addUpdateRiderInsuranceRequest.getInsCompany())) {

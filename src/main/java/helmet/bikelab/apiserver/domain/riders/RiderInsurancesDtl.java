@@ -68,6 +68,19 @@ public class RiderInsurancesDtl {
     @Column(name = "`usage`", columnDefinition = "ENUM", updatable = false, insertable = false)
     private String usageTypeCode;
 
+    @Column(name = "bike_num")
+    private String bikeNum;
+
+    @Column(name = "vim_num")
+    private String vimNum;
+
+    @Column(name = "bike_type", columnDefinition = "ENUM")
+    @Convert(converter = InsuranceBikeTypeConverter.class)
+    private InsuranceBikeTypes bikeTypes;
+
+    @Column(name = "bike_type", columnDefinition = "ENUM", insertable = false, updatable = false)
+    private String bikeTypesCode;
+
     @Column(name = "additional_standard", columnDefinition = "ENUM")
     @Convert(converter = AdditionalStandardTypeConverter.class)
     private AdditionalStandardTypes additionalStandardTypes;

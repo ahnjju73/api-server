@@ -25,6 +25,10 @@ public class UpdateRiderInsuranceDtlRequest {
     private String usage;
     private String additionalStandard;
 
+    private String bikeNum;
+    private String vimNum;
+    private String bikeType;
+
     private Integer liabilityMan;
     private Integer liabilityCar;
     private Integer liabilityMan2;
