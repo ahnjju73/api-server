@@ -22,4 +22,5 @@ public class BikeInsuranceListResponse extends OriginObject {
     private List insurances;
     private Integer bikeInsuranceNo;
     private String insuranceId;
+    private Boolean isTransferred = false;
 }

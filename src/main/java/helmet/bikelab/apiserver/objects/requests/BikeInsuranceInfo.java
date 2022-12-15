@@ -52,11 +52,20 @@ public class BikeInsuranceInfo extends OriginObject {
     }
 
     public void setStartAt(String startAt) {
-        this.startAt = LocalDateTime.parse(startAt);
+        try {
+            this.startAt = LocalDateTime.parse(startAt);
+        }catch (Exception e){
+
+        }
     }
 
     public void setEndAt(String endAt) {
-        this.endAt = LocalDateTime.parse(endAt);
+        try {
+            this.endAt = LocalDateTime.parse(endAt);
+        }catch (Exception e){
+
+        }
+
     }
 
     public void setType(String type) {

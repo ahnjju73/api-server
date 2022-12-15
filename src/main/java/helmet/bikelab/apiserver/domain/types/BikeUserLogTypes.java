@@ -33,6 +33,8 @@ public enum BikeUserLogTypes {
     BIKE_INSURANCE_REMOVE("201-002"),
     BIKE_INSURANCE_UPDATE("201-003"),
     BIKE_INSURANCE_SET("201-004"),
+    BIKE_INSURANCE_DELETE("201-005"),
+    BIKE_INSURANCE_TRANSFER("201-006"),
     ;
 
     private String status;

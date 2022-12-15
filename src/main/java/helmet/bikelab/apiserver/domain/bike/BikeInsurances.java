@@ -12,6 +12,7 @@ import helmet.bikelab.apiserver.domain.types.SelfCoverCarTypes;
 import helmet.bikelab.apiserver.domain.types.converters.BikeInsuranceTypesConverter;
 import helmet.bikelab.apiserver.domain.types.converters.InsuranceTypesConverter;
 import helmet.bikelab.apiserver.domain.types.converters.SelfCoverCarTypesConverter;
+import helmet.bikelab.apiserver.objects.requests.BikeInsuranceByNoRequest;
 import helmet.bikelab.apiserver.objects.requests.BikeInsuranceInfo;
 import helmet.bikelab.apiserver.objects.requests.UploadBikeInfo;
 import helmet.bikelab.apiserver.services.internal.OriginObject;
@@ -84,7 +85,7 @@ public class BikeInsurances extends OriginObject {
     private String insuranceId;
 
     // 증권번호
-    @Column(name = "stock_number", nullable = false)
+    @Column(name = "stock_number")
     private String stockNumber;
 
     @Column(name = "bike_no", nullable = false)
@@ -166,15 +167,15 @@ public class BikeInsurances extends OriginObject {
     @Column(name = "created_at", columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt = LocalDateTime.now();
 
-    @Column(name = "updated_at", columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
-    private LocalDateTime updatedAt = LocalDateTime.now();
-
     @Column(name = "updated_no", length = 21)
     private Integer updatedUserNo;
 
     @ManyToOne
     @JoinColumn(name = "updated_no", referencedColumnName = "user_no", insertable = false, updatable = false)
     private BikeUser updatedUser;
+
+    @Column(name = "updated_at", columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
+    private LocalDateTime updatedAt = LocalDateTime.now();
 
     @Column(name = "paid_user_no", length = 21)
     private Integer paidUserNo;
@@ -239,5 +240,50 @@ public class BikeInsurances extends OriginObject {
         this.paidUser = user;
         this.paidUserNo = user.getUserNo();
         this.paidAt = LocalDateTime.now();
+    }
+
+    public void renewBikeInsurance(BikeInsurances prevInsurance, BikeUser user){
+        this.insuranceId = prevInsurance.getInsuranceId();
+        this.bikeNo = prevInsurance.bikeNo;
+        this.type = prevInsurance.getType();
+        this.bikeInsuranceType = prevInsurance.getBikeInsuranceType();
+        this.age = prevInsurance.getAge();
+        this.companyName = prevInsurance.getCompanyName();
+        this.liabilityMan = prevInsurance.getLiabilityMan();
+        this.liabilityCar = prevInsurance.getLiabilityCar();
+        this.liabilityMan2 = prevInsurance.getLiabilityMan2();
+        this.selfCoverMan = prevInsurance.getSelfCoverMan();
+        this.selfCoverCar = prevInsurance.getSelfCoverCar();
+        this.noInsuranceCover = prevInsurance.getNoInsuranceCover();
+        this.grade = prevInsurance.getGrade();
+        this.fee = prevInsurance.getFee();
+        this.createdUserNo = user.getUserNo();
+        this.updatedUserNo = user.getUserNo();
+    }
+
+    public Boolean isPaid(){
+        if(bePresent(this.paidFee) && this.fee.equals(this.paidFee)){
+            return true;
+        }
+        return false;
+    }
+
+    public void transferBikeInsuranceTo(BikeInsurances prevInsurance, Bikes bike, BikeUser user){
+        this.bikeNo = bike.getBikeNo();
+        this.insuranceId = prevInsurance.getInsuranceId();
+        this.type = prevInsurance.getType();
+        this.bikeInsuranceType = prevInsurance.getBikeInsuranceType();
+        this.age = prevInsurance.getAge();
+        this.companyName = prevInsurance.getCompanyName();
+        this.liabilityMan = prevInsurance.getLiabilityMan();
+        this.liabilityCar = prevInsurance.getLiabilityCar();
+        this.liabilityMan2 = prevInsurance.getLiabilityMan2();
+        this.selfCoverMan = prevInsurance.getSelfCoverMan();
+        this.selfCoverCar = prevInsurance.getSelfCoverCar();
+        this.noInsuranceCover = prevInsurance.getNoInsuranceCover();
+        this.grade = prevInsurance.getGrade();
+        this.fee = prevInsurance.getFee();
+        this.createdUserNo = user.getUserNo();
+        this.updatedUserNo = user.getUserNo();
     }
 }

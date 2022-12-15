@@ -75,4 +75,5 @@ public class BikeInsuranceInfoResponse extends OriginObject {
     private Integer insuranceNo;
     private String grade;
     private Boolean used = false;
+    private Boolean isTransferred = false;
 }

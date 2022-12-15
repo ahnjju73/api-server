@@ -86,6 +86,15 @@ public class BikeInsurancesHandler {
                         .map(bikesInsuranceService::returnData), Map.class);
     }
 
+    public Mono<ServerResponse> transferBikeInsuranceToAnotherBike(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> bikesInsuranceService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(bikesInsuranceService::checkBikeSession)
+                        .map(bikesInsuranceService::transferBikeInsuranceToAnotherBike)
+                        .map(bikesInsuranceService::returnData), Map.class);
+    }
 
     public Mono<ServerResponse> removeBikeInsuranceToBike(ServerRequest request){
         return ServerResponse.ok().body(

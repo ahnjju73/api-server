@@ -5,12 +5,14 @@ import lombok.Getter;
 @Getter
 public enum SelfCoverCarTypes {
 
-    NO_SELF_COVER("0"), YES_SELF_COVER("1");
+    NO_SELF_COVER("0", "자차보험(무)"), YES_SELF_COVER("1", "자차보험(유)");
 
     private String coverType;
+    private String coverTypeName;
 
-    SelfCoverCarTypes(String coverType) {
+    SelfCoverCarTypes(String coverType, String coverTypeName) {
         this.coverType = coverType;
+        this.coverTypeName = coverTypeName;
     }
 
     public static SelfCoverCarTypes getSelfCoverCarTypes(String status) {

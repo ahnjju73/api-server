@@ -14,7 +14,7 @@
                        from bike_user_log
                       where log_type in (
                                          '150-005', '150-006',
-                                         '201-001', '201-002', '201-003', '201-004'
+                                         '201-001', '201-002', '201-003', '201-004', '201-005', '201-006'
                                         )) bul on cls.bike_no = bul.ref_id
     </select>
 
@@ -50,7 +50,7 @@
                                  from bike_user_log
                                  where log_type in (
                                                     '150-005', '150-006',
-                                                    '201-001', '201-002', '201-003', '201-004'
+                                                    '201-001', '201-002', '201-003', '201-004', '201-005', '201-006'
                                                    )) bul on cls.bike_no = bul.ref_id
                    where 1 = 1
                     <if test="next_token != null and next_token != '' and next_token != 'undefined'">

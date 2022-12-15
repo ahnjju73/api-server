@@ -16,6 +16,7 @@
         <result property="end_at" column="end_at"/>
         <result property="fee" column="fee"/>
         <result property="paid_fee" column="paid_fee"/>
+        <result property="is_transferred" column="is_transferred"/>
     </resultMap>
     <resultMap id="getBikeInsuranceListItem" type="hmap">
         <result property="insurance_id" column="insurance_id"/>
@@ -33,6 +34,7 @@
                bi.end_at,
                bi.fee,
                bi.paid_fee,
+               bi.is_transferred,
                b.bike_id
           from (select *
                   from bikes
@@ -40,5 +42,13 @@
                join bike_insurances bi on b.bike_no = bi.bike_no
          order by bi.insurance_id desc, insurance_no desc
     </select>
+
+    <select id="checkIsTransferred" parameterType="hmap" resultType="int">
+        select count(*)
+          from bike_insurances
+         where bike_no = #{bike_no}
+           and is_transferred = 1
+    </select>
+
 
 </mapper>
