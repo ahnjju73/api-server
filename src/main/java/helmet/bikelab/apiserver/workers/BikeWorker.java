@@ -3,10 +3,7 @@ package helmet.bikelab.apiserver.workers;
 import helmet.bikelab.apiserver.domain.CommonBikes;
 import helmet.bikelab.apiserver.domain.CommonWorking;
 import helmet.bikelab.apiserver.domain.Manufacturers;
-import helmet.bikelab.apiserver.domain.bike.BikeInsurances;
-import helmet.bikelab.apiserver.domain.bike.Bikes;
-import helmet.bikelab.apiserver.domain.bike.Parts;
-import helmet.bikelab.apiserver.domain.bike.PartsCodes;
+import helmet.bikelab.apiserver.domain.bike.*;
 import helmet.bikelab.apiserver.objects.responses.BikeInsuranceListResponse;
 import helmet.bikelab.apiserver.repositories.*;
 import helmet.bikelab.apiserver.services.internal.Workspace;
@@ -28,7 +25,7 @@ public class BikeWorker extends Workspace {
     private final BikesRepository bikesRepository;
     private final CommonWorkingRepository commonWorkingRepository;
     private final BikeInsurancesRepository bikeInsurancesRepository;
-
+    private final BikeInfoRepository bikeInfoRepository;
     public List<Manufacturers> getManufacturers(){
         return manufacturersRepository.findAllBy();
     }
@@ -123,6 +120,18 @@ public class BikeWorker extends Workspace {
         BikeInsurances byInsuranceNo = bikeInsurancesRepository.findByInsuranceNo(insuranceNo);
         if(!bePresent(byInsuranceNo)) writeMessage("존재하지않습니다.");
         return byInsuranceNo;
+    }
+
+    public BikeInfo getBikeInfoByInfoNo(Integer infoNo){
+        BikeInfo byInfoNo = bikeInfoRepository.findByInfoNo(infoNo);
+        if(!bePresent(byInfoNo)) writeMessage("존재하지 않는 정보입니다.");
+        return byInfoNo;
+    }
+
+    public BikeInfo getBikeInfoByBikeNoAndInfoNo(String bikeId, Integer infoNo){
+        BikeInfo byInfoNo = bikeInfoRepository.findByBike_BikeIdAndInfoNo(bikeId, infoNo);
+        if(!bePresent(byInfoNo)) writeMessage("존재하지 않는 정보입니다.");
+        return byInfoNo;
     }
 
 }
