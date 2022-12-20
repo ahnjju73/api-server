@@ -39,6 +39,7 @@ public class FetchBikeDetailResponse extends OriginObject {
     private BikeStatusTypes bikeStatusType;
     private String bikeStatusTypeCode;
     private String warehouse;
+    private LocalDateTime deletedAt;
 
     private Integer attachmentCompletion = 0;
     private Integer attachmentRevocation = 0;

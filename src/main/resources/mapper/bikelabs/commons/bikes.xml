@@ -15,9 +15,24 @@
                                     where 1 = 1
                                     <if test="car_model != null and car_model != '' and car_model != 'undefined'">
                                       and comm_nm like concat('%', #{car_model}, '%')
-                                    </if>) commb on b.car_model = commb.comm_cd
+                                    </if>
+                                    <if test="search_year != null and search_year != '' and search_year != 'undefined'">
+                                        and `year` like concat('%', #{search_year}, '%')
+                                    </if>
+                                ) commb on b.car_model = commb.comm_cd
                      where bike_id != (select val from system_parameters where parameter_no = 0)
-                       and deleted_at is null
+                       <if test="type == 'delete'">
+                       and deleted_at is not null
+                       </if>
+                       <if test="search_warehouse != null and search_warehouse != '' and search_warehouse != 'undefined'">
+                       and warehouse = #{search_warehouse}
+                       </if>
+                       <if test="search_bike_status != null and search_bike_status != '' and search_bike_status != 'undefined'">
+                       and status = #{search_bike_status}
+                       </if>
+                       <if test="search_color != null and search_color != '' and search_color != 'undefined'">
+                       and color like concat('%', #{search_color}, '%')
+                       </if>
                        <if test="is_bikemaster != null and is_bikemaster != '' and is_bikemaster != 'undefined'">
                        and is_bm = #{is_bikemaster}
                        </if>
@@ -43,10 +58,22 @@
                    join (select *
                            from com_comm_bikes
                           where 1 = 1
-                          <if test="car_model != null and car_model != '' and car_model != 'undefined'">
+                            <if test="car_model != null and car_model != '' and car_model != 'undefined'">
                             and comm_nm like concat('%', #{car_model}, '%')
-                          </if>) commb on b.car_model = commb.comm_cd
+                            </if>
+                            <if test="search_year != null and search_year != '' and search_year != 'undefined'">
+                            and `year` like concat('%', #{search_year}, '%')
+                            </if>) commb on b.car_model = commb.comm_cd
              where bike_id != (select val from system_parameters where parameter_no = 0)
+               <if test="search_warehouse != null and search_warehouse != '' and search_warehouse != 'undefined'">
+               and warehouse = #{search_warehouse}
+               </if>
+               <if test="search_bike_status != null and search_bike_status != '' and search_bike_status != 'undefined'">
+               and status = #{search_bike_status}
+               </if>
+               <if test="search_color != null and search_color != '' and search_color != 'undefined'">
+               and color like concat('%', #{search_color}, '%')
+               </if>
                <if test="is_bikemaster != null and is_bikemaster != '' and is_bikemaster != 'undefined'">
                and is_bm = #{is_bikemaster}
                </if>
@@ -103,11 +130,23 @@
                            where 1 = 1
                            <if test="car_model != null and car_model != '' and car_model != 'undefined'">
                              and comm_nm like concat('%', #{car_model}, '%')
+                           </if>
+                           <if test="search_year != null and search_year != '' and search_year != 'undefined'">
+                           and `year` like concat('%', #{search_year}, '%')
                            </if>) commb on b.car_model = commb.comm_cd
               where 1 = 1
                 and b.deleted_at is null
                 and b.status in ('0', '1')
                 and bike_id != (select val from system_parameters where parameter_no = 0)
+                <if test="search_warehouse != null and search_warehouse != '' and search_warehouse != 'undefined'">
+                and warehouse = #{search_warehouse}
+                </if>
+                <if test="search_bike_status != null and search_bike_status != '' and search_bike_status != 'undefined'">
+                and status = #{search_bike_status}
+                </if>
+                <if test="search_color != null and search_color != '' and search_color != 'undefined'">
+                and color like concat('%', #{search_color}, '%')
+                </if>
                 <if test="is_bikemaster != null and is_bikemaster != '' and is_bikemaster != 'undefined'">
                 and is_bm = #{is_bikemaster}
                 </if>
@@ -161,9 +200,22 @@
                             where 1 = 1
                             <if test="car_model != null and car_model != '' and car_model != 'undefined'">
                               and comm_nm like concat('%', #{car_model}, '%')
-                            </if>) commb on b.car_model = commb.comm_cd
+                            </if>
+                            <if test="search_year != null and search_year != '' and search_year != 'undefined'">
+                                and `year` like concat('%', #{search_year}, '%')
+                            </if>
+                          ) commb on b.car_model = commb.comm_cd
                where 1 = 1
                  and bike_id != (select val from system_parameters where parameter_no = 0)
+                 <if test="search_warehouse != null and search_warehouse != '' and search_warehouse != 'undefined'">
+                 and warehouse = #{search_warehouse}
+                 </if>
+                 <if test="search_bike_status != null and search_bike_status != '' and search_bike_status != 'undefined'">
+                 and status = #{search_bike_status}
+                 </if>
+                 <if test="search_color != null and search_color != '' and search_color != 'undefined'">
+                 and color like concat('%', #{search_color}, '%')
+                 </if>
                  <if test="is_bikemaster != null and is_bikemaster != '' and is_bikemaster != 'undefined'">
                  and is_bm = #{is_bikemaster}
                  </if>
