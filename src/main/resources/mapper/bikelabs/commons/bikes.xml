@@ -139,11 +139,14 @@
                bm.number,
                payer_types,
                is_bm,
+               bm.color,
                deleted_at,
                car_model as car_model_code,
                comm_nm as car_model,
                color,
-               years,
+               bm.year as years,
+               bm.status,
+               bm.warehouse,
                ls.lease_id,
                c.client_id,
                ci.name as client_name,
@@ -151,7 +154,9 @@
                g.*
         from (select *
                 from bikes b
-                     join (select comm_cd, comm_nm
+                     join (select comm_cd,
+                                  comm_nm,
+                                  `year`
                              from com_comm_bikes
                             where 1 = 1
                             <if test="car_model != null and car_model != '' and car_model != 'undefined'">
