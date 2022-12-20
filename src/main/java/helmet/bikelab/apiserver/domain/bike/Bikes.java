@@ -162,11 +162,13 @@ public class Bikes extends OriginObject {
 
     public void doDeclineRider(){
         this.riderStatus = BikeRiderStatusTypes.NONE;
-        this.riderApprovalAt = null;
         this.riderNo = null;
         this.riders = null;
         this.riderLeaseNo = null;
         this.riderLease = null;
+        this.riderStartAt = null;
+        this.riderEndAt = null;
+        this.riderApprovalAt = null;
     }
 
     public void isRidable(){
