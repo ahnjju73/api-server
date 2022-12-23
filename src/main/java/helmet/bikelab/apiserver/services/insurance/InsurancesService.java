@@ -144,6 +144,10 @@ public class InsurancesService extends SessService {
         String riderInsId = autoKey.makeGetKey("rider_ins");
         RiderInsurances riderInsurances = new RiderInsurances();
         riderInsurances.setRiderInsId(riderInsId);
+        List<RiderInsurancesDtl> details = riderInsuranceDtlRepository.findAllByBikeNum(addUpdateRiderInsuranceRequest.getBikeNum());
+        if(isActiveInsurance(details)){
+            withException("");
+        }
         Riders rider = null;
         if (bePresent(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderId())) {
             rider = riderWorker.getRiderById(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderId());
@@ -222,6 +226,10 @@ public class InsurancesService extends SessService {
     public BikeSessionRequest updateRiderInsuranceDtls(BikeSessionRequest request){
         UpdateRiderInsuranceDtlRequest updateRiderInsuranceDtlRequest = map(request.getParam(), UpdateRiderInsuranceDtlRequest.class);
         RiderInsurancesDtl insurancesDtl = riderInsuranceDtlRepository.findByDtlNo(updateRiderInsuranceDtlRequest.getDtlNo());
+        List<RiderInsurancesDtl> details = riderInsuranceDtlRepository.findAllByBikeNum(updateRiderInsuranceDtlRequest.getBikeNum());
+        if(isActiveInsurance(details)){
+            withException("");
+        }
         insurancesDtl.setInsCompany(InsCompanyTypes.getCompanyType(updateRiderInsuranceDtlRequest.getInsCompany()));
         insurancesDtl.setInsNum(updateRiderInsuranceDtlRequest.getInsNum());
         insurancesDtl.setCreatedBy(request.getSessionUser().getUserNo());
@@ -247,6 +255,16 @@ public class InsurancesService extends SessService {
         insurancesDtl.setDescription(updateRiderInsuranceDtlRequest.getDescription());
         riderInsuranceDtlRepository.save(insurancesDtl);
         return request;
+    }
+
+    private boolean isActiveInsurance(List<RiderInsurancesDtl> dtls){
+        boolean isActive = false;
+        for (RiderInsurancesDtl dtl: dtls) {
+            if(dtl.getStartDt().isBefore(LocalDateTime.now()) && bePresent(dtl.getStopDt()) ? dtl.getStopDt().isAfter(LocalDateTime.now()) : dtl.getEndDt().isAfter(LocalDateTime.now())){
+                isActive = true;
+            }
+        }
+        return isActive;
     }
 
     public BikeSessionRequest fetchRiderInsurances(BikeSessionRequest request) {

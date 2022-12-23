@@ -1,6 +1,8 @@
 package helmet.bikelab.apiserver.domain.riders;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.PropertyNamingStrategy;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.embeds.ModelAttachment;
 import helmet.bikelab.apiserver.domain.types.InsAgeTypes;
@@ -24,6 +26,7 @@ import java.util.Set;
 @Getter
 @Setter
 @Table(name = "rider_insurances")
+@JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class RiderInsurances extends OriginObject {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
