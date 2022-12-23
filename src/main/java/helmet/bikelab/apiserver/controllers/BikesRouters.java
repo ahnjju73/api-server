@@ -19,6 +19,16 @@ public class BikesRouters {
     private final DiagramHandlers diagramHandlers;
 
     @Bean
+    public RouterFunction<ServerResponse> bikeInfoRouter(BikeInfoHandlers handlers){
+        return RouterFunctions
+                .route(GET("/bike-info"), handlers::getBikeInfoListByBikeId)
+                .andRoute(POST("/bike-info"), handlers::addBikeInfo)
+                .andRoute(PUT("/bike-info"), handlers::updateBikeInfo)
+                .andRoute(DELETE("/bike-info"), handlers::deleteBikeInfo)
+                ;
+    }
+
+    @Bean
     public RouterFunction<ServerResponse> bikeRouter(BikesHandlers handler){
         return RouterFunctions
                 .route(GET("/bikes"), handler::fetchListOfBikes)

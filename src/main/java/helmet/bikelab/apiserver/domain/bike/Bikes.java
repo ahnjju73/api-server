@@ -5,10 +5,8 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import helmet.bikelab.apiserver.domain.CommonBikes;
 import helmet.bikelab.apiserver.domain.embeds.ModelBikeTransaction;
-import helmet.bikelab.apiserver.domain.embeds.ModelTransaction;
 import helmet.bikelab.apiserver.domain.lease.Leases;
 import helmet.bikelab.apiserver.domain.riders.Riders;
-import helmet.bikelab.apiserver.domain.types.BikeInsuranceTypes;
 import helmet.bikelab.apiserver.domain.types.BikeRiderStatusTypes;
 import helmet.bikelab.apiserver.domain.types.BikeStatusTypes;
 import helmet.bikelab.apiserver.domain.types.PayerTypes;
@@ -162,11 +160,13 @@ public class Bikes extends OriginObject {
 
     public void doDeclineRider(){
         this.riderStatus = BikeRiderStatusTypes.NONE;
-        this.riderApprovalAt = null;
         this.riderNo = null;
         this.riders = null;
         this.riderLeaseNo = null;
         this.riderLease = null;
+        this.riderStartAt = null;
+        this.riderEndAt = null;
+        this.riderApprovalAt = null;
     }
 
     public void isRidable(){

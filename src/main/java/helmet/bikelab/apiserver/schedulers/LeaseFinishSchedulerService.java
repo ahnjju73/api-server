@@ -57,7 +57,6 @@ public class LeaseFinishSchedulerService extends WorkspaceQuartz {
                     }catch (Exception e){
                         bike.setWarehouse("리스 만료");
                     }
-
                     bikesRepository.save(bike);
                 }
             });

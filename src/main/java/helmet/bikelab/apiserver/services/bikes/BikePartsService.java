@@ -219,14 +219,14 @@ public class BikePartsService extends SessService {
             String index = (i + 2) + "번째 오류\n";
             String errorText = "";
             PartsCodeUploadRequest partsCodeRow = parts.get(i);
+            if(!bePresent(partsCodeRow.getPartsNameEng())) errorText += "부품(영문)명이 존재하지않습니다.\n";
             PartsCodes partsCodeById = partsCodesRepository.findByPartsCodeNo(partsCodeRow.getPartsCodeNo());
-            if(!bePresent(partsCodeRow.getPartsNameEng())) errorText = "부품(영문)명이 존재하지않습니다.\n";
             if(bePresent(partsCodeById)){
                 // 수정하기
                 updatePartsCodeByExcel(partsCodeRow, partsCodeById, errorText);
             }else {
                 // 신규등록
-                addPartsCodeByExcel(partsCodeRow, errorText);
+                errorText = addPartsCodeByExcel(partsCodeRow, errorText);
             }
             if(bePresent(errorText)){
                 errors += (index + errorText);
@@ -238,16 +238,18 @@ public class BikePartsService extends SessService {
         return request;
     }
 
-    private void addPartsCodeByExcel(PartsCodeUploadRequest partsCodeRow, String errorText) {
+    private String addPartsCodeByExcel(PartsCodeUploadRequest partsCodeRow, String errorText) {
         PartsTypes partsType = partsTypesRepository.findByPartsTypeNo(partsCodeRow.getPartsTypeNo());
         if(!bePresent(partsType)) {
-            errorText = "계통정보가 없습니다\n";
-            return ;
+            errorText += "계통정보가 없습니다\n";
+            return errorText;
         }
         if(!bePresent(errorText)){
             PartsCodes partsCode = new PartsCodes(partsType, partsCodeRow.getPartsName(), partsCodeRow.getPartsNameEng());
             partsCodesRepository.save(partsCode);
         }
+        return errorText;
+
     }
 
     private void updatePartsCodeByExcel(PartsCodeUploadRequest partsCodeRow, PartsCodes partsCodeById, String errorText) {

@@ -285,5 +285,6 @@ public class BikeInsurances extends OriginObject {
         this.fee = prevInsurance.getFee();
         this.createdUserNo = user.getUserNo();
         this.updatedUserNo = user.getUserNo();
+        this.stockNumber = prevInsurance.getStockNumber();
     }
 }

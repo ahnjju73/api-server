@@ -192,6 +192,7 @@ public class BikesService extends SessService {
         model.setCarModelName(carModel.getModel());
         model.setBikeType(carModel.getBikeType());
         model.setVolume(carModel.getVolume());
+        fetchBikeDetailResponse.setDeletedAt(bike.getDeletedAt());
         fetchBikeDetailResponse.setWarehouse(bike.getWarehouse());
         fetchBikeDetailResponse.setYear(carModel.getYear());
         fetchBikeDetailResponse.setVolume(carModel.getVolume());
@@ -582,8 +583,8 @@ public class BikesService extends SessService {
         if(bePresent(bike.getDeletedAt())) withException("");
         if(bePresent(leases)) withException("");
         bike.setDeletedAt(LocalDateTime.now());
-        bike.setVimNum("bak_" + (bePresent(bike.getVimNum()) ? bike.getVimNum() : bike.getBikeNo()) + "_" + bike.getDeletedAt());
-        bike.setCarNum("bak_" + (bePresent(bike.getCarNum()) ? bike.getCarNum() : bike.getBikeNo())+ "_" + bike.getDeletedAt());
+//        bike.setVimNum("bak_" + (bePresent(bike.getVimNum()) ? bike.getVimNum() : bike.getBikeNo()) + "_" + bike.getDeletedAt());
+//        bike.setCarNum("bak_" + (bePresent(bike.getCarNum()) ? bike.getCarNum() : bike.getBikeNo())+ "_" + bike.getDeletedAt());
         bikesRepository.save(bike);
         return request;
     }
