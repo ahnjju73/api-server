@@ -332,8 +332,8 @@ public class InsurancesService extends SessService {
         }
         if(bePresent(addUpdateRiderInsuranceRequest.getContractInfoDto())) {
             riderInsurances.setContractorAddress(new AddressDto().setByModelAddress(addUpdateRiderInsuranceRequest.getContractorAddress()));
-            riderInsurances.setContractorName(addUpdateRiderInsuranceRequest.getContractInfoDto().getRiderPhone());
-            riderInsurances.setContractorPhone(addUpdateRiderInsuranceRequest.getContractInfoDto().getRiderName());
+            riderInsurances.setContractorName(addUpdateRiderInsuranceRequest.getContractInfoDto().getRiderName());
+            riderInsurances.setContractorPhone(addUpdateRiderInsuranceRequest.getContractInfoDto().getRiderPhone());
             riderInsurances.setContractorSsn(addUpdateRiderInsuranceRequest.getContractInfoDto().getRiderSsn());
         }
         riderInsurances.setRiderAddress(new AddressDto().setByModelAddress(addUpdateRiderInsuranceRequest.getAddress()));
