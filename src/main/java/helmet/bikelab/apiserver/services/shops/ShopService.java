@@ -9,6 +9,7 @@ import helmet.bikelab.apiserver.domain.Estimates;
 import helmet.bikelab.apiserver.domain.Settles;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.client.ClientAddresses;
+import helmet.bikelab.apiserver.domain.client.Clients;
 import helmet.bikelab.apiserver.domain.embeds.ModelAddress;
 import helmet.bikelab.apiserver.domain.embeds.ModelAttachment;
 import helmet.bikelab.apiserver.domain.embeds.ModelBankAccount;
@@ -17,12 +18,9 @@ import helmet.bikelab.apiserver.domain.shops.*;
 import helmet.bikelab.apiserver.domain.types.BikeUserLogTypes;
 import helmet.bikelab.apiserver.domain.types.BusinessTypes;
 import helmet.bikelab.apiserver.domain.types.SettleStatusTypes;
-import helmet.bikelab.apiserver.objects.BikeSessionRequest;
-import helmet.bikelab.apiserver.objects.PresignedURLVo;
-import helmet.bikelab.apiserver.objects.requests.ClientListDto;
-import helmet.bikelab.apiserver.objects.requests.FetchFineRequest;
-import helmet.bikelab.apiserver.objects.requests.PageableRequest;
-import helmet.bikelab.apiserver.objects.requests.RequestListDto;
+import helmet.bikelab.apiserver.domain.types.TimeTypes;
+import helmet.bikelab.apiserver.objects.*;
+import helmet.bikelab.apiserver.objects.requests.*;
 import helmet.bikelab.apiserver.objects.requests.shops.*;
 import helmet.bikelab.apiserver.objects.responses.FetchSettleDetailResponse;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
@@ -32,6 +30,7 @@ import helmet.bikelab.apiserver.utils.AutoKey;
 import helmet.bikelab.apiserver.utils.Crypt;
 import helmet.bikelab.apiserver.utils.amazon.AmazonUtils;
 import helmet.bikelab.apiserver.utils.keys.ENV;
+import helmet.bikelab.apiserver.workers.ClientWorker;
 import helmet.bikelab.apiserver.workers.CommonWorker;
 import helmet.bikelab.apiserver.workers.ShopWorker;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +40,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.swing.text.DateFormatter;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
@@ -59,8 +60,11 @@ public class ShopService extends SessService {
     private final ShopAddressesRepository shopAddressesRepository;
     private final ShopAttachmentRepository shopAttachmentRepository;
     private final EstimatesRepository estimatesRepository;
+    private final RegularInspectionRepository regularInspectionRepository;
+    private final RegularInspectionHistoryRepository regularInspectionHistoryRepository;
     private final AutoKey autoKey;
     private final ShopWorker shopWorker;
+    private final ClientWorker clientWorker;
     private final BikeUserLogRepository bikeUserLogRepository;
     private final SettleRepository settleRepository;
     private final BankRepository bankRepository;
@@ -434,4 +438,188 @@ public class ShopService extends SessService {
         shopAttachmentRepository.save(shopAttachments);
         return request;
     }
+
+
+    @Transactional
+    public BikeSessionRequest addRegularInspection(BikeSessionRequest request){
+        AddUpdateRegularInspectionRequest addUpdateRegularInspectionRequest = map(request.getParam(), AddUpdateRegularInspectionRequest.class);
+        RegularInspections regularInspections = new RegularInspections();
+        String inspectionId = autoKey.makeGetKey("regular_inspect");
+        Clients clients = clientWorker.getClientByClientId(addUpdateRegularInspectionRequest.getClientId());
+        Shops shopByShopId = shopWorker.getShopByShopId(addUpdateRegularInspectionRequest.getShopId());
+        regularInspections.setInspectId(inspectionId);
+        regularInspections.setClientNo(clients.getClientNo());
+        regularInspections.setGroupNo(clients.getGroupNo());
+        regularInspections.setShopNo(shopByShopId.getShopNo());
+        List<ModelAttachment> attachments = new ArrayList<>();
+        if(bePresent(addUpdateRegularInspectionRequest.getAttachments())) {
+            List<ModelAttachment> newAttachments = addUpdateRegularInspectionRequest.getAttachments()
+                    .stream().map(presignedURLVo -> {
+                        AmazonS3 amazonS3 = AmazonS3Client.builder()
+                                .withCredentials(AmazonUtils.awsCredentialsProvider())
+                                .build();
+                        String fileKey = "regular-inspection/" + regularInspections.getInspectId() + "/" + presignedURLVo.getFileKey();
+                        CopyObjectRequest objectRequest = new CopyObjectRequest(presignedURLVo.getBucket(), presignedURLVo.getFileKey(), ENV.AWS_S3_ORIGIN_BUCKET, fileKey);
+                        amazonS3.copyObject(objectRequest);
+                        ModelAttachment leaseAttachment = new ModelAttachment();
+                        leaseAttachment.setUuid(UUID.randomUUID().toString().replaceAll("-", ""));
+                        leaseAttachment.setDomain(ENV.AWS_S3_ORIGIN_DOMAIN);
+                        leaseAttachment.setUri("/" + fileKey);
+                        leaseAttachment.setFileName(presignedURLVo.getFilename());
+                        return leaseAttachment;
+                    }).collect(Collectors.toList());
+            attachments.addAll(newAttachments);
+        }
+        regularInspections.setAttachmentsList(attachments);
+        regularInspections.setInspectDt(addUpdateRegularInspectionRequest.getInspectDt());
+        regularInspections.setIncludeDt(addUpdateRegularInspectionRequest.getIncludeDt());
+        regularInspections.setCreatedAt(LocalDateTime.now());
+        if(bePresent(regularInspections.getTimes())) {
+            RegularInspections byTimesAndIncludeDt = regularInspectionRepository.findByClient_ClientIdAndTimesAndIncludeDt(addUpdateRegularInspectionRequest.getClientId(), regularInspections.getTimes(), regularInspections.getIncludeDt());
+            if(bePresent(byTimesAndIncludeDt)) {
+                byTimesAndIncludeDt.setTimes(null);
+                regularInspectionRepository.save(byTimesAndIncludeDt);
+            }
+        }
+        regularInspectionRepository.save(regularInspections);
+        return request;
+    }
+
+    public BikeSessionRequest fetchInspections(BikeSessionRequest request){
+        FetchRegularInspectionRequest fetchRegularInspectionRequest = map(request.getParam(), FetchRegularInspectionRequest.class);
+        Pageable pageable = PageRequest.of(fetchRegularInspectionRequest.getPage(), fetchRegularInspectionRequest.getSize());
+        if(bePresent(fetchRegularInspectionRequest.getClientId())){
+            Page<RegularInspections> allByClient_clientId = regularInspectionRepository.findAllByClient_ClientId(fetchRegularInspectionRequest.getClientId(), pageable);
+            request.setResponse(allByClient_clientId);
+        }else if(bePresent(fetchRegularInspectionRequest.getGroupId())){
+            Page<RegularInspections> allByGroup_groupId = regularInspectionRepository.findAllByGroup_GroupId(fetchRegularInspectionRequest.getGroupId(), pageable);
+            request.setResponse(allByGroup_groupId);
+        }else if(bePresent(fetchRegularInspectionRequest.getStartDt()) && bePresent(fetchRegularInspectionRequest.getEndDt())){
+            Page<RegularInspections> allByInspectDateBetween = regularInspectionRepository.findAllByInspectDtBetween(fetchRegularInspectionRequest.getStartDt(), fetchRegularInspectionRequest.getEndDt(), pageable);
+            request.setResponse(allByInspectDateBetween);
+        }else{
+            request.setResponse(regularInspectionRepository.findAllByOrderByInspectDtDesc(pageable));
+        }
+        return request;
+    }
+
+    public BikeSessionRequest fetchInspectionDetail(BikeSessionRequest request) {
+        FetchRegularInspectionRequest fetchRegularInspectionRequest = map(request.getParam(), FetchRegularInspectionRequest.class);
+        RegularInspections regularInspections = regularInspectionRepository.findByInspectId(fetchRegularInspectionRequest.getInspectId());
+        request.setResponse(regularInspections);
+        return request;
+    }
+
+    @Transactional
+    public BikeSessionRequest changeInspectDate(BikeSessionRequest request){
+        ChangeInspectionDateRequest changeInspectionDateRequest = map(request.getParam(), ChangeInspectionDateRequest.class);
+        RegularInspections regularInspections = regularInspectionRepository.findByInspectId(changeInspectionDateRequest.getInspectId());
+        regularInspections.setIncludeDt(changeInspectionDateRequest.getChangeDt());
+        regularInspectionRepository.save(regularInspections);
+        return request;
+    }
+
+
+    @Transactional
+    public BikeSessionRequest updateInspection(BikeSessionRequest request){
+        AddUpdateRegularInspectionRequest addUpdateRegularInspectionRequest = map(request.getParam(), AddUpdateRegularInspectionRequest.class);
+        RegularInspections regularInspections = regularInspectionRepository.findByInspectId(addUpdateRegularInspectionRequest.getInspectId());
+        String log = changeLog(addUpdateRegularInspectionRequest, regularInspections, request.getSessionUser().getBikeUserInfo().getName());
+        if(!log.isBlank()) {
+            RegularInspectionHistories regularInspectionHistories = regularInspectionHistoryRepository.findByRegularInspections_InspectId(regularInspections.getInspectId());
+            if(!bePresent(regularInspectionHistories)){
+                regularInspectionHistories = new RegularInspectionHistories();
+                regularInspectionHistories.setInspectNo(regularInspections.getInspectNo());
+            }
+            RiderInsHistoriesDto historiesDto = new RiderInsHistoriesDto();
+            historiesDto.setLog(log);
+            historiesDto.setUpdatedAt(LocalDateTime.now());
+            regularInspectionHistories.getHistories().add(0, historiesDto);
+            regularInspectionHistoryRepository.save(regularInspectionHistories);
+        }
+        Clients clients = clientWorker.getClientByClientId(addUpdateRegularInspectionRequest.getClientId());
+        Shops shopByShopId = shopWorker.getShopByShopId(addUpdateRegularInspectionRequest.getShopId());
+        regularInspections.setClientNo(clients.getClientNo());
+        regularInspections.setGroupNo(clients.getGroupNo());
+        regularInspections.setShopNo(shopByShopId.getShopNo());
+        List<ModelAttachment> attachments = new ArrayList<>();
+        if(bePresent(addUpdateRegularInspectionRequest.getAttachments())) {
+            List<ModelAttachment> newAttachments = addUpdateRegularInspectionRequest.getAttachments()
+                    .stream().map(presignedURLVo -> {
+                        AmazonS3 amazonS3 = AmazonS3Client.builder()
+                                .withCredentials(AmazonUtils.awsCredentialsProvider())
+                                .build();
+                        String fileKey = "regular-inspection/" + regularInspections.getInspectId() + "/" + presignedURLVo.getFileKey();
+                        CopyObjectRequest objectRequest = new CopyObjectRequest(presignedURLVo.getBucket(), presignedURLVo.getFileKey(), ENV.AWS_S3_ORIGIN_BUCKET, fileKey);
+                        amazonS3.copyObject(objectRequest);
+                        ModelAttachment leaseAttachment = new ModelAttachment();
+                        leaseAttachment.setUuid(UUID.randomUUID().toString().replaceAll("-", ""));
+                        leaseAttachment.setDomain(ENV.AWS_S3_ORIGIN_DOMAIN);
+                        leaseAttachment.setUri("/" + fileKey);
+                        leaseAttachment.setFileName(presignedURLVo.getFilename());
+                        return leaseAttachment;
+                    }).collect(Collectors.toList());
+            attachments.addAll(newAttachments);
+        }
+        regularInspections.setAttachmentsList(attachments);
+        regularInspections.setInspectDt(addUpdateRegularInspectionRequest.getInspectDt());
+        regularInspections.setIncludeDt(addUpdateRegularInspectionRequest.getIncludeDt());
+        if(bePresent(regularInspections.getTimes())) {
+            RegularInspections byTimesAndIncludeDt = regularInspectionRepository.findByClient_ClientIdAndTimesAndIncludeDt(addUpdateRegularInspectionRequest.getClientId(), regularInspections.getTimes(), regularInspections.getIncludeDt());
+            if(bePresent(byTimesAndIncludeDt)) {
+                byTimesAndIncludeDt.setTimes(null);
+                regularInspectionRepository.save(byTimesAndIncludeDt);
+            }
+        }
+        regularInspectionRepository.save(regularInspections);
+        return request;
+    }
+
+    @Transactional
+    public BikeSessionRequest deleteInspection(BikeSessionRequest request){
+        ChangeInspectionDateRequest deleteInspectionRequest = map(request.getParam(), ChangeInspectionDateRequest.class);
+        regularInspectionRepository.deleteByInspectId(deleteInspectionRequest.getInspectId());
+        return request;
+    }
+
+    private String changeLog(AddUpdateRegularInspectionRequest request, RegularInspections regularInspections, String updaterName){
+        String change = "";
+        Clients regClient = regularInspections.getClient();
+        Clients client = clientWorker.getClientByClientId(request.getClientId());
+        Shops shop = shopWorker.getShopByShopId(request.getShopId());
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy년 MM월");
+        if(regClient.getClientNo() != client.getClientNo()){
+            change += "고객사를 <>" + regClient.getClientInfo().getName() + "</>에서 <>" + client.getClientInfo().getName() + "</>로 변경하였습니다.";
+        }
+        if(shop.getShopNo() != regularInspections.getShopNo()){
+            change += "정비소를 <>" + regularInspections.getShop().getShopInfo().getName() + "</>에서 <>" + shop.getShopInfo().getName() + "</>로 변경하였습니다.";
+        }
+        if(!request.getIncludeDt().equals(regularInspections.getIncludeDt())){
+            change += "정기점검 적용 날짜를 <>" + formatter.format(regularInspections.getIncludeDt()) + "</>에서 <>" + formatter.format(request.getIncludeDt()) + "</>로 변경하였습니다.";
+        }
+        if(!request.getInspectDt().equals(regularInspections.getInspectDt())){
+            change += "정기점검 날짜를 <>" + formatter.format(regularInspections.getInspectDt()) + "</>에서 <>" + formatter.format(request.getInspectDt()) + "</>로 변경하였습니다.";
+        }
+        if(bePresent(regularInspections.getTimes())){
+            if(!bePresent(request.getOrder())){
+                change += "정기점검 순서를 <>" + regularInspections.getTimes() + "</>에서 없음으로 수정하였습니다.";
+            }else if(!regularInspections.getTimes().getTime().equals(request.getOrder())){
+                change += "정기점검 순서를 <>" + regularInspections.getTimes() + "</>에서 <>" + TimeTypes.getType(request.getOrder()) + "</>로 변경하였습니다.";
+            }
+        }else{
+            if(bePresent(request.getOrder())){
+                change += "정기점검 순서를 <>" + TimeTypes.getType(request.getOrder()) + "</>로 설정하였습니다.";
+            }
+        }
+        if(!change.isBlank()){
+            change = "수정자 <>" + updaterName + "</>님께서 수정하셨습니다.\n" + change;
+        }
+        return change;
+    }
+
+
+
+
+
+
 }

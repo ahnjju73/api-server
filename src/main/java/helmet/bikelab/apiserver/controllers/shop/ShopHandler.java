@@ -169,4 +169,62 @@ public class ShopHandler {
     }
 
 
+    public Mono<ServerResponse> addRegularInspection(ServerRequest request){
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> shopService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(shopService::checkBikeSession)
+                        .map(shopService::addRegularInspection)
+                        .map(shopService::returnData), Map.class);
+    }
+
+
+    public Mono<ServerResponse> fetchInspectionList(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> shopService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(shopService::checkBikeSession)
+                        .map(shopService::fetchInspections)
+                        .map(shopService::returnData), Page.class);
+    }
+
+    public Mono<ServerResponse> updateRegularInspect(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> shopService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(shopService::checkBikeSession)
+                        .map(shopService::updateInspection)
+                        .map(shopService::returnData), Map.class);
+    }
+
+
+    public Mono<ServerResponse> fetchInspectionDetail(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> shopService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> shopService.getPathVariable(row,"inspect_id"))
+                        .map(shopService::checkBikeSession)
+                        .map(shopService::fetchInspectionDetail)
+                        .map(shopService::returnData), Page.class);
+    }
+
+    public Mono<ServerResponse> changeIncludeDate(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> shopService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(shopService::checkBikeSession)
+                        .map(shopService::changeInspectDate)
+                        .map(shopService::returnData), Map.class);
+    }
+
+    public Mono<ServerResponse> deleteInspect(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> shopService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(shopService::checkBikeSession)
+                        .map(shopService::deleteInspection)
+                        .map(shopService::returnData), Map.class);    }
 }
