@@ -15,7 +15,6 @@ public class AddUpdateRiderRequest extends OriginObject {
     private String email;
     private String name;
     private String phone;
-    private String edpId;
     private String description;
     private String ssn;
     private ModelAddress realAddress;
