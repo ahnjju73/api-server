@@ -6,11 +6,16 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Getter
 @Setter
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class RiderInsHistoriesDto {
     private String log;
-    private LocalDateTime updatedAt;
+    private String updatedAt;
+
+    public void setUpdatedAt(LocalDateTime updatedAt){
+        this.updatedAt = updatedAt.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+    }
 }
