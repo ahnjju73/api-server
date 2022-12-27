@@ -13,7 +13,10 @@ import helmet.bikelab.apiserver.domain.types.PayerTypes;
 import helmet.bikelab.apiserver.domain.types.converters.BikeRiderStatusTypesConverter;
 import helmet.bikelab.apiserver.domain.types.converters.BikeStatusTypesConverter;
 import helmet.bikelab.apiserver.domain.types.converters.PayerTypesConverter;
+import helmet.bikelab.apiserver.objects.requests.UploadBike;
 import helmet.bikelab.apiserver.objects.requests.UploadBikeInfo;
+import helmet.bikelab.apiserver.objects.requests.UploadBikeInsurance;
+import helmet.bikelab.apiserver.objects.requests.UploadBikeTransaction;
 import helmet.bikelab.apiserver.services.internal.OriginObject;
 import lombok.*;
 
@@ -31,16 +34,9 @@ public class Bikes extends OriginObject {
 
     public Bikes(){}
 
-    public Bikes(UploadBikeInfo bikeInfo, String bikeId){
+    public Bikes(UploadBikeInfo bikeInfo, UploadBikeTransaction uploadBikeTransaction, String bikeId){
         this.bikeId = bikeId;
-        this.bikeStatus = bikeInfo.getStatus();
-        this.vimNum = bikeInfo.getVimNum();
-        this.carNum = bikeInfo.getNumber();
-        this.color = bikeInfo.getColor();
-        this.receiveDate = bikeInfo.getReceiveDt();
-        this.odometerByAdmin = bikeInfo.getOdometerByAdmin();
-        this.transaction = new ModelBikeTransaction(bikeInfo.getRegNum(), bikeInfo.getCompanyName(), bikeInfo.getPrice());
-        this.description = bikeInfo.getDescription();
+        this.updateBikeInfo(bikeInfo, uploadBikeTransaction);
     }
 
     @Id
@@ -198,6 +194,42 @@ public class Bikes extends OriginObject {
             this.deletedAt = LocalDateTime.now();
             this.warehouse = null;
         }
+    }
+
+    public void updateBikeInfo(UploadBikeInfo bikeInfo, UploadBikeTransaction uploadBikeTransaction){
+        this.bikeStatus = bikeInfo.getStatus();
+        this.vimNum = bikeInfo.getVimNum();
+        this.carNum = bikeInfo.getNumber();
+        this.color = bikeInfo.getColor();
+        this.receiveDate = uploadBikeTransaction.getReceiveDt();
+        this.odometerByAdmin = bikeInfo.getOdometerByAdmin();
+        this.transaction = new ModelBikeTransaction(uploadBikeTransaction);
+        this.description = bikeInfo.getDescription();
+        this.warehouse = bikeInfo.getWarehouse();
+    }
+
+    public void initDescriptionByUploadingExcel(UploadBike uploadBike){
+        StringBuilder str = new StringBuilder("");
+        UploadBikeInfo bikeInfo = uploadBike.getBikeInfo();
+        UploadBikeTransaction uploadBikeTransaction = uploadBike.getBikeTransaction();
+        str.append("차량 엑셀업로드 작업이 된 차량정보입니다.\\n");
+        if(bePresent(bikeInfo.getDescription())){
+            str.append("* 차량비고\\n");
+            str.append(bikeInfo.getDescription() + "\\n");
+        }
+        if(bePresent(uploadBikeTransaction)){
+            String receiveDescription = uploadBikeTransaction.getReceiveDescription();
+            String sellDescription = uploadBikeTransaction.getSellDescription();
+            if(bePresent(receiveDescription)){
+                str.append("* 구매처 비고\\n");
+                str.append(receiveDescription + "\\n");
+            }
+            if(bePresent(sellDescription)){
+                str.append("* 판매처 비고\\n");
+                str.append(sellDescription + "\\n");
+            }
+        }
+        this.description = str.toString();
     }
 
 

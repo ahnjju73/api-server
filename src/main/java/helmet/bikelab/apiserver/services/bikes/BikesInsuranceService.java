@@ -292,8 +292,12 @@ public class BikesInsuranceService extends SessService {
         BikeInsurances transBikeInsurance = new BikeInsurances();
         transBikeInsurance.transferBikeInsuranceTo(bikeInsurancesByNo, nextBike, sessionUser);
         bikeInsurancesRepository.save(transBikeInsurance);
+
         nextBike.setBikeInsuranceNo(transBikeInsurance.getInsuranceNo());
         bikesRepository.save(nextBike);
+
+        selectedBike.setBikeInsuranceNo(null);
+        bikesRepository.save(selectedBike);
 
         logTransBikeInsuranceToBike(selectedBike, bikeInsurancesByNo, nextBike, transBikeInsurance, sessionUser);
 

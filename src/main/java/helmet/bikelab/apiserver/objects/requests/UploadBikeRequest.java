@@ -15,9 +15,9 @@ import java.util.List;
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class UploadBikeRequest extends OriginObject {
 
-    private List<UploadBikeInfo> bikes;
+    private List<UploadBike> bikes;
 
-    public List<UploadBikeInfo> getBikes() {
+    public List<UploadBike> getBikes() {
         return !bePresent(bikes) ? new ArrayList<>() : bikes;
     }
 }

@@ -2,6 +2,7 @@ package helmet.bikelab.apiserver.domain.embeds;
 
 
 import helmet.bikelab.apiserver.objects.requests.UpdateBikeTransactionRequest;
+import helmet.bikelab.apiserver.objects.requests.UploadBikeTransaction;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -14,10 +15,18 @@ import java.time.LocalDateTime;
 @Embeddable
 public class ModelBikeTransaction extends ModelTransaction{
     public ModelBikeTransaction(){}
-    public ModelBikeTransaction(String regNum, String companyName, Integer price){
-        this.regNum = regNum;
-        this.companyName = companyName;
-        this.price = price;
+    public ModelBikeTransaction(UploadBikeTransaction uploadBikeTransaction){
+        this.regNum = uploadBikeTransaction.getRegNum();
+        this.companyName = uploadBikeTransaction.getCompanyName();
+        this.price = uploadBikeTransaction.getPrice();
+        this.consignmentPrice = uploadBikeTransaction.getConsignmentPrice();
+        this.discount = uploadBikeTransaction.getDiscount();
+        this.sellRegNum = uploadBikeTransaction.getSellRegNum();
+        this.sellCompanyName = uploadBikeTransaction.getSellCompanyName();
+        this.sellPrice = uploadBikeTransaction.getSellPrice();
+        this.sellConsignmentPrice = uploadBikeTransaction.getSellConsignmentPrice();
+        this.sellDiscount = uploadBikeTransaction.getSellDiscount();
+        this.soldDate = uploadBikeTransaction.getSoldDate();
     }
 
     /*
