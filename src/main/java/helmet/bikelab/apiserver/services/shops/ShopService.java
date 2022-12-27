@@ -44,6 +44,7 @@ import javax.swing.text.DateFormatter;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -452,10 +453,11 @@ public class ShopService extends SessService {
         regularInspections.setGroupNo(clients.getGroupNo());
         regularInspections.setShopNo(shopByShopId.getShopNo());
         List<ModelAttachment> attachments = new ArrayList<>();
-        if(bePresent(addUpdateRegularInspectionRequest.getAttachments())) {
-            List<ModelAttachment> newAttachments = addUpdateRegularInspectionRequest.getAttachments()
+        if(bePresent(addUpdateRegularInspectionRequest.getNewAttachments())) {
+            List<ModelAttachment> newAttachments = addUpdateRegularInspectionRequest.getNewAttachments()
                     .stream().map(presignedURLVo -> {
                         AmazonS3 amazonS3 = AmazonS3Client.builder()
+                                .withRegion(Regions.AP_NORTHEAST_2)
                                 .withCredentials(AmazonUtils.awsCredentialsProvider())
                                 .build();
                         String fileKey = "regular-inspection/" + regularInspections.getInspectId() + "/" + presignedURLVo.getFileKey();
@@ -542,9 +544,13 @@ public class ShopService extends SessService {
         regularInspections.setClientNo(clients.getClientNo());
         regularInspections.setGroupNo(clients.getGroupNo());
         regularInspections.setShopNo(shopByShopId.getShopNo());
-        List<ModelAttachment> attachments = new ArrayList<>();
-        if(bePresent(addUpdateRegularInspectionRequest.getAttachments())) {
-            List<ModelAttachment> newAttachments = addUpdateRegularInspectionRequest.getAttachments()
+        List<ModelAttachment> attachments = addUpdateRegularInspectionRequest.getAttachments() != null ? addUpdateRegularInspectionRequest.getAttachments() : new ArrayList<>();
+        deletedAttachments(regularInspections.getAttachmentsList(), attachments).stream().forEach(ma -> {
+            AmazonS3 amazonS3 = AmazonUtils.amazonS3();
+            amazonS3.deleteObject(ENV.AWS_S3_ORIGIN_BUCKET, ma.getUri());
+        });
+        if(bePresent(addUpdateRegularInspectionRequest.getNewAttachments())) {
+            List<ModelAttachment> newAttachments = addUpdateRegularInspectionRequest.getNewAttachments()
                     .stream().map(presignedURLVo -> {
                         AmazonS3 amazonS3 = AmazonS3Client.builder()
                                 .withCredentials(AmazonUtils.awsCredentialsProvider())
@@ -578,6 +584,7 @@ public class ShopService extends SessService {
     @Transactional
     public BikeSessionRequest deleteInspection(BikeSessionRequest request){
         ChangeInspectionDateRequest deleteInspectionRequest = map(request.getParam(), ChangeInspectionDateRequest.class);
+        regularInspectionHistoryRepository.deleteByRegularInspections_InspectId(deleteInspectionRequest.getInspectId());
         regularInspectionRepository.deleteByInspectId(deleteInspectionRequest.getInspectId());
         return request;
     }
@@ -587,7 +594,7 @@ public class ShopService extends SessService {
         Clients regClient = regularInspections.getClient();
         Clients client = clientWorker.getClientByClientId(request.getClientId());
         Shops shop = shopWorker.getShopByShopId(request.getShopId());
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy년 MM월");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy년 MM월");
         if(regClient.getClientNo() != client.getClientNo()){
             change += "고객사를 <>" + regClient.getClientInfo().getName() + "</>에서 <>" + client.getClientInfo().getName() + "</>로 변경하였습니다.";
         }
@@ -595,10 +602,10 @@ public class ShopService extends SessService {
             change += "정비소를 <>" + regularInspections.getShop().getShopInfo().getName() + "</>에서 <>" + shop.getShopInfo().getName() + "</>로 변경하였습니다.";
         }
         if(!request.getIncludeDt().equals(regularInspections.getIncludeDt())){
-            change += "정기점검 적용 날짜를 <>" + formatter.format(regularInspections.getIncludeDt()) + "</>에서 <>" + formatter.format(request.getIncludeDt()) + "</>로 변경하였습니다.";
+            change += "정기점검 적용 날짜를 <>" + regularInspections.getIncludeDt().format(formatter) + "</>에서 <>" + request.getIncludeDt().format(formatter) + "</>로 변경하였습니다.";
         }
         if(!request.getInspectDt().equals(regularInspections.getInspectDt())){
-            change += "정기점검 날짜를 <>" + formatter.format(regularInspections.getInspectDt()) + "</>에서 <>" + formatter.format(request.getInspectDt()) + "</>로 변경하였습니다.";
+            change += "정기점검 날짜를 <>" + regularInspections.getInspectDt().format(formatter) + "</>에서 <>" + request.getInspectDt().format(formatter) + "</>로 변경하였습니다.";
         }
         if(bePresent(regularInspections.getTimes())){
             if(!bePresent(request.getOrder())){
@@ -618,8 +625,18 @@ public class ShopService extends SessService {
     }
 
 
-
-
-
+    private List<ModelAttachment> deletedAttachments(List<ModelAttachment> origin, List<ModelAttachment> updated){
+        List<ModelAttachment> deleted = new ArrayList<>();
+        if(origin.size() == updated.size()){
+            return deleted;
+        }else{
+            for(int i = 0; i < origin.size(); i++){
+                if(updated.indexOf(origin.get(i)) < 0){
+                    deleted.add(origin.get(i));
+                }
+            }
+        }
+        return deleted;
+    }
 
 }

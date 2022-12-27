@@ -5,4 +5,5 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface RegularInspectionHistoryRepository extends JpaRepository<RegularInspectionHistories, Integer> {
     RegularInspectionHistories findByRegularInspections_InspectId(String inspectId);
+    void deleteByRegularInspections_InspectId(String inspectId);
 }
