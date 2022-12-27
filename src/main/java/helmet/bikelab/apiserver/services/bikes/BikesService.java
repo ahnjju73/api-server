@@ -6,10 +6,7 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.CopyObjectRequest;
 import helmet.bikelab.apiserver.domain.CommonBikes;
 import helmet.bikelab.apiserver.domain.Manufacturers;
-import helmet.bikelab.apiserver.domain.bike.BikeAttachments;
-import helmet.bikelab.apiserver.domain.bike.BikeInsurances;
-import helmet.bikelab.apiserver.domain.bike.Bikes;
-import helmet.bikelab.apiserver.domain.bike.Parts;
+import helmet.bikelab.apiserver.domain.bike.*;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
 import helmet.bikelab.apiserver.domain.bikelab.SystemParameter;
 import helmet.bikelab.apiserver.domain.client.Clients;
@@ -73,7 +70,7 @@ public class BikesService extends SessService {
     private final RiderPasswordRepository riderPasswordRepository;
     private final RiderAccountsRepository riderAccountsRepository;
     private final ActivitiesRepository activitiesRepository;
-    private final EstimateHistoriesRepository estimateHistoriesRepository;
+    private final BikeReportsRepository bikeReportsRepository;
     private final PartsRepository partsRepository;
     private final DemandLeasesRepository demandLeasesRepository;
     private final RiderDemandLeaseRepository riderDemandLeaseRepository;
@@ -244,28 +241,33 @@ public class BikesService extends SessService {
         UploadBikeRequest uploadBikeRequest = map(request.getParam(), UploadBikeRequest.class);
         BikeUser sessionUser = request.getSessionUser();
         StringBuilder errorString = new StringBuilder("");
-        List<UploadBikeInfo> bikeList = uploadBikeRequest.getBikes();
+        List<UploadBike> bikeList = uploadBikeRequest.getBikes();
         for(int i = 0; i < bikeList.size(); i++){
             String index = (i + 2) + "번째 오류\n";
             StringBuilder errorText = new StringBuilder();
-            UploadBikeInfo bikeInfo = bikeList.get(i);
+            UploadBike uploadBike = bikeList.get(i);
+            UploadBikeInfo bikeInfo = uploadBike.getBikeInfo();
             bikeInfo.checkValidation(errorText);
-            if(bePresent(bikeInfo.getVimNum())){
-                Bikes bikeByVimNum = bikesRepository.findByVimNum(bikeInfo.getVimNum());
-                if(bePresent(bikeByVimNum)) {
-                    errorText.append("차대번호가 이미 존재합니다.\n");
-                }
-            }
-            if(bePresent(bikeInfo.getNumber())){
+            Bikes bikeByVimNum = bikesRepository.findByVimNum(bikeInfo.getVimNum());
+            if(!bePresent(bikeByVimNum) && bePresent(bikeInfo.getNumber())){
                 Bikes bikeByNumber = bikesRepository.findByCarNum(bikeInfo.getNumber());
                 if(bePresent(bikeByNumber)) {
                     errorText.append("차량번호가 이미 존재합니다.\n");
                 }
             }
-            if(!bePresent(errorText.toString()) && bePresent(bikeInfo.getVimNum()) && bePresent(bikeInfo.getNumber())){
-                addNewBikeByExcelUploading(bikeInfo, sessionUser, errorText);
+            CommonBikes commonCodeBikesById = bikeModelsRepository.findByCode(bikeInfo.getCarModel());
+            if(!bePresent(commonCodeBikesById)){
+                errorText.append("차종정보가 없습니다.\n");
             }
 
+            if(!bePresent(errorText.toString()) && bePresent(bikeInfo.getVimNum()) && bePresent(bikeInfo.getNumber())){
+
+                if(!bePresent(bikeByVimNum)){
+                    addNewBikeByExcelUploading(uploadBike, commonCodeBikesById, sessionUser, errorText);
+                }else {
+                    updateBikeByExcelUploading(bikeByVimNum, uploadBike, commonCodeBikesById, sessionUser, errorText);
+                }
+            }
             if(bePresent(errorText.toString())){
                 errorString.append(index + errorText);
             }
@@ -276,32 +278,65 @@ public class BikesService extends SessService {
         return request;
     }
 
-    public void addNewBikeByExcelUploading(UploadBikeInfo bikeInfo, BikeUser session, StringBuilder errorText){
-        // bikes, bikeInsurance, logs
-        CommonBikes commonCodeBikesById = bikeModelsRepository.findByCode(bikeInfo.getCarModel());
-        if(!bePresent(commonCodeBikesById)){
-            errorText.append("차종정보가 없습니다.");
-            return;
+    public void updateBikeByExcelUploading(Bikes originBike, UploadBike uploadBike, CommonBikes updatedBikeModel, BikeUser session, StringBuilder errorText){
+        UploadBikeInfo bikeInfo = uploadBike.getBikeInfo();
+        UploadBikeTransaction bikeTransaction = uploadBike.getBikeTransaction();
+        UploadBikeInsurance bikeInsurance = uploadBike.getBikeInsurance();
+        BikeReports reports = uploadBike.getReports();
+        originBike.updateBikeInfo(bikeInfo, bikeTransaction);
+        originBike.setCarModelData(updatedBikeModel);
+
+        bikesRepository.save(originBike);
+
+        BikeInsurances selectedBikeInsurance = originBike.getBikeInsurance();
+        if(!bePresent(selectedBikeInsurance)) {
+            String insuranceId = autoKey.makeGetKey("insurance");
+            selectedBikeInsurance = new BikeInsurances(bikeInsurance, originBike, insuranceId);
+        }else {
+            selectedBikeInsurance.updateDataInfo(bikeInsurance);
         }
+        if(bikeInsurance.getPaid()){
+            selectedBikeInsurance.setPaidFee(selectedBikeInsurance.getFee(), session);
+        }else {
+            selectedBikeInsurance.setUnPaidFee();
+        }
+        bikeInsurancesRepository.save(selectedBikeInsurance);
+
+        BikeReports selectedBikeReport = bikeReportsRepository.findByBikeNo(originBike.getBikeNo());
+        if(!bePresent(selectedBikeReport)){
+            selectedBikeReport = new BikeReports(originBike, reports);
+        }else {
+            selectedBikeReport.updateData(reports);
+        }
+        bikeReportsRepository.save(selectedBikeReport);
+    }
+
+    public void addNewBikeByExcelUploading(UploadBike uploadBike, CommonBikes commonCodeBikesById, BikeUser session, StringBuilder errorText){
+        UploadBikeInfo bikeInfo = uploadBike.getBikeInfo();
+        UploadBikeTransaction bikeTransaction = uploadBike.getBikeTransaction();
+        UploadBikeInsurance bikeInsurance = uploadBike.getBikeInsurance();
+        // bikes, bikeInsurance, logs
         if(!bePresent(errorText.toString())){
             String bikeId = autoKey.makeGetKey("bike");
-            Bikes bikes = new Bikes(bikeInfo, bikeId);
+            Bikes bikes = new Bikes(bikeInfo, bikeTransaction, bikeId);
+            bikes.initDescriptionByUploadingExcel(uploadBike);
             bikes.setCarModelData(commonCodeBikesById);
             bikesRepository.save(bikes);
             String insuranceId = autoKey.makeGetKey("insurance");
-            if(bikeInfo.isAddableBikeInsurance()){
-                bikeInfo.checkValidationBikeInsurance(errorText);
+            if(bikeInsurance.isAddableBikeInsurance()){
+                bikeInsurance.checkValidation(errorText);
                 if(!bePresent(errorText.toString())){
-                    BikeInsurances bikeInsurances = new BikeInsurances(bikeInfo, bikes, insuranceId);
+                    BikeInsurances bikeInsurances = new BikeInsurances(bikeInsurance, bikes, insuranceId);
                     bikeInsurances.setCreatedUser(session);
+                    if(bikeInsurance.getPaid()){
+                        bikeInsurances.setPaidFee(bikeInsurances.getFee(), session);
+                    }
                     bikeInsurancesRepository.save(bikeInsurances);
                     bikes.setBikeInsuranceNo(bikeInsurances.getInsuranceNo());
                     bikesRepository.save(bikes);
                 }
-
             }
         }
-
     }
 
     @Transactional

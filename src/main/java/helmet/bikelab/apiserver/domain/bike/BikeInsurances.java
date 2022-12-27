@@ -15,6 +15,7 @@ import helmet.bikelab.apiserver.domain.types.converters.SelfCoverCarTypesConvert
 import helmet.bikelab.apiserver.objects.requests.BikeInsuranceByNoRequest;
 import helmet.bikelab.apiserver.objects.requests.BikeInsuranceInfo;
 import helmet.bikelab.apiserver.objects.requests.UploadBikeInfo;
+import helmet.bikelab.apiserver.objects.requests.UploadBikeInsurance;
 import helmet.bikelab.apiserver.services.internal.OriginObject;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -36,45 +37,32 @@ public class BikeInsurances extends OriginObject {
 
     public BikeInsurances(){}
 
-    public BikeInsurances(UploadBikeInfo bikeInsuranceInfo, Bikes bike, String insuranceId){
+//    public <T extends BikeInsuranceInfo>BikeInsurances(T bikeInsuranceInfo, Bikes bike, String insuranceId){
+//        this.insuranceId = insuranceId;
+//        this.stockNumber = bikeInsuranceInfo.getStockNumber();
+//        this.bikeNo = bike.getBikeNo();
+//        this.type = bikeInsuranceInfo.getType();
+//        this.bikeInsuranceType = bikeInsuranceInfo.getBikeInsuranceType();
+//        this.age = bikeInsuranceInfo.getAge();
+//        this.companyName = bikeInsuranceInfo.getCompanyName();
+//        this.liabilityMan = bikeInsuranceInfo.getLiabilityMan();
+//        this.liabilityCar = bikeInsuranceInfo.getLiabilityCar();
+//        this.liabilityMan2 = bikeInsuranceInfo.getLiabilityMan2();
+//        this.selfCoverCar = bikeInsuranceInfo.getSelfCoverCar();
+//        this.selfCoverMan = bikeInsuranceInfo.getSelfCoverMan();
+//        this.noInsuranceCover = bikeInsuranceInfo.getNoInsuranceCover();
+//        this.startAt = bikeInsuranceInfo.getStartAt();
+//        this.endAt = bikeInsuranceInfo.getEndAt();
+//        this.fee = bikeInsuranceInfo.getFee();
+//        this.grade = bikeInsuranceInfo.getGrade();
+//    }
+
+    public <T extends BikeInsuranceInfo> BikeInsurances(T bikeInsuranceInfo, Bikes bike, String insuranceId){
         this.insuranceId = insuranceId;
-        this.stockNumber = bikeInsuranceInfo.getStockNumber();
         this.bikeNo = bike.getBikeNo();
-        this.type = bikeInsuranceInfo.getType();
-        this.bikeInsuranceType = bikeInsuranceInfo.getBikeInsuranceType();
-        this.age = bikeInsuranceInfo.getAge();
-        this.companyName = bikeInsuranceInfo.getCompanyName();
-        this.liabilityMan = bikeInsuranceInfo.getLiabilityMan();
-        this.liabilityCar = bikeInsuranceInfo.getLiabilityCar();
-        this.liabilityMan2 = bikeInsuranceInfo.getLiabilityMan2();
-        this.selfCoverCar = bikeInsuranceInfo.getSelfCoverCar();
-        this.selfCoverMan = bikeInsuranceInfo.getSelfCoverMan();
-        this.noInsuranceCover = bikeInsuranceInfo.getNoInsuranceCover();
-        this.startAt = bikeInsuranceInfo.getStartAt();
-        this.endAt = bikeInsuranceInfo.getEndAt();
-        this.fee = bikeInsuranceInfo.getFee();
-        this.grade = bikeInsuranceInfo.getGrade();
+        updateDataInfo(bikeInsuranceInfo);
     }
 
-    public BikeInsurances(BikeInsuranceInfo bikeInsuranceInfo, Bikes bike, String insuranceId){
-        this.insuranceId = insuranceId;
-        this.bikeNo = bike.getBikeNo();
-        this.stockNumber = bikeInsuranceInfo.getStockNumber();
-        this.type = bikeInsuranceInfo.getType();
-        this.bikeInsuranceType = bikeInsuranceInfo.getBikeInsuranceType();
-        this.age = bikeInsuranceInfo.getAge();
-        this.companyName = bikeInsuranceInfo.getCompanyName();
-        this.liabilityMan = bikeInsuranceInfo.getLiabilityMan();
-        this.liabilityCar = bikeInsuranceInfo.getLiabilityCar();
-        this.liabilityMan2 = bikeInsuranceInfo.getLiabilityMan2();
-        this.selfCoverCar = bikeInsuranceInfo.getSelfCoverCar();
-        this.selfCoverMan = bikeInsuranceInfo.getSelfCoverMan();
-        this.noInsuranceCover = bikeInsuranceInfo.getNoInsuranceCover();
-        this.startAt = bikeInsuranceInfo.getStartAt();
-        this.endAt = bikeInsuranceInfo.getEndAt();
-        this.fee = bikeInsuranceInfo.getFee();
-        this.grade = bikeInsuranceInfo.getGrade();
-    }
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -241,22 +229,17 @@ public class BikeInsurances extends OriginObject {
         this.paidUserNo = user.getUserNo();
         this.paidAt = LocalDateTime.now();
     }
+    public void setUnPaidFee() {
+        this.paidFee = null;
+        this.paidUser = null;
+        this.paidUserNo = null;
+        this.paidAt = null;
+    }
 
     public void renewBikeInsurance(BikeInsurances prevInsurance, BikeUser user){
         this.insuranceId = prevInsurance.getInsuranceId();
-        this.bikeNo = prevInsurance.bikeNo;
-        this.type = prevInsurance.getType();
-        this.bikeInsuranceType = prevInsurance.getBikeInsuranceType();
-        this.age = prevInsurance.getAge();
-        this.companyName = prevInsurance.getCompanyName();
-        this.liabilityMan = prevInsurance.getLiabilityMan();
-        this.liabilityCar = prevInsurance.getLiabilityCar();
-        this.liabilityMan2 = prevInsurance.getLiabilityMan2();
-        this.selfCoverMan = prevInsurance.getSelfCoverMan();
-        this.selfCoverCar = prevInsurance.getSelfCoverCar();
-        this.noInsuranceCover = prevInsurance.getNoInsuranceCover();
-        this.grade = prevInsurance.getGrade();
-        this.fee = prevInsurance.getFee();
+        this.bikeNo = prevInsurance.getBikeNo();
+        updateData(prevInsurance);
         this.createdUserNo = user.getUserNo();
         this.updatedUserNo = user.getUserNo();
     }
@@ -269,22 +252,43 @@ public class BikeInsurances extends OriginObject {
     }
 
     public void transferBikeInsuranceTo(BikeInsurances prevInsurance, Bikes bike, BikeUser user){
-        this.bikeNo = bike.getBikeNo();
         this.insuranceId = prevInsurance.getInsuranceId();
-        this.type = prevInsurance.getType();
-        this.bikeInsuranceType = prevInsurance.getBikeInsuranceType();
-        this.age = prevInsurance.getAge();
-        this.companyName = prevInsurance.getCompanyName();
-        this.liabilityMan = prevInsurance.getLiabilityMan();
-        this.liabilityCar = prevInsurance.getLiabilityCar();
-        this.liabilityMan2 = prevInsurance.getLiabilityMan2();
-        this.selfCoverMan = prevInsurance.getSelfCoverMan();
-        this.selfCoverCar = prevInsurance.getSelfCoverCar();
-        this.noInsuranceCover = prevInsurance.getNoInsuranceCover();
-        this.grade = prevInsurance.getGrade();
-        this.fee = prevInsurance.getFee();
+        this.bikeNo = bike.getBikeNo();
+        updateData(prevInsurance);
         this.createdUserNo = user.getUserNo();
         this.updatedUserNo = user.getUserNo();
-        this.stockNumber = prevInsurance.getStockNumber();
+    }
+
+    public void updateData(BikeInsurances bikeInsurances){
+        this.type = bikeInsurances.getType();
+        this.bikeInsuranceType = bikeInsurances.getBikeInsuranceType();
+        this.age = bikeInsurances.getAge();
+        this.companyName = bikeInsurances.getCompanyName();
+        this.liabilityMan = bikeInsurances.getLiabilityMan();
+        this.liabilityCar = bikeInsurances.getLiabilityCar();
+        this.liabilityMan2 = bikeInsurances.getLiabilityMan2();
+        this.selfCoverMan = bikeInsurances.getSelfCoverMan();
+        this.selfCoverCar = bikeInsurances.getSelfCoverCar();
+        this.noInsuranceCover = bikeInsurances.getNoInsuranceCover();
+        this.grade = bikeInsurances.getGrade();
+        this.fee = bikeInsurances.getFee();
+        this.stockNumber = bikeInsurances.getStockNumber();
+    }
+    public void updateDataInfo(BikeInsuranceInfo bikeInsuranceInfo){
+        this.stockNumber = bikeInsuranceInfo.getStockNumber();
+        this.type = bikeInsuranceInfo.getType();
+        this.bikeInsuranceType = bikeInsuranceInfo.getBikeInsuranceType();
+        this.age = bikeInsuranceInfo.getAge();
+        this.companyName = bikeInsuranceInfo.getCompanyName();
+        this.liabilityMan = bikeInsuranceInfo.getLiabilityMan();
+        this.liabilityCar = bikeInsuranceInfo.getLiabilityCar();
+        this.liabilityMan2 = bikeInsuranceInfo.getLiabilityMan2();
+        this.selfCoverCar = bikeInsuranceInfo.getSelfCoverCar();
+        this.selfCoverMan = bikeInsuranceInfo.getSelfCoverMan();
+        this.noInsuranceCover = bikeInsuranceInfo.getNoInsuranceCover();
+        this.startAt = bikeInsuranceInfo.getStartAt();
+        this.endAt = bikeInsuranceInfo.getEndAt();
+        this.fee = bikeInsuranceInfo.getFee();
+        this.grade = bikeInsuranceInfo.getGrade();
     }
 }
