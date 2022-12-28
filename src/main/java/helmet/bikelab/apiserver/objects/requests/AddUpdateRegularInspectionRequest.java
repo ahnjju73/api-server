@@ -21,4 +21,12 @@ public class AddUpdateRegularInspectionRequest {
     private LocalDateTime inspectDt;
     private String includeDt;
 
+
+    public void setInspectDt(String startDt){
+        try {
+            this.inspectDt = LocalDateTime.parse(startDt);
+        }catch (Exception e){
+            this.inspectDt = LocalDateTime.parse(startDt + "T12:00:00");
+        }
+    }
 }
