@@ -260,7 +260,7 @@ public class BikesService extends SessService {
                 errorText.append("차종정보가 없습니다.\n");
             }
 
-            if(!bePresent(errorText.toString()) && bePresent(bikeInfo.getVimNum()) && bePresent(bikeInfo.getNumber())){
+            if(!bePresent(errorText.toString()) && bePresent(bikeInfo.getVimNum())){
                 if(!bePresent(bikeByVimNum)){
                     addNewBikeByExcelUploading(uploadBike, commonCodeBikesById, sessionUser, errorText);
                 }else {
