@@ -71,7 +71,7 @@ public class RegularInspections {
     private RegularInspectionHistories regularInspectionHistories;
 
     @Column(name = "include_dt")
-    private LocalDateTime includeDt;
+    private String includeDt;
 
     @Column(name = "inspect_date")
     private LocalDateTime inspectDt;

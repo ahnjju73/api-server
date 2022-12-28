@@ -25,6 +25,6 @@ public interface RegularInspectionRepository extends JpaRepository<RegularInspec
 
     RegularInspections findByInspectId(String inspectId);
     void deleteByInspectId(String inspectId);
-    RegularInspections findByClient_ClientIdAndTimesAndIncludeDt(String clientId, TimeTypes timeTypes, LocalDateTime includeDate);
+    RegularInspections findByClient_ClientIdAndTimesAndIncludeDt(String clientId, TimeTypes timeTypes, String includeDate);
 
 }

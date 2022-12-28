@@ -19,21 +19,6 @@ public class AddUpdateRegularInspectionRequest {
     private List<ModelAttachment> attachments;
     private String order;
     private LocalDateTime inspectDt;
-    private LocalDateTime includeDt;
+    private String includeDt;
 
-    public void setInspectDt(String startDt){
-        try {
-            this.inspectDt = LocalDateTime.parse(startDt);
-        }catch (Exception e){
-            this.inspectDt = LocalDateTime.parse(startDt + "T12:00:00");
-        }
-    }
-
-    public void setIncludeDt(String endDt){
-        try {
-            this.includeDt = LocalDateTime.parse(endDt);
-        }catch (Exception e){
-            this.includeDt = LocalDateTime.parse(endDt + "T00:00:00");
-        }
-    }
 }
