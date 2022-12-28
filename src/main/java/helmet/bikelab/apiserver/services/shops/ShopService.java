@@ -602,7 +602,7 @@ public class ShopService extends SessService {
             change += "정비소를 <>" + regularInspections.getShop().getShopInfo().getName() + "</>에서 <>" + shop.getShopInfo().getName() + "</>로 변경하였습니다.";
         }
         if(!request.getIncludeDt().equals(regularInspections.getIncludeDt())){
-            change += "정기점검 적용 날짜를 <>" + regularInspections.getIncludeDt() + "</>에서 <>" + request.getIncludeDt() + "</>로 변경하였습니다.";
+            change += "정기점검 적용 날짜를 <>" + dateFormatting(regularInspections.getIncludeDt()) + "</>에서 <>" + dateFormatting(request.getIncludeDt()) + "</>로 변경하였습니다.";
         }
         if(!request.getInspectDt().equals(regularInspections.getInspectDt())){
             change += "정기점검 날짜를 <>" + regularInspections.getInspectDt().format(formatter) + "</>에서 <>" + request.getInspectDt().format(formatter) + "</>로 변경하였습니다.";
@@ -624,6 +624,12 @@ public class ShopService extends SessService {
         return change;
     }
 
+    private String dateFormatting(String date){
+        String year = date.substring(0, date.indexOf("-"));
+        date = date.substring(date.indexOf("-") + 1);
+        String month = date.substring(0, date.indexOf("-"));
+        return String.format("%s년 %s월", year, month);
+    }
 
     private List<ModelAttachment> deletedAttachments(List<ModelAttachment> origin, List<ModelAttachment> updated){
         List<ModelAttachment> deleted = new ArrayList<>();
