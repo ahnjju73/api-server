@@ -260,8 +260,7 @@ public class BikesService extends SessService {
                 errorText.append("차종정보가 없습니다.\n");
             }
 
-            if(!bePresent(errorText.toString()) && bePresent(bikeInfo.getVimNum()) && bePresent(bikeInfo.getNumber())){
-
+            if(!bePresent(errorText.toString()) && bePresent(bikeInfo.getVimNum())){
                 if(!bePresent(bikeByVimNum)){
                     addNewBikeByExcelUploading(uploadBike, commonCodeBikesById, sessionUser, errorText);
                 }else {
@@ -278,6 +277,9 @@ public class BikesService extends SessService {
         return request;
     }
 
+    /* todo:
+        1. 보관형태를 리스계약서 존재에 따라서 결정한다.
+     */
     public void updateBikeByExcelUploading(Bikes originBike, UploadBike uploadBike, CommonBikes updatedBikeModel, BikeUser session, StringBuilder errorText){
         UploadBikeInfo bikeInfo = uploadBike.getBikeInfo();
         UploadBikeTransaction bikeTransaction = uploadBike.getBikeTransaction();
@@ -313,6 +315,7 @@ public class BikesService extends SessService {
     }
 
     public void addNewBikeByExcelUploading(UploadBike uploadBike, CommonBikes commonCodeBikesById, BikeUser session, StringBuilder errorText){
+
         UploadBikeInfo bikeInfo = uploadBike.getBikeInfo();
         UploadBikeTransaction bikeTransaction = uploadBike.getBikeTransaction();
         UploadBikeInsurance bikeInsurance = uploadBike.getBikeInsurance();

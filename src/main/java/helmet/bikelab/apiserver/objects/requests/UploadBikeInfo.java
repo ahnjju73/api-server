@@ -33,7 +33,6 @@ public class UploadBikeInfo extends OriginObject {
 
     public void checkValidation(StringBuilder errorText){
         if(!bePresent(vimNum)) errorText.append("차대번호를 입력해주세요.\n");
-        if(!bePresent(number)) errorText.append("차량번호를 입력해주세요\n");
         if(!bePresent(carModel)) errorText.append("차종(코드)을 선택해주세요.\n");
         if(!bePresent(status)) errorText.append("보관상태(코드)를 선택해주세요\n");
         if(!bePresent(color)) errorText.append("차량색상을 입력해주세요.\n");
