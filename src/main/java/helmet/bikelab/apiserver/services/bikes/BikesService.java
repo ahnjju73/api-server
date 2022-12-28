@@ -287,20 +287,21 @@ public class BikesService extends SessService {
         originBike.setCarModelData(updatedBikeModel);
 
         bikesRepository.save(originBike);
-
-        BikeInsurances selectedBikeInsurance = originBike.getBikeInsurance();
-        if(!bePresent(selectedBikeInsurance)) {
-            String insuranceId = autoKey.makeGetKey("insurance");
-            selectedBikeInsurance = new BikeInsurances(bikeInsurance, originBike, insuranceId);
-        }else {
-            selectedBikeInsurance.updateDataInfo(bikeInsurance);
+        if(bikeInsurance.isAddableBikeInsurance()){
+            BikeInsurances selectedBikeInsurance = originBike.getBikeInsurance();
+            if(!bePresent(selectedBikeInsurance)) {
+                String insuranceId = autoKey.makeGetKey("insurance");
+                selectedBikeInsurance = new BikeInsurances(bikeInsurance, originBike, insuranceId);
+            }else {
+                selectedBikeInsurance.updateDataInfo(bikeInsurance);
+            }
+            if(bikeInsurance.getPaid()){
+                selectedBikeInsurance.setPaidFee(selectedBikeInsurance.getFee(), session);
+            }else {
+                selectedBikeInsurance.setUnPaidFee();
+            }
+            bikeInsurancesRepository.save(selectedBikeInsurance);
         }
-        if(bikeInsurance.getPaid()){
-            selectedBikeInsurance.setPaidFee(selectedBikeInsurance.getFee(), session);
-        }else {
-            selectedBikeInsurance.setUnPaidFee();
-        }
-        bikeInsurancesRepository.save(selectedBikeInsurance);
 
         BikeReports selectedBikeReport = bikeReportsRepository.findByBikeNo(originBike.getBikeNo());
         if(!bePresent(selectedBikeReport)){
@@ -315,6 +316,7 @@ public class BikesService extends SessService {
         UploadBikeInfo bikeInfo = uploadBike.getBikeInfo();
         UploadBikeTransaction bikeTransaction = uploadBike.getBikeTransaction();
         UploadBikeInsurance bikeInsurance = uploadBike.getBikeInsurance();
+        BikeReports reports = uploadBike.getReports();
         // bikes, bikeInsurance, logs
         if(!bePresent(errorText.toString())){
             String bikeId = autoKey.makeGetKey("bike");
@@ -336,6 +338,14 @@ public class BikesService extends SessService {
                     bikesRepository.save(bikes);
                 }
             }
+
+            BikeReports selectedBikeReport = bikeReportsRepository.findByBikeNo(bikes.getBikeNo());
+            if(!bePresent(selectedBikeReport)){
+                selectedBikeReport = new BikeReports(bikes, reports);
+            }else {
+                selectedBikeReport.updateData(reports);
+            }
+            bikeReportsRepository.save(selectedBikeReport);
         }
     }
 

@@ -90,7 +90,6 @@ public class RiderWorker extends SessService {
         riders.setEmail(addUpdateRiderRequest.getEmail());
         riders.setPhone(addUpdateRiderRequest.getPhone());
         riders.setStatus(RiderStatusTypes.PENDING);
-        riders.setEdpId(addUpdateRiderRequest.getEdpId());
         riderRepository.save(riders);
 
         if(addUpdateRiderRequest.getRealAddress() != null) {
@@ -249,13 +248,13 @@ public class RiderWorker extends SessService {
             withException("950-007");
         if(bePresent(riderRepository.findByEmail(addUpdateRiderRequest.getEmail())) && !riderRepository.findByEmail(addUpdateRiderRequest.getEmail()).equals(riders))
             withException("950-008");
-        if(bePresent(riderRepository.findByEdpId(addUpdateRiderRequest.getEdpId())) && !riderRepository.findByEdpId(addUpdateRiderRequest.getEdpId()).equals(riders))
-            withException("950-009");
+//        if(bePresent(riderRepository.findByEdpId(addUpdateRiderRequest.getEdpId())) && !riderRepository.findByEdpId(addUpdateRiderRequest.getEdpId()).equals(riders))
+//            withException("950-009");
 
         riders.setEmail(addUpdateRiderRequest.getEmail());
         riders.setPhone(addUpdateRiderRequest.getPhone());
         riders.setDescription(addUpdateRiderRequest.getDescription());
-        riders.setEdpId(addUpdateRiderRequest.getEdpId());
+//        riders.setEdpId(addUpdateRiderRequest.getEdpId());
         if(addUpdateRiderRequest.getSsn() != null) {
             String front = addUpdateRiderRequest.getSsn().substring(0, addUpdateRiderRequest.getSsn().indexOf("-"));
             String back = addUpdateRiderRequest.getSsn().substring(addUpdateRiderRequest.getSsn().indexOf("-") + 1);
