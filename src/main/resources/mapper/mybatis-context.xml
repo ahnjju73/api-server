@@ -55,5 +55,7 @@
         <mapper resource="mapper/estimate/estimates.xml"/>
         <mapper resource="mapper/estimate/settles.xml"/>
 
+        <mapper resource="mapper/insurances/rider_insurance.xml"/>
+
     </mappers>
 </configuration>

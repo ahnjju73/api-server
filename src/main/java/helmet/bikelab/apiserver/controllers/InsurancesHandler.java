@@ -73,7 +73,7 @@ public class InsurancesHandler {
                         .subscribeOn(Schedulers.elastic())
                         .map(insurancesService::checkBikeSession)
                         .map(insurancesService::fetchRiderInsurances)
-                        .map(insurancesService::returnData), Page.class);
+                        .map(insurancesService::returnData), ResponseListDto.class);
     }
 
     public Mono<ServerResponse> addRiderInsurance(ServerRequest request){
@@ -83,7 +83,7 @@ public class InsurancesHandler {
                         .map(row -> insurancesService.makeSessionRequest(request, row , BikeSessionRequest.class))
                         .map(insurancesService::checkBikeSession)
                         .map(insurancesService::addRiderInsurance)
-                        .map(insurancesService::returnData), ResponseListDto.class);
+                        .map(insurancesService::returnData), Map.class);
     }
     public Mono<ServerResponse> fetchRiderInsuranceDetail(ServerRequest request){
         return ServerResponse.ok().body(

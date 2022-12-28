@@ -17,6 +17,7 @@ import helmet.bikelab.apiserver.objects.bikelabs.insurance.FetchInsuranceRespons
 import helmet.bikelab.apiserver.objects.bikelabs.leases.LeasesDto;
 import helmet.bikelab.apiserver.objects.requests.AddUpdateRiderInsuranceRequest;
 import helmet.bikelab.apiserver.objects.requests.FetchRiderInsuranceRequest;
+import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.repositories.*;
 import helmet.bikelab.apiserver.services.internal.SessService;
 import helmet.bikelab.apiserver.utils.AutoKey;
@@ -286,8 +287,8 @@ public class InsurancesService extends SessService {
 //            request.setResponse(allOrderByRiderInsNoDesc);
 //        }
 
-
-
+        ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(fetchRiderInsuranceRequest, "insurances.rider_insurance.fetchRiderInsurances", "insurances.rider_insurance.countRiderInsurances", "rownum");
+        request.setResponse(responseListDto);
         return request;
     }
 
