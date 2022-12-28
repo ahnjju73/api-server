@@ -8,4 +8,5 @@ import java.util.List;
 public interface PartsPriceBakRepository extends JpaRepository<PartsPriceBak, Long> {
     List<PartsPriceBak> findAllByPartsNoOrderByBakNoDesc(Long partsNo);
 
+    Integer countByPartsNo(Long partsNo);
 }
