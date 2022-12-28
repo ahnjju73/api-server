@@ -514,10 +514,10 @@ public class ShopService extends SessService {
 
     @Transactional
     public BikeSessionRequest changeInspectDate(BikeSessionRequest request){
-        ChangeInspectionDateRequest changeInspectionDateRequest = map(request.getParam(), ChangeInspectionDateRequest.class);
-        RegularInspections regularInspections = regularInspectionRepository.findByInspectId(changeInspectionDateRequest.getInspectId());
-        regularInspections.setIncludeDt(changeInspectionDateRequest.getChangeDt());
-        regularInspectionRepository.save(regularInspections);
+//        ChangeInspectionDateRequest changeInspectionDateRequest = map(request.getParam(), ChangeInspectionDateRequest.class);
+//        RegularInspections regularInspections = regularInspectionRepository.findByInspectId(changeInspectionDateRequest.getInspectId());
+//        regularInspections.setIncludeDt(changeInspectionDateRequest.getChangeDt());
+//        regularInspectionRepository.save(regularInspections);
         return request;
     }
 
@@ -602,7 +602,7 @@ public class ShopService extends SessService {
             change += "정비소를 <>" + regularInspections.getShop().getShopInfo().getName() + "</>에서 <>" + shop.getShopInfo().getName() + "</>로 변경하였습니다.";
         }
         if(!request.getIncludeDt().equals(regularInspections.getIncludeDt())){
-            change += "정기점검 적용 날짜를 <>" + regularInspections.getIncludeDt().format(formatter) + "</>에서 <>" + request.getIncludeDt().format(formatter) + "</>로 변경하였습니다.";
+            change += "정기점검 적용 날짜를 <>" + regularInspections.getIncludeDt() + "</>에서 <>" + request.getIncludeDt() + "</>로 변경하였습니다.";
         }
         if(!request.getInspectDt().equals(regularInspections.getInspectDt())){
             change += "정기점검 날짜를 <>" + regularInspections.getInspectDt().format(formatter) + "</>에서 <>" + request.getInspectDt().format(formatter) + "</>로 변경하였습니다.";
