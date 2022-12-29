@@ -10,7 +10,7 @@ import lombok.Setter;
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class RiderListRequest extends RequestListDto{
     private String condition;
-    private String conditionStatus;
     private String status;
     private String verified;
+    private String conditionStatus;
 }
