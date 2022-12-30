@@ -11,5 +11,5 @@ import java.util.List;
 @Setter
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class PartsExcelRequest {
-    private List<PartsCodeListRequest> parts;
+    private List<PartsCodeUploadRequest> parts;
 }

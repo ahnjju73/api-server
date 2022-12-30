@@ -52,4 +52,16 @@ public class RiderRouters {
                 ;
     }
 
+    @Bean
+    public RouterFunction<ServerResponse> riderInsuranceInquiry(){
+        return RouterFunctions
+                .route(GET("/rider-ins-inquiries"), riderHandlers::fetchInsuranceInquiries)
+                .andRoute(GET("/rider-ins-inquiries/{inquiry_id}"), riderHandlers::fetchInsuranceInquiryDetail)
+                .andRoute(PUT("/rider-ins-inquiries/{inquiry_id}"), riderHandlers::updateConsultingDescriptions)
+                .andRoute(PATCH("/rider-ins-inquiries/{inquiry_id}"), riderHandlers::insuranceInqChangeStatus)
+                ;
+    }
+
+
+
 }

@@ -1,14 +1,14 @@
 package helmet.bikelab.apiserver.controllers.endusers;
 
+import helmet.bikelab.apiserver.domain.riders.InquiryRiderInsurances;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
-import helmet.bikelab.apiserver.objects.PageableResponse;
 import helmet.bikelab.apiserver.objects.requests.RiderVerifiedResponse;
 import helmet.bikelab.apiserver.objects.responses.FetchRiderDetailResponse;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.services.endusers.RiderDemandLeaseService;
 import helmet.bikelab.apiserver.services.endusers.RiderService;
-import helmet.bikelab.apiserver.services.shops.ShopService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
@@ -209,6 +209,46 @@ public class RiderHandlers {
                         .map(riderDemandLeaseService::checkBikeSession)
                         .map(riderDemandLeaseService::rejectDemandLease)
                         .map(riderDemandLeaseService::returnData), Map.class);
+    }
+
+    public Mono<ServerResponse> fetchInsuranceInquiries(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> riderService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(riderService::checkBikeSession)
+                        .map(riderService::fetchRiderInsuranceDemandList)
+                        .map(riderService::returnData), Page.class);
+    }
+
+    public Mono<ServerResponse> fetchInsuranceInquiryDetail(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> riderService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> riderService.getPathVariable(row, "inquiry_id"))
+                        .map(riderService::checkBikeSession)
+                        .map(riderService::fetchRiderInsuranceDemandDetail)
+                        .map(riderService::returnData), InquiryRiderInsurances.class);
+    }
+
+    public Mono<ServerResponse> updateConsultingDescriptions(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> riderDemandLeaseService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(row -> riderService.getPathVariable(row, "inquiry_id"))
+                        .map(riderService::checkBikeSession)
+                        .map(riderService::updateDescription)
+                        .map(riderService::returnData), Map.class);
+    }
+
+    public Mono<ServerResponse> insuranceInqChangeStatus(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> riderService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> riderService.getPathVariable(row, "inquiry_id"))
+                        .map(riderService::checkBikeSession)
+                        .map(riderService::changeInsInqStatus)
+                        .map(riderService::returnData), Map.class);
     }
 
 }

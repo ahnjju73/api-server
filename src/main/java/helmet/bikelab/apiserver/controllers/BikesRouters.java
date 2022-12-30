@@ -19,12 +19,25 @@ public class BikesRouters {
     private final DiagramHandlers diagramHandlers;
 
     @Bean
+    public RouterFunction<ServerResponse> bikeInfoRouter(BikeInfoHandlers handlers){
+        return RouterFunctions
+                .route(GET("/bike-info"), handlers::getBikeInfoListByBikeId)
+                .andRoute(POST("/bike-info"), handlers::addBikeInfo)
+                .andRoute(PUT("/bike-info"), handlers::updateBikeInfo)
+                .andRoute(DELETE("/bike-info"), handlers::deleteBikeInfo)
+                ;
+    }
+
+    @Bean
     public RouterFunction<ServerResponse> bikeRouter(BikesHandlers handler){
         return RouterFunctions
                 .route(GET("/bikes"), handler::fetchListOfBikes)
                 .andRoute(GET("/bikes/{bike_id}"), handler::fetchBikeDetail)
                 .andRoute(GET("/bikes/client/{client_id}"),handler::fetchBikesByClient)
+                .andRoute(POST("/bikes-upload"), handler::uploadExcelToAddBike)
                 .andRoute(POST("/bikes"), handler::addBike)
+                .andRoute(PUT("/bikes-transaction"), handler::updateBikeTransactionInfo)
+                .andRoute(GET("/bikes-transaction"), handler::getBikeTransactionInfo)
                 .andRoute(PUT("/bikes"), handler::updateBike)
                 .andRoute(DELETE("/bikes"), handler::deleteBike)
                 .andRoute(GET("/bikes_volume"), handler::fetchBikeVolumes)
@@ -57,6 +70,7 @@ public class BikesRouters {
         return RouterFunctions
                 .route(POST("/bike_file/{bike_id}/generate_pre_sign"), handler::generatePreSign)
                 .andRoute(POST("/bike_file/{bike_id}/check_upload"), handler::checkUpload)
+                .andRoute(PUT("/bike_file/{bike_id}/types"), handler::updateBikeAttachmentTypeById)
                 .andRoute(GET("/bike-file/{bike_id}"), handler::fetchBikeFiles)
                 .andRoute(DELETE("/bike-file/{bike_attachment_no}"), handler::deleteBikeFile);
     }
@@ -89,13 +103,18 @@ public class BikesRouters {
                 .andRoute(GET("/commons/parts-types"), partsHandler::fetchPartsTypeList)
                 .andRoute(POST("/commons/parts-types"), partsHandler::doSavePartType)
                 .andRoute(PUT("/commons/parts-types"), partsHandler::updatePartType)
+                .andRoute(DELETE("/commons/parts-types"), partsHandler::deletePartsType)
+                .andRoute(POST("/commons/parts-codes/move"), partsHandler::moveParsCodeToAnotherType)
                 .andRoute(GET("/commons/parts-codes"), partsHandler::fetchPartsCodeList)
                 .andRoute(POST("/commons/parts-codes"), partsHandler::doSavePartsCode)
                 .andRoute(PUT("/commons/parts-codes"), partsHandler::updatePartsCode)
+                .andRoute(DELETE("/commons/parts-codes"), partsHandler::deletePartsCode)
                 .andRoute(GET("/commons/working-price"), partsHandler::fetchCommonWorkingPriceList)
                 .andRoute(GET("/commons/codes/parts_codes"), partsHandler::fetchParsCodeListByCondition)
                 .andRoute(POST("/upload/bikes/parts"), partsHandler::uploadNewParts)
                 .andRoute(POST("/upload/model/parts"), partsHandler::uploadModelParts)
+                .andRoute(POST("/upload/model/parts-price"), partsHandler::uploadModelPartsPrice)
+                .andRoute(GET("/upload/model/parts-price"), partsHandler::getPartsPriceHistory)
                 ;
     }
 

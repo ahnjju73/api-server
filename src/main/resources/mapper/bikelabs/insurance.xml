@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding= "UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="bikelabs.insurance">
+
+    <resultMap id="ins_item" type="hmap">
+        <result property="insurance_no" column="insurance_no"/>
+        <result property="stock_number" column="stock_number"/>
+        <result property="insurance_type" column="insurance_type"/>
+        <result property="type" column="type"/>
+        <result property="insurance_age" column="insurance_age"/>
+        <result property="company_name" column="company_name"/>
+        <result property="start_at" column="start_at"/>
+        <result property="end_at" column="end_at"/>
+        <result property="fee" column="fee"/>
+        <result property="paid_fee" column="paid_fee"/>
+        <result property="is_transferred" column="is_transferred"/>
+    </resultMap>
+    <resultMap id="getBikeInsuranceListItem" type="hmap">
+        <result property="insurance_id" column="insurance_id"/>
+        <collection property="list" javaType="java.util.ArrayList" resultMap="ins_item" />
+    </resultMap>
+    <select id="getBikeInsuranceListByBikeId" parameterType="hmap" resultMap="getBikeInsuranceListItem">
+        select bi.insurance_no,
+               bi.insurance_id,
+               bi.stock_number,
+               bi.insurance_type,
+               bi.type,
+               bi.insurance_age,
+               bi.company_name,
+               bi.start_at,
+               bi.end_at,
+               bi.fee,
+               bi.paid_fee,
+               bi.is_transferred,
+               b.bike_id
+          from (select *
+                  from bikes
+                 where bike_id = #{bike_id}) b
+               join bike_insurances bi on b.bike_no = bi.bike_no
+         order by bi.insurance_id desc, insurance_no desc
+    </select>
+
+    <select id="checkIsTransferred" parameterType="hmap" resultType="int">
+        select count(*)
+          from bike_insurances
+         where bike_no = #{bike_no}
+           and is_transferred = 1
+    </select>
+
+
+</mapper>

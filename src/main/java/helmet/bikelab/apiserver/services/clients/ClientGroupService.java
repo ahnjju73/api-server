@@ -329,7 +329,7 @@ public class ClientGroupService extends SessService {
             String leaseId = autoKey.makeGetKey("lease");
             lease.setLeaseId(leaseId);
             Bikes bike = new Bikes();
-            LeaseInsurances leaseInsurances = new LeaseInsurances();
+//            LeaseInsurances leaseInsurances = new LeaseInsurances();
             String bikeNum = "";
             String vimNum = "";
             String color = "";
@@ -363,17 +363,17 @@ public class ClientGroupService extends SessService {
                      int age = (int)Double.parseDouble(value);
                      int insNo = 0;
                      if(age == 21){
-                        lease.setInsuranceNo(15);
+//                        lease.setInsuranceNo(15);
                         insNo = 15;
                      }else if(age == 24){
-                        lease.setInsuranceNo(13);
+//                        lease.setInsuranceNo(13);
                         insNo = 13;
                      }else{
-                        lease.setInsuranceNo(14);
+//                        lease.setInsuranceNo(14);
                         insNo = 14;
                      }
-                     Optional<Insurances> temp = insurancesRepository.findById(insNo);
-                     leaseInsurances.setInsurance(temp.get());
+//                     Optional<Insurances> temp = insurancesRepository.findById(insNo);
+//                     leaseInsurances.setInsurance(temp.get());
                   }
                   if(colIdx == 11){
                      DateTimeFormatter dTF =
@@ -449,8 +449,8 @@ public class ClientGroupService extends SessService {
             lease.setSubmittedUserNo(25);
             lease.setApprovalUserNo(26);
             leaseRepository.save(lease);
-            leaseInsurances.setLeaseNo(lease.getLeaseNo());
-            leaseInsurancesRepository.save(leaseInsurances);
+//            leaseInsurances.setLeaseNo(lease.getLeaseNo());
+//            leaseInsurancesRepository.save(leaseInsurances);
             bikeUserLogRepository.save(addLog(BikeUserLogTypes.LEASE_UPDATED, session.getUserNo(), lease.getLeaseNo().toString(), Arrays.asList("초기 데이터 셋팅에 의해 생성되였습니다.")));
             leaseInfo.setPeriod(12);
             leaseInfo.setEndDate(leaseInfo.getStart().plusMonths(12));

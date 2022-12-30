@@ -66,6 +66,15 @@ public class BikePartsHandlers {
                         .map(partsTypeService::returnData), Map.class);
     }
 
+    public Mono<ServerResponse> deletePartsCode(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> partsTypeService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(partsTypeService::checkBikeSession)
+                        .map(partsTypeService::deletePartsCode)
+                        .map(partsTypeService::returnData), Map.class);
+    }
+
     public Mono<ServerResponse> fetchPartsTypeList(ServerRequest request) {
         return ServerResponse.ok().body(
                 Mono.fromSupplier(() -> partsTypeService.makeSessionRequest(request, BikeSessionRequest.class))
@@ -109,6 +118,24 @@ public class BikePartsHandlers {
                         .map(partsService::checkBikeSession)
                         .map(partsService::fetchParts)
                         .map(partsService::returnData), ResponseListDto.class);
+    }
+
+    public Mono<ServerResponse> moveParsCodeToAnotherType(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> partsTypeService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(partsTypeService::checkBikeSession)
+                        .map(partsTypeService::moveParsCodeToAnotherType)
+                        .map(partsTypeService::returnData), Map.class);
+    }
+
+    public Mono<ServerResponse> deletePartsType(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> partsTypeService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .map(partsTypeService::checkBikeSession)
+                        .map(partsTypeService::deletePartsType)
+                        .map(partsTypeService::returnData), Map.class);
     }
 
     public Mono<ServerResponse> fetchPartsCodes(ServerRequest request) {
@@ -194,6 +221,15 @@ public class BikePartsHandlers {
                         .map(partsService::returnData), List.class);
     }
 
+    public Mono<ServerResponse> getPartsPriceHistory(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> partsService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(partsService::checkBikeSession)
+                        .map(partsService::getPartsPriceHistory)
+                        .map(partsService::returnData), List.class);
+    }
+
     public Mono<ServerResponse> uploadNewParts(ServerRequest request) {
         return ServerResponse.ok().body(
                 request.bodyToMono(Map.class)
@@ -211,6 +247,16 @@ public class BikePartsHandlers {
                         .map(row -> partsService.makeSessionRequest(request, row, BikeSessionRequest.class))
                         .map(partsService::checkBikeSession)
                         .map(partsService::uploadModelParts)
+                        .map(partsService::returnData), Map.class);
+    }
+
+    public Mono<ServerResponse> uploadModelPartsPrice(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> partsService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(partsService::checkBikeSession)
+                        .map(partsService::uploadModelPartsPrice)
                         .map(partsService::returnData), Map.class);
     }
 }

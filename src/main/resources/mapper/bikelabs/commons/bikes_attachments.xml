@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding= "UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="bikelabs.commons.bikes_attachments">
+
+    <select id="countBikeAttachmentByType" parameterType="hmap" resultType="int">
+        select count(*)
+          from bike_attachments
+         where bike_no = #{bike_no}
+           and attachment_type = #{attachment_type}
+    </select>
+
+</mapper>

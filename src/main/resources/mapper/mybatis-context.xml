@@ -37,10 +37,12 @@
         <mapper resource="mapper/bikelabs/employees.xml"/>
         <mapper resource="mapper/bikelabs/todo.xml"/>
         <mapper resource="mapper/bikelabs/commons/bikes.xml"/>
+        <mapper resource="mapper/bikelabs/commons/bikes_attachments.xml"/>
         <mapper resource="mapper/bikelabs/commons/clients.xml"/>
         <mapper resource="mapper/bikelabs/bike_user_log.xml"/>
         <mapper resource="mapper/bikelabs/clients_log.xml"/>
         <mapper resource="mapper/bikelabs/inquiries.xml"/>
+        <mapper resource="mapper/bikelabs/insurance.xml"/>
 
         <mapper resource="mapper/leases/leases-manager.xml"/>
         <mapper resource="mapper/leases/leases-payments.xml"/>
@@ -52,6 +54,8 @@
 
         <mapper resource="mapper/estimate/estimates.xml"/>
         <mapper resource="mapper/estimate/settles.xml"/>
+
+        <mapper resource="mapper/insurances/rider_insurance.xml"/>
 
     </mappers>
 </configuration>

@@ -3,15 +3,16 @@ package helmet.bikelab.apiserver.workers;
 import helmet.bikelab.apiserver.domain.CommonBikes;
 import helmet.bikelab.apiserver.domain.CommonWorking;
 import helmet.bikelab.apiserver.domain.Manufacturers;
-import helmet.bikelab.apiserver.domain.bike.Bikes;
-import helmet.bikelab.apiserver.domain.bike.Parts;
-import helmet.bikelab.apiserver.domain.bike.PartsCodes;
+import helmet.bikelab.apiserver.domain.bike.*;
+import helmet.bikelab.apiserver.objects.responses.BikeInsuranceListResponse;
 import helmet.bikelab.apiserver.repositories.*;
 import helmet.bikelab.apiserver.services.internal.Workspace;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -23,9 +24,22 @@ public class BikeWorker extends Workspace {
     private final PartsRepository partsRepository;
     private final BikesRepository bikesRepository;
     private final CommonWorkingRepository commonWorkingRepository;
-
+    private final BikeInsurancesRepository bikeInsurancesRepository;
+    private final BikeInfoRepository bikeInfoRepository;
     public List<Manufacturers> getManufacturers(){
         return manufacturersRepository.findAllBy();
+    }
+
+    public BikeInsuranceListResponse getBikeInsuranceListByBikeId(Bikes bikeById) {
+        Map param = new HashMap();
+        param.put("bike_id", bikeById.getBikeId());
+        List list = getList("bikelabs.insurance.getBikeInsuranceListByBikeId", param);
+        BikeInsuranceListResponse bikeInsuranceListResponse = new BikeInsuranceListResponse(list, bikeById.getBikeInsuranceNo());
+        if(bePresent(bikeInsuranceListResponse.getBikeInsuranceNo())){
+            BikeInsurances bikeInsurance = bikeById.getBikeInsurance();
+            bikeInsuranceListResponse.setInsuranceId(bikeInsurance.getInsuranceId());
+        }
+        return bikeInsuranceListResponse;
     }
 
     public Bikes getBikeByNo(Integer bikeNo){
@@ -100,6 +114,24 @@ public class BikeWorker extends Workspace {
             }
         }
         return workingPrice;
+    }
+
+    public BikeInsurances getBikeInsurancesByNo(Integer insuranceNo){
+        BikeInsurances byInsuranceNo = bikeInsurancesRepository.findByInsuranceNo(insuranceNo);
+        if(!bePresent(byInsuranceNo)) writeMessage("존재하지않습니다.");
+        return byInsuranceNo;
+    }
+
+    public BikeInfo getBikeInfoByInfoNo(Integer infoNo){
+        BikeInfo byInfoNo = bikeInfoRepository.findByInfoNo(infoNo);
+        if(!bePresent(byInfoNo)) writeMessage("존재하지 않는 정보입니다.");
+        return byInfoNo;
+    }
+
+    public BikeInfo getBikeInfoByBikeNoAndInfoNo(String bikeId, Integer infoNo){
+        BikeInfo byInfoNo = bikeInfoRepository.findByBike_BikeIdAndInfoNo(bikeId, infoNo);
+        if(!bePresent(byInfoNo)) writeMessage("존재하지 않는 정보입니다.");
+        return byInfoNo;
     }
 
 }

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding= "UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="insurances.rider_insurance">
+
+
+    <select id="countRiderInsurances" parameterType="hmap" resultType="int">
+        select count(*)
+          from rider_insurances ri
+          left outer join rider_insurances_dtl rid
+                       on rid.dtl_no = (select dtl_no
+                                          from rider_insurances_dtl dtl1
+                                         where dtl1.rider_ins_no = ri.rider_ins_no
+                                         order by rider_ins_no desc limit 1)
+         where 1 = 1
+         <if test="rider_name != null and rider_name != '' and rider_name != 'undefined'">
+           and ri.rider_name like concat('%', #{rider_name}, '%')
+         </if>
+         <if test="status != null and status != '' and status != 'undefined'">
+           and rid.status = #{status}
+         </if>
+         <if test="ssn != null and ssn != '' and ssn != 'undefined'">
+           and ri.rider_ssn like concat('%', #{ssn}, '%')
+         </if>
+         <if test="phone != null and phone != '' and phone != 'undefined'">
+           and ri.rider_phone like concat('%', #{phone}, '%')
+         </if>
+    </select>
+
+    <select id="fetchRiderInsurances" parameterType="hmap" resultType="hmap">
+        select * from (select @rownum:=@rownum+1 as rownum, m.*
+          from (select ri.*,
+                       rid.insurance_company,
+                       rid.start_dt,
+                       rid.end_dt,
+                       rid.bike_num
+                  from rider_insurances ri
+                  left outer join rider_insurances_dtl rid
+                               on rid.dtl_no = (select dtl_no
+                                                  from rider_insurances_dtl dtl1
+                                                 where dtl1.rider_ins_no = ri.rider_ins_no
+                                                 order by rider_ins_no desc limit 1)
+                 where 1 = 1
+                 <if test="rider_name != null and rider_name != '' and rider_name != 'undefined'">
+                   and ri.rider_name like concat('%', #{rider_name}, '%')
+                 </if>
+                 <if test="status != null and status != '' and status != 'undefined'">
+                   and rid.status = #{status}
+                 </if>
+                 <if test="ssn != null and ssn != '' and ssn != 'undefined'">
+                   and ri.rider_ssn like concat('%', #{ssn}, '%')
+                 </if>
+                 <if test="phone != null and phone != '' and phone != 'undefined'">
+                   and ri.rider_phone like concat('%', #{phone}, '%')
+                 </if>
+                 order by rid.rider_ins_no desc)m, (select @rownum:=0) as r)mst
+         where 1 = 1
+         <if test="next_token != null and next_token != '' and next_token != 'undefined'">
+           and rownum <![CDATA[ > ]]> #{next_token}
+         </if> limit 30
+    </select>
+
+
+
+
+</mapper>

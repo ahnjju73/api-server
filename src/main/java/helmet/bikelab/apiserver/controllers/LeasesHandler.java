@@ -3,6 +3,7 @@ package helmet.bikelab.apiserver.controllers;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.PresignedURLVo;
 import helmet.bikelab.apiserver.objects.bikelabs.leases.LeaseBikeUserLogs;
+import helmet.bikelab.apiserver.objects.responses.BikeInsuranceListResponse;
 import helmet.bikelab.apiserver.objects.responses.LeaseExtensionCheckedResponse;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.services.employees.BikeUserLogService;
@@ -81,6 +82,16 @@ public class LeasesHandler {
                         .map(leasesService::checkBikeSession)
                         .map(leasesService::fetchDetailLease)
                         .map(leasesService::returnData), Map.class);
+    }
+
+    public Mono<ServerResponse> fetchLeaseInsuranceByLeaseId(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> leasesService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(req -> leasesService.getPathVariable(req, "lease_id"))
+                        .map(leasesService::checkBikeSession)
+                        .map(leasesService::fetchLeaseInsuranceByLeaseId)
+                        .map(leasesService::returnData), BikeInsuranceListResponse.class);
     }
 
     public Mono<ServerResponse> addLease(ServerRequest request){

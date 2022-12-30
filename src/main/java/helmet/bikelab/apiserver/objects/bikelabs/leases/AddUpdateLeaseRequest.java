@@ -23,7 +23,6 @@ public class AddUpdateLeaseRequest extends OriginObject {
     private String leaseId;
     private String bikeId;
     private String clientId;
-    private String insuranceId;
     private String releaseId;
     private LeaseInfoDto leaseInfo;
     private LeasePriceDto leasePrice;
@@ -40,7 +39,6 @@ public class AddUpdateLeaseRequest extends OriginObject {
     public void validationCheck(){
         if(contractType == null) withException("850-037");
         if(managementType == null) withException("850-030");
-        if(insuranceId == null) withException("850-013");
         if(clientId == null) withException("850-012");
         if(bikeId == null) withException("850-010");
         if(leasePrice.getPaymentType() == null) withException("850-014");

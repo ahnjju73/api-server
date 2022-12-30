@@ -45,4 +45,17 @@ public class ShopRouters {
                 ;
     }
 
+    @Bean
+    public RouterFunction<ServerResponse> inspectRouter() {
+        return RouterFunctions
+                .route(POST("/repairshop/regular-inspect"), shopHandler::addRegularInspection)
+                .andRoute(GET("/repairshop/regular-inspect"), shopHandler::fetchInspectionList)
+                .andRoute(GET("/repairshop/regular-inspect-by-group"), shopHandler::fetchInspectionListByGroups)
+                .andRoute(PUT("/repairshop/regular-inspect"), shopHandler::updateRegularInspect)
+                .andRoute(GET("/repairshop/regular-inspect/{inspect_id}"), shopHandler::fetchInspectionDetail)
+                .andRoute(PATCH("/repairshop/regular-inspect/change-date"), shopHandler::changeIncludeDate)
+                .andRoute(POST("/repairshop/regular-inspect/generate-presignedurl"), shopHandler::generatePresignedUrl)
+                .andRoute(DELETE("/repairshop/regular-inspect"), shopHandler::deleteInspect)
+                ;
+    }
 }

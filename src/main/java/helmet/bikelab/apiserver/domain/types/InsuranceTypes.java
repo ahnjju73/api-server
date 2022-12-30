@@ -4,12 +4,14 @@ import lombok.Getter;
 
 @Getter
 public enum InsuranceTypes {
-    PERSONAL("504-001"), COMPANY ("504-002"), NONE("504-003");
+    PERSONAL("504-001", "개인"), COMPANY ("504-002", "법인"), NONE("504-003", "없음");
 
     private String type;
+    private String typeName;
 
-    InsuranceTypes(String type){
+    InsuranceTypes(String type, String typeName) {
         this.type = type;
+        this.typeName = typeName;
     }
 
     public static InsuranceTypes getInsuranceType(String type){

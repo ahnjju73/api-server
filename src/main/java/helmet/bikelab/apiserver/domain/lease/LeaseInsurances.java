@@ -12,6 +12,7 @@ import lombok.Setter;
 import javax.persistence.*;
 import java.time.LocalDateTime;
 
+@Deprecated
 @Entity
 @Getter
 @Setter

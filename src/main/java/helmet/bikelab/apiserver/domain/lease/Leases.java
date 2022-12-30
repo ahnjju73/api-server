@@ -23,7 +23,7 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 @Table(name = "leases")
-public class   Leases {
+public class Leases {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -62,13 +62,6 @@ public class   Leases {
     @ManyToOne
     @JoinColumn(name = "release_no", insertable = false, updatable = false)
     private Releases releases;
-
-    @Column(name = "insurance_no")
-    private Integer insuranceNo;
-
-    @ManyToOne
-    @JoinColumn(name = "insurance_no", insertable = false, updatable = false)
-    private Insurances insurances;
 
     @Column(name = "contract_type", columnDefinition = "ENUM")
     @Convert(converter = ContractTypeConverter.class)

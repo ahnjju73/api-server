@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.domain.bikelab;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import helmet.bikelab.apiserver.domain.types.BikeUserStatusTypes;
 import helmet.bikelab.apiserver.domain.types.converters.BikeUserStatusTypesConverter;
 import helmet.bikelab.apiserver.utils.keys.SESSION;
@@ -36,6 +37,7 @@ public class BikeUser {
     @OneToOne(mappedBy = "bikeUser", optional = false)
     private BikeUserInfo bikeUserInfo;
 
+    @JsonIgnore
     @OneToOne(mappedBy = "bikeUser", optional = false)
     private BikeUserPassword bikeUserPassword;
 

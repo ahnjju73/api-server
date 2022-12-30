@@ -2,6 +2,7 @@ package helmet.bikelab.apiserver.objects.bikelabs.bikes;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import helmet.bikelab.apiserver.domain.types.BikeStatusTypes;
 import helmet.bikelab.apiserver.domain.types.PayerTypes;
 import helmet.bikelab.apiserver.services.internal.OriginObject;
 import lombok.Getter;
@@ -20,10 +21,6 @@ public class UpdateBikeRequest extends OriginObject {
     private String carModel;
     private String color;
     private Integer years;
-    private String regNum;
-    private String companyName;
-    private Integer price;
-    private LocalDateTime receiveDt;
     private LocalDateTime registerDt;
     private String description;
 
@@ -31,19 +28,24 @@ public class UpdateBikeRequest extends OriginObject {
     private Boolean isMt;
     private String payerTypeCode;
     private PayerTypes payerType;
+    private BikeStatusTypes bikeStatusType;
+    private Integer odometerByAdmin = 0;
+    private String warehouse;
+
+    public void setBikeStatusType(BikeStatusTypes bikeStatusType) {
+        this.bikeStatusType = bikeStatusType;
+    }
+
+    public void setBikeStatusType(String bikeStatusType) {
+        this.bikeStatusType = BikeStatusTypes.getBikeStatusTypes(bikeStatusType);
+    }
 
     public void setPayerTypeCode(String payerTypeCode) {
         this.payerTypeCode = payerTypeCode;
         this.payerType = PayerTypes.getPayerTypes(payerTypeCode);
     }
 
-    public void setReceiveDt(String receiveDt) {
-        try {
-            this.receiveDt = LocalDateTime.parse(receiveDt + "T00:00:00");
-        }catch (Exception e){
-            this.receiveDt = LocalDateTime.parse(receiveDt);
-        }
-    }
+
 
     public void setRegisterDt(String registerDt) {
         if(bePresent(registerDt)) this.registerDt = LocalDateTime.parse(registerDt);

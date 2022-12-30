@@ -1,8 +1,10 @@
 package helmet.bikelab.apiserver.controllers;
 
 import helmet.bikelab.apiserver.domain.bike.BikeAttachments;
+import helmet.bikelab.apiserver.domain.embeds.ModelBikeTransaction;
 import helmet.bikelab.apiserver.objects.BikeSessionRequest;
 import helmet.bikelab.apiserver.objects.PresignedURLVo;
+import helmet.bikelab.apiserver.objects.responses.FetchBikeTransactionResponse;
 import helmet.bikelab.apiserver.objects.responses.ResponseListDto;
 import helmet.bikelab.apiserver.services.bikes.BikesService;
 import helmet.bikelab.apiserver.utils.MultiFiles;
@@ -75,6 +77,26 @@ public class BikesHandlers {
                         .map(bikesService::updateBike)
                         .map(bikesService::returnData), Map.class);
     }
+
+    public Mono<ServerResponse> updateBikeTransactionInfo(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> bikesService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(bikesService::checkBikeSession)
+                        .map(bikesService::updateBikeTransactionInfo)
+                        .map(bikesService::returnData), Map.class);
+    }
+
+    public Mono<ServerResponse> getBikeTransactionInfo(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> bikesService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(bikesService::checkBikeSession)
+                        .map(bikesService::getBikeTransactionInfo)
+                        .map(bikesService ::returnData), FetchBikeTransactionResponse.class);
+    }
+
 
     public Mono<ServerResponse> deleteBike(ServerRequest request) {
         return ServerResponse.ok().body(
@@ -205,6 +227,17 @@ public class BikesHandlers {
                         .map(bikesService::returnData), Map.class);
     }
 
+    public Mono<ServerResponse> updateBikeAttachmentTypeById(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> bikesService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(row -> bikesService.getPathVariable(row, "bike_id"))
+                        .map(bikesService::checkBikeSession)
+                        .map(bikesService::updateBikeAttachmentTypeById)
+                        .map(bikesService::returnData), Map.class);
+    }
+
     public Mono<ServerResponse> fetchBikeFiles(ServerRequest request) {
         return ServerResponse.ok().body(
                 Mono.fromSupplier(() -> bikesService.makeSessionRequest(request, BikeSessionRequest.class))
@@ -237,5 +270,16 @@ public class BikesHandlers {
                                         .map(bikesService::returnData), String.class).subscribeOn(parallel())
                 );
     }
+
+    public Mono<ServerResponse> uploadExcelToAddBike(ServerRequest request) {
+        return ServerResponse.ok().body(
+                request.bodyToMono(Map.class)
+                        .subscribeOn(Schedulers.elastic())
+                        .map(row -> bikesService.makeSessionRequest(request, row, BikeSessionRequest.class))
+                        .map(bikesService::checkBikeSession)
+                        .map(bikesService::uploadExcelToAddBike)
+                        .map(bikesService::returnData), Map.class);
+    }
+
 
 }

@@ -8,6 +8,7 @@ import helmet.bikelab.apiserver.domain.types.converters.PartsBackUpConverter;
 import helmet.bikelab.apiserver.domain.types.converters.ImageVoConverter;
 import helmet.bikelab.apiserver.domain.types.converters.UnitTypesConverter;
 import helmet.bikelab.apiserver.objects.bikelabs.bikes.PartsBackUpDto;
+import helmet.bikelab.apiserver.objects.requests.BikePartsRequest;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -30,6 +31,9 @@ public class Parts {
 
     @Column(name = "parts_id", unique = true)
     private String partsId;
+
+    @Column(name = "merchant_id", unique = true)
+    private String merchantId;
 
     @Column(name = "parts_code_no")
     private Integer partsCodeNo;
@@ -72,5 +76,14 @@ public class Parts {
         this.partsPrices = partsPrice;
         this.workingHours = workingHours;
         this.bikeModelCode = code;
+    }
+
+    public Parts(BikePartsRequest bikeParts, CommonBikes carModel, PartsCodes partsCode){
+        this.partsId = bikeParts.getPartsId();
+        this.partsCodeNo = partsCode.getPartsCodeNo();
+        this.partsPrices = bikeParts.getPartsPrice();
+        this.workingHours = bikeParts.getWorkingHour();
+        this.bikeModelCode = carModel.getCode();
+        this.merchantId = bikeParts.getMerchantId();
     }
 }
