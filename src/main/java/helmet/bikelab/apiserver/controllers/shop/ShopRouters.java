@@ -50,6 +50,7 @@ public class ShopRouters {
         return RouterFunctions
                 .route(POST("/repairshop/regular-inspect"), shopHandler::addRegularInspection)
                 .andRoute(GET("/repairshop/regular-inspect"), shopHandler::fetchInspectionList)
+                .andRoute(GET("/repairshop/regular-inspect-by-group"), shopHandler::fetchInspectionListByGroups)
                 .andRoute(PUT("/repairshop/regular-inspect"), shopHandler::updateRegularInspect)
                 .andRoute(GET("/repairshop/regular-inspect/{inspect_id}"), shopHandler::fetchInspectionDetail)
                 .andRoute(PATCH("/repairshop/regular-inspect/change-date"), shopHandler::changeIncludeDate)

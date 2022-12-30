@@ -189,6 +189,15 @@ public class ShopHandler {
                         .map(shopService::returnData), Page.class);
     }
 
+    public Mono<ServerResponse> fetchInspectionListByGroups(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> shopService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(shopService::checkBikeSession)
+                        .map(shopService::fetchInspectionsByGroups)
+                        .map(shopService::returnData), Map.class);
+    }
+
     public Mono<ServerResponse> updateRegularInspect(ServerRequest request) {
         return ServerResponse.ok().body(
                 request.bodyToMono(Map.class)

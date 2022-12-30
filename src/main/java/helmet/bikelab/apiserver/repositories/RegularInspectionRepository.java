@@ -7,6 +7,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 public interface RegularInspectionRepository extends JpaRepository<RegularInspections, Integer> {
     Page<RegularInspections> findAllByShopNoOrderByInspectDtDesc(Integer shopNo, Pageable pageable);
@@ -26,5 +27,7 @@ public interface RegularInspectionRepository extends JpaRepository<RegularInspec
     RegularInspections findByInspectId(String inspectId);
     void deleteByInspectId(String inspectId);
     RegularInspections findByClient_ClientIdAndTimesAndIncludeDt(String clientId, TimeTypes timeTypes, String includeDate);
+
+    List<RegularInspections> findAllByClientNoInAndIncludeDtIsGreaterThanEqual(List<Integer> clientsNo, String standards);
 
 }

@@ -505,6 +505,39 @@ public class ShopService extends SessService {
         return request;
     }
 
+    public BikeSessionRequest fetchInspectionsByGroups(BikeSessionRequest request){
+        FetchRegularInspectionRequest fetchRegularInspectionRequest = map(request.getParam(), FetchRegularInspectionRequest.class);
+        Map<String, List<RegularInspections>> result = new HashMap();
+        List<Clients> clientListByGroupId = clientWorker.getClientListByGroupId(fetchRegularInspectionRequest.getGroupId());
+        int start = fetchRegularInspectionRequest.getPage() * fetchRegularInspectionRequest.getSize();
+        LocalDateTime localDateTime = LocalDateTime.now().minusMonths(3);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDateTime now = LocalDateTime.now().minusMonths(3).withDayOfMonth(1);
+        String stadards = now.format(formatter);
+        localDateTime.toLocalDate();
+//        clientListByGroupId = clientListByGroupId.subList(start, start + fetchRegularInspectionRequest.getSize() + 1 > clientListByGroupId.size() ? clientListByGroupId.size() : start + fetchRegularInspectionRequest.getSize() + 1);
+        List<Integer> clientList = new ArrayList<>();
+        for (Clients c : clientListByGroupId) {
+            clientList.add(c.getClientNo());
+            result.put(c.getClientId(), new ArrayList<>());
+        }
+        List<RegularInspections> regularInspections = regularInspectionRepository.findAllByClientNoInAndIncludeDtIsGreaterThanEqual(clientList, stadards);
+        for (RegularInspections ri : regularInspections) {
+            (result.get(ri.getClient().getClientId())).add(ri);
+        }
+        List<List<RegularInspections>> inspectionsByClients = new ArrayList<>();
+        for(String key : result.keySet()){
+            if((result.get(key)).size() > 0){
+                inspectionsByClients.add(result.get(key));
+            }
+        }
+        Map<String, Object> toReturn = new HashMap<>();
+        toReturn.put("inspections", inspectionsByClients);
+//        toReturn.put("total_page", (int)Math.ceil((double)clientListByGroupId.size() / fetchRegularInspectionRequest.getSize()) - 1);
+        request.setResponse(toReturn);
+        return request;
+    }
+
     public BikeSessionRequest fetchInspectionDetail(BikeSessionRequest request) {
         FetchRegularInspectionRequest fetchRegularInspectionRequest = map(request.getParam(), FetchRegularInspectionRequest.class);
         RegularInspections regularInspections = regularInspectionRepository.findByInspectId(fetchRegularInspectionRequest.getInspectId());

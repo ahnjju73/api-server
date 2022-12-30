@@ -270,23 +270,6 @@ public class InsurancesService extends SessService {
 
     public BikeSessionRequest fetchRiderInsurances(BikeSessionRequest request) {
         FetchRiderInsuranceRequest fetchRiderInsuranceRequest = map(request.getParam(), FetchRiderInsuranceRequest.class);
-//
-//        if (bePresent(fetchRiderInsuranceRequest.getRiderName()) && bePresent(fetchRiderInsuranceRequest.getStatus())) {
-//            Page<RiderInsurances> allByRiderInsurancesDtl_riderInfoDto_riderNameContaining = riderInsuranceRepository.findAllByRiderNameContaining(fetchRiderInsuranceRequest.getRiderName(), pageable);
-//            request.setResponse(allByRiderInsurancesDtl_riderInfoDto_riderNameContaining);
-//        } else if (bePresent(fetchRiderInsuranceRequest.getRiderName())) {
-//            Page<RiderInsurances> allByRiderInsurancesDtl_riderInfoDto_riderNameContaining = riderInsuranceRepository.findAllByRiderNameContaining(fetchRiderInsuranceRequest.getRiderName(), pageable);
-//            request.setResponse(allByRiderInsurancesDtl_riderInfoDto_riderNameContaining);
-//        } else if (bePresent(fetchRiderInsuranceRequest.getStatus())) {
-//
-//
-//////            Page<RiderInsurances> allByRiderInsurancesDtl_riderInfoDto_riderNameContaining = riderInsuranceRepository.findAllByRiderInsurancesDtl_RiderInsuranceStatus(RiderInsuranceStatus.getStatus(fetchRiderInsuranceRequest.getStatus()), pageable);
-//////            request.setResponse(allByRiderInsurancesDtl_riderInfoDto_riderNameContaining);
-//        } else {
-//            Page<RiderInsurances> allOrderByRiderInsNoDesc = riderInsuranceRepository.findAll(pageable);
-//            request.setResponse(allOrderByRiderInsNoDesc);
-//        }
-
         ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(fetchRiderInsuranceRequest, "insurances.rider_insurance.fetchRiderInsurances", "insurances.rider_insurance.countRiderInsurances", "rownum");
         request.setResponse(responseListDto);
         return request;
