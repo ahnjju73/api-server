@@ -26,7 +26,7 @@ public class Fines {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "fine_no")
-    private Integer fineNo;
+    public Integer fineNo;
 
     @Column(name = "fine_id")
     private String fineId;

@@ -139,19 +139,17 @@ public class BikePartsService extends SessService {
         partsUpdatedRequest.checkValidation();
         Parts partsByIdAndCarModel = bikeWorker.getPartsById(partsUpdatedRequest.getPartsNo());
         Boolean changed = false;
-        PartsBackUpDto partsBackUpDto = map(partsByIdAndCarModel, PartsBackUpDto.class);
-
-//        if(!partsUpdatedRequest.getIsFreeSupport().equals(partsByIdAndCarModel.getIsFreeSupport())){
-//            partsByIdAndCarModel.setIsFreeSupport(partsUpdatedRequest.getIsFreeSupport());
-//            changed = true;
-//        }
+        Integer countPartsPriceBak = partsPriceBakRepository.countByPartsNo(partsByIdAndCarModel.getPartNo());
+        if(!bePresent(countPartsPriceBak) || countPartsPriceBak == 0){
+            PartsPriceBak originPartsPriceBak = new PartsPriceBak();
+            originPartsPriceBak.initialized(partsByIdAndCarModel, request.getSessionUser());
+            partsPriceBakRepository.save(originPartsPriceBak);
+        }
         if(!partsUpdatedRequest.getMerchantId().equals(partsByIdAndCarModel.getMerchantId())){
             partsByIdAndCarModel.setMerchantId(partsUpdatedRequest.getMerchantId());
-//            changed = true;
         }
         if(!partsUpdatedRequest.getPartsId().equals(partsByIdAndCarModel.getPartsId())){
             partsByIdAndCarModel.setPartsId(partsUpdatedRequest.getPartsId());
-//            changed = true;
         }
         if(!partsUpdatedRequest.getPartsPrices().equals(partsByIdAndCarModel.getPartsPrices())){
             partsByIdAndCarModel.setPartsPrices(partsUpdatedRequest.getPartsPrices());
@@ -295,6 +293,13 @@ public class BikePartsService extends SessService {
                 hasError = true;
             }
             if(!hasError){
+                Integer countPartsPriceBak = partsPriceBakRepository.countByPartsNo(partsByPartsId.getPartNo());
+                if(!bePresent(countPartsPriceBak) || countPartsPriceBak == 0){
+                    PartsPriceBak originPartsPriceBak = new PartsPriceBak();
+                    originPartsPriceBak.initialized(partsByPartsId, request.getSessionUser());
+                    partsPriceBakRepository.save(originPartsPriceBak);
+                }
+
                 partsByPartsId.setPartsPrices(uploadPartsPrice.getPartsPrice());
                 partsByPartsId.setWorkingHours(uploadPartsPrice.getWorkingHour());
                 partsRepository.save(partsByPartsId);
