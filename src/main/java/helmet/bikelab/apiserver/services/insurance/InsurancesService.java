@@ -228,9 +228,9 @@ public class InsurancesService extends SessService {
         UpdateRiderInsuranceDtlRequest updateRiderInsuranceDtlRequest = map(request.getParam(), UpdateRiderInsuranceDtlRequest.class);
         RiderInsurancesDtl insurancesDtl = riderInsuranceDtlRepository.findByDtlNo(updateRiderInsuranceDtlRequest.getDtlNo());
         List<RiderInsurancesDtl> details = riderInsuranceDtlRepository.findAllByBikeNum(updateRiderInsuranceDtlRequest.getBikeNum());
-        if(isActiveInsurance(details)){
-            withException("");
-        }
+//        if(isActiveInsurance(details)){
+//            withException("");
+//        }
         insurancesDtl.setInsCompany(InsCompanyTypes.getCompanyType(updateRiderInsuranceDtlRequest.getInsCompany()));
         insurancesDtl.setInsNum(updateRiderInsuranceDtlRequest.getInsNum());
         insurancesDtl.setCreatedBy(request.getSessionUser().getUserNo());
