@@ -241,7 +241,7 @@ public class InsurancesService extends SessService {
         insurancesDtl.setSelfCoverMan(updateRiderInsuranceDtlRequest.getSelfCoverMan());
         insurancesDtl.setSelfCoverCar(updateRiderInsuranceDtlRequest.getSelfCoverCar());
         insurancesDtl.setNoInsCover(updateRiderInsuranceDtlRequest.getNoInsuranceCover());
-        insurancesDtl.setRiderInsuranceStatus(RiderInsuranceStatus.PENDING);
+//        insurancesDtl.setRiderInsuranceStatus(RiderInsuranceStatus.PENDING);
         insurancesDtl.setBikeNum(updateRiderInsuranceDtlRequest.getBikeNum());
         insurancesDtl.setVimNum(updateRiderInsuranceDtlRequest.getVimNum());
         insurancesDtl.setBikeTypes(InsuranceBikeTypes.getType(updateRiderInsuranceDtlRequest.getBikeType()));
@@ -520,7 +520,6 @@ public class InsurancesService extends SessService {
         insurancesDtl.setSelfCoverMan(addUpdateRiderInsuranceRequest.getSelfCoverMan());
         insurancesDtl.setSelfCoverCar(addUpdateRiderInsuranceRequest.getSelfCoverCar());
         insurancesDtl.setNoInsCover(addUpdateRiderInsuranceRequest.getNoInsuranceCover());
-        insurancesDtl.setRiderInsuranceStatus(RiderInsuranceStatus.PENDING);
         insurancesDtl.setBikeNum(addUpdateRiderInsuranceRequest.getBikeNum());
         insurancesDtl.setVimNum(addUpdateRiderInsuranceRequest.getVimNum());
         insurancesDtl.setBikeTypes(InsuranceBikeTypes.getType(addUpdateRiderInsuranceRequest.getBikeType()));
