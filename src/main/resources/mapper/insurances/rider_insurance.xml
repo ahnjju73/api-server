@@ -35,7 +35,8 @@
                        rid.insurance_company,
                        rid.start_dt,
                        rid.end_dt,
-                       rid.bike_num
+                       rid.bike_num,
+                       rid.stop_dt
                   from rider_insurances ri
                   left outer join rider_insurances_dtl rid
                                on rid.dtl_no = (select dtl_no
