@@ -32,7 +32,7 @@ public class Leases {
 
     @JsonIgnore
     @Column(name = "up_lease_no")
-    private Integer upLesase;
+    private Integer upLease;
 
     @Column(name = "lease_id", unique = true, length = 21)
     private String leaseId;
