@@ -277,6 +277,18 @@ public class BikesService extends SessService {
         return request;
     }
 
+    private BikeStatusTypes getBikeStatusTypeByVimNum(UploadBikeInfo bikeInfo){
+        Leases lease = leaseRepository.findByBike_VimNumAndStatus(bikeInfo.getVimNum(), LeaseStatusTypes.CONFIRM);
+        if(bePresent(lease)){
+            return BikeStatusTypes.RIDING;
+        }else {
+            if(!bePresent(bikeInfo.getStatus()) || BikeStatusTypes.RIDING.equals(bikeInfo.getStatus())){
+                return BikeStatusTypes.PENDING;
+            }
+        }
+        return bikeInfo.getStatus();
+    }
+
     /* todo:
         1. 보관형태를 리스계약서 존재에 따라서 결정한다.
      */
@@ -287,8 +299,9 @@ public class BikesService extends SessService {
         BikeReports reports = uploadBike.getReports();
         originBike.updateBikeInfo(bikeInfo, bikeTransaction);
         originBike.setCarModelData(updatedBikeModel);
-
+        originBike.setBikeStatus(getBikeStatusTypeByVimNum(bikeInfo));
         bikesRepository.save(originBike);
+
         if(bikeInsurance.isAddableBikeInsurance()){
             BikeInsurances selectedBikeInsurance = originBike.getBikeInsurance();
             if(!bePresent(selectedBikeInsurance)) {
@@ -326,6 +339,7 @@ public class BikesService extends SessService {
             Bikes bikes = new Bikes(bikeInfo, bikeTransaction, bikeId);
             bikes.initDescriptionByUploadingExcel(uploadBike);
             bikes.setCarModelData(commonCodeBikesById);
+            bikes.setBikeStatus(getBikeStatusTypeByVimNum(bikeInfo));
             bikesRepository.save(bikes);
             String insuranceId = autoKey.makeGetKey("insurance");
             if(bikeInsurance.isAddableBikeInsurance()){
