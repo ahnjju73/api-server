@@ -2,6 +2,7 @@ package helmet.bikelab.apiserver.domain.client;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import helmet.bikelab.apiserver.domain.lease.Leases;
+import helmet.bikelab.apiserver.domain.shops.Shops;
 import helmet.bikelab.apiserver.domain.types.AccountStatusTypes;
 import helmet.bikelab.apiserver.domain.types.BusinessTypes;
 import helmet.bikelab.apiserver.domain.types.YesNoTypes;
@@ -38,6 +39,13 @@ public class Clients {
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "group_no", insertable = false, updatable = false)
     private ClientGroups clientGroup;
+
+    @Column(name = "shop_no")
+    private Integer shopNo;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "shop_no", insertable = false, updatable = false)
+    private Shops shop;
 
     @Column(name = "direct_yn", columnDefinition = "ENUM", nullable = false)
     @Convert(converter = YesNoTypeConverter.class)
