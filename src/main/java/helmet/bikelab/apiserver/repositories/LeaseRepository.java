@@ -9,6 +9,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface LeaseRepository extends JpaRepository<Leases, Integer> {
+
+    Leases findByBike_VimNumAndStatus(String vimNum, LeaseStatusTypes leaseStatusType);
+
     Leases findByBike_BikeId(String bikeId);
     Leases findByLeaseNo(Integer leaseNo);
     Leases findByBikeNo(Integer bikeNo);
