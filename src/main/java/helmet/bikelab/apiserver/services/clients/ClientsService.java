@@ -184,9 +184,11 @@ public class ClientsService extends SessService {
         fetchClientDetailResponse.setBusinessTypeCode(client.getBusinessType().getBusinessType());
         fetchClientDetailResponse.setDiscountRate(client.getDiscountRate());
         Shops shop = client.getShop();
-        ShopInfo shopInfo = shop.getShopInfo();
-        fetchClientDetailResponse.setShopId(shop.getShopId());
-        fetchClientDetailResponse.setShopName(shopInfo.getName());
+        if(bePresent(shop)) {
+            ShopInfo shopInfo = shop.getShopInfo();
+            fetchClientDetailResponse.setShopId(shop.getShopId());
+            fetchClientDetailResponse.setShopName(shopInfo.getName());
+        }
         response.put("client", fetchClientDetailResponse);
         request.setResponse(response);
         return request;
@@ -227,8 +229,10 @@ public class ClientsService extends SessService {
         clients.setEmail(addClientRequest.getEmail());
         clients.setRegNum(addClientRequest.getRegNo());
         clients.setUuid(addClientRequest.getUuid());
-        Shops shop = shopWorker.getShopByShopId(addClientRequest.getShopId());
-        clients.setShopNo(shop.getShopNo());
+        if(bePresent(addClientRequest.getShopId())) {
+            Shops shop = shopWorker.getShopByShopId(addClientRequest.getShopId());
+            clients.setShopNo(shop.getShopNo());
+        }
         clientsRepository.save(clients);
 
         ClientInfo clientInfo = addClientRequest.getClientInfo();
@@ -307,8 +311,10 @@ public class ClientsService extends SessService {
         client.setUuid(updateClientRequest.getUuid());
         client.setDirectType(YesNoTypes.getYesNo(updateClientRequest.getDirect()));
         client.setRegNum(updateClientRequest.getRegNo());
-        Shops shop = shopWorker.getShopByShopId(updateClientRequest.getShopId());
-        client.setShopNo(shop.getShopNo());
+        if(bePresent(updateClientRequest.getShopId())) {
+            Shops shop = shopWorker.getShopByShopId(updateClientRequest.getShopId());
+            client.setShopNo(shop.getShopNo());
+        }
         clientsRepository.save(client);
 
         clientInfo.setClientNo(client.getClientNo());
