@@ -33,6 +33,7 @@ public class AddUpdateRiderInsuranceRequest extends OriginObject {
     private String bikeNum;
     private String vimNum;
     private String bikeType;
+    private String shopId;
 
     private String usage;
     private String additionalStandard;

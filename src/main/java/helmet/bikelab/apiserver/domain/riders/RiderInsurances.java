@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.PropertyNamingStrategy;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.embeds.ModelAttachment;
+import helmet.bikelab.apiserver.domain.shops.Shops;
 import helmet.bikelab.apiserver.domain.types.InsAgeTypes;
 import helmet.bikelab.apiserver.domain.types.InsuranceBikeTypes;
 import helmet.bikelab.apiserver.domain.types.converters.InsAgeTypeConverter;
@@ -42,6 +43,13 @@ public class RiderInsurances extends OriginObject {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "rider_no", insertable = false, updatable = false)
     private Riders rider;
+
+    @Column(name = "shop_no")
+    private Integer shopNo;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "shop_no", insertable = false, updatable = false)
+    private Shops shop;
 
     @OneToMany(mappedBy = "riderInsurances", fetch = FetchType.EAGER)
     private Set<RiderInsurancesDtl> riderInsurancesDtls;

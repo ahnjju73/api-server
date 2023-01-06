@@ -183,12 +183,15 @@ public class ClientsService extends SessService {
         fetchClientDetailResponse.setBusinessType(client.getBusinessType());
         fetchClientDetailResponse.setBusinessTypeCode(client.getBusinessType().getBusinessType());
         fetchClientDetailResponse.setDiscountRate(client.getDiscountRate());
-        Shops shop = client.getShop();
-        if(bePresent(shop)) {
+
+        ClientShop byClientNo = clientShopRepository.findByClientNo(client.getClientNo());
+        if(bePresent(byClientNo)){
+            Shops shop = byClientNo.getShop();
             ShopInfo shopInfo = shop.getShopInfo();
             fetchClientDetailResponse.setShopId(shop.getShopId());
             fetchClientDetailResponse.setShopName(shopInfo.getName());
         }
+
         response.put("client", fetchClientDetailResponse);
         request.setResponse(response);
         return request;
@@ -229,10 +232,6 @@ public class ClientsService extends SessService {
         clients.setEmail(addClientRequest.getEmail());
         clients.setRegNum(addClientRequest.getRegNo());
         clients.setUuid(addClientRequest.getUuid());
-        if(bePresent(addClientRequest.getShopId())) {
-            Shops shop = shopWorker.getShopByShopId(addClientRequest.getShopId());
-            clients.setShopNo(shop.getShopNo());
-        }
         clientsRepository.save(clients);
 
         ClientInfo clientInfo = addClientRequest.getClientInfo();
@@ -258,11 +257,11 @@ public class ClientsService extends SessService {
         clients.setClientPassword(clientPassword);
         bikeUserLogRepository.save(addLog(BikeUserLogTypes.COMM_CLIENT_ADDED, session.getUserNo(), clients.getClientNo().toString()));
 
-//        Shops shopByShopId = shopWorker.getShopByShopId(addClientRequest.getShopId());
-//        ClientShop clientShop = new ClientShop();
-//        clientShop.setClientNo(clients.getClientNo());
-//        clientShop.setShopNo(shopByShopId.getShopNo());
-//        clientShopRepository.save(clientShop);
+        Shops shopByShopId = shopWorker.getShopByShopId(addClientRequest.getShopId());
+        ClientShop clientShop = new ClientShop();
+        clientShop.setClientNo(clients.getClientNo());
+        clientShop.setShopNo(shopByShopId.getShopNo());
+        clientShopRepository.save(clientShop);
 
         Map response = new HashMap();
         response.put("password", password);
@@ -311,10 +310,6 @@ public class ClientsService extends SessService {
         client.setUuid(updateClientRequest.getUuid());
         client.setDirectType(YesNoTypes.getYesNo(updateClientRequest.getDirect()));
         client.setRegNum(updateClientRequest.getRegNo());
-        if(bePresent(updateClientRequest.getShopId())) {
-            Shops shop = shopWorker.getShopByShopId(updateClientRequest.getShopId());
-            client.setShopNo(shop.getShopNo());
-        }
         clientsRepository.save(client);
 
         clientInfo.setClientNo(client.getClientNo());

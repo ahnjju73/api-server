@@ -40,13 +40,6 @@ public class Clients {
     @JoinColumn(name = "group_no", insertable = false, updatable = false)
     private ClientGroups clientGroup;
 
-    @Column(name = "shop_no")
-    private Integer shopNo;
-
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "shop_no", insertable = false, updatable = false)
-    private Shops shop;
-
     @Column(name = "direct_yn", columnDefinition = "ENUM", nullable = false)
     @Convert(converter = YesNoTypeConverter.class)
     private YesNoTypes directType;

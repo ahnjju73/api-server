@@ -10,6 +10,7 @@ import helmet.bikelab.apiserver.domain.riders.RiderInsuranceHistories;
 import helmet.bikelab.apiserver.domain.riders.RiderInsurances;
 import helmet.bikelab.apiserver.domain.riders.RiderInsurancesDtl;
 import helmet.bikelab.apiserver.domain.riders.Riders;
+import helmet.bikelab.apiserver.domain.shops.Shops;
 import helmet.bikelab.apiserver.domain.types.*;
 import helmet.bikelab.apiserver.objects.*;
 import helmet.bikelab.apiserver.objects.bikelabs.insurance.DeleteInsuranceRequest;
@@ -28,6 +29,7 @@ import helmet.bikelab.apiserver.utils.keys.ENV;
 import helmet.bikelab.apiserver.workers.BikeWorker;
 import helmet.bikelab.apiserver.workers.CommonWorker;
 import helmet.bikelab.apiserver.workers.RiderWorker;
+import helmet.bikelab.apiserver.workers.ShopWorker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -48,6 +50,7 @@ public class InsurancesService extends SessService {
     private final InsurancesRepository insurancesRepository;
     private final AutoKey autoKey;
     private final RiderWorker riderWorker;
+    private final ShopWorker shopWorker;
     private final BikeWorker bikeWorker;
     private final InsuranceOptionlRepository insuranceOptionlRepository;
     private final LeaseRepository leaseRepository;
@@ -167,6 +170,10 @@ public class InsurancesService extends SessService {
                 riderInsurances.setRiderName(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderName());
                 riderInsurances.setRiderSsn(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderSsn());
             }
+        }
+        if(bePresent(addUpdateRiderInsuranceRequest.getShopId())){
+            Shops shop = shopWorker.getShopByShopId(addUpdateRiderInsuranceRequest.getShopId());
+            riderInsurances.setShopNo(shop.getShopNo());
         }
         if(bePresent(addUpdateRiderInsuranceRequest.getContractInfoDto())) {
             riderInsurances.setContractorAddress(new AddressDto().setByModelAddress(addUpdateRiderInsuranceRequest.getContractorAddress()));
@@ -318,6 +325,10 @@ public class InsurancesService extends SessService {
                 riderInsurances.setRiderName(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderName());
                 riderInsurances.setRiderSsn(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderSsn());
             }
+        }
+        if(bePresent(addUpdateRiderInsuranceRequest.getShopId())){
+            Shops shop = shopWorker.getShopByShopId(addUpdateRiderInsuranceRequest.getShopId());
+            riderInsurances.setShopNo(shop.getShopNo());
         }
         if(bePresent(addUpdateRiderInsuranceRequest.getContractInfoDto())) {
             riderInsurances.setContractorAddress(new AddressDto().setByModelAddress(addUpdateRiderInsuranceRequest.getContractorAddress()));
