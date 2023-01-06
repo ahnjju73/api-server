@@ -20,6 +20,7 @@ import java.util.List;
 @Setter
 @JsonNaming(PropertyNamingStrategy.SnakeCaseStrategy.class)
 public class AddUpdateRiderInsuranceRequest extends OriginObject {
+    private Integer dtlNo;
     private String insCompany;
     private String insNum;
     private ModelAddress address;
