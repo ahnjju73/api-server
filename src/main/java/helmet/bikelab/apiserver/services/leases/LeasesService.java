@@ -565,7 +565,7 @@ public class LeasesService extends SessService {
             if (bePresent(addUpdateLeaseRequest.getReleaseAt())) lease.setReleaseAt(addUpdateLeaseRequest.getReleaseAt());
             lease.setIsMt(addUpdateLeaseRequest.getIsMt());
             lease.setContractTypes(ContractTypes.getContractType(addUpdateLeaseRequest.getContractType()));
-            lease.setUpLesase(addUpdateLeaseRequest.getUpLeaseNo());
+            lease.setUpLease(addUpdateLeaseRequest.getUpLeaseNo());
             leaseRepository.save(lease);
 //            leaseInsurances.setLeaseNo(lease.getLeaseNo());
 //            leaseInsurancesRepository.save(leaseInsurances);
