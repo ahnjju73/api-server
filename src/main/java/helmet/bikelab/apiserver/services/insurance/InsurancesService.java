@@ -568,7 +568,10 @@ public class InsurancesService extends SessService {
 
     public BikeSessionRequest sendSMSMessage(BikeSessionRequest request) {
         SMSMessageDto messageDto = map(request.getParam(), SMSMessageDto.class);
-        senders.withPhoneMessage(messageDto.getContents(), messageDto.getPhone());
+        if(bePresent(messageDto.getSenderPhone()))
+            senders.withPhoneMessagewithSender(messageDto.getContents(), messageDto.getSenderPhone(), messageDto.getPhone());
+        else
+            senders.withPhoneMessage(messageDto.getContents(), messageDto.getPhone());
         return request;
     }
 }
