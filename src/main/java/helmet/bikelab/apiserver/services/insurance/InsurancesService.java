@@ -338,9 +338,10 @@ public class InsurancesService extends SessService {
         }
         if(bePresent(addUpdateRiderInsuranceRequest.getDescription())){
             for(RiderInsurancesDtl riderInsurancesDtl : riderInsurances.getRiderInsurancesDtls()){
-                if(riderInsurancesDtl.equals(addUpdateRiderInsuranceRequest.getDtlNo())){
+                if(riderInsurancesDtl.getDtlNo().equals(addUpdateRiderInsuranceRequest.getDtlNo())){
                     riderInsurancesDtl.setDescription(addUpdateRiderInsuranceRequest.getDescription());
-                    riderInsuranceRepository.save(riderInsurances);
+                    riderInsuranceDtlRepository.save(riderInsurancesDtl);
+                    break;
                 }
             }
         }
