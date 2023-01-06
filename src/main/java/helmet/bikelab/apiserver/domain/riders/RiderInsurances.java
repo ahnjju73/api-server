@@ -71,7 +71,7 @@ public class RiderInsurances extends OriginObject {
 
     @Column(name = "rider_address", columnDefinition = "JSON")
     @Convert(converter = ModelAddressConverter.class)
-    AddressDto riderAddress;
+    private AddressDto riderAddress;
 
     @Column(name = "contractor_phone")
     private String contractorPhone;
@@ -84,7 +84,7 @@ public class RiderInsurances extends OriginObject {
 
     @Column(name = "contractor_address", columnDefinition = "JSON")
     @Convert(converter = ModelAddressConverter.class)
-    AddressDto contractorAddress;
+    private AddressDto contractorAddress;
 
     @JsonIgnore
     @Column(name = "attachments", columnDefinition = "JSON")
