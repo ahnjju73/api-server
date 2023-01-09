@@ -98,6 +98,7 @@
         <result property="estimate_status" column="status"/>
         <result property="total_hour" column="total_hour"/>
         <result property="created_at" column="created_at"/>
+        <result property="confirm_at" column="confirm_at"/>
         <result property="is_released" column="is_released"/>
         <result property="paid_fee" column="paid_fee"/>
         <result property="client_id" column="client_id"/>
@@ -142,6 +143,7 @@
                paid_fee,
                e.status,
                e.deleted_at,
+               e.confirm_at,
                shop_id,
                si.name as shop_name,
                r.rider_id,
