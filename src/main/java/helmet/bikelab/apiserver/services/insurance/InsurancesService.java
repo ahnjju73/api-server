@@ -336,6 +336,15 @@ public class InsurancesService extends SessService {
             riderInsurances.setContractorPhone(addUpdateRiderInsuranceRequest.getContractInfoDto().getRiderPhone());
             riderInsurances.setContractorSsn(addUpdateRiderInsuranceRequest.getContractInfoDto().getRiderSsn());
         }
+        if(bePresent(addUpdateRiderInsuranceRequest.getDescription())){
+            for(RiderInsurancesDtl riderInsurancesDtl : riderInsurances.getRiderInsurancesDtls()){
+                if(riderInsurancesDtl.getDtlNo().equals(addUpdateRiderInsuranceRequest.getDtlNo())){
+                    riderInsurancesDtl.setDescription(addUpdateRiderInsuranceRequest.getDescription());
+                    riderInsuranceDtlRepository.save(riderInsurancesDtl);
+                    break;
+                }
+            }
+        }
         riderInsurances.setRiderAddress(new AddressDto().setByModelAddress(addUpdateRiderInsuranceRequest.getAddress()));
         List<ModelAttachment> attachments = addUpdateRiderInsuranceRequest.getAttachments() != null ? addUpdateRiderInsuranceRequest.getAttachments() : new ArrayList<>();
         deletedAttachments(riderInsurances.getAttachmentsList(), attachments).stream().forEach(ma -> {
@@ -398,7 +407,7 @@ public class InsurancesService extends SessService {
             }
         } else if (!bePresent(rider)) {
             if (!riderInsurances.getRiderName().equals(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderName())) {
-                change += "라이더를 <>" + riderInsurances.getRiderName() + "</>에서 <>" + rider.getRiderInfo().getName() + "</>로 수정하였습니다.";
+                change += "라이더를 <>" + riderInsurances.getRiderName() + "</>에서 <>" + addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderName() + "</>로 수정하였습니다.";
             }
             if (!riderInsurances.getRiderEmail().equals(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderEmail())) {
                 change += "라이더 이메일을 <>" + riderInsurances.getRiderEmail() + "</>에서 <>" + addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderEmail() + "</>로 수정하였습니다.";
