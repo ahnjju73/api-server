@@ -505,18 +505,15 @@ public class ShopService extends SessService {
         Map result = new HashMap();
         Map<String, List<RegularInspections>> contents = new HashMap();
         List<Clients> clientListByGroupId;
-        int clientCnt;
         if(bePresent(fetchRegularInspectionRequest.getGroupId())) {
             clientListByGroupId = clientWorker.getClientListByGroupId(fetchRegularInspectionRequest.getGroupId());
-            clientCnt = clientWorker.getTotalClientsByGroup(fetchRegularInspectionRequest.getGroupId());
         }
         else{
             clientListByGroupId = clientWorker.getAllClientList();
-            clientCnt = clientWorker.getTotalClients();
         }
-        int from = fetchRegularInspectionRequest.getPage() * fetchRegularInspectionRequest.getPage();
-        int to = from + fetchRegularInspectionRequest.getSize();
-        clientListByGroupId = clientListByGroupId.subList(from, to > clientCnt ? to : clientCnt);
+//        int from = fetchRegularInspectionRequest.getPage() * fetchRegularInspectionRequest.getPage();
+//        int to = from + fetchRegularInspectionRequest.getSize();
+//        clientListByGroupId = clientListByGroupId.subList(from, to > clientCnt ? to : clientCnt);
         LocalDateTime localDateTime = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
@@ -542,7 +539,7 @@ public class ShopService extends SessService {
                 inspectionsByClients.add(contents.get(key));
             }
         }
-        result.put("inspections", inspectionsByClients);
+//        result.put("inspections", inspectionsByClients);
 //        result.put("total_elements", clientCnt);
 //        result.put("page", fetchRegularInspectionRequest.getPage());
 //        result.put("size", fetchRegularInspectionRequest.getSize());
