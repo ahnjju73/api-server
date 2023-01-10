@@ -52,4 +52,8 @@ public class ClientWorker extends SessService {
         clientAttachmentsRepository.deleteAllByClient_ClientId(clientId);
         clientsRepository.deleteByClientId(clientId);
     }
+
+    public int getTotalClients(){
+        return clientsRepository.countAllBy();
+    }
 }

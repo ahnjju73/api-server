@@ -551,6 +551,7 @@ public class InsurancesService extends SessService {
         insurancesDtl.setStartDt(addUpdateRiderInsuranceRequest.getStartDt());
         insurancesDtl.setEndDt(addUpdateRiderInsuranceRequest.getEndDt());
         insurancesDtl.setInsFee(addUpdateRiderInsuranceRequest.getInsFee());
+        insurancesDtl.setDescription(addUpdateRiderInsuranceRequest.getDescription());
         riderInsuranceDtlRepository.save(insurancesDtl);
         return request;
     }

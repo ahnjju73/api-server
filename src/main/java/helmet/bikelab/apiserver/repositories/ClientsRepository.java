@@ -19,4 +19,5 @@ public interface ClientsRepository extends JpaRepository<Clients, Integer> {
     Clients findByUuid(String uuid);
     Integer countAllByUuid(String uuid);
     Integer countAllByRegNum(String regNum);
+    Integer countAllBy();
 }

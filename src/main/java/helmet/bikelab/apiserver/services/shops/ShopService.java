@@ -489,19 +489,48 @@ public class ShopService extends SessService {
 
     public BikeSessionRequest fetchInspections(BikeSessionRequest request){
         FetchRegularInspectionRequest fetchRegularInspectionRequest = map(request.getParam(), FetchRegularInspectionRequest.class);
-        Pageable pageable = PageRequest.of(fetchRegularInspectionRequest.getPage(), fetchRegularInspectionRequest.getSize());
-        if(bePresent(fetchRegularInspectionRequest.getClientId())){
-            Page<RegularInspections> allByClient_clientId = regularInspectionRepository.findAllByClient_ClientId(fetchRegularInspectionRequest.getClientId(), pageable);
-            request.setResponse(allByClient_clientId);
-        }else if(bePresent(fetchRegularInspectionRequest.getGroupId())){
-            Page<RegularInspections> allByGroup_groupId = regularInspectionRepository.findAllByGroup_GroupId(fetchRegularInspectionRequest.getGroupId(), pageable);
-            request.setResponse(allByGroup_groupId);
-        }else if(bePresent(fetchRegularInspectionRequest.getStartDt()) && bePresent(fetchRegularInspectionRequest.getEndDt())){
-            Page<RegularInspections> allByInspectDateBetween = regularInspectionRepository.findAllByInspectDtBetween(fetchRegularInspectionRequest.getStartDt(), fetchRegularInspectionRequest.getEndDt(), pageable);
-            request.setResponse(allByInspectDateBetween);
-        }else{
-            request.setResponse(regularInspectionRepository.findAllByOrderByInspectDtDesc(pageable));
-        }
+//        Pageable pageable = PageRequest.of(fetchRegularInspectionRequest.getPage(), fetchRegularInspectionRequest.getSize());
+//        if(bePresent(fetchRegularInspectionRequest.getClientId())){
+//            Page<RegularInspections> allByClient_clientId = regularInspectionRepository.findAllByClient_ClientId(fetchRegularInspectionRequest.getClientId(), pageable);
+//            request.setResponse(allByClient_clientId);
+//        }else if(bePresent(fetchRegularInspectionRequest.getGroupId())){
+//            Page<RegularInspections> allByGroup_groupId = regularInspectionRepository.findAllByGroup_GroupId(fetchRegularInspectionRequest.getGroupId(), pageable);
+//            request.setResponse(allByGroup_groupId);
+//        }else if(bePresent(fetchRegularInspectionRequest.getStartDt()) && bePresent(fetchRegularInspectionRequest.getEndDt())){
+//            Page<RegularInspections> allByInspectDateBetween = regularInspectionRepository.findAllByInspectDtBetween(fetchRegularInspectionRequest.getStartDt(), fetchRegularInspectionRequest.getEndDt(), pageable);
+//            request.setResponse(allByInspectDateBetween);
+//        }else{
+//            request.setResponse(regularInspectionRepository.findAllByOrderByInspectDtDesc(pageable));
+//        }
+        Map result = new HashMap();
+//        Map<String, List<RegularInspections>> contents = new HashMap();
+//        List<Clients> clientListByGroupId = null;
+//        if(bePresent(fetchRegularInspectionRequest.getGroupId()))
+//            clientListByGroupId = clientWorker.getClientListByGroupId(fetchRegularInspectionRequest.getGroupId());
+//        else
+//
+//        int start = fetchRegularInspectionRequest.getPage() * fetchRegularInspectionRequest.getSize();
+//        LocalDateTime localDateTime = LocalDateTime.now().minusMonths(2);
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+//        LocalDateTime now = LocalDateTime.now().minusMonths(3).withDayOfMonth(1);
+//        String stadards = now.format(formatter);
+//        localDateTime.toLocalDate();
+////        clientListByGroupId = clientListByGroupId.subList(start, start + fetchRegularInspectionRequest.getSize() + 1 > clientListByGroupId.size() ? clientListByGroupId.size() : start + fetchRegularInspectionRequest.getSize() + 1);
+//        List<Integer> clientList = new ArrayList<>();
+//        for (Clients c : clientListByGroupId) {
+//            clientList.add(c.getClientNo());
+//            contents.put(c.getClientId(), new ArrayList<>());
+//        }
+//        List<RegularInspections> regularInspections = regularInspectionRepository.findAllByClientNoInAndIncludeDtIsGreaterThanEqual(clientList, stadards);
+//        for (RegularInspections ri : regularInspections) {
+//            (contents.get(ri.getClient().getClientId())).add(ri);
+//        }
+//        List<List<RegularInspections>> inspectionsByClients = new ArrayList<>();
+//        for(String key : contents.keySet()){
+//            if((contents.get(key)).size() > 0){
+//                inspectionsByClients.add(contents.get(key));
+//            }
+//        }
         return request;
     }
 
