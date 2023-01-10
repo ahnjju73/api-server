@@ -186,7 +186,7 @@ public class ShopHandler {
                         .subscribeOn(Schedulers.elastic())
                         .map(shopService::checkBikeSession)
                         .map(shopService::fetchInspections)
-                        .map(shopService::returnData), Map.class);
+                        .map(shopService::returnData), List.class);
     }
 
     public Mono<ServerResponse> fetchInspectionListByGroups(ServerRequest request) {

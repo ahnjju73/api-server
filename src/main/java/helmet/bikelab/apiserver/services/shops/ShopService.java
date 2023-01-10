@@ -542,11 +542,11 @@ public class ShopService extends SessService {
                 inspectionsByClients.add(contents.get(key));
             }
         }
-        result.put("content", inspectionsByClients);
-        result.put("total_elements", clientCnt);
-        result.put("page", fetchRegularInspectionRequest.getPage());
-        result.put("size", fetchRegularInspectionRequest.getSize());
-        request.setResponse(result);
+        result.put("inspections", inspectionsByClients);
+//        result.put("total_elements", clientCnt);
+//        result.put("page", fetchRegularInspectionRequest.getPage());
+//        result.put("size", fetchRegularInspectionRequest.getSize());
+        request.setResponse(inspectionsByClients);
         return request;
     }
 
