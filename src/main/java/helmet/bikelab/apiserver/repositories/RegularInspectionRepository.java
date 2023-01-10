@@ -28,6 +28,6 @@ public interface RegularInspectionRepository extends JpaRepository<RegularInspec
     void deleteByInspectId(String inspectId);
     RegularInspections findByClient_ClientIdAndTimesAndIncludeDt(String clientId, TimeTypes timeTypes, String includeDate);
 
-    List<RegularInspections> findAllByClientNoInAndIncludeDtIsGreaterThanEqual(List<Integer> clientsNo, String standards);
+    List<RegularInspections> findAllByClientNoInAndIncludeDtBetween(List<Integer> clientsNo, String start, String end);
 
 }

@@ -30,6 +30,11 @@ public class ClientWorker extends SessService {
         return allByGroupId;
     }
 
+    public List<Clients> getAllClientList(){
+        List<Clients> allByGroupId = clientsRepository.findAll();
+        return allByGroupId;
+    }
+
     public Clients getClientByClientId(String clientId){
         Clients byClientId = clientsRepository.findByClientId(clientId);
         if(!bePresent(byClientId)) withException("400-100");
@@ -55,5 +60,9 @@ public class ClientWorker extends SessService {
 
     public int getTotalClients(){
         return clientsRepository.countAllBy();
+    }
+
+    public int getTotalClientsByGroup(String groupId){
+        return clientsRepository.countAllByClientGroup_GroupId(groupId);
     }
 }

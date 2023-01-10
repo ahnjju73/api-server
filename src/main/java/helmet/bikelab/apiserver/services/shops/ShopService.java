@@ -503,14 +503,59 @@ public class ShopService extends SessService {
 //            request.setResponse(regularInspectionRepository.findAllByOrderByInspectDtDesc(pageable));
 //        }
         Map result = new HashMap();
-//        Map<String, List<RegularInspections>> contents = new HashMap();
-//        List<Clients> clientListByGroupId = null;
-//        if(bePresent(fetchRegularInspectionRequest.getGroupId()))
-//            clientListByGroupId = clientWorker.getClientListByGroupId(fetchRegularInspectionRequest.getGroupId());
-//        else
-//
+        Map<String, List<RegularInspections>> contents = new HashMap();
+        List<Clients> clientListByGroupId;
+        int clientCnt;
+        if(bePresent(fetchRegularInspectionRequest.getGroupId())) {
+            clientListByGroupId = clientWorker.getClientListByGroupId(fetchRegularInspectionRequest.getGroupId());
+            clientCnt = clientWorker.getTotalClientsByGroup(fetchRegularInspectionRequest.getGroupId());
+        }
+        else{
+            clientListByGroupId = clientWorker.getAllClientList();
+            clientCnt = clientWorker.getTotalClients();
+        }
+        int from = fetchRegularInspectionRequest.getPage() * fetchRegularInspectionRequest.getPage();
+        int to = from + fetchRegularInspectionRequest.getSize();
+        clientListByGroupId = clientListByGroupId.subList(from, to > clientCnt ? to : clientCnt);
+        LocalDateTime localDateTime = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        if(bePresent(fetchRegularInspectionRequest.getStandardDt())){
+            localDateTime = fetchRegularInspectionRequest.getStandardDt();
+        }
+        LocalDateTime start = localDateTime.minusMonths(2).withDayOfMonth(1);
+        LocalDateTime end = localDateTime.plusMonths(3).withDayOfMonth(1);
+        String startStadards = start.format(formatter);
+        String endStadards = end.format(formatter);
+        List<Integer> clientList = new ArrayList<>();
+        for (Clients c : clientListByGroupId) {
+            clientList.add(c.getClientNo());
+            contents.put(c.getClientId(), new ArrayList<>());
+        }
+        List<RegularInspections> regularInspections = regularInspectionRepository.findAllByClientNoInAndIncludeDtBetween(clientList, startStadards, endStadards);
+        for (RegularInspections ri : regularInspections) {
+            (contents.get(ri.getClient().getClientId())).add(ri);
+        }
+        List<List<RegularInspections>> inspectionsByClients = new ArrayList<>();
+        for(String key : contents.keySet()){
+            if((contents.get(key)).size() > 0){
+                inspectionsByClients.add(contents.get(key));
+            }
+        }
+        result.put("content", inspectionsByClients);
+        result.put("total_elements", clientCnt);
+        result.put("page", fetchRegularInspectionRequest.getPage());
+        result.put("size", fetchRegularInspectionRequest.getSize());
+        request.setResponse(result);
+        return request;
+    }
+
+    public BikeSessionRequest fetchInspectionsByGroups(BikeSessionRequest request){
+//        FetchRegularInspectionRequest fetchRegularInspectionRequest = map(request.getParam(), FetchRegularInspectionRequest.class);
+//        Map<String, List<RegularInspections>> result = new HashMap();
+//        List<Clients> clientListByGroupId = clientWorker.getClientListByGroupId(fetchRegularInspectionRequest.getGroupId());
 //        int start = fetchRegularInspectionRequest.getPage() * fetchRegularInspectionRequest.getSize();
-//        LocalDateTime localDateTime = LocalDateTime.now().minusMonths(2);
+//        LocalDateTime localDateTime = LocalDateTime.now().minusMonths(3);
 //        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 //        LocalDateTime now = LocalDateTime.now().minusMonths(3).withDayOfMonth(1);
 //        String stadards = now.format(formatter);
@@ -519,51 +564,22 @@ public class ShopService extends SessService {
 //        List<Integer> clientList = new ArrayList<>();
 //        for (Clients c : clientListByGroupId) {
 //            clientList.add(c.getClientNo());
-//            contents.put(c.getClientId(), new ArrayList<>());
+//            result.put(c.getClientId(), new ArrayList<>());
 //        }
 //        List<RegularInspections> regularInspections = regularInspectionRepository.findAllByClientNoInAndIncludeDtIsGreaterThanEqual(clientList, stadards);
 //        for (RegularInspections ri : regularInspections) {
-//            (contents.get(ri.getClient().getClientId())).add(ri);
+//            (result.get(ri.getClient().getClientId())).add(ri);
 //        }
 //        List<List<RegularInspections>> inspectionsByClients = new ArrayList<>();
-//        for(String key : contents.keySet()){
-//            if((contents.get(key)).size() > 0){
-//                inspectionsByClients.add(contents.get(key));
+//        for(String key : result.keySet()){
+//            if((result.get(key)).size() > 0){
+//                inspectionsByClients.add(result.get(key));
 //            }
 //        }
-        return request;
-    }
-
-    public BikeSessionRequest fetchInspectionsByGroups(BikeSessionRequest request){
-        FetchRegularInspectionRequest fetchRegularInspectionRequest = map(request.getParam(), FetchRegularInspectionRequest.class);
-        Map<String, List<RegularInspections>> result = new HashMap();
-        List<Clients> clientListByGroupId = clientWorker.getClientListByGroupId(fetchRegularInspectionRequest.getGroupId());
-        int start = fetchRegularInspectionRequest.getPage() * fetchRegularInspectionRequest.getSize();
-        LocalDateTime localDateTime = LocalDateTime.now().minusMonths(3);
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        LocalDateTime now = LocalDateTime.now().minusMonths(3).withDayOfMonth(1);
-        String stadards = now.format(formatter);
-        localDateTime.toLocalDate();
-//        clientListByGroupId = clientListByGroupId.subList(start, start + fetchRegularInspectionRequest.getSize() + 1 > clientListByGroupId.size() ? clientListByGroupId.size() : start + fetchRegularInspectionRequest.getSize() + 1);
-        List<Integer> clientList = new ArrayList<>();
-        for (Clients c : clientListByGroupId) {
-            clientList.add(c.getClientNo());
-            result.put(c.getClientId(), new ArrayList<>());
-        }
-        List<RegularInspections> regularInspections = regularInspectionRepository.findAllByClientNoInAndIncludeDtIsGreaterThanEqual(clientList, stadards);
-        for (RegularInspections ri : regularInspections) {
-            (result.get(ri.getClient().getClientId())).add(ri);
-        }
-        List<List<RegularInspections>> inspectionsByClients = new ArrayList<>();
-        for(String key : result.keySet()){
-            if((result.get(key)).size() > 0){
-                inspectionsByClients.add(result.get(key));
-            }
-        }
-        Map<String, Object> toReturn = new HashMap<>();
-        toReturn.put("inspections", inspectionsByClients);
-//        toReturn.put("total_page", (int)Math.ceil((double)clientListByGroupId.size() / fetchRegularInspectionRequest.getSize()) - 1);
-        request.setResponse(toReturn);
+//        Map<String, Object> toReturn = new HashMap<>();
+//        toReturn.put("inspections", inspectionsByClients);
+////        toReturn.put("total_page", (int)Math.ceil((double)clientListByGroupId.size() / fetchRegularInspectionRequest.getSize()) - 1);
+//        request.setResponse(toReturn);
         return request;
     }
 
