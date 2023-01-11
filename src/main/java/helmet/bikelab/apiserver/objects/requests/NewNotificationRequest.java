@@ -22,6 +22,7 @@ public class NewNotificationRequest extends OriginObject {
     private List<PresignedURLVo> attachmentList;
     private String startAt;
     private String endAt;
+    private Boolean isVital;
 
     public void checkValidation(){
         if(!bePresent(title))

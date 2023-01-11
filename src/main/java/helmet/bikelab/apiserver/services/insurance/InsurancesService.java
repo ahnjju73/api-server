@@ -595,4 +595,11 @@ public class InsurancesService extends SessService {
             senders.withPhoneMessage(messageDto.getContents(), messageDto.getPhone());
         return request;
     }
+
+
+    private boolean bikeValidationCheckForIns(String bikeNum, String vimNum){
+        boolean isValid = true;
+//        bikeWorker.getBike
+        return false;
+    }
 }

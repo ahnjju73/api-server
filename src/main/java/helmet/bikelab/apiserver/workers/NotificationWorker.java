@@ -65,6 +65,7 @@ public class NotificationWorker extends Workspace {
         result.setAttachmentList(attachmentCollect);
         result.setStartAt(LocalDateTime.parse(request.getStartAt()));
         result.setEndAt(LocalDateTime.parse(request.getEndAt()));
+        result.setIsVital(request.getIsVital());
         return result;
     }
 

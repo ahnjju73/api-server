@@ -40,6 +40,9 @@ public class ShopInfo {
     @Column(name = "phone", length = 45)
     private String phone;
 
+    @Column(name = "fax_number", length = 45)
+    private String faxNumber;
+
     @Column(name = "manager_name", length = 45)
     private String managerName;
 

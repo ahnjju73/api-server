@@ -59,4 +59,7 @@ public class Notifications {
 
     @Column(name = "created_at", columnDefinition = "DATETIME DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt = LocalDateTime.now();
+
+    @Column(name = "is_vital", columnDefinition = "TINYINT(1)")
+    private Boolean isVital;
 }

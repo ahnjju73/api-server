@@ -141,6 +141,7 @@ public class ShopService extends SessService {
         ShopInfo shopInfo = new ShopInfo();
         shopInfo.setShop(shop);
         shopInfo.setPhone(addShopRequest.getPhone());
+        shopInfo.setFaxNumber(addShopRequest.getFaxNumber());
         shopInfo.setShopNo(shop.getShopNo());
         shopInfo.setName(addShopRequest.getName());
         shopInfo.setManagerName(addShopRequest.getManagerName());
@@ -200,6 +201,7 @@ public class ShopService extends SessService {
         shopsRepository.save(shopByShopId);
 
         shopInfo.setPhone(shopRequest.getPhone());
+        shopInfo.setFaxNumber(shopRequest.getFaxNumber());
         shopInfo.setName(shopRequest.getName());
         shopInfo.setManagerName(shopRequest.getManagerName());
         shopInfo.setStartTime(LocalTime.parse(shopRequest.getStartTime()));
@@ -256,6 +258,11 @@ public class ShopService extends SessService {
             if (bePresent(originShopInfo.getPhone()))
                 stringList.add("정비소 연락처를 <>" + originShopInfo.getPhone() + "</>에서 <>" + updatedObj.getPhone() + "</>(으)로 변경하였습니다.");
             else stringList.add("정비소 연락처를 <>" + updatedObj.getPhone() + "</>(으)로 등록하였습니다.");
+        }
+        if (bePresent(updatedObj.getFaxNumber()) && !updatedObj.getFaxNumber().equals(originShopInfo.getFaxNumber())) {
+            if (bePresent(originShopInfo.getFaxNumber()))
+                stringList.add("정비소 팩스 번호를 <>" + originShopInfo.getPhone() + "</>에서 <>" + updatedObj.getPhone() + "</>(으)로 변경하였습니다.");
+            else stringList.add("정비소 팩스 번호를 <>" + updatedObj.getPhone() + "</>(으)로 등록하였습니다.");
         }
 //        if(bePresent(updatedObj.getStartTime()) && !updatedObj.getStartTime().equals(originShopInfo.getStartTime())){
 //            if(bePresent(originShopInfo.getStartTime()))

@@ -54,6 +54,16 @@ public class BikeWorker extends Workspace {
         return bike;
     }
 
+    public Bikes getBikeByBikeNum(String bikeNum){
+        Bikes bike = bikesRepository.findByCarNum(bikeNum);
+        return bike;
+    }
+
+    public Bikes getBikeByVim(String vimNum){
+        Bikes bike = bikesRepository.findByVimNum(vimNum);
+        return bike;
+    }
+
     public Bikes getEmptyBikes(){
         String emptyBikeId = (String)getItem("comm.common.getEmptyCar", null);
         Bikes byBikeId = bikesRepository.findByBikeId(emptyBikeId);
