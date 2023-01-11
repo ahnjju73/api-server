@@ -131,8 +131,9 @@ public class ShopHandler {
 
     public Mono<ServerResponse> generatePresignedUrl(ServerRequest request){
         return ServerResponse.ok().body(
-                Mono.fromSupplier(() -> shopService.makeSessionRequest(request, BikeSessionRequest.class))
+                request.bodyToMono(Map.class)
                         .subscribeOn(Schedulers.elastic())
+                        .map(row -> shopService.makeSessionRequest(request, row, BikeSessionRequest.class))
                         .map(shopService::checkBikeSession)
                         .map(shopService::generatePresignedUrl)
                         .map(shopService::returnData), PresignedURLVo.class);

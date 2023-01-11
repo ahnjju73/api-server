@@ -599,7 +599,10 @@ public class InsurancesService extends SessService {
 
     private boolean bikeValidationCheckForIns(String bikeNum, String vimNum){
         boolean isValid = true;
-//        bikeWorker.getBike
+        Bikes bikeByBikeNum = bikeWorker.getBikeByBikeNum(bikeNum);
+        Bikes bikeByVimNum = bikeWorker.getBikeByVim(vimNum);
+
+
         return false;
     }
 }
