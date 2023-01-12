@@ -459,6 +459,7 @@ public class ShopService extends SessService {
         regularInspections.setClientNo(clients.getClientNo());
         regularInspections.setGroupNo(clients.getGroupNo());
         regularInspections.setShopNo(shopByShopId.getShopNo());
+        regularInspections.setTimes(TimeTypes.getType(addUpdateRegularInspectionRequest.getOrder()));
         List<ModelAttachment> attachments = new ArrayList<>();
         if(bePresent(addUpdateRegularInspectionRequest.getNewAttachments())) {
             List<ModelAttachment> newAttachments = addUpdateRegularInspectionRequest.getNewAttachments()
@@ -626,6 +627,7 @@ public class ShopService extends SessService {
         regularInspections.setClientNo(clients.getClientNo());
         regularInspections.setGroupNo(clients.getGroupNo());
         regularInspections.setShopNo(shopByShopId.getShopNo());
+        regularInspections.setTimes(TimeTypes.getType(addUpdateRegularInspectionRequest.getOrder()));
         List<ModelAttachment> attachments = addUpdateRegularInspectionRequest.getAttachments() != null ? addUpdateRegularInspectionRequest.getAttachments() : new ArrayList<>();
         deletedAttachments(regularInspections.getAttachmentsList(), attachments).stream().forEach(ma -> {
             AmazonS3 amazonS3 = AmazonUtils.amazonS3();

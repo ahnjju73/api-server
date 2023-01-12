@@ -597,12 +597,21 @@ public class InsurancesService extends SessService {
     }
 
 
-    private boolean bikeValidationCheckForIns(String bikeNum, String vimNum){
-        boolean isValid = true;
-        Bikes bikeByBikeNum = bikeWorker.getBikeByBikeNum(bikeNum);
-        Bikes bikeByVimNum = bikeWorker.getBikeByVim(vimNum);
+    private void bikeValidationCheckForIns(String bikeNum, String vimNum, LocalDateTime start, LocalDateTime end){
+        if(bePresent(bikeNum)){
+            List<RiderInsurancesDtl> allByBikeNum = riderInsuranceDtlRepository.findAllByBikeNum(bikeNum);
+            for (int i = 0; i < allByBikeNum.size(); i++) {
+                RiderInsurancesDtl insurancesDtl = allByBikeNum.get(i);
+                if(bePresent(insurancesDtl.getStopDt())){
+                    if(!insurancesDtl.getStopDt().isBefore(start) || !insurancesDtl.getStartDt().isAfter(end)){
+                        withException("");
+                    }
+                }
+                else if(!insurancesDtl.getEndDt().isBefore(start) || !insurancesDtl.getStartDt().isAfter(end)){
+                    withException("");
+                }
+            }
+        }
 
-
-        return false;
     }
 }
