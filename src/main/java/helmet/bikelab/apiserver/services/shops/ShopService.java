@@ -460,10 +460,13 @@ public class ShopService extends SessService {
         regularInspections.setGroupNo(clients.getGroupNo());
         regularInspections.setShopNo(shopByShopId.getShopNo());
         if(bePresent(addUpdateRegularInspectionRequest.getOrder())) {
-            RegularInspections byTimesAndIncludeDt = regularInspectionRepository.findByClient_ClientIdAndTimesAndIncludeDt(addUpdateRegularInspectionRequest.getClientId(), TimeTypes.getType(addUpdateRegularInspectionRequest.getOrder()), regularInspections.getIncludeDt());
+            List<RegularInspections> byTimesAndIncludeDt = regularInspectionRepository.findAllByClient_ClientIdAndTimesAndIncludeDt(addUpdateRegularInspectionRequest.getClientId(), TimeTypes.getType(addUpdateRegularInspectionRequest.getOrder()), addUpdateRegularInspectionRequest.getIncludeDt());
             if(bePresent(byTimesAndIncludeDt)) {
-                byTimesAndIncludeDt.setTimes(null);
-                regularInspectionRepository.save(byTimesAndIncludeDt);
+                for (RegularInspections insp :
+                        byTimesAndIncludeDt) {
+                    insp.setTimes(null);
+                }
+                regularInspectionRepository.saveAll(byTimesAndIncludeDt);
             }
         }
         regularInspections.setTimes(TimeTypes.getType(addUpdateRegularInspectionRequest.getOrder()));
@@ -623,10 +626,13 @@ public class ShopService extends SessService {
             regularInspectionHistoryRepository.save(regularInspectionHistories);
         }
         if(bePresent(addUpdateRegularInspectionRequest.getOrder())) {
-            RegularInspections byTimesAndIncludeDt = regularInspectionRepository.findByClient_ClientIdAndTimesAndIncludeDt(addUpdateRegularInspectionRequest.getClientId(), TimeTypes.getType(addUpdateRegularInspectionRequest.getOrder()), regularInspections.getIncludeDt());
+            List<RegularInspections> byTimesAndIncludeDt = regularInspectionRepository.findAllByClient_ClientIdAndTimesAndIncludeDt(addUpdateRegularInspectionRequest.getClientId(), TimeTypes.getType(addUpdateRegularInspectionRequest.getOrder()), addUpdateRegularInspectionRequest.getIncludeDt());
             if(bePresent(byTimesAndIncludeDt)) {
-                byTimesAndIncludeDt.setTimes(null);
-                regularInspectionRepository.save(byTimesAndIncludeDt);
+                for (RegularInspections insp :
+                        byTimesAndIncludeDt) {
+                    insp.setTimes(null);
+                }
+                regularInspectionRepository.saveAll(byTimesAndIncludeDt);
             }
         }
         Clients clients = clientWorker.getClientByClientId(addUpdateRegularInspectionRequest.getClientId());
