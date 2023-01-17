@@ -459,6 +459,13 @@ public class ShopService extends SessService {
         regularInspections.setClientNo(clients.getClientNo());
         regularInspections.setGroupNo(clients.getGroupNo());
         regularInspections.setShopNo(shopByShopId.getShopNo());
+        if(bePresent(addUpdateRegularInspectionRequest.getOrder())) {
+            RegularInspections byTimesAndIncludeDt = regularInspectionRepository.findByClient_ClientIdAndTimesAndIncludeDt(addUpdateRegularInspectionRequest.getClientId(), TimeTypes.getType(addUpdateRegularInspectionRequest.getOrder()), regularInspections.getIncludeDt());
+            if(bePresent(byTimesAndIncludeDt)) {
+                byTimesAndIncludeDt.setTimes(null);
+                regularInspectionRepository.save(byTimesAndIncludeDt);
+            }
+        }
         regularInspections.setTimes(TimeTypes.getType(addUpdateRegularInspectionRequest.getOrder()));
         List<ModelAttachment> attachments = new ArrayList<>();
         if(bePresent(addUpdateRegularInspectionRequest.getNewAttachments())) {
@@ -484,13 +491,6 @@ public class ShopService extends SessService {
         regularInspections.setInspectDt(addUpdateRegularInspectionRequest.getInspectDt());
         regularInspections.setIncludeDt(addUpdateRegularInspectionRequest.getIncludeDt());
         regularInspections.setCreatedAt(LocalDateTime.now());
-        if(bePresent(regularInspections.getTimes())) {
-            RegularInspections byTimesAndIncludeDt = regularInspectionRepository.findByClient_ClientIdAndTimesAndIncludeDt(addUpdateRegularInspectionRequest.getClientId(), regularInspections.getTimes(), regularInspections.getIncludeDt());
-            if(bePresent(byTimesAndIncludeDt)) {
-                byTimesAndIncludeDt.setTimes(null);
-                regularInspectionRepository.save(byTimesAndIncludeDt);
-            }
-        }
         regularInspectionRepository.save(regularInspections);
         return request;
     }

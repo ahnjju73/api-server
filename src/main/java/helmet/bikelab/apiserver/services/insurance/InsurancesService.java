@@ -145,14 +145,14 @@ public class InsurancesService extends SessService {
     @Transactional
     public BikeSessionRequest addRiderInsurance(BikeSessionRequest request) {
         AddUpdateRiderInsuranceRequest addUpdateRiderInsuranceRequest = map(request.getParam(), AddUpdateRiderInsuranceRequest.class);
-        bikeValidationCheckForIns(addUpdateRiderInsuranceRequest.getBikeNum(), addUpdateRiderInsuranceRequest.getVimNum(), addUpdateRiderInsuranceRequest.getStartDt(), addUpdateRiderInsuranceRequest.getEndDt());
+        bikeValidationCheckForIns(null, addUpdateRiderInsuranceRequest.getBikeNum(), addUpdateRiderInsuranceRequest.getVimNum(), addUpdateRiderInsuranceRequest.getStartDt(), addUpdateRiderInsuranceRequest.getEndDt());
         String riderInsId = autoKey.makeGetKey("rider_ins");
         RiderInsurances riderInsurances = new RiderInsurances();
         riderInsurances.setRiderInsId(riderInsId);
         List<RiderInsurancesDtl> details = riderInsuranceDtlRepository.findAllByBikeNum(addUpdateRiderInsuranceRequest.getBikeNum());
-        if(isActiveInsurance(details)){
-            withException("");
-        }
+//        if(isActiveInsurance(details)){
+//            withException("");
+//        }
         Riders rider = null;
         if (bePresent(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderId())) {
             rider = riderWorker.getRiderById(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderId());
@@ -234,8 +234,8 @@ public class InsurancesService extends SessService {
     @Transactional
     public BikeSessionRequest updateRiderInsuranceDtls(BikeSessionRequest request){
         UpdateRiderInsuranceDtlRequest updateRiderInsuranceDtlRequest = map(request.getParam(), UpdateRiderInsuranceDtlRequest.class);
-        bikeValidationCheckForIns(updateRiderInsuranceDtlRequest.getBikeNum(), updateRiderInsuranceDtlRequest.getVimNum(), updateRiderInsuranceDtlRequest.getStartDt(), updateRiderInsuranceDtlRequest.getEndDt());
         RiderInsurancesDtl insurancesDtl = riderInsuranceDtlRepository.findByDtlNo(updateRiderInsuranceDtlRequest.getDtlNo());
+        bikeValidationCheckForIns(insurancesDtl.getDtlNo(), updateRiderInsuranceDtlRequest.getBikeNum(), updateRiderInsuranceDtlRequest.getVimNum(), updateRiderInsuranceDtlRequest.getStartDt(), updateRiderInsuranceDtlRequest.getEndDt());
         List<RiderInsurancesDtl> details = riderInsuranceDtlRepository.findAllByBikeNum(updateRiderInsuranceDtlRequest.getBikeNum());
 //        if(isActiveInsurance(details)){
 //            withException("");
@@ -530,7 +530,7 @@ public class InsurancesService extends SessService {
         String riderInsId = (String) request.getParam().get("rider_ins_id");
         UpdateRiderInsuranceDtlRequest addUpdateRiderInsuranceRequest = map(request.getParam(), UpdateRiderInsuranceDtlRequest.class);
         RiderInsurances riderInsurances = riderInsuranceRepository.findByRiderInsId(riderInsId);
-        bikeValidationCheckForIns(addUpdateRiderInsuranceRequest.getBikeNum(), addUpdateRiderInsuranceRequest.getVimNum(), addUpdateRiderInsuranceRequest.getStartDt(), addUpdateRiderInsuranceRequest.getEndDt());
+        bikeValidationCheckForIns(null, addUpdateRiderInsuranceRequest.getBikeNum(), addUpdateRiderInsuranceRequest.getVimNum(), addUpdateRiderInsuranceRequest.getStartDt(), addUpdateRiderInsuranceRequest.getEndDt());
         RiderInsurancesDtl insurancesDtl = new RiderInsurancesDtl();
         insurancesDtl.setRiderInsNo(riderInsurances.getRiderInsNo());
         insurancesDtl.setInsCompany(InsCompanyTypes.getCompanyType(addUpdateRiderInsuranceRequest.getInsCompany()));
@@ -600,31 +600,34 @@ public class InsurancesService extends SessService {
     }
 
 
-    private void bikeValidationCheckForIns(String bikeNum, String vimNum, LocalDateTime start, LocalDateTime end){
+    private void bikeValidationCheckForIns(Integer dtlNo, String bikeNum, String vimNum, LocalDateTime start, LocalDateTime end){
         if(bePresent(bikeNum)){
             List<RiderInsurancesDtl> allByBikeNum = riderInsuranceDtlRepository.findAllByBikeNum(bikeNum);
             for (int i = 0; i < allByBikeNum.size(); i++) {
-                RiderInsurancesDtl insurancesDtl = allByBikeNum.get(i);
-                if(bePresent(insurancesDtl.getStopDt())){
-                    if(!insurancesDtl.getStopDt().isBefore(start) || !insurancesDtl.getStartDt().isAfter(end)){
+                if(bePresent(dtlNo) && allByBikeNum.get(i).getDtlNo() != dtlNo ){
+                    RiderInsurancesDtl insurancesDtl = allByBikeNum.get(i);
+                    if(bePresent(insurancesDtl.getStopDt())){
+                        if(!(insurancesDtl.getStopDt().isBefore(start) || insurancesDtl.getStopDt().isEqual(start)) && !(insurancesDtl.getStartDt().isAfter(end) || insurancesDtl.getStartDt().isEqual(end))){
+                            withException("830-001");
+                        }
+                    }
+                    else if(!(insurancesDtl.getEndDt().isBefore(start) || insurancesDtl.getEndDt().isEqual(start)) && !(insurancesDtl.getStartDt().isAfter(end) || insurancesDtl.getStartDt().isEqual(end))){
                         withException("830-001");
                     }
-                }
-                else if(!insurancesDtl.getEndDt().isBefore(start) || !insurancesDtl.getStartDt().isAfter(end)){
-                    withException("830-001");
                 }
             }
         }else if(bePresent(vimNum)){
             List<RiderInsurancesDtl> allByBikeNum = riderInsuranceDtlRepository.findAllByVimNum(vimNum);
             for (int i = 0; i < allByBikeNum.size(); i++) {
-                RiderInsurancesDtl insurancesDtl = allByBikeNum.get(i);
-                if(bePresent(insurancesDtl.getStopDt())){
-                    if(!insurancesDtl.getStopDt().isBefore(start) || !insurancesDtl.getStartDt().isAfter(end)){
+                if(bePresent(dtlNo) && allByBikeNum.get(i).getDtlNo() != dtlNo ) {
+                    RiderInsurancesDtl insurancesDtl = allByBikeNum.get(i);
+                    if (bePresent(insurancesDtl.getStopDt())) {
+                        if (!insurancesDtl.getStopDt().isBefore(start) || !insurancesDtl.getStartDt().isAfter(end)) {
+                            withException("830-001");
+                        }
+                    } else if (!insurancesDtl.getEndDt().isBefore(start) || !insurancesDtl.getStartDt().isAfter(end)) {
                         withException("830-001");
                     }
-                }
-                else if(!insurancesDtl.getEndDt().isBefore(start) || !insurancesDtl.getStartDt().isAfter(end)){
-                    withException("830-001");
                 }
             }
         }
