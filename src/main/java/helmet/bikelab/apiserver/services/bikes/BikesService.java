@@ -294,10 +294,12 @@ public class BikesService extends SessService {
      */
     public void updateBikeByExcelUploading(Bikes originBike, UploadBike uploadBike, CommonBikes updatedBikeModel, BikeUser session, StringBuilder errorText){
         UploadBikeInfo bikeInfo = uploadBike.getBikeInfo();
+
         UploadBikeTransaction bikeTransaction = uploadBike.getBikeTransaction();
         UploadBikeInsurance bikeInsurance = uploadBike.getBikeInsurance();
         BikeReports reports = uploadBike.getReports();
         originBike.updateBikeInfo(bikeInfo, bikeTransaction);
+        originBike.initDescriptionByUploadingExcel(uploadBike);
         originBike.setCarModelData(updatedBikeModel);
         originBike.setBikeStatus(getBikeStatusTypeByVimNum(bikeInfo));
         bikesRepository.save(originBike);
