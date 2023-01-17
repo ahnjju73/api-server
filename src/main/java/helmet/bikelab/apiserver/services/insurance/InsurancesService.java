@@ -604,7 +604,7 @@ public class InsurancesService extends SessService {
         if(bePresent(bikeNum)){
             List<RiderInsurancesDtl> allByBikeNum = riderInsuranceDtlRepository.findAllByBikeNum(bikeNum);
             for (int i = 0; i < allByBikeNum.size(); i++) {
-                if(bePresent(dtlNo) && allByBikeNum.get(i).getDtlNo() != dtlNo ){
+                if(!bePresent(dtlNo) || allByBikeNum.get(i).getDtlNo() != dtlNo ){
                     RiderInsurancesDtl insurancesDtl = allByBikeNum.get(i);
                     if(bePresent(insurancesDtl.getStopDt())){
                         if(!(insurancesDtl.getStopDt().isBefore(start) || insurancesDtl.getStopDt().isEqual(start)) && !(insurancesDtl.getStartDt().isAfter(end) || insurancesDtl.getStartDt().isEqual(end))){
@@ -619,7 +619,7 @@ public class InsurancesService extends SessService {
         }else if(bePresent(vimNum)){
             List<RiderInsurancesDtl> allByBikeNum = riderInsuranceDtlRepository.findAllByVimNum(vimNum);
             for (int i = 0; i < allByBikeNum.size(); i++) {
-                if(bePresent(dtlNo) && allByBikeNum.get(i).getDtlNo() != dtlNo ) {
+                if(!bePresent(dtlNo) || allByBikeNum.get(i).getDtlNo() != dtlNo ){
                     RiderInsurancesDtl insurancesDtl = allByBikeNum.get(i);
                     if (bePresent(insurancesDtl.getStopDt())) {
                         if (!insurancesDtl.getStopDt().isBefore(start) || !insurancesDtl.getStartDt().isAfter(end)) {
