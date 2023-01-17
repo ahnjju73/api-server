@@ -231,10 +231,8 @@ public class Bikes extends OriginObject {
         }
         if(!bePresent(this.description)){
             this.description = "";
-        }else {
-            this.description = "\\\n===========================\\\n";
         }
-        this.description += str.toString();
+        this.description = (str + "\\\n===========================\\\n" + this.description);
     }
 
 }
