@@ -166,7 +166,7 @@
                  <if test="next_token != null and next_token != '' and next_token != 'undefined'">
                    and rider_id <![CDATA[ < ]]> #{next_token}
                  </if>
-                 <if test="status != null and status != '' and status != 'undefined'">
+                 <if test="condition_status != null and condition_status != '' and condition_status != 'undefined'">
                    and status = #{condition_status}
                  </if>
                  <if test="condition != null and condition != '' and condition != 'undefined'">
