@@ -159,6 +159,9 @@
                   from riders rid
                   join rider_info ri on rid.rider_no = ri.rider_no
                  where 1 = 1
+                 <if test="is_deleted != null and is_deleted != '' and is_deleted != 'undefined'">
+                   and status != '701-003'
+                 </if>
                  <if test="verified != null and verified != '' and verified != 'undefined'">
                    and verified = 'VERIFIED'
                    and status != '701-003'
