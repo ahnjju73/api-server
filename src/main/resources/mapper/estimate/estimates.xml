@@ -148,7 +148,8 @@
                si.name as shop_name,
                r.rider_id,
                ri.name as name,
-               FLOOR(if (e.total_price = 0 or e.total_price is null, ep.estimate_price, e.total_price)) as total_price
+               ep.estimate_price as total_price
+--                FLOOR(if (e.total_price = 0 or e.total_price is null, ep.estimate_price, e.total_price)) as total_price
           from (select est.*
                   from estimates est
                  <if test="part_name != null and part_name != '' and part_name != 'undefined'">
