@@ -118,7 +118,11 @@ public class RiderDemandLease extends OriginObject {
         if(!bePresent(this.paymentType)) withException("3200-008");
     }
 
-//    @JsonIgnore
+    public Integer getPeriod() {
+        return !bePresent(period) ? 1 : period;
+    }
+
+    //    @JsonIgnore
 //    @OneToMany(mappedBy = "demandLeases", fetch = FetchType.EAGER)
 //    private List<DemandLeaseAttachments> attachments = new ArrayList<>();
 

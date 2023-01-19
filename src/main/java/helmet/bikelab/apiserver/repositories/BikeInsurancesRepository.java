@@ -11,5 +11,5 @@ public interface BikeInsurancesRepository extends JpaRepository<BikeInsurances, 
     BikeInsurances findByInsuranceNo(Integer insuranceNo);
     void deleteByInsuranceNo(Integer insuranceNo);
     List<BikeInsurances> findAllByBikeNoOrderByInsuranceNoDesc(Integer bikeNo);
-
+    BikeInsurances findByBikeNoAndStockNumber(Integer bikeNo, String stockNumber);
 }

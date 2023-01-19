@@ -294,21 +294,30 @@ public class BikesService extends SessService {
      */
     public void updateBikeByExcelUploading(Bikes originBike, UploadBike uploadBike, CommonBikes updatedBikeModel, BikeUser session, StringBuilder errorText){
         UploadBikeInfo bikeInfo = uploadBike.getBikeInfo();
+
         UploadBikeTransaction bikeTransaction = uploadBike.getBikeTransaction();
         UploadBikeInsurance bikeInsurance = uploadBike.getBikeInsurance();
         BikeReports reports = uploadBike.getReports();
         originBike.updateBikeInfo(bikeInfo, bikeTransaction);
+        originBike.initDescriptionByUploadingExcel(uploadBike);
         originBike.setCarModelData(updatedBikeModel);
         originBike.setBikeStatus(getBikeStatusTypeByVimNum(bikeInfo));
         bikesRepository.save(originBike);
 
         if(bikeInsurance.isAddableBikeInsurance()){
             BikeInsurances selectedBikeInsurance = originBike.getBikeInsurance();
+
             if(!bePresent(selectedBikeInsurance)) {
                 String insuranceId = autoKey.makeGetKey("insurance");
                 selectedBikeInsurance = new BikeInsurances(bikeInsurance, originBike, insuranceId);
             }else {
-                selectedBikeInsurance.updateDataInfo(bikeInsurance);
+                // 등록되어 있는 보험 증권번호와 넘어온 데이터의 증권번호가 동일하면 기존 정보를 수정하고 다르다면 새로 생성해서 등록힌다
+                if(bePresent(selectedBikeInsurance.getStockNumber()) && selectedBikeInsurance.getStockNumber().equals(bikeInsurance.getStockNumber())){
+                    selectedBikeInsurance.updateDataInfo(bikeInsurance);
+                }else {
+                    String insuranceId = autoKey.makeGetKey("insurance");
+                    selectedBikeInsurance = new BikeInsurances(bikeInsurance, originBike, insuranceId);
+                }
             }
             if(bikeInsurance.getPaid()){
                 selectedBikeInsurance.setPaidFee(selectedBikeInsurance.getFee(), session);
@@ -316,6 +325,8 @@ public class BikesService extends SessService {
                 selectedBikeInsurance.setUnPaidFee();
             }
             bikeInsurancesRepository.save(selectedBikeInsurance);
+            originBike.setBikeInsuranceNo(selectedBikeInsurance.getInsuranceNo());
+            bikesRepository.save(originBike);
         }
 
         BikeReports selectedBikeReport = bikeReportsRepository.findByBikeNo(originBike.getBikeNo());
@@ -328,7 +339,6 @@ public class BikesService extends SessService {
     }
 
     public void addNewBikeByExcelUploading(UploadBike uploadBike, CommonBikes commonCodeBikesById, BikeUser session, StringBuilder errorText){
-
         UploadBikeInfo bikeInfo = uploadBike.getBikeInfo();
         UploadBikeTransaction bikeTransaction = uploadBike.getBikeTransaction();
         UploadBikeInsurance bikeInsurance = uploadBike.getBikeInsurance();
@@ -355,7 +365,6 @@ public class BikesService extends SessService {
                     bikesRepository.save(bikes);
                 }
             }
-
             BikeReports selectedBikeReport = bikeReportsRepository.findByBikeNo(bikes.getBikeNo());
             if(!bePresent(selectedBikeReport)){
                 selectedBikeReport = new BikeReports(bikes, reports);

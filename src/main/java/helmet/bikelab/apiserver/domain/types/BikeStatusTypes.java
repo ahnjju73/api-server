@@ -5,7 +5,7 @@ import lombok.Getter;
 @Getter
 public enum BikeStatusTypes {
 
-    PENDING("0", "보관중"), RIDING("1", "운영중"), FOR_SALE("2", "판매완료"), JUNK("3", "폐차");
+    PENDING("0", "보관중"), RIDING("1", "운영중"), FOR_SALE("2", "판매완료"), JUNK("3", "폐차"), ETC("4", "기타");
 
     private String type;
     private String typeName;
