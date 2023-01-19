@@ -204,7 +204,6 @@ public class Bikes extends OriginObject {
         this.receiveDate = uploadBikeTransaction.getReceiveDt();
         this.odometerByAdmin = bikeInfo.getOdometerByAdmin();
         this.transaction = new ModelBikeTransaction(uploadBikeTransaction);
-        this.description = bikeInfo.getDescription();
         this.warehouse = bikeInfo.getWarehouse();
     }
 
@@ -212,25 +211,28 @@ public class Bikes extends OriginObject {
         StringBuilder str = new StringBuilder("");
         UploadBikeInfo bikeInfo = uploadBike.getBikeInfo();
         UploadBikeTransaction uploadBikeTransaction = uploadBike.getBikeTransaction();
-        str.append("차량 엑셀업로드 작업이 된 차량정보입니다.\\n");
+        str.append("차량 엑셀업로드 작업이 된 차량정보입니다.\n");
         if(bePresent(bikeInfo.getDescription())){
-            str.append("* 차량비고\\n");
-            str.append(bikeInfo.getDescription() + "\\n");
+            str.append("* 차량비고\n");
+            str.append(bikeInfo.getDescription() + "\n");
         }
         if(bePresent(uploadBikeTransaction)){
             String receiveDescription = uploadBikeTransaction.getReceiveDescription();
             String sellDescription = uploadBikeTransaction.getSellDescription();
             if(bePresent(receiveDescription)){
-                str.append("* 구매처 비고\\n");
-                str.append(receiveDescription + "\\n");
+                str.append("* 구매처 비고\n");
+                str.append(receiveDescription + "\n");
             }
             if(bePresent(sellDescription)){
-                str.append("* 판매처 비고\\n");
-                str.append(sellDescription + "\\n");
+                str.append("* 판매처 비고\n");
+                str.append(sellDescription + "\n");
             }
         }
-        this.description = str.toString();
+        if(!bePresent(this.description)){
+            this.description = "";
+        }
+        String data = (str + "\n===========================\n\n" + this.description);
+        this.description = data;
     }
-
 
 }
