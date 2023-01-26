@@ -13,4 +13,5 @@ public class RiderListRequest extends RequestListDto{
     private String status;
     private String verified;
     private String conditionStatus;
+    private String isDeleted;
 }

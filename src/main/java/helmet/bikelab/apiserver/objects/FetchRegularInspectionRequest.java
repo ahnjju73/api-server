@@ -16,12 +16,20 @@ public class FetchRegularInspectionRequest extends PageableRequest {
     private String shopId;
     private LocalDateTime startDt;
     private LocalDateTime endDt;
+    private LocalDateTime standardDt;
 
     public void setStartDt(String startDt){
         try {
             this.startDt = LocalDateTime.parse(startDt);
         }catch (Exception e){
             this.startDt = LocalDateTime.parse(startDt + "T00:00:00");
+        }
+    }
+    public void setStandardDt(String standardDt){
+        try {
+            this.standardDt = LocalDateTime.parse(standardDt);
+        }catch (Exception e){
+            this.standardDt = LocalDateTime.parse(standardDt + "T00:00:00");
         }
     }
 

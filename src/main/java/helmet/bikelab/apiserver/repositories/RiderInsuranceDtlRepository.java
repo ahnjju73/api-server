@@ -13,6 +13,8 @@ public interface RiderInsuranceDtlRepository extends JpaRepository<RiderInsuranc
     RiderInsurancesDtl findByDtlNo(Integer dtlNo);
     Integer countAllByRiderInsurances_RiderInsId(String riderInsId);
     List<RiderInsurancesDtl> findAllByBikeNum(String bikeNum);
+    List<RiderInsurancesDtl> findAllByVimNum(String vimNum);
+
 
     List<RiderInsurancesDtl> findAllByRiderInsurances_RiderInsIdAndRiderInsuranceStatus(String riderInsId, RiderInsuranceStatus status);
 }

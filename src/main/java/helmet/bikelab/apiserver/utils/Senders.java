@@ -102,5 +102,31 @@ public class Senders extends Workspace {
             });
         }
     }
+    public void withPhoneMessagewithSender(String message, String sender, String ...phoneNumber){
+        if(phoneNumber.length == 0) return;
+        if(ENV.IS_RELEASE){
+            executorService.submit(() -> {
+                MultiValueMap<String, String> params = new LinkedMultiValueMap();
+                params.add("key", ENV.ALIGO_ACCESS_KEY);
+                params.add("user_id", ENV.ALIGO_USERID);
+                params.add("sender", sender);
+                params.add("msg", message);
+
+                String collect = Arrays.stream(phoneNumber).collect(Collectors.joining("<"));
+                params.add("receiver", collect);
+
+                try {
+                    if(params != null) {
+                        HttpHeaders headers = new HttpHeaders();
+                        headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+                        HttpEntity entity = new HttpEntity(params, headers);
+                        restTemplate.postForEntity(ENV.ALIGO_DOMAIN + "/send/", entity, String.class);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        }
+    }
 
 }

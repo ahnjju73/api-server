@@ -21,6 +21,7 @@ public class AddShopRequest extends OriginObject {
     private String businessType;
     private String regNum;
     private String phone;
+    private String faxNumber;
     private String email;
     private String startTime;
     private String endTime;

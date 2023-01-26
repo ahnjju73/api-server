@@ -10,6 +10,7 @@ import helmet.bikelab.apiserver.domain.riders.RiderInsuranceHistories;
 import helmet.bikelab.apiserver.domain.riders.RiderInsurances;
 import helmet.bikelab.apiserver.domain.riders.RiderInsurancesDtl;
 import helmet.bikelab.apiserver.domain.riders.Riders;
+import helmet.bikelab.apiserver.domain.shops.Shops;
 import helmet.bikelab.apiserver.domain.types.*;
 import helmet.bikelab.apiserver.objects.*;
 import helmet.bikelab.apiserver.objects.bikelabs.insurance.DeleteInsuranceRequest;
@@ -28,6 +29,7 @@ import helmet.bikelab.apiserver.utils.keys.ENV;
 import helmet.bikelab.apiserver.workers.BikeWorker;
 import helmet.bikelab.apiserver.workers.CommonWorker;
 import helmet.bikelab.apiserver.workers.RiderWorker;
+import helmet.bikelab.apiserver.workers.ShopWorker;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -48,6 +50,7 @@ public class InsurancesService extends SessService {
     private final InsurancesRepository insurancesRepository;
     private final AutoKey autoKey;
     private final RiderWorker riderWorker;
+    private final ShopWorker shopWorker;
     private final BikeWorker bikeWorker;
     private final InsuranceOptionlRepository insuranceOptionlRepository;
     private final LeaseRepository leaseRepository;
@@ -142,13 +145,14 @@ public class InsurancesService extends SessService {
     @Transactional
     public BikeSessionRequest addRiderInsurance(BikeSessionRequest request) {
         AddUpdateRiderInsuranceRequest addUpdateRiderInsuranceRequest = map(request.getParam(), AddUpdateRiderInsuranceRequest.class);
+        bikeValidationCheckForIns(null, addUpdateRiderInsuranceRequest.getBikeNum(), addUpdateRiderInsuranceRequest.getVimNum(), addUpdateRiderInsuranceRequest.getStartDt(), addUpdateRiderInsuranceRequest.getEndDt());
         String riderInsId = autoKey.makeGetKey("rider_ins");
         RiderInsurances riderInsurances = new RiderInsurances();
         riderInsurances.setRiderInsId(riderInsId);
         List<RiderInsurancesDtl> details = riderInsuranceDtlRepository.findAllByBikeNum(addUpdateRiderInsuranceRequest.getBikeNum());
-        if(isActiveInsurance(details)){
-            withException("");
-        }
+//        if(isActiveInsurance(details)){
+//            withException("");
+//        }
         Riders rider = null;
         if (bePresent(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderId())) {
             rider = riderWorker.getRiderById(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderId());
@@ -167,6 +171,10 @@ public class InsurancesService extends SessService {
                 riderInsurances.setRiderName(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderName());
                 riderInsurances.setRiderSsn(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderSsn());
             }
+        }
+        if(bePresent(addUpdateRiderInsuranceRequest.getShopId())){
+            Shops shop = shopWorker.getShopByShopId(addUpdateRiderInsuranceRequest.getShopId());
+            riderInsurances.setShopNo(shop.getShopNo());
         }
         if(bePresent(addUpdateRiderInsuranceRequest.getContractInfoDto())) {
             riderInsurances.setContractorAddress(new AddressDto().setByModelAddress(addUpdateRiderInsuranceRequest.getContractorAddress()));
@@ -227,6 +235,7 @@ public class InsurancesService extends SessService {
     public BikeSessionRequest updateRiderInsuranceDtls(BikeSessionRequest request){
         UpdateRiderInsuranceDtlRequest updateRiderInsuranceDtlRequest = map(request.getParam(), UpdateRiderInsuranceDtlRequest.class);
         RiderInsurancesDtl insurancesDtl = riderInsuranceDtlRepository.findByDtlNo(updateRiderInsuranceDtlRequest.getDtlNo());
+        bikeValidationCheckForIns(insurancesDtl.getDtlNo(), updateRiderInsuranceDtlRequest.getBikeNum(), updateRiderInsuranceDtlRequest.getVimNum(), updateRiderInsuranceDtlRequest.getStartDt(), updateRiderInsuranceDtlRequest.getEndDt());
         List<RiderInsurancesDtl> details = riderInsuranceDtlRepository.findAllByBikeNum(updateRiderInsuranceDtlRequest.getBikeNum());
 //        if(isActiveInsurance(details)){
 //            withException("");
@@ -319,11 +328,24 @@ public class InsurancesService extends SessService {
                 riderInsurances.setRiderSsn(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderSsn());
             }
         }
+        if(bePresent(addUpdateRiderInsuranceRequest.getShopId())){
+            Shops shop = shopWorker.getShopByShopId(addUpdateRiderInsuranceRequest.getShopId());
+            riderInsurances.setShopNo(shop.getShopNo());
+        }
         if(bePresent(addUpdateRiderInsuranceRequest.getContractInfoDto())) {
             riderInsurances.setContractorAddress(new AddressDto().setByModelAddress(addUpdateRiderInsuranceRequest.getContractorAddress()));
             riderInsurances.setContractorName(addUpdateRiderInsuranceRequest.getContractInfoDto().getRiderName());
             riderInsurances.setContractorPhone(addUpdateRiderInsuranceRequest.getContractInfoDto().getRiderPhone());
             riderInsurances.setContractorSsn(addUpdateRiderInsuranceRequest.getContractInfoDto().getRiderSsn());
+        }
+        if(bePresent(addUpdateRiderInsuranceRequest.getDescription())){
+            for(RiderInsurancesDtl riderInsurancesDtl : riderInsurances.getRiderInsurancesDtls()){
+                if(riderInsurancesDtl.getDtlNo().equals(addUpdateRiderInsuranceRequest.getDtlNo())){
+                    riderInsurancesDtl.setDescription(addUpdateRiderInsuranceRequest.getDescription());
+                    riderInsuranceDtlRepository.save(riderInsurancesDtl);
+                    break;
+                }
+            }
         }
         riderInsurances.setRiderAddress(new AddressDto().setByModelAddress(addUpdateRiderInsuranceRequest.getAddress()));
         List<ModelAttachment> attachments = addUpdateRiderInsuranceRequest.getAttachments() != null ? addUpdateRiderInsuranceRequest.getAttachments() : new ArrayList<>();
@@ -387,7 +409,7 @@ public class InsurancesService extends SessService {
             }
         } else if (!bePresent(rider)) {
             if (!riderInsurances.getRiderName().equals(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderName())) {
-                change += "라이더를 <>" + riderInsurances.getRiderName() + "</>에서 <>" + rider.getRiderInfo().getName() + "</>로 수정하였습니다.";
+                change += "라이더를 <>" + riderInsurances.getRiderName() + "</>에서 <>" + addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderName() + "</>로 수정하였습니다.";
             }
             if (!riderInsurances.getRiderEmail().equals(addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderEmail())) {
                 change += "라이더 이메일을 <>" + riderInsurances.getRiderEmail() + "</>에서 <>" + addUpdateRiderInsuranceRequest.getRiderInfoDto().getRiderEmail() + "</>로 수정하였습니다.";
@@ -508,6 +530,7 @@ public class InsurancesService extends SessService {
         String riderInsId = (String) request.getParam().get("rider_ins_id");
         UpdateRiderInsuranceDtlRequest addUpdateRiderInsuranceRequest = map(request.getParam(), UpdateRiderInsuranceDtlRequest.class);
         RiderInsurances riderInsurances = riderInsuranceRepository.findByRiderInsId(riderInsId);
+        bikeValidationCheckForIns(null, addUpdateRiderInsuranceRequest.getBikeNum(), addUpdateRiderInsuranceRequest.getVimNum(), addUpdateRiderInsuranceRequest.getStartDt(), addUpdateRiderInsuranceRequest.getEndDt());
         RiderInsurancesDtl insurancesDtl = new RiderInsurancesDtl();
         insurancesDtl.setRiderInsNo(riderInsurances.getRiderInsNo());
         insurancesDtl.setInsCompany(InsCompanyTypes.getCompanyType(addUpdateRiderInsuranceRequest.getInsCompany()));
@@ -531,6 +554,7 @@ public class InsurancesService extends SessService {
         insurancesDtl.setStartDt(addUpdateRiderInsuranceRequest.getStartDt());
         insurancesDtl.setEndDt(addUpdateRiderInsuranceRequest.getEndDt());
         insurancesDtl.setInsFee(addUpdateRiderInsuranceRequest.getInsFee());
+        insurancesDtl.setDescription(addUpdateRiderInsuranceRequest.getDescription());
         riderInsuranceDtlRepository.save(insurancesDtl);
         return request;
     }
@@ -568,7 +592,45 @@ public class InsurancesService extends SessService {
 
     public BikeSessionRequest sendSMSMessage(BikeSessionRequest request) {
         SMSMessageDto messageDto = map(request.getParam(), SMSMessageDto.class);
-        senders.withPhoneMessage(messageDto.getContents(), messageDto.getPhone());
+        if(bePresent(messageDto.getSenderPhone()))
+            senders.withPhoneMessagewithSender(messageDto.getContents(), messageDto.getSenderPhone(), messageDto.getPhone());
+        else
+            senders.withPhoneMessage(messageDto.getContents(), messageDto.getPhone());
         return request;
+    }
+
+
+    private void bikeValidationCheckForIns(Integer dtlNo, String bikeNum, String vimNum, LocalDateTime start, LocalDateTime end){
+        if(bePresent(bikeNum)){
+            List<RiderInsurancesDtl> allByBikeNum = riderInsuranceDtlRepository.findAllByBikeNum(bikeNum);
+            for (int i = 0; i < allByBikeNum.size(); i++) {
+                if(!bePresent(dtlNo) || allByBikeNum.get(i).getDtlNo() != dtlNo ){
+                    RiderInsurancesDtl insurancesDtl = allByBikeNum.get(i);
+                    if(bePresent(insurancesDtl.getStopDt())){
+                        if(!(insurancesDtl.getStopDt().isBefore(start) || insurancesDtl.getStopDt().isEqual(start)) && !(insurancesDtl.getStartDt().isAfter(end) || insurancesDtl.getStartDt().isEqual(end))){
+                            withException("830-001");
+                        }
+                    }
+                    else if(!(insurancesDtl.getEndDt().isBefore(start) || insurancesDtl.getEndDt().isEqual(start)) && !(insurancesDtl.getStartDt().isAfter(end) || insurancesDtl.getStartDt().isEqual(end))){
+                        withException("830-001");
+                    }
+                }
+            }
+        }else if(bePresent(vimNum)){
+            List<RiderInsurancesDtl> allByBikeNum = riderInsuranceDtlRepository.findAllByVimNum(vimNum);
+            for (int i = 0; i < allByBikeNum.size(); i++) {
+                if(!bePresent(dtlNo) || allByBikeNum.get(i).getDtlNo() != dtlNo ){
+                    RiderInsurancesDtl insurancesDtl = allByBikeNum.get(i);
+                    if (bePresent(insurancesDtl.getStopDt())) {
+                        if (!insurancesDtl.getStopDt().isBefore(start) || !insurancesDtl.getStartDt().isAfter(end)) {
+                            withException("830-001");
+                        }
+                    } else if (!insurancesDtl.getEndDt().isBefore(start) || !insurancesDtl.getStartDt().isAfter(end)) {
+                        withException("830-001");
+                    }
+                }
+            }
+        }
+
     }
 }

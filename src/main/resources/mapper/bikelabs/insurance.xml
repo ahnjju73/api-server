@@ -39,7 +39,7 @@
           from (select *
                   from bikes
                  where bike_id = #{bike_id}) b
-               join bike_insurances bi on b.bike_no = bi.bike_no
+          join bike_insurances bi on b.bike_no = bi.bike_no
          order by bi.insurance_id desc, insurance_no desc
     </select>
 

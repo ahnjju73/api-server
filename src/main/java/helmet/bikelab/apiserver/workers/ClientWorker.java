@@ -30,6 +30,11 @@ public class ClientWorker extends SessService {
         return allByGroupId;
     }
 
+    public List<Clients> getAllClientList(){
+        List<Clients> allByGroupId = clientsRepository.findAll();
+        return allByGroupId;
+    }
+
     public Clients getClientByClientId(String clientId){
         Clients byClientId = clientsRepository.findByClientId(clientId);
         if(!bePresent(byClientId)) withException("400-100");
@@ -51,5 +56,13 @@ public class ClientWorker extends SessService {
         clientManagersRepository.deleteAllByClient_ClientId(clientId);
         clientAttachmentsRepository.deleteAllByClient_ClientId(clientId);
         clientsRepository.deleteByClientId(clientId);
+    }
+
+    public int getTotalClients(){
+        return clientsRepository.countAllBy();
+    }
+
+    public int getTotalClientsByGroup(String groupId){
+        return clientsRepository.countAllByClientGroup_GroupId(groupId);
     }
 }

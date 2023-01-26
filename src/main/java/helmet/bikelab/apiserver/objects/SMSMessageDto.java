@@ -9,4 +9,5 @@ import lombok.Getter;
 public class SMSMessageDto {
     private String phone;
     private String contents;
+    private String senderPhone;
 }

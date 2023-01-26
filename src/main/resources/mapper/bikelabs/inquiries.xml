@@ -73,6 +73,7 @@
         select iq.inquiry_no,
                iq.status,
                iq.business_type,
+               iq.type,
                iq.email as inquiry_email,
                iq.phone as inquiry_phone,
                iq.company as inquiry_company,
@@ -95,6 +96,9 @@
                 </if>
                 <if test="name != null and name != '' and name != 'undefined'">
                 and name like concat('%', #{name}, '%')
+                </if>
+                <if test="type != null and type != '' and type != 'undefined'">
+                    and type = #{type}
                 </if>
               order by inquiry_no desc limit 50) iq
                  left outer join bike_user_mst um on iq.confirmed_user_no = um.user_no

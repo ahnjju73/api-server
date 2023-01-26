@@ -51,7 +51,6 @@ public class RegularInspections {
     @JoinColumn(name = "shop_no", insertable = false, updatable = false)
     private Shops shop;
 
-
     @Column(name = "group_no")
     private Integer groupNo;
 
