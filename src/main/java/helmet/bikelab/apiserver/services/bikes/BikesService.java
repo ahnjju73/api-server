@@ -410,9 +410,9 @@ public class BikesService extends SessService {
 
     private UpdateBikeRequest checkIfRemovableInBikeList(Bikes bike, Leases leases, UpdateBikeRequest updateBikeRequest){
         BikeStatusTypes requestedStatusType = updateBikeRequest.getBikeStatusType();
-        if(!bike.getIsBikemaster() && !BikeStatusTypes.RIDING.equals(requestedStatusType)){
-            writeMessage("온어스 소유의 차량이 아닐 경우, \"차량상태\" 정보를 변경할수 없습니다.");
-        }
+//        if(!bike.getIsBikemaster() && !BikeStatusTypes.RIDING.equals(requestedStatusType)){
+//            writeMessage("온어스 소유의 차량이 아닐 경우, \"차량상태\" 정보를 변경할수 없습니다.");
+//        }
         // 판매 또는 폐차의 경우, 운영중인 계약서 (Leases 테이블)이 존재할 경우 변경불가능.
         if(BikeStatusTypes.FOR_SALE.equals(requestedStatusType) ||
                 BikeStatusTypes.JUNK.equals(requestedStatusType)){
