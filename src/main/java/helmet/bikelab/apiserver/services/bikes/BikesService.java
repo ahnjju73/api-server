@@ -654,6 +654,7 @@ public class BikesService extends SessService {
         if(bePresent(bike.getDeletedAt())) withException("");
         if(bePresent(leases)) withException("");
         bike.setDeletedAt(LocalDateTime.now());
+        bike.setBikeStatus(BikeStatusTypes.JUNK);
 //        bike.setVimNum("bak_" + (bePresent(bike.getVimNum()) ? bike.getVimNum() : bike.getBikeNo()) + "_" + bike.getDeletedAt());
 //        bike.setCarNum("bak_" + (bePresent(bike.getCarNum()) ? bike.getCarNum() : bike.getBikeNo())+ "_" + bike.getDeletedAt());
         bikesRepository.save(bike);

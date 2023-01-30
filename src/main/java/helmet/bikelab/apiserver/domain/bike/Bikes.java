@@ -235,4 +235,10 @@ public class Bikes extends OriginObject {
         this.description = data;
     }
 
+    public void setBikeStatus(BikeStatusTypes bikeStatus) {
+        this.bikeStatus = bikeStatus;
+        if(BikeStatusTypes.FOR_SALE.equals(this.bikeStatus) || BikeStatusTypes.JUNK.equals(this.bikeStatus)){
+            this.setDeletedAt(LocalDateTime.now());
+        }
+    }
 }
