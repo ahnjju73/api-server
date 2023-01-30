@@ -83,6 +83,9 @@ public class Clients {
     @OneToOne(mappedBy = "client", optional = false, fetch = FetchType.EAGER)
     private ClientInfo clientInfo;
 
+    @OneToOne(mappedBy = "client", fetch = FetchType.EAGER)
+    private ClientShop matchingShop;
+
     @OneToOne(mappedBy = "client", optional = false, fetch = FetchType.EAGER)
     private ClientAddresses clientAddresses;
 
