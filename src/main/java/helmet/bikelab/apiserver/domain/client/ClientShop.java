@@ -31,6 +31,7 @@ public class ClientShop {
     @Column(name = "client_no")
     private Integer clientNo;
 
+    @JsonIgnore
     @OneToOne
     @JoinColumn(name = "client_no", insertable = false, updatable = false)
     private Clients client;
