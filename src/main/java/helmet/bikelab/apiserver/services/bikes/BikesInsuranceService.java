@@ -345,8 +345,9 @@ public class BikesInsuranceService extends SessService {
     @Transactional
     public BikeSessionRequest transferBikeInsuranceToAnotherBike(BikeSessionRequest request){
         Map param = request.getParam();
-        Integer penalty = Integer.parseInt((String)param.get("penalty"));
-        Integer refund = Integer.parseInt((String)param.get("refund"));
+        BikeInsurancePenaltyRequest bikeInsurancePenaltyRequest = map(request.getParam(), BikeInsurancePenaltyRequest.class);
+        Integer penalty = bikeInsurancePenaltyRequest.getPenalty();
+        Integer refund = bikeInsurancePenaltyRequest.getRefund();
         BikeUser sessionUser = request.getSessionUser();
         BikeByIdRequest bikeByIdRequest = map(request.getParam(), BikeByIdRequest.class);
         BikeInsuranceByNoRequest bikeInsuranceByNoRequest = map(request.getParam(), BikeInsuranceByNoRequest.class);

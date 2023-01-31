@@ -40,7 +40,7 @@ public abstract class SessionRequest<T> extends OriginObject {
     private ServerRequest serverRequest;
 
     public static <T extends SessionRequest> SessionRequest makeSessionRequest(ServerRequest request, Map post, UserSessionTypes userSessionTypes, Class<T> classes) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException {
-        SessionRequest sessionRequest = classes.getConstructor(null).newInstance();
+        SessionRequest sessionRequest = classes.getConstructor().newInstance();
         sessionRequest.getStopWatch().start();
         sessionRequest.setSessAuthKey((String)post.get(SESSION.SESS_AUTH_KEY));
         sessionRequest.setParam(post);
