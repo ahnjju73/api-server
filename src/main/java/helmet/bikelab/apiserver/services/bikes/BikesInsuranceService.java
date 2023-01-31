@@ -1,5 +1,6 @@
 package helmet.bikelab.apiserver.services.bikes;
 
+import helmet.bikelab.apiserver.domain.bike.BikeInsuranceHistories;
 import helmet.bikelab.apiserver.domain.bike.BikeInsurances;
 import helmet.bikelab.apiserver.domain.bike.Bikes;
 import helmet.bikelab.apiserver.domain.bikelab.BikeUser;
@@ -31,6 +32,15 @@ public class BikesInsuranceService extends SessService {
     private final BikeInsurancesRepository bikeInsurancesRepository;
     private final BikesRepository bikesRepository;
     private final BikeUserLogRepository bikeUserLogRepository;
+    private final BikeInsuranceHistoriesRepository bikeInsuranceHistoriesRepository;
+
+    public SessionRequest getBikeInsHistories(SessionRequest request){
+        BikeInsuranceByNoRequest bikeInsuranceByNoRequest = map(request.getParam(), BikeInsuranceByNoRequest.class);
+        List<BikeInsuranceHistories> allByInsuranceNo = bikeInsuranceHistoriesRepository.findAllByInsuranceNoOrderByHistoryNoDesc(bikeInsuranceByNoRequest.getInsuranceNo());
+        request.setResponse(bePresent(allByInsuranceNo) ? allByInsuranceNo : new ArrayList<>());
+        return request;
+    }
+
     public SessionRequest getBikeInsuranceDetails(SessionRequest request){
         BikeInsuranceByNoRequest bikeInsuranceByNoRequest = map(request.getParam(), BikeInsuranceByNoRequest.class);
         BikeInsurances bikeInsurancesByNo = bikeWorker.getBikeInsurancesByNo(bikeInsuranceByNoRequest.getInsuranceNo());
@@ -87,10 +97,72 @@ public class BikesInsuranceService extends SessService {
         Bikes bike = bikeInsurancesByNo.getBike();
         checkIsTransferred(bike);
         BikeInsuranceInfo bikeInsuranceInfo = map(request.getParam(), BikeInsuranceInfo.class);
+        Boolean onUpdated = checkOnUpdatedBikeInsurance(bikeInsurancesByNo, bikeInsuranceInfo);
+        if(onUpdated){
+            BikeInsuranceHistories bikeInsuranceHistories = new BikeInsuranceHistories(bikeInsurancesByNo);
+            bikeInsuranceHistoriesRepository.save(bikeInsuranceHistories);
+        }
         bikeInsuranceInfo.checkValidation();
         bikeInsurancesByNo.updateBikeInsuranceInfo(bikeInsuranceInfo, sessionUser);
         bikeInsurancesRepository.save(bikeInsurancesByNo);
+
         return request;
+    }
+
+    public Boolean checkOnUpdatedBikeInsurance(BikeInsurances bikeInsurance, BikeInsuranceInfo bikeInsuranceInfo){
+        Boolean updated = false;
+        if(!Objects.equals(bikeInsurance.getStockNumber(), bikeInsuranceInfo.getStockNumber())){
+            updated = true;
+        }
+        if(!Objects.equals(bikeInsurance.getType(), bikeInsuranceInfo.getType())){
+            updated = true;
+        }
+        if(!Objects.equals(bikeInsurance.getBikeInsuranceType(), bikeInsuranceInfo.getBikeInsuranceType())){
+            updated = true;
+        }
+        if(!Objects.equals(bikeInsurance.getAge(), bikeInsuranceInfo.getAge())){
+            updated = true;
+        }
+        if(!Objects.equals(bikeInsurance.getCompanyName(), bikeInsuranceInfo.getCompanyName())){
+            updated = true;
+        }
+        if(!Objects.equals(bikeInsurance.getLiabilityMan(), bikeInsuranceInfo.getLiabilityMan())){
+            updated = true;
+        }
+        if(!Objects.equals(bikeInsurance.getLiabilityMan2(), bikeInsuranceInfo.getLiabilityMan2())){
+            updated = true;
+        }
+        if(!Objects.equals(bikeInsurance.getSelfCoverCar(), bikeInsuranceInfo.getSelfCoverCar())){
+            updated = true;
+        }
+        if(!Objects.equals(bikeInsurance.getSelfCoverMan(), bikeInsuranceInfo.getSelfCoverMan())){
+            updated = true;
+        }
+        if(!Objects.equals(bikeInsurance.getNoInsuranceCover(), bikeInsuranceInfo.getNoInsuranceCover())){
+            updated = true;
+        }
+        if(!Objects.equals(bikeInsurance.getStartAt(), bikeInsuranceInfo.getStartAt())){
+            updated = true;
+        }
+        if(!Objects.equals(bikeInsurance.getEndAt(), bikeInsuranceInfo.getEndAt())){
+            updated = true;
+        }
+        if(!Objects.equals(bikeInsurance.getGrade(), bikeInsuranceInfo.getGrade())){
+            updated = true;
+        }
+        if(!Objects.equals(bikeInsurance.getFee(), bikeInsuranceInfo.getFee())){
+            updated = true;
+        }
+        if(!Objects.equals(bikeInsurance.getDescription(), bikeInsuranceInfo.getDescription())){
+            updated = true;
+        }
+        if(!Objects.equals(bikeInsurance.getPenalty(), bikeInsuranceInfo.getPenalty())){
+            updated = true;
+        }
+        if(!Objects.equals(bikeInsurance.getRefund(), bikeInsuranceInfo.getRefund())){
+            updated = true;
+        }
+        return updated;
     }
 
     @Transactional
@@ -269,8 +341,12 @@ public class BikesInsuranceService extends SessService {
         return request;
     }
 
+    // todo: 보험이관시, Request에 penalty, refund 를 추가한다.
     @Transactional
     public BikeSessionRequest transferBikeInsuranceToAnotherBike(BikeSessionRequest request){
+        Map param = request.getParam();
+        Integer penalty = Integer.parseInt((String)param.get("penalty"));
+        Integer refund = Integer.parseInt((String)param.get("refund"));
         BikeUser sessionUser = request.getSessionUser();
         BikeByIdRequest bikeByIdRequest = map(request.getParam(), BikeByIdRequest.class);
         BikeInsuranceByNoRequest bikeInsuranceByNoRequest = map(request.getParam(), BikeInsuranceByNoRequest.class);
@@ -291,6 +367,8 @@ public class BikesInsuranceService extends SessService {
 
         BikeInsurances transBikeInsurance = new BikeInsurances();
         transBikeInsurance.transferBikeInsuranceTo(bikeInsurancesByNo, nextBike, sessionUser);
+        if(bePresent(penalty)) transBikeInsurance.setPenalty(penalty);
+        if(bePresent(refund)) transBikeInsurance.setRefund(refund);
         bikeInsurancesRepository.save(transBikeInsurance);
 
         nextBike.setBikeInsuranceNo(transBikeInsurance.getInsuranceNo());

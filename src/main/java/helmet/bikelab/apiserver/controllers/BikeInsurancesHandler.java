@@ -37,6 +37,15 @@ public class BikeInsurancesHandler {
                         .map(bikesInsuranceService::returnData), BikeInsuranceInfoResponse.class);
     }
 
+    public Mono<ServerResponse> getBikeInsHistories(ServerRequest request){
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> bikesInsuranceService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(bikesInsuranceService::checkBikeSession)
+                        .map(bikesInsuranceService::getBikeInsHistories)
+                        .map(bikesInsuranceService::returnData), List.class);
+    }
+
     public Mono<ServerResponse> addNewBikeInsurance(ServerRequest request) {
         return ServerResponse.ok().body(
                 request.bodyToMono(Map.class)

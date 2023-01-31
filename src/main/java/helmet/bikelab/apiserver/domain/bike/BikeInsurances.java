@@ -175,6 +175,15 @@ public class BikeInsurances extends OriginObject {
     @Column(name = "paid_at", columnDefinition = "DATETIME")
     private LocalDateTime paidAt;
 
+    @Column(name = "description", columnDefinition = "MEDIUMTEXT")
+    private String description;
+
+    @Column(name = "penalty")
+    private Integer penalty;
+
+    @Column(name = "refund")
+    private Integer refund;
+
     public void setType (String type){
         this.type = InsuranceTypes.getInsuranceType(type);
     }
@@ -214,6 +223,9 @@ public class BikeInsurances extends OriginObject {
         this.updatedUserNo = sessionUser.getUserNo();
         this.updatedAt = LocalDateTime.now();
         this.grade = bikeInsuranceInfo.getGrade();
+        this.description = bikeInsuranceInfo.getDescription();
+        this.penalty = bikeInsuranceInfo.getPenalty();
+        this.refund = bikeInsuranceInfo.getRefund();
     }
 
     public void setCreatedUser(BikeUser createdUser) {
@@ -254,6 +266,11 @@ public class BikeInsurances extends OriginObject {
     public void transferBikeInsuranceTo(BikeInsurances prevInsurance, Bikes bike, BikeUser user){
         this.insuranceId = prevInsurance.getInsuranceId();
         this.bikeNo = bike.getBikeNo();
+        this.startAt = prevInsurance.getStartAt();
+        this.endAt = prevInsurance.getEndAt();
+        this.paidFee = prevInsurance.getPaidFee();
+        this.paidAt = prevInsurance.getPaidAt();
+        this.paidUserNo = prevInsurance.getPaidUserNo();
         updateData(prevInsurance);
         this.createdUserNo = user.getUserNo();
         this.updatedUserNo = user.getUserNo();
@@ -273,6 +290,8 @@ public class BikeInsurances extends OriginObject {
         this.grade = bikeInsurances.getGrade();
         this.fee = bikeInsurances.getFee();
         this.stockNumber = bikeInsurances.getStockNumber();
+        this.penalty = bikeInsurances.getPenalty();
+        this.refund = bikeInsurances.getRefund();
     }
     public void updateDataInfo(BikeInsuranceInfo bikeInsuranceInfo){
         this.stockNumber = bikeInsuranceInfo.getStockNumber();
@@ -290,5 +309,8 @@ public class BikeInsurances extends OriginObject {
         this.endAt = bikeInsuranceInfo.getEndAt();
         this.fee = bikeInsuranceInfo.getFee();
         this.grade = bikeInsuranceInfo.getGrade();
+        this.description = bikeInsuranceInfo.getDescription();
+        this.refund = bikeInsuranceInfo.getRefund();
+        this.penalty = bikeInsuranceInfo.getPenalty();
     }
 }

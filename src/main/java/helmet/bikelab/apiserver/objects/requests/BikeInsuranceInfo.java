@@ -43,6 +43,10 @@ public class BikeInsuranceInfo extends OriginObject {
 
     private String grade;
 
+    private String description;
+
+    private Integer penalty;
+    private Integer refund;
     public void setStartAt(LocalDateTime startAt) {
         this.startAt = startAt;
     }

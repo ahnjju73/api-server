@@ -111,37 +111,4 @@ public class Workspace extends OriginObject{
         return (String)getItem("comm.common.getMessage", map);
     }
 
-    protected <T, K> T map(K o, Class<T> cls){
-        if(o == null) {
-            try {
-                return cls.getConstructor().newInstance();
-            } catch (Exception e) {
-            }
-        }
-        try{
-            ObjectMapper objectMapper = new ObjectMapper();
-            objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            objectMapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
-            return objectMapper.convertValue(o, cls);
-        }catch (Exception e){
-            return null;
-        }
-    }
-
-    protected <T, K> T map(K o, TypeReference<T> typeReference){
-        ObjectMapper mapper = new ObjectMapper();
-        if(o == null){
-            String genericSuperclass = typeReference.getType().getTypeName();
-            genericSuperclass = genericSuperclass.replaceAll("<.*>", "");
-            try {
-                Class.forName(genericSuperclass).getConstructor().newInstance();
-            } catch (Exception e) {
-
-            }
-            return null;
-        }
-        return mapper.convertValue(o, typeReference);
-    }
-
-
 }

@@ -16,6 +16,7 @@ public class InsurancesRouters {
         return RouterFunctions
                 .route(GET("/insurances/bikes"), handler::getBikeInsurances)
                 .andRoute(GET("/insurances/bikes/details"), handler::getBikeInsuranceDetails)
+
                 .andRoute(POST("/insurances/bikes"), handler::addNewBikeInsurance)
                 .andRoute(PUT("/insurances/bikes"), handler::updateBikeInsurance)
                 .andRoute(DELETE("/insurances/bikes"), handler::deleteBikeInsurance)
@@ -26,6 +27,8 @@ public class InsurancesRouters {
                 .andRoute(DELETE("/insurances/bikes/setter"), handler::removeBikeInsuranceToBike)
                 .andRoute(POST("/insurances/bikes/enable"), handler::checkIfEnableBikeInsuranceToBike)
                 .andRoute(PUT("/insurances/bikes/pay"), handler::payInsuranceFeeByNo)
+
+                .andRoute(GET("/insurances/histories"), handler::getBikeInsHistories)
                 ;
     }
 
@@ -34,6 +37,7 @@ public class InsurancesRouters {
     public RouterFunction<ServerResponse> insurancesRouter(InsurancesHandler handler){
         return RouterFunctions
                 .route(GET("/insurances"), handler::fetchInsurance)
+                .andRoute(GET("/insurances/histories"), handler::fetchInsurance)
                 .andRoute(POST("/insurances"), handler::addInsurance)
                 .andRoute(PUT("/insurances"), handler::updateInsurance)
                 .andRoute(DELETE("/insurances"), handler::deleteInsurance)

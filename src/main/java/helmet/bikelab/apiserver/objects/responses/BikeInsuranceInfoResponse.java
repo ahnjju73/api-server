@@ -25,6 +25,7 @@ public class BikeInsuranceInfoResponse extends OriginObject {
         this.insuranceId = bikeInsurance.getInsuranceId();
         this.stockNumber = bikeInsurance.getStockNumber();
         this.type = bikeInsurance.getTypeCode();
+        this.description = bikeInsurance.getDescription();
         this.setBikeInsuranceType(bikeInsurance.getBikeInsuranceTypeCode());
         this.age = bikeInsurance.getAge();
         this.companyName = bikeInsurance.getCompanyName();
@@ -42,6 +43,8 @@ public class BikeInsuranceInfoResponse extends OriginObject {
         this.used = bePresent(bike.getBikeInsurance()) && bike.getBikeInsuranceNo().equals(bikeInsurance.getInsuranceNo()) ? true : false;
         this.paidFee = bikeInsurance.getPaidFee();
         this.paidAt = bikeInsurance.getPaidAt();
+        this.penalty = bikeInsurance.getPenalty();
+        this.refund = bikeInsurance.getRefund();
         BikeUser paidUser = bikeInsurance.getPaidUser();
         if(bePresent(paidUser)){
             this.paidUserName = paidUser.getBikeUserInfo().getName();
@@ -76,4 +79,7 @@ public class BikeInsuranceInfoResponse extends OriginObject {
     private String grade;
     private Boolean used = false;
     private Boolean isTransferred = false;
+    private String description;
+    private Integer penalty;
+    private Integer refund;
 }
