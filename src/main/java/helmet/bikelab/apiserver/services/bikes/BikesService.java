@@ -75,6 +75,13 @@ public class BikesService extends SessService {
     private final DemandLeasesRepository demandLeasesRepository;
     private final RiderDemandLeaseRepository riderDemandLeaseRepository;
 
+    public BikeSessionRequest fetchLeaseListByBikeId(BikeSessionRequest request) {
+        BikeByIdRequest bikeByIdRequest = map(request.getParam(), BikeByIdRequest.class);
+        Bikes bikeById = bikeWorker.getBikeById(bikeByIdRequest.getBikeId());
+        Leases byBakBikeNo = leaseRepository.findByBakBikeNo(bikeById.getBikeNo());
+        request.setResponse(bePresent(byBakBikeNo) ? byBakBikeNo : new ArrayList<>());
+        return request;
+    }
     public BikeSessionRequest fetchHistoriesByBikeId(BikeSessionRequest request) {
         BikeListDto bikeListDto = map(request.getParam(), BikeListDto.class);
         ResponseListDto responseListDto = commonWorker.fetchItemListByNextToken(bikeListDto, "bikelabs.clients_log.fetchClientHistoriesByClientId", "bikelabs.clients_log.countAllClientHistoriesByClientId", "log_no");

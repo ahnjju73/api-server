@@ -268,12 +268,17 @@ public class BikeInsurances extends OriginObject {
         this.bikeNo = bike.getBikeNo();
         this.startAt = prevInsurance.getStartAt();
         this.endAt = prevInsurance.getEndAt();
-        this.paidFee = prevInsurance.getPaidFee();
+        this.paidFee = calcFeeToTrans(prevInsurance);
         this.paidAt = prevInsurance.getPaidAt();
         this.paidUserNo = prevInsurance.getPaidUserNo();
         updateData(prevInsurance);
         this.createdUserNo = user.getUserNo();
         this.updatedUserNo = user.getUserNo();
+    }
+
+    private Integer calcFeeToTrans(BikeInsurances bikeInsurances){
+        return bikeInsurances.getPaidFee() + (bePresent(bikeInsurances.getPenalty()) ? bikeInsurances.getPenalty() : 0)
+                + (bePresent(bikeInsurances.getRefund()) ? bikeInsurances.getRefund() : 0);
     }
 
     public void updateData(BikeInsurances bikeInsurances){

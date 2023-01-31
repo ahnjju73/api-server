@@ -29,6 +29,15 @@ public class BikesHandlers {
     private final BikesService bikesService;
     private final MultiFiles multiFiles;
 
+    public Mono<ServerResponse> fetchLeaseListByBikeId(ServerRequest request) {
+        return ServerResponse.ok().body(
+                Mono.fromSupplier(() -> bikesService.makeSessionRequest(request, BikeSessionRequest.class))
+                        .subscribeOn(Schedulers.elastic())
+                        .map(bikesService::checkBikeSession)
+                        .map(bikesService::fetchLeaseListByBikeId)
+                        .map(bikesService::returnData), List.class);
+    }
+
     public Mono<ServerResponse> fetchHistoriesByBikeId(ServerRequest request) {
         return ServerResponse.ok().body(
                 Mono.fromSupplier(() -> bikesService.makeSessionRequest(request, BikeSessionRequest.class))
